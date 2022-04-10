@@ -1,0 +1,113 @@
+#######################################
+### THIS FILE IS MANAGED BY ANSIBLE ###
+###    PLEASE MAKE CHANGES THERE    ###
+#######################################
+
+version: '3.7'
+services:
+
+  traefik:
+    container_name: traefik
+    image: traefik:picodon
+    restart: always
+    command: # CLI arguments
+      - --global.checkNewVersion=true
+      # - --global.sendAnonymousUsage=true
+      - --entryPoints.http.address=:80
+      - --entryPoints.https.address=:443
+      # Allow these IPs to set the X-Forwarded-* headers - Cloudflare IPs: https://www.cloudflare.com/ips/
+      - --entrypoints.https.forwardedHeaders.trustedIPs=173.245.48.0/20,103.21.244.0/22,103.22.200.0/22,103.31.4.0/22,141.101.64.0/18,108.162.192.0/18,190.93.240.0/20,188.114.96.0/20,197.234.240.0/22,198.41.128.0/17,162.158.0.0/15,104.16.0.0/12,172.64.0.0/13,131.0.72.0/22
+      - --entryPoints.dashboard.address=:9093
+      - --api=true
+      - --api.dashboard=true
+      ##############################################
+      ### COMMENT THIS OUT AFTER AUTH IS WORKING ###
+      ##############################################
+      # - --api.insecure=true # We want to use basic auth for now, then test oauth container and do it that way after.
+      # This is enabled for my proxmox gui - I use self-signed certs and it doesn't have an http endpoint.
+      # I also want to ensure everything is behind oauth and using a TCP traefik router doesn't allow for middlewares.
+      # Skipping cert verification checks behind traefik is a better option than disabling oauth imo as it requires a man in the middle attack from behind traefik/oauth.
+      - --serversTransport.insecureSkipVerify=true
+      - --log=true
+      - --log.level=WARN # (Default: error) DEBUG, INFO, WARN, ERROR, FATAL, PANIC
+      - --accessLog=true
+      - --accessLog.filePath=/traefik.log
+      - --accessLog.bufferingSize=100 # Configuring a buffer of 100 lines
+      # - --accessLog.filters.statusCodes=400-499
+      - --providers.docker=true
+      # Use this docker socket if you are not using a docker socket proxy
+      # - --providers.docker.endpoint=unix:///var/run/docker.sock
+      # Use this docker socket if you have the secure socket-proxy
+      - --providers.docker.endpoint=tcp://socket-proxy:2375
+      # Automatically set host rule for services
+      # - --providers.docker.defaultrule=Host(`{{ index .Labels "com.docker.compose.service" }}.$DOMAINNAME`) # defines what routing rule to apply to a container if no rule is defined by a label
+      - --providers.docker.exposedByDefault=false # If set to false, containers that do not have a traefik.enable=true label are ignored from the resulting routing configuration. Default = true
+      # Add dns-cloudflare as default certresolver for all services. Also enables TLS and no need to specify on individual services
+      - --entrypoints.https.http.tls.certresolver=dns-cloudflare
+      - --entrypoints.https.http.tls.domains[0].main=$DOMAINNAME
+      - --entrypoints.https.http.tls.domains[0].sans=*.$DOMAINNAME
+      - --providers.docker.network=traefik_proxy # Defines a default docker network to use for connections to all containers
+      - --providers.docker.swarmMode=false
+      - --providers.file.directory=/rules # Load dynamic configuration from one or more .toml or .yml files in a directory.
+      # - --providers.file.filename=/path/to/file # Load dynamic configuration from a file.
+      - --providers.file.watch=true # Only works on top level files in the rules folder
+      #######################
+      ### COMMENT IN PROD ###
+      #######################
+      # - --certificatesResolvers.dns-cloudflare.acme.caServer=https://acme-staging-v02.api.letsencrypt.org/directory # Set LetsEncrypt Staging Server
+      - --certificatesResolvers.dns-cloudflare.acme.email=$CLOUDFLARE_EMAIL
+      - --certificatesResolvers.dns-cloudflare.acme.storage=/acme.json
+      - --certificatesResolvers.dns-cloudflare.acme.dnsChallenge.provider=cloudflare
+      - --certificatesResolvers.dns-cloudflare.acme.dnsChallenge.resolvers=1.1.1.1:53,1.0.0.1:53
+      #########################
+      ### UNCOMMENT IN PROD ###
+      #########################
+      - --certificatesResolvers.dns-cloudflare.acme.dnsChallenge.delayBeforeCheck=90 # To delay DNS check and reduce LE hitrate
+    networks:
+      traefik_proxy:
+        ipv4_address: 192.168.90.254 # You can specify a static IP - I also created a non-proxied DNS record like 'traefik-dc.domain.com' pointing to this IP so i don't need to reference this all the time.
+      socket_proxy:
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      - target: 80
+        published: 80
+        protocol: tcp
+        mode: host
+      - target: 443
+        published: 443
+        protocol: tcp
+        mode: host
+      # - target: 8080
+      #   published: 8080
+      #   protocol: tcp
+      #   mode: host
+    volumes:
+      - ${DOCKERDIR}/traefik/rules:/rules
+      # - /var/run/docker.sock:/var/run/docker.sock:ro # # Use Docker Socket Proxy instead for improved security
+      - ${DOCKERDIR}/traefik/acme/acme.json:/acme.json # cert location - you must touch this file and change permissions to 600
+      - ${DOCKERDIR}/traefik/traefik.log:/traefik.log # for fail2ban - make sure to touch file before starting container
+    environment:
+      - CF_API_EMAIL_FILE=/run/secrets/cloudflare_email
+      - CF_API_KEY_FILE=/run/secrets/cloudflare_api_key
+      - HTPASSWD_FILE=/run/secrets/htpasswd # HTPASSWD_FILE can be whatever as it is not used/called anywhere.
+    secrets:
+      - cloudflare_email
+      - cloudflare_api_key
+      - htpasswd
+    labels:
+      #- "autoheal=true"
+      - "traefik.enable=true"
+      ## HTTP-to-HTTPS Redirect ##
+      - "traefik.http.routers.http-catchall.entrypoints=http"
+      - "traefik.http.routers.http-catchall.rule=HostRegexp(`{host:.+}`)"
+      - "traefik.http.routers.http-catchall.middlewares=redirect-to-https"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+      ## HTTP Routers ##
+      - "traefik.http.routers.traefik-rtr.entrypoints=https"
+      - "traefik.http.routers.traefik-rtr.rule=Host(`traefik.$DOMAINNAME`)"
+      ## Services - API ##
+      - "traefik.http.routers.traefik-rtr.service=api@internal"
+      ## Middlewares ##
+      # - "traefik.http.routers.traefik-rtr.middlewares=chain-basic-auth@file"
+      - "traefik.http.routers.traefik-rtr.middlewares=chain-oauth@file"

@@ -1,0 +1,38 @@
+#######################################
+### THIS FILE IS MANAGED BY ANSIBLE ###
+###    PLEASE MAKE CHANGES THERE    ###
+#######################################
+
+version: '3.7'
+services:
+
+  influxdb:
+    image: influxdb:latest
+    container_name: influxdb
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-sI", "http://127.0.0.1:8086"]
+      interval: 60s
+      timeout: 3s
+      retries: 20
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      - "${INFLUXDB_PORT}:8086"
+    volumes:
+      - ${DOCKERDIR}/influxdb/config:/etc/influxdb2
+      - ${DOCKERDIR}/influxdb/data:/var/lib/influxdb2
+    environment:
+      - TZ=${TZ}
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=${INFLUXDB_USERNAME}
+      - DOCKER_INFLUXDB_INIT_PASSWORD=${INFLUXDB_PASSWORD}
+      - DOCKER_INFLUXDB_INIT_ORG=home
+      - DOCKER_INFLUXDB_INIT_BUCKET=home_assistant
+      - DOCKER_INFLUXDB_INIT_RETENTION=26w # Change this to however many weeks you want influxdb to retain data on the initial bucket created. Omit to store data indefinitely.
+      # # Logging queries for troubleshooting - DOESN'T CURRENTLY WORK and no idea why? :sadface:
+      # - INFLUXDB_DATA_QUERY_LOG_ENABLED=true
+      # - INFLUXDB_DATA_TRACE_LOGGING_ENABLED=true
+      # - INFLUXDB_HTTP_LOG_ENABLED=true
+      # # Log level: error, warn, info, debug
+      # - INFLUXDB_LOGGING_LEVEL=debug

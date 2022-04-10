@@ -1,0 +1,113 @@
+---
+# Ref -> https://vectops.com/2020/01/provision-proxmox-vms-with-ansible-quick-and-easy/
+- name: debugging docker_ip
+  debug:
+    var: docker_ip
+  tags: ["always"]
+  when: docker_ip
+
+# tasks file for proxmox_deploy
+- name: Cloning virtual machine from "{{ vm_template }}" with name "{{ vm_name }}"
+  proxmox_kvm:
+    api_user: "{{ proxmox_user }}"
+    api_password: "{{ proxmox_pass }}"
+    api_host: "{{ pve_node }}"
+    name: "{{ vm_name }}"
+    node: "{{ pve_node }}"
+    clone: "{{ vm_template }}"
+    timeout: 300
+  tags: provision,test
+
+- name: Increasing disk if it is necessary
+  shell: |
+    sudo set -o pipefail;
+    A=$(qm list | grep "[[:space:]]{{ vm_name }}[[:space:]]" | awk '{print $1}');
+    qm resize $A {{ default_disk }} +{{ vm_disk_size }}G
+  when: vm_disk_size != "0"
+  tags: provision
+  notify: wait 5s
+
+- name: starting new Virtual Machine to change IPv4 configuration, it is necessary
+  proxmox_kvm:
+    api_user: "{{ proxmox_user }}"
+    api_password: "{{ proxmox_pass }}"
+    api_host: "{{ pve_node }}"
+    name: "{{ vm_name }}"
+    node: "{{ pve_node }}"
+    state: started
+    timeout: 300
+  when: vm_disk_size != "0"
+  notify: wait 1m
+  tags: provision
+
+- name: stopping new Virtual Machine to change IPv4 configuration, it is necessary
+  proxmox_kvm:
+    api_user: "{{ proxmox_user }}"
+    api_password: "{{ proxmox_pass }}"
+    api_host: "{{ pve_node }}"
+    name: "{{ vm_name }}"
+    node: "{{ pve_node }}"
+    state: stopped
+    timeout: 300
+  when: vm_network != "net0" or vm_disk_size != "0"
+  tags: provision
+
+- name: Loading set up for Virtual Machine. Assigning IP, sockets, cores and memory for Virtual Machine
+  shell: |
+    sudo set -o pipefail;
+    A=$(qm list | grep "[[:space:]]{{ vm_name }}[[:space:]]" | awk '{print $1}');
+    qm set $A - ipconfig0 'ip={{ docker_ip }}/{{ item.value.netmask }},gw={{ item.value.gateway }}' - nameserver '{{ item.value.dnsservers }}' - searchdomain '{{ item.value.searchdomain }}' - memory '{{ vm_memory }}' - sockets '{{ vm_cpus }}' - cores '{{ vm_cores }}';
+  when: docker_ip != "automatic"
+  with_dict: "{{ vars[vm_network] }}"
+  tags: provision
+
+- name: debug current ip
+  debug:
+    var: current_ip
+  tags: provision
+
+- name: Loading set up for Virtual Machine. Assigning IP automatically, sockets, cores and memory for Virtual Machine
+  shell: |
+    sudo set -o pipefail;
+    A=$(qm list | grep "[[:space:]]{{ vm_name }}[[:space:]]" | awk '{print $1}');
+    qm set $A - ipconfig0 'ip={{ current_ip.stdout }}/{{ item.value.netmask }},gw={{ item.value.gateway }}' - nameserver '{{ item.value.dnsservers }}' - searchdomain '{{ item.value.searchdomain }}' - memory '{{ vm_memory }}' - sockets '{{ vm_cpus }}' - cores '{{ vm_cores }}';
+  when: docker_ip == "automatic"
+  with_dict: "{{ vars[vm_network] }}"
+  tags: provision
+
+- name: debug proxmox node
+  debug:
+    var: "{{ pve_node }}"
+
+- name: Migrating Virtual Machine if it is necessary
+  shell: |
+    sudo set -o pipefail;
+    A=$(qm list | grep "[[:space:]]{{ vm_name }}[[:space:]]" | awk '{print $1}');
+    qm migrate $A "{{ pve_node }}"
+  when: pve_node != "none"
+  tags: provision
+
+- name: starting new Virtual Machine in current proxmox node
+  proxmox_kvm:
+    api_user: "{{ proxmox_user }}"
+    api_password: "{{ proxmox_pass }}"
+    api_host: "{{ pve_node }}"
+    name: "{{ vm_name }}"
+    node: "{{ pve_node }}"
+    state: started
+    timeout: 300
+    when: pve_node == "none"
+    tags: provision
+
+- name: starting new Virtual Machine in correct proxmox node
+  proxmox_kvm:
+    api_user: "{{ proxmox_user }}"
+    api_password: "{{ proxmox_pass }}"
+    api_host: "{{ pve_node }}"
+    name: "{{ vm_name }}"
+    node: "{{ pve_node }}"
+    state: started
+    timeout: 300
+  delegate_to: "{{ pve_node }}"
+  when: pve_node != "none"
+  tags: provision

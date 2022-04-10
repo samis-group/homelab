@@ -1,0 +1,5 @@
+ansible==5.2.0
+ansible-core==2.12.1
+ansible-lint==5.3.2
+requests==2.22.0
+proxmoxer==1.2.0

@@ -1,0 +1,60 @@
+---
+# Configure logrotate -> https://stackoverflow.com/a/51658899
+# Remove quotes as apparently it works that way and is the way docker does it:
+# https://docs.docker.com/engine/reference/commandline/kill/#send-a-custom-signal-to-a-container
+
+- name: Create container's /var/log directories
+  file:
+    path: "/var/log/{{ item }}"
+    state: directory
+    owner: "{{ main_user }}"
+    group: "{{ docker_group }}"
+    mode: '0755'
+    recurse: true
+  with_items:
+    - traefik
+    - nginx
+
+- name: logrotate role execution
+  include_role:
+    name: arillso.logrotate
+  vars:
+    logrotate_include_dir: /etc/logrotate.d
+    logrotate_global_config: false
+    logrotate_use_hourly_rotation: false
+    logrotate_options:  # see "man logrotate" for details
+      - weekly          # rotate log files weekly
+      - rotate 4        # keep 4 weeks worth of backlogs
+      - create          # create new (empty) log files after rotating old ones
+      # - dateext       # use date as a suffix of the rotated file
+      - su root adm     # use the adm group by default, since this is the owning group of /var/log/syslog
+      # - compress      # If you want your log files compressed
+    logrotate_applications:
+      - name: traefik
+        definitions:
+          - logs:
+              - /var/log/traefik/traefik.log
+            options:
+              - size 1M
+              - rotate 5
+              - missingok
+              - notifempty
+            postrotate:
+              - docker kill --signal=USR1 traefik
+      - name: nginx
+        definitions:
+          - logs:
+              - /var/log/nginx/{{ domain_name }}.access.log
+              - /var/log/nginx/{{ domain_name }}.error.log
+              - /var/log/nginx/docs.{{ domain_name }}.access.log
+              - /var/log/nginx/docs.{{ domain_name }}.error.log
+              - /var/log/nginx/home.{{ domain_name }}.access.log
+              - /var/log/nginx/home.{{ domain_name }}.error.log
+              - /var/log/nginx/nginx-error.log
+            options:
+              - size 1M
+              - rotate 5
+              - missingok
+              - notifempty
+            postrotate:
+              - docker kill --signal=USR1 nginx

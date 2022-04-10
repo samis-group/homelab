@@ -1,0 +1,23 @@
+---
+- name: Provision Docker VM in Proxmox Host
+  hosts: proxmox
+  become: true
+
+  # Load in our vars
+  vars_files:
+    - vars/default_config.yml
+
+  # Allow user to override defaults with their custom config file
+  pre_tasks:
+    - name: Include playbook configuration.
+      include_vars: "{{ item }}"
+      with_fileglob:
+        - "{{ playbook_dir }}/vars/config.yml"
+      # Special tag 'always' -> https://docs.ansible.com/ansible/latest/user_guide/playbooks_tags.html#special-tags-always-and-never
+      tags: ["always"]
+
+  tasks:
+    - name: Create VM in Proxmox
+      import_role:
+        name: provision-docker-vm
+      register: vm_provision

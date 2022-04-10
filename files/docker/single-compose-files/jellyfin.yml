@@ -1,0 +1,43 @@
+#######################################
+### THIS FILE IS MANAGED BY ANSIBLE ###
+###    PLEASE MAKE CHANGES THERE    ###
+#######################################
+
+version: '3.7'
+
+services:
+
+  # Jellyfin - Media Server
+  # https://hub.docker.com/r/jellyfin/jellyfin
+  jellyfin:
+    container_name: jellyfin
+    image: jellyfin/jellyfin:latest
+    restart: unless-stopped
+    networks:
+      traefik_proxy:
+        ipv4_address: 192.168.90.152 # You can specify a static IP
+    devices:
+      - /dev/dri:/dev/dri # For harware transcoding
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      - "${JELLYFIN_PORT}:8096"
+      - "8920:8920" # Emby also uses same port if running both
+    environment:
+      user: ${UID}:${GID}
+      UMASK_SET: 022
+    volumes:
+      - ${DOCKERDIR}/jellyfin:/config
+      - ${DOCKERDIR}/shared/jellyfin/metadata:/config/metadata
+      - ${USERDIR}/mount/video:/data/media
+      - /dev/shm:/data/transcode # Offload transcoding to RAM if you have enough RAM
+    labels:
+      - "traefik.enable=true"
+      ## HTTP Routers
+      - "traefik.http.routers.jellyfin-rtr.entrypoints=https"
+      - "traefik.http.routers.jellyfin-rtr.rule=Host(`jellyfin.$DOMAINNAME`)"
+      ## Middlewares
+      - "traefik.http.routers.jellyfin-rtr.middlewares=chain-no-auth@file"
+      ## HTTP Services
+      - "traefik.http.routers.jellyfin-rtr.service=jellyfin-svc"
+      - "traefik.http.services.jellyfin-svc.loadbalancer.server.port=$JELLYFIN_PORT"

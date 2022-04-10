@@ -1,0 +1,52 @@
+---
+- name: Apt Upgrade
+  apt:
+    name: '*'
+    state: latest
+    update_cache: true
+
+- name: Install required packages
+  apt:
+    state: present
+    pkg:
+      - qemu-guest-agent
+      - wget
+      - curl
+      - telnet
+      - net-tools
+      - logrotate
+      - ca-certificates
+      - gnupg
+      - lsb-release
+      - python3
+      - python3-pip
+      - cifs-utils
+      - bash-completion
+      - vim
+      - nfs-common
+      - apt-transport-https
+      - software-properties-common
+      - jq
+      - git
+      - apache2-utils
+      - unzip
+
+- name: pip self-update
+  pip:
+    name: pip
+    state: latest
+
+- name: Install required python modules
+  pip:
+    name:
+      - docker
+      - passlib
+      - pyyaml
+
+# Vundle install
+- name: Clone Vundle
+  git:
+    repo: https://github.com/VundleVim/Vundle.vim.git
+    dest: "{{ user_dir }}/.vim/bundle/Vundle.vim"
+    clone: true
+    update: true

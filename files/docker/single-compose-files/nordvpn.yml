@@ -1,0 +1,39 @@
+#######################################
+### THIS FILE IS MANAGED BY ANSIBLE ###
+###    PLEASE MAKE CHANGES THERE    ###
+#######################################
+
+version: "3.7"
+
+services:
+
+  vpn:
+    image: bubuntux/nordvpn
+    hostname: vpn
+    container_name: vpn
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN               # Required
+      - SYS_MODULE              # Required for TECHNOLOGY=NordLynx - I have a new container (nordlynx) for this instead
+    sysctls:
+      - net.ipv4.conf.all.rp_filter=2
+      - net.ipv6.conf.all.disable_ipv6=1  # Recomended if using ipv4 only
+    ports:
+      - ${QBITTORRENT_PORT}:${QBITTORRENT_PORT}
+      - 6881:6881
+      - 6881:6881/udp
+      - 20189:20189       # just a random port if you wanted to specify it for connections to torrents
+    # devices:
+    #   - /dev/net/tun            # Required maybe? works without
+    environment:                # Review https://github.com/bubuntux/nordvpn#environment-variables
+      - USER=${VPN_USER}       # Required
+      - PASS=${VPN_PASS}        # Required
+      - CONNECT=Australia
+      - TECHNOLOGY=NordLynx
+      - DNS="1.1.1.1,8.8.8.8,1.0.0.1"
+      - NET_LOCAL=${LOCAL_NETWORK}
+      - TZ=${TZ}
+    ulimits:                    # Recommended for High bandwidth scenarios
+      memlock:
+        soft: -1
+        hard: -1

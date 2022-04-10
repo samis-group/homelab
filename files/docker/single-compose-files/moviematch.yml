@@ -1,0 +1,36 @@
+#######################################
+### THIS FILE IS MANAGED BY ANSIBLE ###
+###    PLEASE MAKE CHANGES THERE    ###
+#######################################
+
+version: '3.7'
+services:
+
+  # Tinder, but for plex - You choose movies you like with friends/family to watch together
+  # https://hub.docker.com/r/lukechannings/moviematch
+  moviematch:
+    container_name: moviematch
+    image: lukechannings/moviematch:latest
+    restart: unless-stopped
+    healthcheck:
+      test: pidof deno
+      interval: 60s
+      timeout: 3s
+      retries: 3
+    networks:
+      - traefik_proxy
+    environment:
+      PLEX_URL: "http://${SERVER_IP}:32400"
+      PLEX_TOKEN: ${PLEX_TOKEN}   # https://support.plex.tv/articles/204059436-finding-an-authentication-token-x-plex-token/
+    ports:
+      - ${MOVIEMATCH_PORT}:8000
+    labels:
+    - "traefik.enable=true"
+    ## HTTP Routers
+    - "traefik.http.routers.moviematch-rtr.entrypoints=https"
+    - "traefik.http.routers.moviematch-rtr.rule=Host(`moviematch.$DOMAINNAME`)"
+    ## Middlewares
+    - "traefik.http.routers.moviematch-rtr.middlewares=chain-authelia@file"
+    ## HTTP Services
+    - "traefik.http.routers.moviematch-rtr.service=moviematch-svc"
+    - "traefik.http.services.moviematch-svc.loadbalancer.server.port=8000"

@@ -1,0 +1,26 @@
+#######################################
+### THIS FILE IS MANAGED BY ANSIBLE ###
+###    PLEASE MAKE CHANGES THERE    ###
+#######################################
+
+version: '3.7'
+services:
+
+  mqtt:
+    image: eclipse-mosquitto:latest
+    container_name: mqtt
+    restart: unless-stopped
+    user: ${UID}:${GID}
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      # If you change these, please reflect the "listener" in the config file
+      - "${MOSQUITTO_HTTP_PORT}:1883" #http
+      - "${MOSQUITTO_WS_PORT}:9001" #websockets
+      # - "${MOSQUITTO_HTTPS_PORT}:8883" #https
+    volumes:
+      - ${DOCKERDIR}/mqtt/config:/mosquitto/config
+      - ${DOCKERDIR}/mqtt/log:/mosquitto/log
+      - ${DOCKERDIR}/mqtt/data:/mosquitto/data
+    environment:
+      TZ: ${TZ}

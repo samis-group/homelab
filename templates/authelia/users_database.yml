@@ -1,0 +1,19 @@
+#######################################
+### THIS FILE IS MANAGED BY ANSIBLE ###
+###    PLEASE MAKE CHANGES THERE    ###
+#######################################
+---
+# This file can be used if you do not have an LDAP set up.
+
+# List of users
+users:
+{% for user, user_dict in authelia.users.items() %}
+  {{ user }}:
+    displayname: "{{ authelia.users[user].displayname }}"
+    password: {{ authelia_hashed_passwords.users[user] }}
+    email: {{ authelia.users[user].email }}
+    groups:
+{% for group in authelia.users[user].groups %}
+      - {{ group }}
+{% endfor %}
+{% endfor %}

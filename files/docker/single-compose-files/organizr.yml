@@ -1,0 +1,23 @@
+#######################################
+### THIS FILE IS MANAGED BY ANSIBLE ###
+###    PLEASE MAKE CHANGES THERE    ###
+#######################################
+
+version: "3.7"
+services:
+
+  # Organizer - Unified HTPC/Home Server Web Interface
+  organizr:
+    container_name: organizr
+    hostname: organizr
+    restart: unless-stopped
+    image: linuxserver/organizr
+    volumes:
+      - ${USERDIR}/docker/organizr:/config
+      - ${USERDIR}/docker/shared:/shared
+    ports:
+      - ${ORGANIZR_PORT}:80
+    environment:
+      - UID=${UID}
+      - GID=${GID}
+      - TZ=${TZ}

@@ -1,0 +1,21 @@
+#######################################
+### THIS FILE IS MANAGED BY ANSIBLE ###
+###    PLEASE MAKE CHANGES THERE    ###
+#######################################
+
+version: "3.7"
+services:
+
+  deluge:
+    image: ghcr.io/linuxserver/deluge
+    container_name: deluge
+    network_mode: service:vpn
+    restart: unless-stopped
+    environment:
+      UID: ${UID}
+      GID: ${GID}
+      TZ: ${TZ}
+      DELUGE_LOGLEVEL: error #optional
+    volumes:
+      - ${DOCKERDIR}/deluge/config:/config
+      - ${DOCKERDIR}/mount/downloads:/downloads

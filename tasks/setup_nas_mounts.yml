@@ -1,0 +1,27 @@
+---
+- name: Ensure mount directories exist
+  file:
+    path: "{{ user_dir }}/mount/{{ item }}"
+    state: directory
+    owner: "{{ main_user }}"
+    # group: "{{ docker_group }}"
+    mode: '0777'  # Mounted drives will have 777
+    recurse: true
+  with_items: "{{ nas.mounts }}"
+  ignore_errors: true   # Because if they already exist and are mounted, it will fail because it cannot change user/group of a mount
+
+- name: Write custom line in fstab to denote mounts managed by ansible
+  ansible.builtin.lineinfile:
+    path: /etc/fstab
+    insertbefore: '^{{nas.ip}}.*'
+    firstmatch: true
+    line: "### Ansible managed mounts ###"
+
+- name: Mount NFS volumes from NAS
+  ansible.posix.mount:
+    src: "{{ item.value.remote_mapping }}"
+    path: "{{ item.value.local_mapping }}"
+    opts: wsize=65536,rsize=65536,hard,timeo=60,intr
+    state: mounted
+    fstype: nfs
+  with_dict: '{{ nas.mounts }}'

@@ -1,0 +1,58 @@
+#######################################
+### THIS FILE IS MANAGED BY ANSIBLE ###
+###    PLEASE MAKE CHANGES THERE    ###
+#######################################
+
+version: '3.7'
+services:
+
+  plexms:
+    image: plexinc/pms-docker:plexpass
+    container_name: plexms
+    restart: unless-stopped
+    networks:
+      traefik_proxy:
+        ipv4_address: 192.168.90.150 # You can specify a static IP - I also created a non-proxied DNS record like 'plex-dc.domain.com' pointing to this IP so i don't need to reference this all the time.
+    devices:
+      - /dev/dri:/dev/dri # for harware transcoding
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      - "$PLEX_PORT:32400/tcp"
+      - "3005:3005/tcp"
+      - "8324:8324/tcp"
+      - "32469:32469/tcp"
+      - "1900:1900/udp" # conflicts with unifi
+      - "32410:32410/udp"
+      - "32412:32412/udp"
+      - "32413:32413/udp"
+      - "32414:32414/udp"
+      #- "$PLEX_WEB_TOOLS_PORT:33400"
+    volumes:
+      - ${DOCKERDIR}/plexms:/config
+      - ${USERDIR}/mount/video:/data
+      - /dev/shm:/transcode # Offload transcoding to RAM if you have enough RAM. Otherwise, disk:
+      # Optional: separate volumes as it's where I'll be storing metadata to severely reduce the space required when I backup these containers
+      - ${DOCKERDIR}/shared/plexms/Library/Application Support/Plex Media Server/Cache:/config/Library/Application Support/Plex Media Server/Cache
+      - ${DOCKERDIR}/shared/plexms/Library/Application Support/Plex Media Server/Metadata:/config/Library/Application Support/Plex Media Server/Metadata
+      - ${DOCKERDIR}/shared/plexms/Library/Application Support/Plex Media Server/Media:/config/Library/Application Support/Plex Media Server/Media
+    environment:
+      TZ: ${TZ}
+      HOSTNAME: "DockerPlex"
+      PLEX_CLAIM_FILE: /run/secrets/plex_claim
+      PLEX_UID: ${UID}
+      PLEX_GID: ${GID}
+      ADVERTISE_IP: http://${SERVER_IP}:32400/
+    secrets:
+      # Grab claim from -> https://www.plex.tv/claim/
+      - plex_claim
+    labels:
+      - "traefik.enable=true"
+      ## HTTP Routers
+      - "traefik.http.routers.plexms-rtr.entrypoints=https"
+      - "traefik.http.routers.plexms-rtr.rule=Host(`plex.$DOMAINNAME`)"
+      ## Middlewares
+      - "traefik.http.routers.plexms-rtr.middlewares=chain-no-auth@file"
+      ## HTTP Services
+      - "traefik.http.routers.plexms-rtr.service=plexms-svc"
+      - "traefik.http.services.plexms-svc.loadbalancer.server.port=32400"

@@ -1,0 +1,8 @@
+#######################################
+### THIS FILE IS MANAGED BY ANSIBLE ###
+###    PLEASE MAKE CHANGES THERE    ###
+#######################################
+
+# Add your token
+pilot:
+  token: "{{ traefik_pilot_token }}"

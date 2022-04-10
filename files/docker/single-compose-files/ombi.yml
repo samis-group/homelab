@@ -1,0 +1,23 @@
+#######################################
+### THIS FILE IS MANAGED BY ANSIBLE ###
+###    PLEASE MAKE CHANGES THERE    ###
+#######################################
+
+version: "3.7"
+services:
+
+  # Ombi – Accept Requests for your Media Server
+  ombi:
+    container_name: ombi
+    hostname: ombi
+    restart: always
+    image: linuxserver/ombi
+    volumes:
+      - ${USERDIR}/docker/ombi:/config
+      - ${USERDIR}/docker/shared:/shared
+    ports:
+      - "3579:3579"
+    environment:
+      - UID=${UID}
+      - GID=${GID}
+      - TZ=${TZ}

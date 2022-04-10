@@ -1,0 +1,66 @@
+#######################################
+### THIS FILE IS MANAGED BY ANSIBLE ###
+###    PLEASE MAKE CHANGES THERE    ###
+#######################################
+
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+  log_level: "debug"
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://loki:{{ loki_port }}/loki/api/v1/push
+
+scrape_configs:
+  - job_name: exchange
+    static_configs:
+    - targets:
+        - localhost
+      labels:
+        job: exchangelog
+        __path__: /var/log/*/*/*log
+  - job_name: system
+    static_configs:
+    - targets:
+        - localhost
+      labels:
+        job: varlogs
+        __path__: /var/log/*log
+  - job_name: traefik.log
+    static_configs:
+    - targets:
+        - localhost
+      labels:
+        job: traefik.log
+        __path__: "/var/log/traefik/traefik.log"
+  - job_name: traefik-access.log
+    static_configs:
+    - targets:
+        - localhost
+      labels:
+        job: traefik-access.log
+        __path__: "/var/log/traefik/access.log"
+  - job_name: {{ domain_name }}.access.log
+    static_configs:
+    - targets:
+        - localhost
+      labels:
+        job: {{ domain_name }}.access.log
+        __path__: "/var/log/nginx/{{ domain_name }}.access.log"
+  - job_name: {{ domain_name }}.error.log
+    static_configs:
+    - targets:
+        - localhost
+      labels:
+        job: {{ domain_name }}.error.log
+        __path__: "/var/log/nginx/{{ domain_name }}.error.log"
+  - job_name: nginx-error.log
+    static_configs:
+    - targets:
+        - localhost
+      labels:
+        job: nginx-error.log
+        __path__: "/var/log/nginx/nginx-error.log"

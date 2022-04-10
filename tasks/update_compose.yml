@@ -1,0 +1,24 @@
+---
+- name: Copy docker-compose.yml to docker host
+  copy:
+    src: files/docker-compose.yml
+    dest: "{{ docker_dir }}"
+    owner: "{{ main_user }}"
+    group: "{{ docker_group }}"
+    mode: '0644'
+
+- name: Copy docker-compose-dev.yml to docker host
+  copy:
+    src: files/docker-compose-dev.yml
+    dest: "{{ docker_dir }}"
+    owner: "{{ main_user }}"
+    group: "{{ docker_group }}"
+    mode: '0644'
+
+- name: Copy .env template
+  template:
+    src: docker/.env
+    dest: '{{ docker_dir }}'
+    owner: "{{ main_user }}"
+    group: "{{ docker_group }}"
+    mode: '0755'

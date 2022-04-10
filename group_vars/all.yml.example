@@ -1,0 +1,199 @@
+---
+main_user: <user>               # User that will be created and will manage the systems/containers
+ansible_sudo_pass: <password>   # The `main_user` password and also the password ansible will use when connecting and becoming root
+docker_group: docker            # Leave this as 'docker', the user will need to be added to this group to run docker
+domain_name: example.com        # Domain name that traefik resides
+network_gateway: x.x.x.x        # Typically your router IP
+local_network: x.x.x.x/24       # Your local subnet that will be used to whitelist certain aceess to resources
+ssh:                            # SSH key to connect to docker vm
+  key_private: "{{ user_dir }}/.ssh/id_rsa"
+  key_public: "{{ user_dir }}/.ssh/id_rsa.pub"
+tz: 'Australia/Sydney'          # Timezone setting
+
+services_username: <user>           # Username to login to services
+services_password: <password>       # Password to login to services
+gmail_address: email@gmail.com      # Your main gmail address that will be used to send mail from
+gmail_pass: <password>              # This is your normal gmail password
+gmail_app_pass: <app_password>      # This is the app password you generate here -> https://myaccount.google.com/apppasswords. Hint: Check password manager.
+eufy_addon_email: email@email.com   # Your secondary eufy account with devices shared to it (Don't use your primary account for security reasons)
+eufy_addon_password: <password>     # Password of this secondary eufy account with shared devices
+cloudflare_email: email@email.com   # Search "API" in your password manager
+cloudflare_api_token: <token>       # Search "Cloudflare API key - cf-ddns" in your password manager
+cloudflare_api_key: <api_key>       # This is the "Global API Key" (same entry as above in your password manager)
+vpn_provider: NORDVPN               # Reference haugene/transmission-openvpn -> http://haugene.github.io/docker-transmission-openvpn/supported-providers
+vpn_user: th3cookie@gmail.com       # VPN Provider username
+vpn_pass: ciaHau2ahP                # VPN Provider password
+# The nordvpn_private_key can be obtained using `docker run --rm --cap-add=NET_ADMIN -e USER=${VPN_USER} -e PASS=${VPN_PASS} bubuntux/nordvpn nord_private_key`
+nordvpn_private_key: <nordvpn_priv_key>             # For nordlynx
+google_client_id: XXXXXXXXXXXXX-XXXXXXXXXXXX.apps.googleusercontent.com  # For oauth container
+google_client_secret: XXXXXXXXXXXXXXXX              # For oauth container
+oauth_secret: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX      # This is randomly generated with `openssl rand -hex 16`
+radarr_api_key: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX    # Radarr API Key taken from the UI once logged in
+sonarr_api_key: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX    # Sonarr API Key taken from the UI once logged in
+bazarr_api_key: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX    # Bazarr API Key taken from the UI once logged in
+prowlarr_api_key: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  # Prowlarr API Key taken from the UI once logged in
+plex_claim: claim-XXXXXXXXXXXXXX                    # Grab claim from -> https://www.plex.tv/claim/
+plex_token: XXXXXXXXXXXXXX                          # Find yours -> https://support.plex.tv/articles/204059436-finding-an-authentication-token-x-plex-token/
+traefik_pilot_token: XXXXXXXXXXXXXXXXXXXXXXXXXXX    # traefik pilot token to connect to traefik pilot
+
+mariadb:
+  hostname: mariadb     # Mariadb hostname (usually the container name, it's on the default network so any containers on this network can use this hostname to communicate with it)
+  root_password: XXXXXXXXXXXXXXXXX  # optional - Initial mysql root user password
+  database: <db_name>   # Specify the name of a database to be created on image startup. Home-assistant for my case
+  user: <db_user>       # optional - Initial mysql username with below password
+  password: <db_pass>   # optional - Initial mysql user password with above user
+
+redis:
+  host: redis                       # Hostname of the redis container
+  password: XXXXXXXXXXXXXXXXXXXXX   # Password to use redis
+
+authelia:
+  jwt_secret: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX    # Randomly generated string
+  session_secret: 'XXXXXXXXXXXXXXXXXXXXX'         # Randomly generated string - The secret key used to encrypt session data in Redis - https://www.authelia.com/docs/configuration/session/#secret
+  storage_encryption_key: 'XXXXXXXXXXXXXXXXXXXXX' # Randomly generated string - used to encrypt data in the database - https://www.authelia.com/docs/configuration/storage/#encryption_key
+  database:   # MariaDB details - Please create this DB/user/pass manually
+  # CREATE DATABASE '{{ authelia.database.name }}';
+  # CREATE USER '{{ authelia.database.username }}'@'%' IDENTIFIED BY '{{ authelia.database.password }}';
+  # GRANT ALL PRIVILEGES ON {{ authelia.database.name }}.* TO '{{ authelia.database.username }}'@'%';
+  # FLUSH PRIVILEGES;
+    name: <db_name>
+    username: <db_user>
+    password: <db_pass>
+  smtp:   # SMTP settings to connect to an external SMTP server to send forgotten password emails
+    sender: donotreply@domain.com   # What you want the sender email to be (this can be different to the authentication address to connect to SMTP server)
+    host: smtp.gmail.com            # SMTP hostname - e.g. smtp.gmail.com
+    port: 465                       # port for remote SMTP server - e.g. 465 for google  
+  users:    # These are the users that will be created in the authelia `users_database.yml` file
+    user1:   # Username
+      displayname: "user 1"
+      password: XXXXXXXXXXXX   # Must escape single quotes
+      email: user1@email.com
+      groups:
+        - admins
+        - dev
+        - household
+        - users
+    user2:  # Username
+      displayname: "user 2"
+      password: XXXXXXXX\'XXXXXX     # Must escape single quotes
+      email: user2@email.com
+      groups:
+        - users
+        - household
+    user3:  # Username
+      displayname: "user 3"
+      password: "XXXXXXXXXXXXXXXXXX"     # Must escape single quotes
+      email: user3@email.com
+      groups:
+        - users
+    user4@hotmail.com:   # Username - can use email address as username to login
+      displayname: "user 4"
+      password: "XXXXXXXXXXXXXXXX"     # Must escape single quotes
+      email: user4@email.com
+      groups:
+        - users
+
+photoprism:
+  admin_password: <password>
+  # MariaDB details - Please create this DB/user/pass manually
+  # CREATE DATABASE '{{ photoprism.database_name }}';
+  # CREATE USER '{{ photoprism.database_username }}'@'%' IDENTIFIED BY '{{ photoprism.database_password }}';
+  # GRANT ALL PRIVILEGES ON {{ photoprism.database_name }}.* TO '{{ photoprism.database_username }}'@'%';
+  # FLUSH PRIVILEGES;
+  database_name: <db_name>
+  database_username: <db_user>
+  database_password: <db_pass>
+
+mqtt_logins:          # mqtt users that can authenticate and pub/sub to mqtt - key,val = user,pass
+  user1: XXXXXXXXXXX
+  user2: XXXXXXXXXXX
+  user3: XXXXXXXXXXX
+  user4: XXXXXXXXXXX
+
+zigbe2mqtt_user: <user4>   # MQTT user for zigbee2mqtt container - Must match one of the mqtt users above
+
+htpasswd_logins:      # htpasswd file generation - key,val = user,pass
+  user1: XXXXXXXXXXX
+  user2: XXXXXXXXXXX
+
+home_assistant:
+  port: 8123
+  # To find this zigbee_adapter_tty, on the docker host type `ls -l /dev/serial/by-id`
+  # Resource -> https://www.zigbee2mqtt.io/guide/installation/20_zigbee2mqtt-fails-to-start.html#which-port-should-i-use-for-texas-instruments-launchxl-cc26x2r1-cc1352p-2-dev-ttyacm0-or-dev-ttyacm1
+  zigbee_adapter_tty: /dev/ttyXXXX
+  # These are the git api URL's to pull facts about version and download url for custom_components
+  # The heys serve as the component name that will be unzipped into "custom_components" dir. The zip file you download must contain this name inside it at a maximum 4 depth
+  # the 'github_repo' should be in the format "user/repo"
+  custom_components:
+    eufy_security:
+      github_repo: fuatakgun/eufy_security
+  # home assistant Config
+  home_name: <home>
+  latitude_home: -XXX.XXXXXX
+  longitude_home: XXX.XXXXXX
+  elevation: XX.XX
+  currency: AUD
+  external_url: "https://hass.{{ domain_name }}"
+  internal_url: "http://X.X.X.X:8123"
+  http_trusted_proxies: "192.168.90.0/23"
+  # My PC static IP address for openhwmonitor and other integration to hass
+  pc_host: X.X.X.X
+  docker_host: "{{ docker_ip }}"
+  influxdb:
+    bucket: <bucket_name>    # The bucket in influxdb to store home assistant events
+    auth_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX    # Token from influxdb for the bucket access above
+    organization: XXXXXXXXXXXXXXXX  # This is in the URL after /orgs
+    glob_entities:  # Entities in glob format that you want to store data for in influxdb
+      - "*glob1*"
+      - "*glob2*"
+      - "*glob3*"
+  mqtt_username: user1       # MQTT logins must exist in mqtt_logins var above
+  mqtt_password: XXXXXXXXXXX # MQTT logins must exist in mqtt_logins var above
+  google_project_id: XXXXXXXXXXXXX   # Google integration, dunno how i got this
+  google_service_account: >-  # JSON content for the file 'SERVICE_ACCOUNT.json'
+      {
+        "type": "service_account",
+        "project_id": "XXXXXXXXXXXXX",
+        "private_key_id": "XXXXXXXXX",
+        "private_key": XXXXXXXXXX",
+        "client_email": "XXXXXXXXX",
+        "client_id": "XXXXXXXXXXXX",
+        "auth_uri": "XXXXXXXXXXXXXX",
+        "token_uri": "XXXXXXXXXXXX",
+        "auth_provider_x509_cert_url": "XXXXXXXXXXXXXX",
+        "client_x509_cert_url": "XXXXXXXXXXXXXXXXXX"
+      }
+
+pfsense_ip: X.X.X.X  # pfsense router IP
+proxmox_ip: X.X.X.X  # proxmox hypervisor IP
+
+nas:
+  ip: X.X.X.X  # Synology NAS IP
+  port: 'XXXX'  # Synology NAS Port
+  user: <user>    # Synology NAS user
+  pass: <pass>  # Synology NAS user password
+  mounts:   # NFS Mounts from the Synology NAS
+    docker_backups:
+      local_mapping: /home/<user>/mount/docker_backups
+      remote_mapping: {{ nas.ip }}:/volume1/share_drive/docker_backups
+    downloads:
+      local_mapping: /home/<user>/mount/downloads
+      remote_mapping: {{ nas.ip }}:/volume1/share_drive/downloads
+    motioneye:
+      local_mapping: /home/<user>/mount/motioneye
+      remote_mapping: {{ nas.ip }}:/volume1/share_drive/motioneye
+    tv:
+      local_mapping: /home/<user>/mount/video/tv
+      remote_mapping: {{ nas.ip }}:/volume1/tv
+    movies:
+      local_mapping: /home/<user>/mount/video/movies
+      remote_mapping: {{ nas.ip }}:/volume1/movies
+    syncthing:
+      local_mapping: /home/<user>/mount/syncthing
+      remote_mapping: {{ nas.ip }}:/volume1/share_drive/syncthing
+    user_pictures:
+      local_mapping: /home/<user>/mount/photos/user
+      remote_mapping: {{ nas.ip }}:/volume1/users_folder/Photos
+    family_pictures:
+      local_mapping: /home/<user>/mount/photos/family
+      remote_mapping: {{ nas.ip }}:/volume1/Photos

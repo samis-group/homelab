@@ -1,0 +1,110 @@
+---
+##############
+### Docker ###
+##############
+
+- name: Add docker apt signing key
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+    keyring: /etc/apt/trusted.gpg.d/docker-archive-keyring.gpg
+
+- name: Print CPU architecture Value
+  command: "dpkg --print-architecture"
+  register: print_cpu_arch
+  changed_when: false
+
+- name: Set CPU architecture Value to variable
+  set_fact:
+    cpu_arch: "{{ print_cpu_arch.stdout }}"
+
+- name: Print lsb_release Value
+  command: "lsb_release -cs"
+  register: print_lsb_release
+  changed_when: false
+
+- name: Set lsb_release Value to variable
+  set_fact:
+    lsb_release: "{{ print_lsb_release.stdout }}"
+
+- name: Add docker repository into sources list
+  apt_repository:
+    repo: "deb [arch={{ cpu_arch }} signed-by=/etc/apt/trusted.gpg.d/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu {{ lsb_release }} stable"
+    state: present
+
+- name: Update repositories cache and install docker packages
+  apt:
+    update_cache: true
+    pkg:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+  notify: restart docker  # Also enables it to start on boot
+
+######################
+### Docker Compose ###
+######################
+
+- name: Get docker-compose binary version
+  uri:
+    url: https://api.github.com/repos/docker/compose/releases/latest
+    return_content: true
+  register: gh_compose_api
+  failed_when: gh_compose_api.status != 200
+
+- name: Get current docker-compose binary version
+  command: "docker-composes --version"
+  register: dc_cur_ver
+  changed_when: false
+  failed_when: false
+
+- name: Compare versions
+  debug:
+    msg: "{{ dc_cur_ver.stdout }} already up to date."
+  when: gh_compose_api.json.name in dc_cur_ver.stdout
+
+- name: Preparing uname -s Value
+  command: "uname -s"
+  register: uname_s
+  when: >
+    gh_compose_api.json.name not in dc_cur_ver.stdout
+    or dc_cur_ver.stdout is not defined
+
+- name: Preparing uname -m Value
+  command: "uname -m"
+  register: uname_m
+  when: >
+    gh_compose_api.json.name not in dc_cur_ver.stdout
+    or dc_cur_ver.stdout is not defined
+
+- name: Download docker-compose binary
+  get_url:
+    url: "https://github.com/docker/compose/releases/download/{{ gh_compose_api.json.name }}/docker-compose-{{ uname_s.stdout }}-{{ uname_m.stdout }}"
+    dest: /usr/local/bin/docker-compose
+    mode: '0755'
+  when: >
+    gh_compose_api.json.name not in dc_cur_ver.stdout
+    or dc_cur_ver.stdout is not defined
+
+#####################
+### Docker Extras ###
+#####################
+
+- name: Install Loki plugin for logging driver
+  community.docker.docker_plugin:
+    plugin_name: grafana/loki-docker-driver:latest
+    state: present
+    alias: loki
+    # Need to figure out how to do this from cmd to ansible: --grant-all-permissions
+    # It could already be default? meeds testing -> https://github.com/ansible-collections/community.docker/issues/145
+    # Otherwise just run the command via cli:
+    # docker plugin install grafana/loki-docker-driver:latest --alias loki --grant-all-permissions
+
+# This is for me to obtain my personal docker images.
+- name: Log into gitlab container registry.
+  community.docker.docker_login:
+    registry_url: https://registry.gitlab.com
+    username: "{{ gitlab.username }}"
+    password: "{{ gitlab.personal_access_token }}"
+    debug: true
+    config_path: "{{ user_dir }}/.docker/config.json"   # Ansible logs in as root, so need to manually configure this.

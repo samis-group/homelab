@@ -1,0 +1,11 @@
+#######################################
+### THIS FILE IS MANAGED BY ANSIBLE ###
+###    PLEASE MAKE CHANGES THERE    ###
+#######################################
+
+plexms
+radarr
+sonarr
+bazarr
+transmission-vpn
+qbittorrent
