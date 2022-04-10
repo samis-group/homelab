@@ -22,7 +22,7 @@ This playbook installs and configures my Docker VM on proxmox, configures the VM
     - [Running a specific set of tagged tasks](#running-a-specific-set-of-tagged-tasks)
   - [Overriding Defaults](#overriding-defaults)
   - [Things to note](#things-to-note)
-  - [Tasks to perform after playbook is complete.](#tasks-to-perform-after-playbook-is-complete)
+  - [Tasks to perform after playbook is complete](#tasks-to-perform-after-playbook-is-complete)
   - [Author](#author)
   - [License](#license)
 
@@ -30,16 +30,12 @@ This playbook installs and configures my Docker VM on proxmox, configures the VM
 
 > **NOTE:** The Playbook is fully configurable. You can skip or reconfigure any task by [Overriding Defaults](#overriding-defaults).
 
-* Most common actions can be performed by issuing the associated `make` command. Go to Makefile to see what it can do.
-  * Most of these make commands that run plays where you need verbose output (-vvv), simply append `-v` to the make target and it will run it verbosely, e.g. `make update-compose-v`
+- Most common actions can be performed by issuing the associated `make` command. Go to Makefile to see what it can do.
+  - Most of these make commands that run plays where you need verbose output (-vvv), simply append `-v` to the make target and it will run it verbosely, e.g. `make update-compose-v`
 
 ## Setup the Ansible Control Node (where you will run the playbook from)
 
-1. Clone this repo locally (change to https method if you aren't me):
-
-```bash
-git clone git@gitlab.com:th3cookie/docker-playbook.git
-```
+1. Clone this repo locally (change to https method if you aren't me): `git clone git@gitlab.com:th3cookie/docker-playbook.git`
 
 2. Run the following command substituting your ansible vault password as required (skip inputting the password argument if you don't use ansible-vault or you have already stored this password in `~/.ansible/password` as per my other playbooks). This will [install ansible](https://docs.ansible.com/ansible/latest/installation_guide/index.html), upgrade pip and store your password inside of the file located in `~/.ansible/password` for use with `ansible-vault`:
 
@@ -113,7 +109,7 @@ ansible-vault edit --vault-password-file ~/.ansible/password inventory
 
 #### Troubleshooting Host Setup
 
-**TBA**
+**TBA**.
 
 ## Running the Playbook
 
@@ -167,10 +163,11 @@ make list-vars
 ```
 
 Check the following files for these configurable items:
-* [group_vars/all](group_vars/all)
-* [vars/default_config.yml](vars/default_config.yml)
-* [vars/config.yml](vars/config.yml)
-* [inventory](inventory)
+
+- [group_vars/all](group_vars/all)
+- [vars/default_config.yml](vars/default_config.yml)
+- [vars/config.yml](vars/config.yml)
+- [inventory](inventory)
 
 ## Things to note
 
@@ -180,7 +177,7 @@ When doing a git pull, recurse into submodules as well to pull any submodule upd
 git pull --recurse-submodules
 ```
 
-## Tasks to perform after playbook is complete.
+## Tasks to perform after playbook is complete
 
 1. Setup [PlexKodiConnect](https://github.com/croneter/PlexKodiConnect/wiki/Installation#automatic-installation-highly-recommended)
 
@@ -192,7 +189,7 @@ This project was created by [Sami Shakir](https://www.linkedin.com/in/nabokih/).
 
 This software is available under the following licenses:
 
-* **[MIT](./LICENSE)**
+- **[MIT](./LICENSE)**
 
 [ubuntu-20-04]: https://img.shields.io/badge/OS-Ubuntu%2020.04-blue
 [badge-license]: https://img.shields.io/badge/License-MIT-informational

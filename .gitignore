@@ -1,1 +1,3 @@
+group_vars/all.yml
+inventory
 vars/config.yml
