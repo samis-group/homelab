@@ -2,3 +2,65 @@
 - name: Set Hostname
   hostname:
     name: "{{ hostname }}"
+  when: configure_hostname
+
+- name: Read docker-compose.yml into variable for parsing service names
+  delegate_to: localhost
+  command: "cat files/docker-compose.yml"
+  register: dc_obj
+
+- name: Create dict dc_yaml_object from docker-compose file
+  set_fact:
+    # Set dict inside jinja, iterate through all services appending to that jinja dict, end loop and return that list
+    dc_yaml_obj: "{{ dc_obj.stdout | from_yaml }}"
+
+- name: Create docker-compose services list fact
+  set_fact:
+    # Set dict inside jinja, iterate through all services appending to that jinja dict, end loop and return that list to ansible list
+    services: >-
+      [
+        {% set services = [] %}
+        {%- for key, value in dc_yaml_obj.services.items() -%}
+        {%- do services.append(key) -%}
+        {% endfor %}
+        {{ services }}
+      ]
+
+- name: Create directories for services
+  file:
+    path: "{{ docker_dir }}/{{ item }}"
+    state: directory
+    owner: "{{ main_user }}"
+    group: "{{ docker_group }}"
+    mode: '0755'
+  with_items: "{{ services }}"
+
+- name: Create required directories recursively
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ main_user }}"
+    group: "{{ docker_group }}"
+    mode: '0755'
+    recurse: true
+  with_items: "{{ required_items.folders }}"
+
+# Optimize the playbook by non-recursively creating dirs (these are big)
+- name: Create required directories non-recursively
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ main_user }}"
+    group: "{{ docker_group }}"
+    mode: '0755'
+    recurse: false
+  with_items: "{{ required_items.no_recurse_folders }}"
+
+- name: Touch required files to ensure they exists
+  file:
+    path: "{{ item }}"
+    state: touch
+    owner: "{{ main_user }}"
+    group: "{{ docker_group }}"
+    mode: '0644'
+  with_items: "{{ required_items.files }}"

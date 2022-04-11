@@ -55,6 +55,11 @@
       tags: ["install_docker"]
 
     - name: Updating docker-compose and related files
+      import_tasks: tasks/copy_files.yml
+      when: copy_files
+      tags: ["copy_files"]
+
+    - name: Updating docker-compose and related files
       import_tasks: tasks/update_compose.yml
       when: update_compose
       tags: ["update_compose"]

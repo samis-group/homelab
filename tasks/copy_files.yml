@@ -1,0 +1,50 @@
+---
+- name: Copy docker folder and all files across maintaining perms from repo
+  copy:
+    src: files/docker
+    dest: "{{ user_dir }}"
+    owner: "{{ main_user }}"
+    group: "{{ docker_group }}"
+
+- name: Touch files with 600 perms
+  file:
+    path: "{{ docker_dir }}/{{ item }}"
+    state: touch
+    owner: "{{ main_user }}"
+    group: "{{ docker_group }}"
+    mode: '0600'
+  with_items:
+    - traefik/acme/acme.json
+
+# Ensure the path to the templates files exist as they would in the docker directory
+# i.e. this task is going to just copy them in a templated way from src to dest
+- name: find docker templates
+  find:
+    paths: "{{ playbook_dir }}/templates/docker"
+    recurse: true
+  delegate_to: localhost
+  register: full_path_docker_templates
+
+- name: set relative paths variable for docker templates
+  set_fact:
+    docker_templates: >-
+      [
+        {%- for item in full_path_docker_templates.files | map(attribute='path') -%}
+        '{{ item.split("templates/")[1] }}',
+        {%- endfor -%}
+      ]
+
+- name: Copy docker templates
+  template:
+    src: "{{ item }}"
+    dest: "{{ user_dir }}/{{ item }}"
+    owner: "{{ main_user }}"
+    group: "{{ docker_group }}"
+    mode: '0644'
+  with_items: "{{ docker_templates }}"
+
+- name: Make scripts executable
+  file:
+    path: "{{ docker_dir }}/scripts"
+    mode: '0755'
+    recurse: true

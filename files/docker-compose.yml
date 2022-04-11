@@ -336,6 +336,9 @@ services:
       - "traefik.http.services.portainer-svc.loadbalancer.server.port=9000"
 
   # Based off -> https://hub.docker.com/_/nginx/
+  # To read the container registry images, you must:
+    # Create a deploy token with `read_registry` as a scope.
+    # Resource -> https://docs.gitlab.com/ee/user/project/deploy_tokens #read-container-registry-images.
   # Nginx for my website and builds the docs from mkdocs
   nginx:
     # This is a private repo with a custom nginx image, ci/cd checks and container build pipelines.
@@ -1616,16 +1619,19 @@ services:
 
   # !!! Ensure that you register this runner in the `gitlab-register` container (check single-compose-files)
   # https://docs.gitlab.com/runner/register/index.html#docker
-  # Alternatively, Commands to register in a nutshell:
+  # Alternatively, Commands to register in a nutshell (assuming token is updated):
+  ### 1) Already running container method (STRONGLY Recommended!):
+  # docker exec -it gitlab-runner /bin/bash -c 'gitlab-runner register --non-interactive --url https://gitlab.com/ --registration-token $REGISTRATION_TOKEN --executor docker --description "Gitlab-Runner-${HOSTNAME}" --docker-image "docker:stable" --docker-volumes /var/run/docker.sock:/var/run/docker.sock --docker-privileged'
+  ### 2) Using compose for a one-off command:
   # docker-compose exec gitlab-runner gitlab-runner register --non-interactive --url https://gitlab.com/ --registration-token <YOUR-GITLAB-REGISTRATION-TOKEN> --executor docker --description "Gitlab Runner 1" --docker-image "docker:stable" --docker-volumes /var/run/docker.sock:/var/run/docker.sock
-  # OR
+  ### 3) Manual input method:
   # docker run --rm -it -v gitlab-runner-config:/etc/gitlab-runner gitlab/gitlab-runner:latest register
   # https://hub.docker.com/r/gitlab/gitlab-runner
   gitlab-runner:
     container_name: gitlab-runner
     image: gitlab/gitlab-runner:alpine
     restart: always
-    user: ${PUID}:${PGID}
+    # user: ${PUID}:${PGID}
     healthcheck:
       test: gitlab-runner -h > /dev/null
       interval: 60s
@@ -1636,4 +1642,5 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       TZ: $TZ
+      REGISTRATION_TOKEN: ${GITLAB_RUNNER_TOKEN}    # Runner's registration token
     <<: *logging

@@ -1,114 +1,7 @@
 ---
-- name: Read docker-compose.yml into variable for parsing service names
-  delegate_to: localhost
-  command: "cat files/docker-compose.yml"
-  register: dc_obj
-
-- name: Create dict dc_yaml_object from docker-compose file
-  set_fact:
-    # Set dict inside jinja, iterate through all services appending to that jinja dict, end loop and return that list
-    dc_yaml_obj: "{{ dc_obj.stdout | from_yaml }}"
-
-- name: Create docker-compose services list fact
-  set_fact:
-    # Set dict inside jinja, iterate through all services appending to that jinja dict, end loop and return that list to ansible list
-    services: >-
-      [
-        {% set services = [] %}
-        {%- for key, value in dc_yaml_obj.services.items() -%}
-        {%- do services.append(key) -%}
-        {% endfor %}
-        {{ services }}
-      ]
-
-- name: Create directories for services
-  file:
-    path: "{{ docker_dir }}/{{ item }}"
-    state: directory
-    owner: "{{ main_user }}"
-    group: "{{ docker_group }}"
-    mode: '0755'
-  with_items: "{{ services }}"
-
-- name: Create extra required directories recursively
-  file:
-    path: "{{ item }}"
-    state: directory
-    owner: "{{ main_user }}"
-    group: "{{ docker_group }}"
-    mode: '0755'
-    recurse: true
-  with_items: "{{ required_items.folders }}"
-
-# Optimize the playbook by non-recursively creating dirs (these are big)
-- name: Create extra required directories non-recursively
-  file:
-    path: "{{ item }}"
-    state: directory
-    owner: "{{ main_user }}"
-    group: "{{ docker_group }}"
-    mode: '0755'
-    recurse: false
-  with_items: "{{ required_items.no_recurse_folders }}"
-
-- name: Touch required files to ensure they exists
-  file:
-    path: "{{ item }}"
-    state: touch
-    owner: "{{ main_user }}"
-    group: "{{ docker_group }}"
-    mode: '0644'
-  with_items: "{{ required_items.files }}"
-
-- name: Copy docker folder and all files across maintaining perms from repo
-  copy:
-    src: files/docker
-    dest: "{{ user_dir }}"
-    owner: "{{ main_user }}"
-    group: "{{ docker_group }}"
-
-- name: Touch files with 600 perms
-  file:
-    path: "{{ docker_dir }}/{{ item }}"
-    state: touch
-    owner: "{{ main_user }}"
-    group: "{{ docker_group }}"
-    mode: '0600'
-  with_items:
-    - traefik/acme/acme.json
-
-# Ensure the path to the templates files exist as they would in the docker directory
-# i.e. this task is going to just copy them in a templated way from src to dest
-- name: find docker templates
-  find:
-    paths: "{{ playbook_dir }}/templates/docker"
-    recurse: true
-  delegate_to: localhost
-  register: full_path_docker_templates
-
-- name: set relative paths variable for docker templates
-  set_fact:
-    docker_templates: >-
-      [
-        {%- for item in full_path_docker_templates.files | map(attribute='path') -%}
-        '{{ item.split("templates/")[1] }}',
-        {%- endfor -%}
-      ]
-
-- name: Copy docker templates
-  template:
-    src: "{{ item }}"
-    dest: "{{ user_dir }}/{{ item }}"
-    owner: "{{ main_user }}"
-    group: "{{ docker_group }}"
-    mode: '0644'
-  with_items: "{{ docker_templates }}"
-
-- name: Make scripts executable
-  file:
-    path: "{{ docker_dir }}/scripts"
-    mode: '0755'
-    recurse: true
+################
+### Authelia ###
+################
 
 - name: Hash Authelia passwords
   shell:   # can't user docker resource because it uses the loki logging driver, so no output in ansible return
@@ -164,9 +57,9 @@
     mode: '0644'
   when: authelia_found|int < authelia_hashed_passwords.users | list | count
 
-- name: Importing update-compose task
-  import_tasks: update_compose.yml
-  when: update_compose
+############
+### MQTT ###
+############
 
 - name: Check if user is in mqtt passwd file
   lineinfile:
@@ -198,6 +91,10 @@
   with_dict: "{{ mqtt_logins }}"
   when: mqtt_found|int < mqtt_logins|list|count
   no_log: true
+
+################
+### htpasswd ###
+################
 
 - name: Touch htpasswd docker secret file to ensure it exists
   file:
@@ -238,6 +135,10 @@
   when: htpasswd_found|int < 1
   no_log: true
 
+###################
+### zigbee2mqtt ###
+###################
+
 - name: Setup zigbee2mqtt configuration file
   blockinfile:
     path: "{{ docker_dir }}/zigbee2mqtt/configuration.yaml"
@@ -256,6 +157,11 @@
         port: {{ home_assistant.zigbee_adapter_tty }} 
       frontend:
         port: {{ zigbee2mqtt_port }}
+
+# Required?
+# - name: Importing update-compose task
+#   import_tasks: update_compose.yml
+#   when: update_compose
 
 # This gets overwritten whenever the container reboots, so leave it out.
 # - name: Setup gitlab-runner config
