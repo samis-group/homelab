@@ -1625,10 +1625,15 @@ services:
     container_name: gitlab-runner
     image: gitlab/gitlab-runner:alpine
     restart: always
+    user: ${PUID}:${PGID}
+    healthcheck:
+      test: gitlab-runner -h > /dev/null
+      interval: 60s
+      timeout: 3s
+      retries: 3
     volumes:
       - ${DOCKERDIR}/gitlab-runner:/etc/gitlab-runner
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       TZ: $TZ
-
-
+    <<: *logging
