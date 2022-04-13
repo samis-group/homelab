@@ -1,0 +1,69 @@
+---
+#######################################
+### THIS FILE IS MANAGED BY ANSIBLE ###
+###    PLEASE MAKE CHANGES THERE    ###
+#######################################
+
+version: "3.7"
+
+########################### EXTENSION FIELDS
+
+# Default TZ, uid and pid
+# To use this put this block in your service: "<<: *default-tz-uid-gid"
+x-environment: &default-tz-uid-gid
+  TZ: $TZ
+  PUID: $PUID
+  PGID: $PGID
+
+# To use this put this block in your service: "<<: *logging"
+x-logging: &logging
+  logging:
+    driver: loki
+    options:
+      loki-url: "http://${SERVER_IP}:${LOKI_PORT}/loki/api/v1/push"
+
+########################### NETWORKS
+
+networks:
+  default:
+    name: docker_default
+    external: true
+
+########################### SERVICES
+
+services:
+  # MariaDB - MySQL Database
+  # https://hub.docker.com/r/linuxserver/mariadb/
+  # After starting container for first time dexec in and mysqladmin -u root password <password>
+  # Also setup authelia db and user:
+  # CREATE DATABASE '{{ authelia.database.name }}';
+  # CREATE USER '{{ authelia.database.username }}'@'%' IDENTIFIED BY 'password';
+  # GRANT ALL PRIVILEGES ON *.* TO '{{ authelia.database.username }}'@'%';
+  # CREATE USER '{{ mariadb.user }}'@'%' IDENTIFIED BY '{{ mariadb.password }}';
+  # GRANT ALL PRIVILEGES ON *.* TO '{{ mariadb.user }}'@'%';
+  # FLUSH PRIVILEGES;
+  # The home assistant/authelia users must have greants on the home assistant/authelia db's with host set to '%'. Use this command to find out:
+  # SELECT User, Host, Password FROM mysql.user;
+  mariadb:
+    container_name: mariadb
+    image: lscr.io/linuxserver/mariadb
+    restart: unless-stopped
+    # network_mode: host
+    networks:
+      - default
+    healthcheck:
+      test: nc -z localhost 3306
+      interval: 60s
+      timeout: 3s
+      retries: 3
+    ports:
+      - "${MARIADB_PORT}:3306"
+    volumes:
+      - ${DOCKERDIR}/mariadb:/config  # Contains the db itself and all assorted settings.
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}   # Set this to root password for installation (minimum 4 characters).
+      MYSQL_DATABASE: ${MARIADB_DATABASE}   # Specify the name of a database to be created on image startup (I created hass).
+      MYSQL_USER: ${MARIADB_USER}   # This user will have superuser access to the database specified by MYSQL_DATABASE above (do not use root here), (I created hass).
+      MYSQL_PASSWORD: ${MARIADB_PASSWORD}   # Set this to the password you want to use for you MYSQL_USER above (minimum 4 characters) (I did for hass user)..
+      <<: *default-tz-uid-gid
+    <<: *logging

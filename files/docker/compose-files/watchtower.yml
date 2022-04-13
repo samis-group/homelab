@@ -1,0 +1,73 @@
+---
+#######################################
+### THIS FILE IS MANAGED BY ANSIBLE ###
+###    PLEASE MAKE CHANGES THERE    ###
+#######################################
+
+version: "3.7"
+
+########################### EXTENSION FIELDS
+
+# Default TZ, uid and pid
+# To use this put this block in your service: "<<: *default-tz-uid-gid"
+x-environment: &default-tz-uid-gid
+  TZ: $TZ
+  PUID: $PUID
+  PGID: $PGID
+
+# To use this put this block in your service: "<<: *logging"
+x-logging: &logging
+  logging:
+    driver: loki
+    options:
+      loki-url: "http://${SERVER_IP}:${LOKI_PORT}/loki/api/v1/push"
+
+########################### NETWORKS
+
+networks:
+  default:
+    name: docker_default
+    external: true
+  traefik_proxy:
+    name: traefik_proxy
+    external: true
+  socket_proxy:
+    name: socket_proxy
+    external: true
+
+########################### SERVICES
+
+services:
+  # Watchtower - updates containers with latest images
+  # https://hub.docker.com/r/containrrr/watchtower
+  watchtower:
+    container_name: watchtower
+    image: containrrr/watchtower
+    restart: always
+    networks:
+      - default
+      - socket_proxy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      TZ: ${TZ}
+      WATCHTOWER_CLEANUP: "true"
+      WATCHTOWER_REMOVE_VOLUMES: "true"
+      WATCHTOWER_INCLUDE_STOPPED: "true"
+      WATCHTOWER_NO_STARTUP_MESSAGE: "false"
+      WATCHTOWER_SCHEDULE: "0 30 4 * * *" # Everyday at 12:30
+      WATCHTOWER_POLL_INTERVAL: ${WATCHTOWER_INTERVAL}
+      WATCHTOWER_TIMEOUT: 15
+      WATCHTOWER_NOTIFICATIONS_LEVEL: info
+      # WATCHTOWER_NOTIFICATIONS: shoutrrr
+      # Using Pushbullet, telegram and pushover as examples, but just pick one
+      # WATCHTOWER_NOTIFICATION_URL: "pushover://shoutrrr:$PUSHOVER_APP_API__SECRET@$PUSHOVER_USER_API__SECRET/?devices=$PUSHOVER_DEVICE telegram://$TELEGRAM_BOT_TOKEN__SECRET@telegram?channels=$TELEGRAM_CHAT_ID__SECRET pushbullet://$PUSHBULLET_API__SECRET"
+      # Or email:
+      #- WATCHTOWER_NOTIFICATIONS=email
+      #- WATCHTOWER_NOTIFICATION_EMAIL_FROM=${EMAIL_FROM}
+      #- WATCHTOWER_NOTIFICATION_EMAIL_TO=${WATCHTOWER_EMAIL_TO}
+      #- WATCHTOWER_NOTIFICATION_EMAIL_SERVER=${SMTP_SERVER}
+      #- WATCHTOWER_NOTIFICATION_EMAIL_SERVER_PORT=${SMTP_PORT}
+      #- WATCHTOWER_NOTIFICATION_EMAIL_SERVER_USER=${SMTP_USER}
+      #- WATCHTOWER_NOTIFICATION_EMAIL_SERVER_PASSWORD=${SMTP_PASSWORD}
+      DOCKER_HOST: tcp://socket-proxy:2375

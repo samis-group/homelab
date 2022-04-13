@@ -1,0 +1,21 @@
+---
+#######################################
+### THIS FILE IS MANAGED BY ANSIBLE ###
+###    PLEASE MAKE CHANGES THERE    ###
+#######################################
+
+version: "3.7"
+
+########################### SERVICES
+
+services:
+  # https://hub.docker.com/r/willfarrell/autoheal/
+  autoheal:
+    container_name: autoheal
+    image: willfarrell/autoheal
+    restart: always
+    environment:
+      - AUTOHEAL_CONTAINER_LABEL=all
+      - TZ=${TZ}
+    volumes:
+      - '/var/run/docker.sock:/var/run/docker.sock'
