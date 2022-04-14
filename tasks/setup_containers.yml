@@ -57,6 +57,13 @@
     mode: '0644'
   when: authelia_found|int < authelia_hashed_passwords.users | list | count
 
+- name: Restart Authelia
+  docker_container:
+    name: "authelia"
+    state: started
+    restart: yes
+  when: authelia_found|int < authelia_hashed_passwords.users | list | count
+
 ############
 ### MQTT ###
 ############

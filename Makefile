@@ -1,4 +1,4 @@
-.PHONY: execute execute-v test test-v test-vvv run-tags run-tags-v provision-vm provision-vm-v update-compose update-compose-v list-tags list-vars setup apt pip reqs store-password githook decrypt encrypt
+.PHONY: execute execute-v test test-v test-vvv run-tags run-tags-v provision-vm provision-vm-v update-compose update-compose-v setup-containers setup-containers-v list-tags list-vars setup apt pip reqs store-password githook decrypt encrypt
 
 # Run the playbook (Assumes 'make setup' has been run)
 execute:
@@ -56,6 +56,12 @@ copy-all-files:
 
 copy-all-files-v:
 	@ansible-playbook -vvv --tags "copy_files,update_compose" -e "copy_files=true" -e "update_compose=true" --vault-password-file ~/.ansible/password main.yml
+
+setup-containers:
+	@ansible-playbook --tags "copy_files,update_compose,setup_containers" -e "copy_files=true" -e "update_compose=true" --vault-password-file ~/.ansible/password main.yml
+
+setup-containers-v:
+	@ansible-playbook -vvv --tags "copy_files,update_compose,setup_containers" -e "copy_files=true" -e "update_compose=true" --vault-password-file ~/.ansible/password main.yml
 
 # List the available tags that you can run standalone from the playbook
 list-tags:

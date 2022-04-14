@@ -87,6 +87,10 @@ access_control:
     - domain: '*.{{ domain_name }}'
       subject: "group:admins"
       policy: one_factor
+    # Allowing Versent peeps access to resources
+    - domain: "docs.{{ domain_name }}"
+      subject: "group:versent"
+      policy: one_factor
 
 session:
   name: authelia_session
