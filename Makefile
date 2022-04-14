@@ -45,16 +45,10 @@ update-compose:
 update-compose-v:
 	@ansible-playbook -vvv --tags "update_compose" -e "update_compose=true" --vault-password-file ~/.ansible/password main.yml
 
-copy-files:
-	@ansible-playbook --tags "copy_files" -e "copy_files=true" --vault-password-file ~/.ansible/password main.yml
-
-copy-files-v:
-	@ansible-playbook -vvv --tags "copy_files" -e "copy_files=true" --vault-password-file ~/.ansible/password main.yml
-
-copy-all-files:
+update-files:
 	@ansible-playbook --tags "copy_files,update_compose" -e "copy_files=true" -e "update_compose=true" --vault-password-file ~/.ansible/password main.yml
 
-copy-all-files-v:
+update-files-v:
 	@ansible-playbook -vvv --tags "copy_files,update_compose" -e "copy_files=true" -e "update_compose=true" --vault-password-file ~/.ansible/password main.yml
 
 setup-containers:

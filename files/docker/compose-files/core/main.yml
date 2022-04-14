@@ -1,0 +1,14 @@
+---
+#######################################
+### THIS FILE IS MANAGED BY ANSIBLE ###
+###    PLEASE MAKE CHANGES THERE    ###
+#######################################
+
+version: "3.7"
+
+
+
+########################### SERVICES
+
+services:
+

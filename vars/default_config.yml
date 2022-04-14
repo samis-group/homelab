@@ -73,6 +73,7 @@ required_items:
   folders:
     - /var/log/traefik
     - /var/log/nginx
+    - "{{ docker_dir }}/appdata"
     - "{{ docker_dir }}/secrets"
     - "{{ docker_dir }}/scripts"
     - "{{ docker_dir }}/mqtt/log"
@@ -81,6 +82,7 @@ required_items:
     - "{{ docker_dir }}/traefik/rules"
     - "{{ docker_dir }}/promtail/etc"
     - "{{ docker_dir }}/homeassistant"
+    - "{{ docker_dir }}/compose-files"
   no_recurse_folders:
     - "{{ docker_dir }}/shared/plexms"
     - "{{ docker_dir }}/shared/radarr/MediaCover"
