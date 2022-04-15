@@ -28,6 +28,7 @@ services:
   # Most of the stuff is done in the custom dockerfile, check it out and add/customize the container however you want there.
   api:
     image: registry.gitlab.com/sami-group/docker/api
+    init: true
     # build:
     #   context: ${DOCKERDIR}/api
     #   dockerfile: Dockerfile

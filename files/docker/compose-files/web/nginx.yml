@@ -30,6 +30,7 @@ services:
   nginx:
     # This is a private repo with a custom nginx image, ci/cd checks and container build pipelines.
     image: registry.gitlab.com/sami-group/docker/nginx
+    init: true
     # Alternate to image - pull the repo down (or setup a webhook to pull this on releases to automate it) and build it locally with:
     # build:
     #   context: ${DOCKERDIR}/nginx

@@ -25,8 +25,8 @@ x-logging: &logging
 ########################### NETWORKS
 
 networks:
-  default:
-    name: docker_default
+  defaulty:
+    name: defaulty
     external: true
   traefik_proxy:
     name: traefik_proxy
@@ -40,10 +40,11 @@ services:
   authelia:
     container_name: authelia
     image: authelia/authelia
+    init: true
     restart: always
     networks:
       - traefik_proxy
-      - default
+      - defaulty
     depends_on:
       - mariadb
       - redis

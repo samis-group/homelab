@@ -33,6 +33,7 @@ services:
   homeassistant:
     container_name: homeassistant
     image: homeassistant/home-assistant:stable
+    init: true
     restart: always
     healthcheck:
       test: curl --connect-timeout 10 --silent -f http://localhost:8123/ || exit 1

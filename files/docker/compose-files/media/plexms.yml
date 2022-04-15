@@ -36,6 +36,7 @@ services:
   plexms:
     container_name: plexms
     image: plexinc/pms-docker:plexpass
+    init: true
     restart: always
     healthcheck:
       test: curl -sI http://localhost:32400

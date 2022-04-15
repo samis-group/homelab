@@ -37,6 +37,7 @@ services:
   # Set url_base in Jackett settings if using PathPrefix
   jackett:
     image: linuxserver/jackett:latest
+    init: true
     container_name: jackett
     restart: always
     healthcheck:

@@ -37,6 +37,7 @@ services:
   syncthing:
     container_name: syncthing
     image: lscr.io/linuxserver/syncthing
+    init: true
     restart: always
     hostname: syncthing   # optional
     healthcheck:
@@ -46,7 +47,7 @@ services:
       retries: 3
     networks:
       - traefik_proxy
-      # - default
+      # - defaulty
     # hostname: syncthing # optional
     ports:
       - ${SYNCTHING_PORT}:8384

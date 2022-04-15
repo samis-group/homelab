@@ -43,6 +43,7 @@ services:
   traefik:
     container_name: traefik
     image: traefik:rocamadour
+    init: true
     restart: always
     healthcheck:
       test: nc -z localhost 80

@@ -31,6 +31,7 @@ services:
   influxdb:
     container_name: influxdb
     image: influxdb:latest
+    init: true
     restart: always
     healthcheck:
       test: curl -sI http://127.0.0.1:8086

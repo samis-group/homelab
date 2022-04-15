@@ -30,6 +30,7 @@ services:
   mkvtoolnix:
     container_name: mkvtoolnix
     image: jlesage/mkvtoolnix:latest
+    init: true
     restart: unless-stopped
     healthcheck:
       test: nc -z localhost 5800

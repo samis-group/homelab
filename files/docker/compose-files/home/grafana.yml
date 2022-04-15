@@ -18,8 +18,8 @@ x-logging: &logging
 ########################### NETWORKS
 
 networks:
-  default:
-    name: docker_default
+  defaulty:
+    name: defaulty
     external: true
   traefik_proxy:
     name: traefik_proxy
@@ -49,6 +49,7 @@ services:
     container_name: grafana
     # Using ubuntu image instead of alpine because of the plugin `grafana-image-renderer` only being available on ubuntu. Revert back to `latest` if they fix this -> https://grafana.com/docs/grafana/latest/installation/docker/#build-with-grafana-image-renderer-plugin-pre-installed
     image: grafana/grafana:latest-ubuntu
+    init: true
     restart: always
     healthcheck:
       test: curl -sI http://localhost:3000
@@ -58,7 +59,7 @@ services:
     networks:
       traefik_proxy:
         ipv4_address: 192.168.90.151 # You can specify a static IP - I also created a non-proxied DNS record like 'transmission-dc.domain.com' pointing to this IP so i don't need to reference this all the time.
-      default: ~
+      defaulty: ~
     security_opt:
       - no-new-privileges:true
     ports:

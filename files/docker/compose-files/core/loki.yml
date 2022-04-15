@@ -6,32 +6,12 @@
 
 version: "3.7"
 
-###############################################################################################
-########################################## NETWORKS ###########################################
-###############################################################################################
-#                             Yes they are setup in this container.                           #
-#          There is no need to create any networks outside this docker-compose file.          #
-#   You may customize the network subnets (192.168.90.0/24 and 91.0/24) below as you please.  #
-#         Docker Compose version 3.5 or higher required to define networks this way.          #
-###############################################################################################
+########################### NETWORKS
 
 networks:
-  default:
-    driver: bridge
   traefik_proxy:
     name: traefik_proxy
-    driver: bridge
-    # To setup a subnet and allow certain containers to gain a static ip in it
-    # Useful for connecting containers that won't have open ports running behind traefik so you can specify the static IP of the container
-    ipam:
-      config:
-        - subnet: 192.168.90.0/24
-  socket_proxy:
-    name: socket_proxy
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 192.168.91.0/24
+    external: true
 
 ########################### SERVICES
 
@@ -40,6 +20,7 @@ services:
   loki:
     container_name: loki
     image: grafana/loki:2.3.0
+    init: true
     restart: always
     healthcheck:
       test: nc -z localhost 3100

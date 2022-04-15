@@ -29,6 +29,7 @@ services:
   # https://hub.docker.com/r/causticlab/hass-configurator-docker/
   hass-configurator:
     image: "causticlab/hass-configurator-docker:latest"
+    init: true
     container_name: hass-configurator
     restart: always
     user: "${PUID}:${PGID}"

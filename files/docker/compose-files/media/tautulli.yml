@@ -38,6 +38,7 @@ services:
   tautulli:
     container_name: tautulli
     image: linuxserver/tautulli:latest
+    init: true
     restart: always
     healthcheck:
       test: curl -sI http://localhost:8181

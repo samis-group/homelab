@@ -13,6 +13,7 @@ services:
   autoheal:
     container_name: autoheal
     image: willfarrell/autoheal
+    init: true
     restart: always
     environment:
       - AUTOHEAL_CONTAINER_LABEL=all

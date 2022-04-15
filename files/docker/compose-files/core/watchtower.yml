@@ -25,8 +25,8 @@ x-logging: &logging
 ########################### NETWORKS
 
 networks:
-  default:
-    name: docker_default
+  defaulty:
+    name: defaulty
     external: true
   traefik_proxy:
     name: traefik_proxy
@@ -43,9 +43,10 @@ services:
   watchtower:
     container_name: watchtower
     image: containrrr/watchtower
+    init: true
     restart: always
     networks:
-      - default
+      - defaulty
       - socket_proxy
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock

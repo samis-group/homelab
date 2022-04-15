@@ -26,6 +26,7 @@ services:
   gitlab-runner:
     container_name: gitlab-runner
     image: gitlab/gitlab-runner:alpine
+    init: true
     restart: always
     volumes:
       - ${DOCKERDIR}/gitlab-runner:/etc/gitlab-runner

@@ -25,45 +25,9 @@ x-logging: &logging
 ########################### NETWORKS
 
 networks:
-  default:
-    name: docker_default
-    external: true
   traefik_proxy:
     name: traefik_proxy
     external: true
-  socket_proxy:
-    name: socket_proxy
-    external: true
-
-########################### SECRETS
-
-secrets:
-  htpasswd:
-    file: ${DOCKERDIR}/secrets/htpasswd
-  cloudflare_email:
-    file: ${DOCKERDIR}/secrets/cloudflare_email
-  cloudflare_api_key:
-    file: ${DOCKERDIR}/secrets/cloudflare_api_key
-  plex_claim:
-    file: ${DOCKERDIR}/secrets/plex_claim
-  traefik_pilot_token:
-    file: ${DOCKERDIR}/secrets/traefik_pilot_token
-  gmail_email:
-    file: ${DOCKERDIR}/secrets/gmail_address
-  # This gmail password needs to be the APPLICATION password, not your main login one.
-  # https://support.google.com/accounts/answer/185833?hl=en
-  gmail_app_pass:
-    file: ${DOCKERDIR}/secrets/gmail_app_pass
-  services_username:
-    file: ${DOCKERDIR}/secrets/services_username
-  services_password:
-    file: ${DOCKERDIR}/secrets/services_password
-  authelia_jwt_secret:
-    file: ${DOCKERDIR}/secrets/authelia_jwt_secret
-  authelia_session_secret:
-    file: ${DOCKERDIR}/secrets/authelia_session_secret
-  authelia_storage_mysql_password:
-    file: ${DOCKERDIR}/secrets/authelia_storage_mysql_password
 
 ########################### SERVICES
 
@@ -74,6 +38,7 @@ services:
   sonarr:
     container_name: sonarr
     image: linuxserver/sonarr
+    init: true
     restart: always
     healthcheck:
       test: curl -sI http://localhost:8989

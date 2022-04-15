@@ -14,6 +14,7 @@ services:
   cf-ddns:
     container_name: cf-ddns
     image: oznu/cloudflare-ddns:latest
+    init: true
     restart: always
     healthcheck:
       test: ps aux | grep -q [c]rond  # container is a cron job

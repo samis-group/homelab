@@ -21,6 +21,7 @@ services:
   socket-proxy:
     container_name: socket-proxy
     image: tecnativa/docker-socket-proxy
+    init: true
     restart: always
     healthcheck:
       test: nc -z localhost 2375

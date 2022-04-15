@@ -19,6 +19,7 @@ services:
   promtail:
     container_name: promtail
     image: grafana/promtail:2.4.1
+    init: true
     restart: unless-stopped
     # healthcheck:
     #   test: pidof promtail

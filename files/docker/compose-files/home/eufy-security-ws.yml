@@ -23,6 +23,7 @@ services:
   eufy-security-ws:
     container_name: eufy-security-ws
     image: "bropat/eufy-security-ws"
+    init: true
     restart: always
     ports:
       - "${EUFY_SECURITY_WS_PORT}:3000/tcp"   # Websocket app port used for home assistant integration

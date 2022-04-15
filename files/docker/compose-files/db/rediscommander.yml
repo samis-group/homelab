@@ -18,8 +18,8 @@ x-logging: &logging
 ########################### NETWORKS
 
 networks:
-  default:
-    name: docker_default
+  defaulty:
+    name: defaulty
     external: true
   traefik_proxy:
     name: traefik_proxy
@@ -33,12 +33,13 @@ services:
   rediscommander:
     container_name: rediscommander
     image: rediscommander/redis-commander:latest
+    init: true
     restart: always
     ports:
       - "${REDISCOMMANDER_PORT}:8081"
     networks:
       - traefik_proxy
-      - default
+      - defaulty
     environment:
       - REDIS_HOST=${REDIS_HOST}
       - REDIS_PASSWORD=${REDIS_PASSWORD}

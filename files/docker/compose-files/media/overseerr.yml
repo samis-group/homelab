@@ -30,6 +30,7 @@ services:
   overseerr:
     container_name: overseerr
     image: sctx/overseerr:latest
+    init: true
     restart: always
     healthcheck:
       test: nc -z localhost 5055

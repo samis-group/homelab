@@ -37,6 +37,7 @@ services:
   bazarr:
     container_name: bazarr
     image: linuxserver/bazarr
+    init: true
     restart: always
     healthcheck:
       test: curl -sI http://localhost:6767  # Healthcheck works on the IP associated with the container

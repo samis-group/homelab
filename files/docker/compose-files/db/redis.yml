@@ -18,8 +18,8 @@ x-logging: &logging
 ########################### NETWORKS
 
 networks:
-  default:
-    name: docker_default
+  defaulty:
+    name: defaulty
     external: true
 
 ########################### SERVICES
@@ -30,12 +30,13 @@ services:
   redis:
     container_name: redis
     image: redis:latest
+    init: true
     restart: always
     entrypoint: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD} --maxmemory 512mb --maxmemory-policy allkeys-lru
     ports:
       - "${REDIS_PORT}:6379"
     networks:
-      - default
+      - defaulty
     volumes:
       - ${DOCKERDIR}/redis:/data
       - /etc/timezone:/etc/timezone:ro

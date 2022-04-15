@@ -31,6 +31,7 @@ services:
   zigbee2mqttassistant:
     container_name: zigbee2mqttassistant
     image: carldebilly/zigbee2mqttassistant
+    init: true
     restart: unless-stopped
     depends_on:
       zigbee2mqtt:

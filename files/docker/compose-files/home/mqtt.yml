@@ -22,6 +22,7 @@ services:
   mqtt:
     container_name: mqtt
     image: eclipse-mosquitto:latest
+    init: true
     restart: always
     healthcheck:
       test: nc -z localhost 1883

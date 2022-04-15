@@ -18,8 +18,8 @@ x-logging: &logging
 ########################### NETWORKS
 
 networks:
-  default:
-    name: docker_default
+  defaulty:
+    name: defaulty
     external: true
   traefik_proxy:
     name: traefik_proxy
@@ -34,10 +34,11 @@ services:
   phpmyadmin:
     container_name: phpmyadmin
     image: phpmyadmin/phpmyadmin:latest
+    init: true
     restart: unless-stopped
     networks:
       - traefik_proxy
-      - default
+      - defaulty
     ports:
       - "${PHPMYADMIN_PORT}:80"
     # volumes:

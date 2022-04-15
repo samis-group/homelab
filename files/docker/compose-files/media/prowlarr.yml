@@ -37,6 +37,7 @@ services:
   prowlarr:
     container_name: prowlarr
     image: ghcr.io/linuxserver/prowlarr:develop
+    init: true
     restart: always
     healthcheck:
       test: curl -sI http://localhost:9696
