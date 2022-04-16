@@ -4,36 +4,58 @@
     name: "{{ hostname }}"
   when: configure_hostname
 
-- name: Read docker-compose.yml into variable for parsing service names
+### Old method when it was one massive docker-compose.yml ###
+# - name: Read docker-compose.yml into variable for parsing service names
+#   delegate_to: localhost
+#   command: "cat files/docker-compose.yml"
+#   register: dc_obj
+
+# - name: Create dict dc_yaml_object from docker-compose file
+#   set_fact:
+#     # Set dict inside jinja, iterate through all services appending to that jinja dict, end loop and return that list
+#     dc_yaml_obj: "{{ dc_obj.stdout | from_yaml }}"
+
+# - name: Create docker-compose services list fact
+#   set_fact:
+#     # Set dict inside jinja, iterate through all services appending to that jinja dict, end loop and return that list to ansible list
+#     services: >-
+#       [
+#         {% set services = [] %}
+#         {%- for key, value in dc_yaml_obj.services.items() -%}
+#         {%- do services.append(key) -%}
+#         {% endfor %}
+#         {{ services }}
+#       ]
+
+# - name: Create directories for services
+#   file:
+#     path: "{{ docker_dir }}/appdata/{{ item }}"
+#     state: directory
+#     owner: "{{ main_user }}"
+#     group: "{{ docker_group }}"
+#     mode: '0755'
+#   with_items: "{{ services }}"
+
+- name: Set regex glob var for reading compose files
+  set_fact:
+    file_regex: >-
+      ^([^\.]*).*
+
+# Grab filenames from compose-files not in unused to create dirs for
+- name: Read docker-compose filenames into variables
   delegate_to: localhost
-  command: "cat files/docker-compose.yml"
-  register: dc_obj
+  command: "find {{ playbook_dir }}/files/docker/compose-files -type f -not -path '*/unused/*' -not -name '*.env*' -not -name 'Makefile'"
+  register: dc_files
 
-- name: Create dict dc_yaml_object from docker-compose file
-  set_fact:
-    # Set dict inside jinja, iterate through all services appending to that jinja dict, end loop and return that list
-    dc_yaml_obj: "{{ dc_obj.stdout | from_yaml }}"
-
-- name: Create docker-compose services list fact
-  set_fact:
-    # Set dict inside jinja, iterate through all services appending to that jinja dict, end loop and return that list to ansible list
-    services: >-
-      [
-        {% set services = [] %}
-        {%- for key, value in dc_yaml_obj.services.items() -%}
-        {%- do services.append(key) -%}
-        {% endfor %}
-        {{ services }}
-      ]
-
-- name: Create directories for services
+- name: Loop through compose files and create directories for services
   file:
-    path: "{{ docker_dir }}/{{ item }}"
+    path: >- 
+      {{ docker_dir }}/appdata/{{ item | basename | regex_replace(file_regex, '\1') }}
     state: directory
     owner: "{{ main_user }}"
     group: "{{ docker_group }}"
     mode: '0755'
-  with_items: "{{ services }}"
+  with_items: "{{ dc_files.stdout_lines }}"
 
 - name: Create required directories recursively
   file:

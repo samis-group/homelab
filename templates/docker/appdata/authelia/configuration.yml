@@ -56,13 +56,15 @@ access_control:
       - "authelia.{{ domain_name }}"
       - "api.{{ domain_name }}"
       policy: bypass
-    # Allow certain bypasses to internal users
+    # Allow certain bypasses to internal (LAN) users
     - domain:
       - "hass.{{ domain_name }}"
       - "home-assistant.{{ domain_name }}"
       - "tv.{{ domain_name }}"
       - "overseerr.{{ domain_name }}"
       - "docs.{{ domain_name }}"
+      - "home.{{ domain_name }}"
+      - "homer.{{ domain_name }}"
       networks:
         - lan
         - docker

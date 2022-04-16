@@ -1,0 +1,146 @@
+---
+#######################################
+### THIS FILE IS MANAGED BY ANSIBLE ###
+###    PLEASE MAKE CHANGES THERE    ###
+#######################################
+
+version: "3.7"
+
+########################### EXTENSION FIELDS
+
+# Default TZ, uid and pid
+# To use this put this block in your service: "<<: *default-tz-uid-gid"
+x-environment: &default-tz-uid-gid
+  TZ: $TZ
+  PUID: $PUID
+  PGID: $PGID
+
+# To use this put this block in your service: "<<: *logging"
+x-logging: &logging
+  logging:
+    driver: loki
+    options:
+      loki-url: "http://${SERVER_IP}:${LOKI_PORT}/loki/api/v1/push"
+
+########################### NETWORKS
+
+networks:
+  traefik_proxy:
+    name: traefik_proxy
+    external: true
+
+########################### SERVICES
+
+services:
+  # Based off -> https://hub.docker.com/_/nginx/
+  # Nginx for my website and builds the docs from mkdocs
+  nginx:
+    # This is a private repo with a custom nginx image, ci/cd checks and container build pipelines.
+    image: registry.gitlab.com/sami-group/docker/nginx
+    init: true
+    # Alternate to image - pull the repo down (or setup a webhook to pull this on releases to automate it) and build it locally with:
+    # build:
+    #   context: ${DOCKERDIR}/nginx
+    #   dockerfile: Dockerfile
+    container_name: nginx
+    restart: always
+    healthcheck:
+      test: curl -sI http://localhost:80
+      interval: 60s
+      timeout: 3s
+      retries: 3
+    networks:
+      traefik_proxy:
+        ipv4_address: 192.168.90.134 # You can specify a static IP
+    volumes:
+    - "/var/log/nginx:/var/log/nginx"   # For Grafana logging
+    ### ALL DONE IN DOCKERFILE NOW (PRIVATE REPO) ###
+    # - "${DOCKERDIR}/appdata/nginx/conf.d:/etc/nginx/conf.d"
+    # - "${DOCKERDIR}/appdata/nginx/nginx.conf:/etc/nginx/nginx.conf"
+    # - "${DOCKERDIR}/appdata/nginx/templates:/etc/nginx/templates"
+    # - "${DOCKERDIR}/appdata/nginx/html:/usr/share/nginx/html"
+    # - "${DOCKERDIR}/appdata/nginx/docs:/usr/share/nginx/docs"
+    labels:
+      - "traefik.enable=true"
+      ## HTTP Routers
+      - "traefik.http.routers.website-rtr.entrypoints=https"
+      - "traefik.http.routers.website-rtr.rule=Host(`$DOMAINNAME`, `www.$DOMAINNAME`, `docs.$DOMAINNAME`, `home.$DOMAINNAME`, `homer.$DOMAINNAME`)"
+      ## Middlewares
+      - "traefik.http.routers.website-rtr.middlewares=chain-authelia@file"
+    environment:
+      TZ: ${TZ}
+      NGINX_HOST: ${DOMAINNAME}
+      NGINX_PORT: 80
+    <<: *logging
+
+  # Most of the stuff is done in the custom dockerfile, check it out and add/customize the container however you want there.
+  api:
+    image: registry.gitlab.com/sami-group/docker/api
+    init: true
+    # build:
+    #   context: ${DOCKERDIR}/api
+    #   dockerfile: Dockerfile
+    container_name: api
+    restart: always
+    networks:
+      - traefik_proxy
+    user: ${PUID}:${PGID}
+    healthcheck:
+      test: curl -fs http://localhost:3000/healthcheck || exit 1
+      interval: 1m
+      timeout: 3s
+      retries: 3
+    ports:
+      - "${NODE_API_PORT}:3000"
+    environment:
+      - NODE_ENV=production
+      - NPM_CONFIG_LOGLEVEL=info  # warn, info etc.
+    labels:
+      - "traefik.enable=true"
+      ## HTTP Routers
+      - "traefik.http.routers.node-api-rtr.entrypoints=https"
+      - "traefik.http.routers.node-api-rtr.rule=Host(`api.$DOMAINNAME`)"
+      ## Middlewares
+      - "traefik.http.routers.node-api-rtr.middlewares=chain-no-auth@file"
+      ## HTTP Services
+      - "traefik.http.routers.node-api-rtr.service=node-api-svc"
+      - "traefik.http.services.node-api-svc.loadbalancer.server.port=3000"
+    <<: *logging
+
+  # VS-Code Server
+  # https://hub.docker.com/r/linuxserver/code-server
+  vscode:
+    container_name: vscode
+    image: lscr.io/linuxserver/code-server
+    init: true
+    restart: unless-stopped
+    healthcheck:
+      test: curl -sI http://localhost:8443
+      interval: 60s
+      timeout: 3s
+      retries: 3
+    networks:
+      - traefik_proxy
+    ports:
+      - ${VSCODE_PORT}:8443
+    volumes:
+      - ${DOCKERDIR}/appdata/vscode:/config
+    environment:
+      <<: *default-tz-uid-gid
+      # PASSWORD: password                  # optional
+      # HASHED_PASSWORD:                    # optional
+      # SUDO_PASSWORD: password             # optional
+      # SUDO_PASSWORD_HASH:                 # optional
+      PROXY_DOMAIN: code.${DOMAINNAME}      # optional
+      DEFAULT_WORKSPACE: /config/workspace  # optional
+    labels:
+      - "traefik.enable=true"
+      ## HTTP Routers
+      - "traefik.http.routers.vscode-rtr.entrypoints=https"
+      - "traefik.http.routers.vscode-rtr.rule=Host(`code.$DOMAINNAME`)"
+      ## Middlewares
+      - "traefik.http.routers.vscode-rtr.middlewares=chain-oauth@file"
+      ## HTTP Services
+      - "traefik.http.routers.vscode-rtr.service=vscode-svc"
+      - "traefik.http.services.vscode-svc.loadbalancer.server.port=8443"
+    <<: *logging

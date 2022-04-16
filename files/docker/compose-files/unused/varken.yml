@@ -72,7 +72,7 @@ services:
     container_name: varken
     restart: unless-stopped
     volumes:
-      - ${USERDIR}/docker/varken:/config
+      - ${DOCKERDIR}/appdata/varken:/config
     environment:
       UID: ${UID}
       GID: ${GID}

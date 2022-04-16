@@ -92,9 +92,9 @@ services:
       - 1.0.0.1
     volumes:
       - ${USERDIR}/mount/downloads:/downloads
-      - ${DOCKERDIR}/transmission-vpn/data:/data
-      - ${DOCKERDIR}/transmission-vpn/config:/config
-      - ${DOCKERDIR}/transmission-vpn/watch:/watch
+      - ${DOCKERDIR}/appdata/transmission-vpn/data:/data
+      - ${DOCKERDIR}/appdata/transmission-vpn/config:/config
+      - ${DOCKERDIR}/appdata/transmission-vpn/watch:/watch
       - /etc/localtime:/etc/localtime:ro
     environment:
       <<: *default-tz-uid-gid

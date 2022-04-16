@@ -85,8 +85,8 @@ services:
       user: ${UID}:${GID}
       UMASK_SET: 022
     volumes:
-      - ${DOCKERDIR}/jellyfin:/config
-      - ${DOCKERDIR}/shared/jellyfin/metadata:/config/metadata
+      - ${DOCKERDIR}/appdata/jellyfin:/config
+      - ${DOCKERDIR}/appdata/shared/jellyfin/metadata:/config/metadata
       - ${USERDIR}/mount/video:/data/media
       - /dev/shm:/data/transcode # Offload transcoding to RAM if you have enough RAM
     labels:

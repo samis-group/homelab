@@ -81,8 +81,8 @@ services:
         # WEBPASSWORD: 'set a secure password here or it will be random'
     # Volumes store your data between container upgrades
     volumes:
-      - ${USERDIR}/docker/pihole/:/etc/pihole/
-      - ${USERDIR}/docker/dnsmasq.d/:/etc/dnsmasq.d/
+      - ${DOCKERDIR}/appdata/pihole/:/etc/pihole/
+      - ${DOCKERDIR}/appdata/dnsmasq.d/:/etc/dnsmasq.d/
     dns:
       - 127.0.0.1
       - 1.1.1.1

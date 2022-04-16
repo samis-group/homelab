@@ -39,7 +39,7 @@ services:
     ports:
      - "${HOMER_PORT}:8080"
     volumes:
-      - ${DOCKERDIR}/homer:/www/assets
+      - ${DOCKERDIR}/appdata/homer:/www/assets
     environment:
       UID: $PUID
       GID: $PGID

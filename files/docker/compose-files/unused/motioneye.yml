@@ -85,7 +85,7 @@ services:
           # memory: 50M
     volumes:
       - "/etc/localtime:/etc/localtime:ro"
-      - "${DOCKERDIR}/motioneye/etc:/etc/motioneye"
+      - "${DOCKERDIR}/appdata/motioneye/etc:/etc/motioneye"
       - "${USERDIR}/mount/motioneye:/var/lib/motioneye"
     environment:
       TZ: ${TZ}

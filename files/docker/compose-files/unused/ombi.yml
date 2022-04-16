@@ -72,8 +72,8 @@ services:
     image: linuxserver/ombi
     init: true
     volumes:
-      - ${USERDIR}/docker/ombi:/config
-      - ${USERDIR}/docker/shared:/shared
+      - ${DOCKERDIR}/appdata/ombi:/config
+      - ${DOCKERDIR}/appdata/shared:/shared
     ports:
       - "3579:3579"
     environment:

@@ -73,30 +73,30 @@ required_items:
   folders:
     - /var/log/traefik
     - /var/log/nginx
-    - "{{ docker_dir }}/appdata"
+    - "{{ docker_dir }}/"
     - "{{ docker_dir }}/secrets"
     - "{{ docker_dir }}/scripts"
-    - "{{ docker_dir }}/mqtt/log"
-    - "{{ docker_dir }}/mqtt/config"
-    - "{{ docker_dir }}/traefik/acme"
-    - "{{ docker_dir }}/traefik/rules"
-    - "{{ docker_dir }}/promtail/etc"
-    - "{{ docker_dir }}/homeassistant"
+    - "{{ docker_dir }}/appdata/mqtt/log"
+    - "{{ docker_dir }}/appdata/mqtt/config"
+    - "{{ docker_dir }}/appdata/traefik/acme"
+    - "{{ docker_dir }}/appdata/traefik/rules"
+    - "{{ docker_dir }}/appdata/promtail/etc"
+    - "{{ docker_dir }}/appdata/homeassistant"
     - "{{ docker_dir }}/compose-files"
   no_recurse_folders:
-    - "{{ docker_dir }}/shared/plexms"
-    - "{{ docker_dir }}/shared/radarr/MediaCover"
-    - "{{ docker_dir }}/shared/sonarr/MediaCover"
+    - "{{ docker_dir }}/appdata/shared/plexms"
+    - "{{ docker_dir }}/appdata/shared/radarr/MediaCover"
+    - "{{ docker_dir }}/appdata/shared/sonarr/MediaCover"
   files:
     - /var/log/traefik/traefik.log
     - /var/log/nginx/{{ domain_name }}.access.log
     - /var/log/nginx/{{ domain_name }}.error.log
     - /var/log/nginx/nginx-error.log
-    - "{{ docker_dir }}/mqtt/log/mosquitto.log"
-    - "{{ docker_dir }}/mqtt/config/passwd"
-    - "{{ docker_dir }}/traefik/acme/acme.json"
     - "{{ docker_dir }}/scripts/mail.txt"
-    - "{{ docker_dir }}/homeassistant/home-assistant.log"   # Required for hacs to install.. Check it's install script code..
+    - "{{ docker_dir }}/appdata/mqtt/log/mosquitto.log"
+    - "{{ docker_dir }}/appdata/mqtt/config/passwd"
+    - "{{ docker_dir }}/appdata/traefik/acme/acme.json"
+    - "{{ docker_dir }}/appdata/homeassistant/home-assistant.log"   # Required for hacs to install.. Check it's install script code..
 
 ##############################################
 ######### Currently Unused Variables #########

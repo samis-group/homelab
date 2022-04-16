@@ -85,8 +85,8 @@ services:
       - 8118:8118
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ${DOCKERDIR}/qbittorrent/config:/config
-      - ${DOCKERDIR}/qbittorrent/data:/data
+      - ${DOCKERDIR}/appdata/qbittorrent/config:/config
+      - ${DOCKERDIR}/appdata/qbittorrent/data:/data
     environment:
       - UID=${UID}
       - GID=${GID}

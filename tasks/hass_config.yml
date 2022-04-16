@@ -31,7 +31,7 @@
 
 - name: Calculate number of existing custom_components
   find:
-    paths: "{{ docker_dir }}/homeassistant/custom_components"
+    paths: "{{ docker_dir }}/appdata/homeassistant/custom_components"
     file_type: directory
   register: custom_components_found
 
@@ -72,7 +72,7 @@
 - name: copy components to home assistant container
   copy:
     src: "{{ item.files[0].path }}"
-    dest: "{{ docker_dir }}/homeassistant/custom_components/"
+    dest: "{{ docker_dir }}/appdata/homeassistant/custom_components/"
     remote_src: true
     owner: "{{ main_user }}"
     group: "{{ docker_group }}"
@@ -83,11 +83,11 @@
 - name: Install HACS custom component
   shell:
     cmd: wget -O - https://get.hacs.xyz | bash -
-    chdir: "{{ docker_dir }}/homeassistant"
+    chdir: "{{ docker_dir }}/appdata/homeassistant"
 
 - name: Fixing HACS perms
   file:
-    dest: "{{ docker_dir }}/homeassistant/custom_components"
+    dest: "{{ docker_dir }}/appdata/homeassistant/custom_components"
     owner: "{{ main_user }}"
     group: "{{ docker_group }}"
     recurse: true 

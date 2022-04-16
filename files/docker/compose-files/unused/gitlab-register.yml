@@ -73,7 +73,7 @@ services:
     command:
       - register
     volumes:
-      - ${DOCKERDIR}/gitlab-runner:/etc/gitlab-runner
+      - ${DOCKERDIR}/appdata/gitlab-runner:/etc/gitlab-runner
       - /var/run/docker.sock:/var/run/docker.sock
       - /etc/localtime:/etc/localtime:ro    # Syncronize time of container with the host system
     environment:

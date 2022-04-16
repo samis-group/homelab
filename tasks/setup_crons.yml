@@ -6,6 +6,7 @@
     user: root
     job: "if [ $(grep '{{ user_dir }}/mount/' /proc/mounts | wc -l) -lt 3 ]; then mount -a; logger 'mounted NAS'; fi"
 
+# TODO: Fix crons with new compose templates
 - name: Cron - Update docker containers daily
   ansible.builtin.cron:
     name: update docker containers

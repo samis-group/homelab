@@ -76,5 +76,5 @@ services:
       TZ: ${TZ}
       DELUGE_LOGLEVEL: error #optional
     volumes:
-      - ${DOCKERDIR}/deluge/config:/config
-      - ${DOCKERDIR}/mount/downloads:/downloads
+      - ${DOCKERDIR}/appdata/deluge/config:/config
+      - ${USERDIR}/mount/downloads:/downloads

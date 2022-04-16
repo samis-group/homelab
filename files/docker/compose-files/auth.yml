@@ -6,9 +6,28 @@
 
 version: "3.7"
 
+########################### EXTENSION FIELDS
+
+# Default TZ, uid and pid
+# To use this put this block in your service: "<<: *default-tz-uid-gid"
+x-environment: &default-tz-uid-gid
+  TZ: $TZ
+  PUID: $PUID
+  PGID: $PGID
+
+# To use this put this block in your service: "<<: *logging"
+x-logging: &logging
+  logging:
+    driver: loki
+    options:
+      loki-url: "http://${SERVER_IP}:${LOKI_PORT}/loki/api/v1/push"
+
 ########################### NETWORKS
 
 networks:
+  defaulty:
+    name: defaulty
+    external: true
   traefik_proxy:
     name: traefik_proxy
     external: true
@@ -16,6 +35,43 @@ networks:
 ########################### SERVICES
 
 services:
+  # Authelia - Self-Hosted Single Sign-On and Two-Factor Authentication
+  # https://hub.docker.com/r/authelia/authelia
+  authelia:
+    container_name: authelia
+    image: authelia/authelia
+    init: true
+    restart: always
+    networks:
+      - traefik_proxy
+      - defaulty
+    depends_on:
+      - mariadb
+      - redis
+    ports:
+      - "${AUTHELIA_PORT}:9091"
+    volumes:
+      - ${DOCKERDIR}/appdata/authelia:/config
+    environment:
+      <<: *default-tz-uid-gid
+      AUTHELIA_JWT_SECRET: ${AUTHELIA_JWT_SECRET}
+      AUTHELIA_SESSION_SECRET: ${AUTHELIA_SESSION_SECRET}
+      AUTHELIA_SESSION_REDIS_PASSWORD: ${REDIS_PASSWORD}
+      AUTHELIA_STORAGE_MYSQL_PASSWORD: ${AUTHELIA_STORAGE_MYSQL_PASSWORD}
+      AUTHELIA_NOTIFIER_SMTP_PASSWORD: ${GMAIL_APP_PASS}
+    labels:
+      - "traefik.enable=true"
+      ## HTTP Routers
+      - "traefik.http.routers.authelia-rtr.entrypoints=https"
+      - "traefik.http.routers.authelia-rtr.rule=Host(`auth.$DOMAINNAME`, `authelia.$DOMAINNAME`)"
+      # - "traefik.http.routers.authelia-rtr.tls=true"
+      ## Middlewares
+      - "traefik.http.routers.authelia-rtr.middlewares=chain-no-auth@file"
+      ## HTTP Services
+      - "traefik.http.routers.authelia-rtr.service=authelia-svc"
+      - "traefik.http.services.authelia-svc.loadbalancer.server.port=9091"
+    <<: *logging
+
   # Google OAuth - Single Sign On using OAuth 2.0
   # https://hub.docker.com/r/thomseddon/traefik-forward-auth
   oauth:
