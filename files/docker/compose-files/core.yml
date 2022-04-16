@@ -206,6 +206,11 @@ services:
     image: portainer/portainer-ce:latest
     init: true
     restart: always
+    # healthcheck:
+    #   test: nc -z localhost 80
+    #   interval: 60s
+    #   timeout: 3s
+    #   retries: 3
     # command: -H unix:///var/run/docker.sock
     command: -H tcp://socket-proxy:2375
     networks:
@@ -233,6 +238,7 @@ services:
       ## HTTP Services
       - "traefik.http.routers.portainer-rtr.service=portainer-svc"
       - "traefik.http.services.portainer-svc.loadbalancer.server.port=9000"
+    <<: *logging
 
   # Watchtower - updates containers with latest images
   # https://hub.docker.com/r/containrrr/watchtower
@@ -268,6 +274,7 @@ services:
       #- WATCHTOWER_NOTIFICATION_EMAIL_SERVER_USER=${SMTP_USER}
       #- WATCHTOWER_NOTIFICATION_EMAIL_SERVER_PASSWORD=${SMTP_PASSWORD}
       DOCKER_HOST: tcp://socket-proxy:2375
+    <<: *logging
 
   # https://hub.docker.com/r/willfarrell/autoheal/
   autoheal:
@@ -280,6 +287,7 @@ services:
       - TZ=${TZ}
     volumes:
       - '/var/run/docker.sock:/var/run/docker.sock'
+    <<: *logging
 
   # Docker Socket Proxy - Security Enchanced Proxy for Docker Socket
   # https://hub.docker.com/r/tecnativa/docker-socket-proxy
@@ -343,6 +351,7 @@ services:
       # DELETE Options
       - CONTAINERS_DELETE=1 # WatchTower
       - IMAGES_DELETE=1     # WatchTower
+    <<: *logging
 
   # https://hub.docker.com/r/grafana/loki
   loki:
@@ -384,6 +393,7 @@ services:
     command: -config.file=/etc/promtail/config.yml
     networks:
       - traefik_proxy
+    <<: *logging
 
   # MariaDB - MySQL Database
   # https://hub.docker.com/r/linuxserver/mariadb/
@@ -462,6 +472,7 @@ services:
       RRTYPE: A
       DELETE_ON_STOP: "false"
       DNS_SERVER: 1.1.1.1
+    <<: *logging
 
   # Grafana - Graphical data visualization for InfluxDB data
   # https://hub.docker.com/r/grafana/grafana

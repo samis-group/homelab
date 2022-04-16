@@ -125,11 +125,18 @@ services:
       - ${VSCODE_PORT}:8443
     volumes:
       - ${DOCKERDIR}/appdata/vscode:/config
+      ### Private Repos ###
+      - ${GITDIR}/:/code/personal
+      - ${USERDIR}/dotfiles:/code/dotfiles
+      - ${DOCKERDIR}/appdata/nginx:/code/nginx
+      - ${DOCKERDIR}/appdata/api:/code/api
+      - ${DOCKERDIR}/appdata/docs:/code/docs
+      - ${DOCKERDIR}/appdata/homeassistant:/code/homeassistant
     environment:
       <<: *default-tz-uid-gid
-      # PASSWORD: password                  # optional
+      PASSWORD: ${SERVICES_PASSWORD}        # optional
       # HASHED_PASSWORD:                    # optional
-      # SUDO_PASSWORD: password             # optional
+      SUDO_PASSWORD: ${SERVICES_PASSWORD}   # optional
       # SUDO_PASSWORD_HASH:                 # optional
       PROXY_DOMAIN: code.${DOMAINNAME}      # optional
       DEFAULT_WORKSPACE: /config/workspace  # optional

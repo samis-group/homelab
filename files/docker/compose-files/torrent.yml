@@ -38,6 +38,13 @@ services:
     container_name: nordlynx
     image: ghcr.io/bubuntux/nordlynx
     restart: always
+    # This is the healtcheck (default created by container devs) that autoheal will use:
+    # "Healthcheck": {
+    #   "Test": [
+    #     "CMD-SHELL",
+    #     "[ $(( $(date -u +%s) - $(wg show wg0 latest-handshakes | awk '{print $2}') )) -le 120 ] || exit 1"
+    #   ]
+    # },
     cap_add:
       - NET_ADMIN   # required
     networks:

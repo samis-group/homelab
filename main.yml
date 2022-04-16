@@ -21,6 +21,7 @@
       set_fact:
         user_dir: /home/{{ main_user }}
         docker_dir: /home/{{ main_user }}/docker
+        git_dir: /home/{{ main_user }}/git/personal
         secrets_dir: /home/{{ main_user }}/docker/secrets
       tags: ["always"]
 
