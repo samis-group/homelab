@@ -126,7 +126,8 @@ services:
     volumes:
       - ${DOCKERDIR}/appdata/vscode:/config
       ### Private Repos ###
-      - ${GITDIR}/:/code/personal
+      - ${GITDIR}/home-assistant/:/code/home-assistant
+      - ${GITDIR}/docker-playbook/:/code/docker-playbook
       - ${USERDIR}/dotfiles:/code/dotfiles
       - ${DOCKERDIR}/appdata/nginx:/code/nginx
       - ${DOCKERDIR}/appdata/api:/code/api
