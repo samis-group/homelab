@@ -283,7 +283,7 @@ services:
     init: true
     restart: always
     environment:
-      # - AUTOHEAL_CONTAINER_LABEL=all    # To watch all containers
+      - AUTOHEAL_CONTAINER_LABEL=all    # To watch all containers
       - TZ=${TZ}
     volumes:
       - '/var/run/docker.sock:/var/run/docker.sock'
