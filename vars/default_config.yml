@@ -68,12 +68,11 @@ pfsense_port: '50000'
 syncthing_port: '8384'
 proxmox_port: '8006'
 
-# Required directories and files to be created before docker templates/files can be copied
+# Required directories and files to be created before docker templates/files can be copied - recursive
 required_items:
   folders:
     - /var/log/traefik
     - /var/log/nginx
-    - "{{ docker_dir }}/"
     - "{{ docker_dir }}/secrets"
     - "{{ docker_dir }}/scripts"
     - "{{ docker_dir }}/appdata/mqtt/log"

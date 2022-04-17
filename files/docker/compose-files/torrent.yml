@@ -32,6 +32,9 @@ networks:
 ########################### SERVICES
 
 services:
+  ### IMPORTANT: If this container connects but is not tranmitting packets via wireguard, get a new private key and recreate the containers:
+  ### source ~/docker/.env && docker run --rm --cap-add=NET_ADMIN -e USER=${VPN_USER} -e PASS=${VPN_PASS} bubuntux/nordvpn:get_private_key
+  ### Now, update private key to `.env` file and recreate the containers with `dcrec torrent` (alias).
   # NordVPN
   # https://hub.docker.com/r/bubuntux/nordlynx
   nordlynx:
@@ -55,11 +58,12 @@ services:
       - 51413:51413                 # Transmission
       - 51413:51413/udp             # Transmission
     environment:
-      PRIVATE_KEY: ${NORDVPN_PRIVATE_KEY} # required
+      PRIVATE_KEY: ${NORDVPN_PRIVATE_KEY}   # required
       DNS: "1.1.1.1,8.8.8.8,1.0.0.1"
       NET_LOCAL: ${LOCAL_NETWORK}
     sysctls:
-      - net.ipv6.conf.all.disable_ipv6=1  # Recomended if using ipv4 only
+      - net.ipv4.conf.all.src_valid_mark=1  # May be required. (depends on multiple factors)
+      - net.ipv6.conf.all.disable_ipv6=1    # Recomended if using ipv4 only
     <<: *logging
 
   # qBittorrent - Torrent downloader

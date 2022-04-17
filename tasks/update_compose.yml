@@ -10,7 +10,7 @@
 - name: Copy .env template
   template:
     src: docker/.env
-    dest: '{{ docker_dir }}/compose-files'
+    dest: '{{ docker_dir }}'
     owner: "{{ main_user }}"
     group: "{{ docker_group }}"
     mode: '0755'
