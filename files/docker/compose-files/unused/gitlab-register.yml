@@ -1,0 +1,95 @@
+---
+#######################################
+### THIS FILE IS MANAGED BY ANSIBLE ###
+###    PLEASE MAKE CHANGES THERE    ###
+#######################################
+
+version: "3.7"
+
+########################### EXTENSION FIELDS
+# Re-usable code so we're not duplicating these everywhere
+
+# Default TZ, uid and pid
+# To use this put this block in your service in the environments block: "<<: *default-tz-uid-gid"
+x-environment: &default-tz-uid-gid
+  TZ: $TZ
+  PUID: $PUID
+  PGID: $PGID
+
+# To use this put this block in the root of your service: "<<: *logging"
+x-logging: &logging
+  logging:
+    driver: loki
+    options:
+      loki-url: "http://localhost:${LOKI_PORT}/loki/api/v1/push"
+
+########################### NETWORKS
+
+networks:
+  defaulty:
+    name: defaulty
+    external: true
+  traefik_proxy:
+    name: traefik_proxy
+    external: true
+  socket_proxy:
+    name: socket_proxy
+    external: true
+
+########################### SECRETS
+
+secrets:
+  htpasswd:
+    file: ${DOCKERDIR}/secrets/htpasswd
+  cloudflare_email:
+    file: ${DOCKERDIR}/secrets/cloudflare_email
+  cloudflare_api_key:
+    file: ${DOCKERDIR}/secrets/cloudflare_api_key
+  plex_claim:
+    file: ${DOCKERDIR}/secrets/plex_claim
+  traefik_pilot_token:
+    file: ${DOCKERDIR}/secrets/traefik_pilot_token
+  gmail_email:
+    file: ${DOCKERDIR}/secrets/gmail_address
+  # This gmail password needs to be the APPLICATION password, not your main login one.
+  # https://support.google.com/accounts/answer/185833?hl=en
+  gmail_app_pass:
+    file: ${DOCKERDIR}/secrets/gmail_app_pass
+  services_username:
+    file: ${DOCKERDIR}/secrets/services_username
+  services_password:
+    file: ${DOCKERDIR}/secrets/services_password
+
+########################### SERVICES
+
+services:
+
+  # This container registers (non-interactively) the gitlab runner
+  # https://hub.docker.com/r/gitlab/gitlab-runner
+  gitlab-register:
+    container_name: gitlab-register
+    image: gitlab/gitlab-runner:alpine
+    init: true
+    command:
+      - register
+    volumes:
+      - ${DOCKERDIR}/appdata/gitlab-runner:/etc/gitlab-runner
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /etc/localtime:/etc/localtime:ro    # Syncronize time of container with the host system
+    environment:
+      # You can pass any cli arg and value in as environment variables, e.g. these env vars are args for the `gitlab-runner register` command.
+      # https://docs.gitlab.com/runner/commands/#using-environment-variables
+      TZ: $TZ
+      REGISTER_NON_INTERACTIVE: true                # Run registration unattended
+      CI_SERVER_URL: https://gitlab.com/            # Runner URL
+      REGISTRATION_TOKEN: ${GITLAB_RUNNER_TOKEN}    # Runner's registration token
+      RUNNER_EXECUTOR: docker                       # Select executor, eg. shell, docker, etc.
+      RUNNER_NAME: Gitlab Runner Docker             # Runner name
+      # RUNNER_TAG_LIST: docker                       # Tag list
+      REGISTER_LOCKED: false                        # Lock Runner for current project
+      DOCKER_IMAGE: docker:stable                   # Docker image to be used
+      DOCKER_PRIVILEGED: true                       # Give extended privileges to container
+      DOCKER_HOST: tcp://localhost:2375             # Docker daemon address
+      DOCKER_TLS_CERTDIR: ""                        # HOTFIX?
+      DOCKER_VOLUMES: '/var/run/docker.sock:/var/run/docker.sock'
+      # DOCKER_EXTRA_HOSTS: gitlab:${GITLAB_IP}       # Add a custom host-to-IP mapping

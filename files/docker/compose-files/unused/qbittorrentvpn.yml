@@ -1,0 +1,164 @@
+---
+#######################################
+### THIS FILE IS MANAGED BY ANSIBLE ###
+###    PLEASE MAKE CHANGES THERE    ###
+#######################################
+
+version: "3.7"
+
+########################### EXTENSION FIELDS
+# Re-usable code so we're not duplicating these everywhere
+
+# Default TZ, uid and pid
+# To use this put this block in your service in the environments block: "<<: *default-tz-uid-gid"
+x-environment: &default-tz-uid-gid
+  TZ: $TZ
+  PUID: $PUID
+  PGID: $PGID
+
+# To use this put this block in the root of your service: "<<: *logging"
+x-logging: &logging
+  logging:
+    driver: loki
+    options:
+      loki-url: "http://localhost:${LOKI_PORT}/loki/api/v1/push"
+
+########################### NETWORKS
+
+networks:
+  defaulty:
+    name: defaulty
+    external: true
+  traefik_proxy:
+    name: traefik_proxy
+    external: true
+  socket_proxy:
+    name: socket_proxy
+    external: true
+
+########################### SECRETS
+
+secrets:
+  htpasswd:
+    file: ${DOCKERDIR}/secrets/htpasswd
+  cloudflare_email:
+    file: ${DOCKERDIR}/secrets/cloudflare_email
+  cloudflare_api_key:
+    file: ${DOCKERDIR}/secrets/cloudflare_api_key
+  plex_claim:
+    file: ${DOCKERDIR}/secrets/plex_claim
+  traefik_pilot_token:
+    file: ${DOCKERDIR}/secrets/traefik_pilot_token
+  gmail_email:
+    file: ${DOCKERDIR}/secrets/gmail_address
+  # This gmail password needs to be the APPLICATION password, not your main login one.
+  # https://support.google.com/accounts/answer/185833?hl=en
+  gmail_app_pass:
+    file: ${DOCKERDIR}/secrets/gmail_app_pass
+  services_username:
+    file: ${DOCKERDIR}/secrets/services_username
+  services_password:
+    file: ${DOCKERDIR}/secrets/services_password
+
+########################### SERVICES
+
+services:
+
+  # https://www.reddit.com/r/selfhosted/comments/jyr37c/qbittorrent_vpn_dockercompose/
+  qbittorrent:
+    image: binhex/arch-qbittorrentvpn
+    init: true
+    container_name: qbittorrent
+    # If not using Wireguard:
+    cap_add:
+      - NET_ADMIN
+    # For Wireguard:
+    # sysctls:
+    #   - net.ipv4.conf.all.src_valid_mark=1
+    # privileged: true
+    devices:
+      - /dev/net/tun
+    ports:
+      - 6881:6881
+      - 6881:6881/udp
+      - ${QBITTORRENT_PORT}:${QBITTORRENT_PORT}
+      - 8118:8118
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${DOCKERDIR}/appdata/qbittorrent/config:/config
+      - ${DOCKERDIR}/appdata/qbittorrent/data:/data
+    environment:
+      - UID=${UID}
+      - GID=${GID}
+      - VPN_ENABLED=yes
+      - VPN_PROV=custom
+      - VPN_CLIENT=openvpn
+      - VPN_USER=${VPN_USER}
+      - VPN_PASS=${VPN_PASS}
+      - STRICT_PORT_FORWARD=yes
+      - ENABLE_PRIVOXY=no
+      - WEBUI_PORT=${QBITTORRENT_PORT}
+      - LAN_NETWORK=${LOCAL_NETWORK}
+      - NAME_SERVERS=${NAME_SERVERS}
+    restart: unless-stopped
+
+
+
+
+
+
+  ## qBittorrent with VPN – Bittorrent Downloader
+  # mkdir ${DOCKERDIR}/qbittorrent
+  # mkdir ${DOCKERDIR}/qbittorrent/openvpn
+  # Place ovpn file in ${DOCKERDIR}/qbittorrent/openvpn
+  # If you can't see text in the WebUI go to your qbittorrent.conf file and add "en" to the Locale setting so it looks like this: General\Locale=en
+  # qbittorrent:
+  #   container_name: qbittorrent
+  #   image: markusmcnugen/qbittorrentvpn
+  #   restart: always
+  #   networks:
+  #     - default
+  #     # - traefik_proxy
+  #   cap_add:
+  #     - NET_ADMIN
+  #   devices:
+  #     - /dev/net/tun
+  #   ports:
+  #    - ${QBITTORRENT_PORT}:${QBITTORRENT_PORT}
+  #    - 8999:8999
+  #    - 8999:8999/udp
+  #   volumes:
+  #     - ${DOCKERDIR}/qbittorrent:/config
+  #     - ${DOCKERDIR}/mount/downloads:/downloads
+  #   environment:
+  #     - UID=${UID}
+  #     - GID=${GID}
+  #     - VPN_ENABLED=yes
+  #     - VPN_USERNAME=${VPN_USER}
+  #     - VPN_PASSWORD=${VPN_PASS}
+  #     - LAN_NETWORK=${LOCAL_NETWORK}
+  #     - WEBUI_PORT=${QBITTORRENT_PORT}
+  #     - NAME_SERVERS=1.1.1.1,1.0.0.1
+  #     - UMASK=002
+    # labels:
+    #   - "traefik.enable=true"
+    #   - "traefik.backend=qbittorrent"
+    #   - "traefik.frontend.rule=Host:qbittorrent.${DOMAINNAME}"
+    #   - "traefik.port=8080"
+    #   - "traefik.docker.network=traefik_proxy"
+    #   - "traefik.frontend.headers.SSLRedirect=true"
+    #   - "traefik.frontend.headers.STSSeconds=315360000"
+    #   - "traefik.frontend.headers.browserXSSFilter=true"
+    #   - "traefik.frontend.headers.contentTypeNosniff=true"
+    #   - "traefik.frontend.headers.forceSTSHeader=true"
+    #   - "traefik.frontend.headers.SSLHost=qbittorrent.${DOMAINNAME}"
+    #   - "traefik.frontend.headers.SSLForceHost=true"
+    #   - "traefik.frontend.headers.STSIncludeSubdomains=true"
+    #   - "traefik.frontend.headers.STSPreload=true"
+    #   - "traefik.frontend.headers.frameDeny=true"
+    #   - "traefik.frontend.auth.forward.address=http://oauth:4181"
+
+# networks:
+#   traefik_proxy:
+#     external:
+#       name: traefik_proxy

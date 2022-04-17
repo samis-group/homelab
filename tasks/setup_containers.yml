@@ -19,7 +19,7 @@
 
 - name: Touch authelia users_database file to ensure it exists
   file:
-    path: "{{ docker_dir }}/authelia/users_database.yml"
+    path: "{{ docker_dir }}/appdata/authelia/users_database.yml"
     state: touch
     owner: "{{ main_user }}"
     group: "{{ docker_group }}"
@@ -27,7 +27,7 @@
 
 - name: Check if authelia users need to be updated in users_database file
   lineinfile:
-    path: "{{ docker_dir }}/authelia/users_database.yml"
+    path: "{{ docker_dir }}/appdata/authelia/users_database.yml"
     regexp: "{{ item.key }}:"
     line: "dummy"
     state: absent
@@ -51,10 +51,17 @@
 - name: Copy authelia users_database template if any user not in authelia users_database
   template:
     src: "authelia/users_database.yml"
-    dest: "{{ docker_dir }}/authelia/users_database.yml"
+    dest: "{{ docker_dir }}/appdata/authelia/users_database.yml"
     owner: "{{ main_user }}"
     group: "{{ docker_group }}"
     mode: '0644'
+  when: authelia_found|int < authelia_hashed_passwords.users | list | count
+
+- name: Restart Authelia
+  docker_container:
+    name: "authelia"
+    state: started
+    restart: yes
   when: authelia_found|int < authelia_hashed_passwords.users | list | count
 
 ############
@@ -63,7 +70,7 @@
 
 - name: Check if user is in mqtt passwd file
   lineinfile:
-    path: "{{ docker_dir }}/mqtt/config/passwd"
+    path: "{{ docker_dir }}/appdata/mqtt/config/passwd"
     regexp: "^{{ item.key }}.*"
     line: "dummy"
     state: absent
@@ -141,7 +148,7 @@
 
 - name: Setup zigbee2mqtt configuration file
   blockinfile:
-    path: "{{ docker_dir }}/zigbee2mqtt/configuration.yaml"
+    path: "{{ docker_dir }}/appdata/zigbee2mqtt/configuration.yaml"
     create: true
     owner: "{{ main_user }}"
     group: "{{ docker_group }}"
@@ -166,7 +173,7 @@
 # This gets overwritten whenever the container reboots, so leave it out.
 # - name: Setup gitlab-runner config
 #   blockinfile:
-#     path: "{{ docker_dir }}/gitlab-runner/config.toml"
+#     path: "{{ docker_dir }}/appdata/gitlab-runner/config.toml"
 #     create: true
 #     owner: "{{ main_user }}"
 #     group: "{{ docker_group }}"

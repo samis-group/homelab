@@ -1,0 +1,82 @@
+---
+#######################################
+### THIS FILE IS MANAGED BY ANSIBLE ###
+###    PLEASE MAKE CHANGES THERE    ###
+#######################################
+
+version: "3.7"
+
+########################### EXTENSION FIELDS
+# Re-usable code so we're not duplicating these everywhere
+
+# Default TZ, uid and pid
+# To use this put this block in your service in the environments block: "<<: *default-tz-uid-gid"
+x-environment: &default-tz-uid-gid
+  TZ: $TZ
+  PUID: $PUID
+  PGID: $PGID
+
+# To use this put this block in the root of your service: "<<: *logging"
+x-logging: &logging
+  logging:
+    driver: loki
+    options:
+      loki-url: "http://localhost:${LOKI_PORT}/loki/api/v1/push"
+
+########################### NETWORKS
+
+networks:
+  defaulty:
+    name: defaulty
+    external: true
+  traefik_proxy:
+    name: traefik_proxy
+    external: true
+  socket_proxy:
+    name: socket_proxy
+    external: true
+
+########################### SECRETS
+
+secrets:
+  htpasswd:
+    file: ${DOCKERDIR}/secrets/htpasswd
+  cloudflare_email:
+    file: ${DOCKERDIR}/secrets/cloudflare_email
+  cloudflare_api_key:
+    file: ${DOCKERDIR}/secrets/cloudflare_api_key
+  plex_claim:
+    file: ${DOCKERDIR}/secrets/plex_claim
+  traefik_pilot_token:
+    file: ${DOCKERDIR}/secrets/traefik_pilot_token
+  gmail_email:
+    file: ${DOCKERDIR}/secrets/gmail_address
+  # This gmail password needs to be the APPLICATION password, not your main login one.
+  # https://support.google.com/accounts/answer/185833?hl=en
+  gmail_app_pass:
+    file: ${DOCKERDIR}/secrets/gmail_app_pass
+  services_username:
+    file: ${DOCKERDIR}/secrets/services_username
+  services_password:
+    file: ${DOCKERDIR}/secrets/services_password
+
+########################### SERVICES
+
+services:
+
+  # Organizer - Unified HTPC/Home Server Web Interface
+  organizr:
+    container_name: organizr
+    hostname: organizr
+    restart: unless-stopped
+    image: linuxserver/organizr
+    init: true
+    volumes:
+      - ${DOCKERDIR}/appdata/organizr:/config
+      - ${DOCKERDIR}/appdata/shared:/shared
+    ports:
+      - ${ORGANIZR_PORT}:80
+    environment:
+      - UID=${UID}
+      - GID=${GID}
+      - TZ=${TZ}

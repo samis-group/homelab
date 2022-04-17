@@ -8,7 +8,7 @@
 
 - name: Touch files with 600 perms
   file:
-    path: "{{ docker_dir }}/{{ item }}"
+    path: "{{ docker_dir }}/appdata/{{ item }}"
     state: touch
     owner: "{{ main_user }}"
     group: "{{ docker_group }}"

@@ -1,0 +1,142 @@
+---
+#######################################
+### THIS FILE IS MANAGED BY ANSIBLE ###
+###    PLEASE MAKE CHANGES THERE    ###
+#######################################
+
+version: "3.7"
+
+########################### EXTENSION FIELDS
+# Re-usable code so we're not duplicating these everywhere
+
+# Default TZ, uid and pid
+# To use this put this block in your service in the environments block: "<<: *default-tz-uid-gid"
+x-environment: &default-tz-uid-gid
+  TZ: $TZ
+  PUID: $PUID
+  PGID: $PGID
+
+# To use this put this block in the root of your service: "<<: *logging"
+x-logging: &logging
+  logging:
+    driver: loki
+    options:
+      loki-url: "http://localhost:${LOKI_PORT}/loki/api/v1/push"
+
+########################### NETWORKS
+
+networks:
+  defaulty:
+    name: defaulty
+    external: true
+  traefik_proxy:
+    name: traefik_proxy
+    external: true
+  socket_proxy:
+    name: socket_proxy
+    external: true
+
+########################### SECRETS
+
+secrets:
+  htpasswd:
+    file: ${DOCKERDIR}/secrets/htpasswd
+  cloudflare_email:
+    file: ${DOCKERDIR}/secrets/cloudflare_email
+  cloudflare_api_key:
+    file: ${DOCKERDIR}/secrets/cloudflare_api_key
+  plex_claim:
+    file: ${DOCKERDIR}/secrets/plex_claim
+  traefik_pilot_token:
+    file: ${DOCKERDIR}/secrets/traefik_pilot_token
+  gmail_email:
+    file: ${DOCKERDIR}/secrets/gmail_address
+  # This gmail password needs to be the APPLICATION password, not your main login one.
+  # https://support.google.com/accounts/answer/185833?hl=en
+  gmail_app_pass:
+    file: ${DOCKERDIR}/secrets/gmail_app_pass
+  services_username:
+    file: ${DOCKERDIR}/secrets/services_username
+  services_password:
+    file: ${DOCKERDIR}/secrets/services_password
+
+########################### SERVICES
+
+services:
+
+  # TransmissionBT - Torrent Downloader
+  # https://hub.docker.com/r/haugene/transmission-openvpn
+  # ONLY ACCESSIBLE THROUGH https://domain.com/transmission/web/ if using PathPrefix
+  transmission-vpn:
+    container_name: transmission-vpn
+    image: haugene/transmission-openvpn:latest
+    init: true
+    restart: always
+    healthcheck:
+      test: curl -sI http://localhost:9091
+      interval: 60s
+      timeout: 3s
+      retries: 3
+    networks:
+      traefik_proxy:
+        ipv4_address: 192.168.90.169 # You can specify a static IP - I also created a non-proxied DNS record like 'transmission-dc.domain.com' pointing to this IP so i don't need to reference this all the time.
+    ports:
+     - ${TRANSMISSION_PORT}:9091  # Add port to host for home assistant
+     - ${QBITTORRENT_PORT}:8787  # Add port to open qbittorrent from internal network
+    cap_add:
+      - NET_ADMIN
+    # devices:
+    #  - /dev/net/tun
+    dns:
+      - 1.1.1.1
+      - 1.0.0.1
+    volumes:
+      - ${USERDIR}/mount/downloads:/downloads
+      - ${DOCKERDIR}/appdata/transmission-vpn/data:/data
+      - ${DOCKERDIR}/appdata/transmission-vpn/config:/config
+      - ${DOCKERDIR}/appdata/transmission-vpn/watch:/watch
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      <<: *default-tz-uid-gid
+      OPENVPN_PROVIDER: ${VPN_PROVIDER}
+      OPENVPN_USERNAME: ${VPN_USER}
+      OPENVPN_PASSWORD: ${VPN_PASS}
+      OPENVPN_OPTS: --inactive 3600 --ping 10 --ping-exit 60
+      LOCAL_NETWORK: ${LOCAL_NETWORK}
+      # Setting UID/GID in this container was breaking my NFS mounts because it was starting the transmission daemon as a non root user inside the container -> https://github.com/haugene/docker-transmission-openvpn/blob/master/transmission/userSetup.sh
+      # There are no perm issues when leaving blank as transmission now runs as root inside the container.
+      UMASK_SET: 002
+      # Set to true and set user/pass if you want basic auth logins
+      TRANSMISSION_RPC_AUTHENTICATION_REQUIRED: "false"
+      # TRANSMISSION_RPC_USERNAME: ${SERVICES_USERNAME}
+      # TRANSMISSION_RPC_PASSWORD: ${SERVICES_PASSWORD}
+      TRANSMISSION_RPC_HOST_WHITELIST: "127.0.0.1,${SERVER_IP}"
+      TRANSMISSION_RPC_WHITELIST: "127.0.0.1,${SERVER_IP}"
+      TRANSMISSION_UMASK: 002
+      TRANSMISSION_RATIO_LIMIT: 0
+      TRANSMISSION_RATIO_LIMIT_ENABLED: "true"
+      TRANSMISSION_ALT_SPEED_ENABLED: "false"
+      TRANSMISSION_ALT_SPEED_DOWN: 1000  # alt speed currently disabled
+      TRANSMISSION_ALT_SPEED_UP: 250 # alt speed currently disabled
+      TRANSMISSION_SPEED_LIMIT_DOWN: 6000
+      TRANSMISSION_SPEED_LIMIT_DOWN_ENABLED: "true"
+      TRANSMISSION_SPEED_LIMIT_UP: 30
+      TRANSMISSION_SPEED_LIMIT_UP_ENABLED: "true"
+      TRANSMISSION_INCOMPLETE_DIR: /downloads/incomplete
+      TRANSMISSION_INCOMPLETE_DIR_ENABLED: "true"
+      TRANSMISSION_WATCH_DIR: /downloads
+      TRANSMISSION_WATCH_DIR_ENABLED: "true"
+      TRANSMISSION_DOWNLOAD_DIR: /downloads/complete
+      TRANSMISSION_DOWNLOAD_QUEUE_SIZE: 50
+      # LOG_TO_STDOUT: "true" # Enable if you need logging
+    labels:
+      - "traefik.enable=true"
+      ## HTTP Routers
+      - "traefik.http.routers.transmission-vpn-rtr.entrypoints=https"
+      - "traefik.http.routers.transmission-vpn-rtr.rule=Host(`transmission.$DOMAINNAME`, `torrent.$DOMAINNAME`)"
+      ## Middlewares
+      - "traefik.http.routers.transmission-vpn-rtr.middlewares=chain-oauth@file"  # Testing oauth
+      # - "traefik.http.routers.transmission-vpn-rtr.middlewares=middlewares-rate-limit@file" # If oauth doesn't work because it uses a vpn, we need to at least rate limit
+      ## HTTP Services
+      - "traefik.http.routers.transmission-vpn-rtr.service=transmission-vpn-svc"
+      - "traefik.http.services.transmission-vpn-svc.loadbalancer.server.port=9091"

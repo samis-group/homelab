@@ -1,4 +1,4 @@
-.PHONY: execute execute-v test test-v test-vvv run-tags run-tags-v provision-vm provision-vm-v update-compose update-compose-v list-tags list-vars setup apt pip reqs store-password githook decrypt encrypt
+.PHONY: execute execute-v test test-v test-vvv run-tags run-tags-v provision-vm provision-vm-v update-compose update-compose-v setup-containers setup-containers-v list-tags list-vars setup apt pip reqs store-password githook decrypt encrypt
 
 # Run the playbook (Assumes 'make setup' has been run)
 execute:
@@ -46,16 +46,16 @@ update-compose-v:
 	@ansible-playbook -vvv --tags "update_compose" -e "update_compose=true" --vault-password-file ~/.ansible/password main.yml
 
 copy-files:
-	@ansible-playbook --tags "copy_files" -e "copy_files=true" --vault-password-file ~/.ansible/password main.yml
-
-copy-files-v:
-	@ansible-playbook -vvv --tags "copy_files" -e "copy_files=true" --vault-password-file ~/.ansible/password main.yml
-
-copy-all-files:
 	@ansible-playbook --tags "copy_files,update_compose" -e "copy_files=true" -e "update_compose=true" --vault-password-file ~/.ansible/password main.yml
 
-copy-all-files-v:
+copy-files-v:
 	@ansible-playbook -vvv --tags "copy_files,update_compose" -e "copy_files=true" -e "update_compose=true" --vault-password-file ~/.ansible/password main.yml
+
+setup-containers:
+	@ansible-playbook --tags "copy_files,update_compose,setup_containers" -e "copy_files=true" -e "update_compose=true" --vault-password-file ~/.ansible/password main.yml
+
+setup-containers-v:
+	@ansible-playbook -vvv --tags "copy_files,update_compose,setup_containers" -e "copy_files=true" -e "update_compose=true" --vault-password-file ~/.ansible/password main.yml
 
 # List the available tags that you can run standalone from the playbook
 list-tags:
@@ -109,14 +109,23 @@ store-password:
 githook:
 	@./bin/git_init.sh
 
-# Decrypt all files in this repo
-decrypt:
-	ansible-vault decrypt --vault-password-file ~/.ansible/password group_vars/all.yml
-	ansible-vault decrypt --vault-password-file ~/.ansible/password inventory
-	@# ansible-vault decrypt --vault-password-file ~/.ansible/password docker_vm_vars.yml
+# Let's allow the user to edit the ansible vaults in-place instead of flat out decrypting it to reduce risk of pushing it in cleartext to remote repo.
+# Even though I've got the git commit hook in place, when the repo name changes for example, and repo is cloned fresh, this poses a problem when forgetting to run `make setup` first and deploying the hook.
+# This approach is just far safer than decrypting and encrypting the files themselves below.
+edit-vars-all:
+	ansible-vault edit --vault-password-file ~/.ansible/password group_vars/all.yml
 
-# Encrypt all files in this repo
-encrypt:
-	ansible-vault encrypt --vault-password-file ~/.ansible/password group_vars/all.yml
-	ansible-vault encrypt --vault-password-file ~/.ansible/password inventory
-	@# ansible-vault encrypt --vault-password-file ~/.ansible/password docker_vm_vars.yml
+edit-vars-inventory:
+	ansible-vault edit --vault-password-file ~/.ansible/password inventory
+
+# # Decrypt all files in this repo
+# decrypt:
+# 	ansible-vault decrypt --vault-password-file ~/.ansible/password group_vars/all.yml
+# 	ansible-vault decrypt --vault-password-file ~/.ansible/password inventory
+# 	@# ansible-vault decrypt --vault-password-file ~/.ansible/password docker_vm_vars.yml
+
+# # Encrypt all files in this repo
+# encrypt:
+# 	ansible-vault encrypt --vault-password-file ~/.ansible/password group_vars/all.yml
+# 	ansible-vault encrypt --vault-password-file ~/.ansible/password inventory
+# 	@# ansible-vault encrypt --vault-password-file ~/.ansible/password docker_vm_vars.yml
