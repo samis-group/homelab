@@ -1,10 +1,7 @@
 ---
-- name: Creates PATH environment variable on top of crontab
-  ansible.builtin.cron:
-    name: PATH
-    env: yes
-    user: "{{ main_user }}"
-    job: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin
+####################
+### Root Crontab ###
+####################
 
 - name: Cron - Mount check
   ansible.builtin.cron:
@@ -13,11 +10,22 @@
     user: root
     job: "if [ $(grep '{{ user_dir }}/mount/' /proc/mounts | wc -l) -lt 3 ]; then mount -a; logger 'mounted NAS'; fi"
 
+#########################
+### main_user Crontab ###
+#########################
+
+- name: Creates PATH environment variable on top of crontab
+  ansible.builtin.cron:
+    name: PATH
+    env: yes
+    user: "{{ main_user }}"
+    job: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin
+
 - name: Cron - Update docker containers daily
   ansible.builtin.cron:
-    name: update docker containers
+    name: update docker containers daily
     minute: "0"
-    hour: "4"
+    hour: "2"
     user: "{{ main_user }}"
     job: "bash -ic \"dcpull all; dcuprem all\" 2>&1 | logger -t dockerlogs"
     # job: "cd {{ docker_dir }}; /usr/local/bin/docker-compose pull; /usr/local/bin/docker-compose up -d --remove-orphans"
@@ -32,16 +40,16 @@
 
 - name: Cron - Backup Docker containers weekly
   ansible.builtin.cron:
-    name: backup docker containers
+    name: backup docker containers weekly
     minute: "0"
     hour: "3"
     weekday: "4"
     user: root
     job: "{{ docker_dir }}/scripts/docker-backup.sh"
 
-- name: Cron - prune >7 day old unused Docker images daily
+- name: Cron - prune > 7 day old unused Docker images daily
   ansible.builtin.cron:
-    name: prune docker images
+    name: prune docker images daily ( > 7 day old )
     minute: "0"
     hour: "3"
     user: "{{ main_user }}"
