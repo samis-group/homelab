@@ -27,7 +27,7 @@
     minute: "0"
     hour: "2"
     user: "{{ main_user }}"
-    job: "bash -ic \"dcpull all; dcuprem all\" 2>&1 | logger -t dockerlogs"
+    job: "bash -ic \"dcpull all; dstopall; drmcont; dcup all\" 2>&1 | logger -t dockerlogs"
     # job: "cd {{ docker_dir }}; /usr/local/bin/docker-compose pull; /usr/local/bin/docker-compose up -d --remove-orphans"
 
 - name: Cron - Start Docker containers at boot
