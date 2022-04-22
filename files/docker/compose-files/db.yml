@@ -115,6 +115,11 @@ services:
     image: redis:latest
     init: true
     restart: always
+    healthcheck:
+      test: redis-cli -a $${REDIS_PASSWORD} ping | grep PONG
+      interval: 10s
+      timeout: 3s
+      retries: 5
     entrypoint: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD} --maxmemory 512mb --maxmemory-policy allkeys-lru
     ports:
       - "${REDIS_PORT}:6379"
@@ -124,6 +129,8 @@ services:
       - ${DOCKERDIR}/appdata/redis:/data
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}    # For healthcheck
     <<: *logging
 
   # Redis Commander - Redis Management Tool

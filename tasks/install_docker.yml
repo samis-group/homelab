@@ -41,9 +41,10 @@
       - containerd.io
   notify: restart docker  # Also enables it to start on boot
 
-######################
-### Docker Compose ###
-######################
+#########################
+### Docker Compose v2 ###
+#########################
+# Essentially install from -> https://docs.docker.com/compose/cli-command/#install-on-linux
 
 - name: Get docker-compose binary version
   uri:
@@ -53,7 +54,8 @@
   failed_when: gh_compose_api.status != 200
 
 - name: Get current docker-compose binary version
-  command: "docker-composes --version"
+  command: "docker compose version"
+  become_user: "{{ main_user }}"
   register: dc_cur_ver
   changed_when: false
   failed_when: false
@@ -80,7 +82,7 @@
 - name: Download docker-compose binary
   get_url:
     url: "https://github.com/docker/compose/releases/download/{{ gh_compose_api.json.name }}/docker-compose-{{ uname_s.stdout }}-{{ uname_m.stdout }}"
-    dest: /usr/local/bin/docker-compose
+    dest: "{{ docker_compose_dir }}/docker-compose"
     mode: '0755'
   when: >
     gh_compose_api.json.name not in dc_cur_ver.stdout
