@@ -13,10 +13,10 @@ source ${USERDIR}/.bashrc.d/docker-aliases
 # Jump into appdata dir containing container volume mounts lollers
 cd ${DOCKERDIR}/appdata
 
-sudo -u {{ main_user }} 'bash -ic "dcdown all"'
-
 # Stop all containers so data doesn't change during backup
+echo "Tearing down the stack..."
 #docker stop $(docker ps -q)
+dcdown all
 
 echo -e "Subject: Docker Backups\n\nDocker backups status:\n" > ../scripts/mail.txt
 
@@ -26,11 +26,13 @@ if [[ $? -ne 0 ]]; then
     echo "docker backups folder not mounted, please investigate and fix." >> ../scripts/mail.txt
     source ../scripts/email.sh
     exit 1
+else
+    echo "docker_backups is mounted, continuing..."
 fi
 
 for i in *; do
-    # If not dir or not one of list, skip, else, tar it up
-    if [[ ! -d "${i}" ]] || [[ "${i}" =~ (shared|secrets|scripts) ]]; then
+    # If not dir or not one of items below, skip, else, tar it up and ship it.
+    if [[ ! -d "${i}" ]] || [[ "${i}" =~ (shared|secrets|scripts|docs) ]]; then
         continue
     else
         rm -f ${USERDIR}/mount/docker_backups/${i}.tar.gz
@@ -44,7 +46,8 @@ for i in *; do
 done
 
 # Pull latest images and start all
-sudo -u {{ main_user }} 'bash -ic "dcpull all; dcuprem all"'
+dcpull all
+dcuprem all
 
 # Fire off email
 source ../scripts/email.sh

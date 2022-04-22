@@ -19,7 +19,7 @@
 
 - name: Mount NFS volumes from NAS
   ansible.posix.mount:
-    src: "{{ item.value.remote_mapping }}"
+    src: "{{ nas.ip }}:{{ item.value.remote_mapping }}"
     path: "{{ item.value.local_mapping }}"
     opts: wsize=65536,rsize=65536,hard,timeo=60,intr
     state: mounted
