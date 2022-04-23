@@ -66,7 +66,7 @@ services:
       - ${DOCKERDIR}/appdata/homeassistant:/config
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
-      #- /media/ssd/motioneye:/media/motioneye
+      #- ${USERDIR}/mount/motioneye:/media/motioneye
     environment:
       <<: *default-tz-uid-gid
       # MYSQL_USER: ${MARIADB_USER}

@@ -54,50 +54,6 @@ networks:
       config:
         - subnet: 192.168.91.0/24
 
-########################### VOLUMES
-
-volumes:
-  tv:
-    driver_opts:
-      type: "nfs"
-      o: "addr=${NAS_IP},wsize=65536,rsize=65536,timeo=60"
-      device: ":${NAS_TV_PATH}"
-  movies:
-    driver_opts:
-      type: "nfs"
-      o: "addr=${NAS_IP},wsize=65536,rsize=65536,timeo=60"
-      device: ":${NAS_MOVIES_PATH}"
-  docker_backups:
-    driver_opts:
-      type: "nfs"
-      o: "addr=${NAS_IP},wsize=65536,rsize=65536,timeo=60"
-      device: ":${NAS_DOCKER_BACKUPS_PATH}"
-  downloads:
-    driver_opts:
-      type: "nfs"
-      o: "addr=${NAS_IP},wsize=65536,rsize=65536,timeo=60"
-      device: ":${NAS_DOWNLOADS_PATH}"
-  motioneye:
-    driver_opts:
-      type: "nfs"
-      o: "addr=${NAS_IP},wsize=65536,rsize=65536,timeo=60"
-      device: ":${NAS_MOTIONEYE_PATH}"
-  syncthing:
-    driver_opts:
-      type: "nfs"
-      o: "addr=${NAS_IP},wsize=65536,rsize=65536,timeo=60"
-      device: ":${NAS_SYNCTHING_PATH}"
-  sami_pictures:
-    driver_opts:
-      type: "nfs"
-      o: "addr=${NAS_IP},wsize=65536,rsize=65536,timeo=60"
-      device: ":${NAS_SAMI_PICTURES_PATH}"
-  family_pictures:
-    driver_opts:
-      type: "nfs"
-      o: "addr=${NAS_IP},wsize=65536,rsize=65536,timeo=60"
-      device: ":${NAS_FAMILY_PICTURES_PATH}"
-
 ########################### SECRETS
 
 secrets:

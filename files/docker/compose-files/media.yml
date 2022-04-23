@@ -29,14 +29,6 @@ networks:
     name: traefik_proxy
     external: true
 
-########################### VOLUMES
-
-volumes:
-  tv:
-    external: true
-  movies:
-    external: true
-
 ########################### SECRETS
 
 secrets:
@@ -85,8 +77,6 @@ services:
       - ${DOCKERDIR}/appdata/shared/plexms/Library/Application Support/Plex Media Server/Cache:/config/Library/Application Support/Plex Media Server/Cache
       - ${DOCKERDIR}/appdata/shared/plexms/Library/Application Support/Plex Media Server/Metadata:/config/Library/Application Support/Plex Media Server/Metadata
       - ${DOCKERDIR}/appdata/shared/plexms/Library/Application Support/Plex Media Server/Media:/config/Library/Application Support/Plex Media Server/Media
-      - tv:/sami_tv
-      - movies:/sami_movies
     environment:
       PLEX_UID: ${PUID}
       PLEX_GID: ${PGID}
