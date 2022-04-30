@@ -54,7 +54,7 @@
   failed_when: gh_compose_api.status != 200
 
 - name: Get current docker-compose binary version
-  command: "docker compose version"
+  command: "docker-compose version"
   become_user: "{{ main_user }}"
   register: dc_cur_ver
   changed_when: false
@@ -82,7 +82,7 @@
 - name: Download docker-compose binary
   get_url:
     url: "https://github.com/docker/compose/releases/download/{{ gh_compose_api.json.name }}/docker-compose-{{ uname_s.stdout }}-{{ uname_m.stdout }}"
-    dest: "{{ docker_compose_dir }}/docker-compose"
+    dest: "/usr/local/bin/docker-compose"
     mode: '0755'
   when: >
     gh_compose_api.json.name not in dc_cur_ver.stdout

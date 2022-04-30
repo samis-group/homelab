@@ -71,8 +71,10 @@ proxmox_port: '8006'
 # Required directories and files to be created before docker templates/files can be copied - recursive
 required_items:
   folders:
+    - /usr/local/bin
     - /var/log/traefik
     - /var/log/nginx
+    - "{{ user_dir }}/.docker"
     - "{{ docker_dir }}/secrets"
     - "{{ docker_dir }}/scripts"
     - "{{ docker_dir }}/appdata/mariadb/config/initdb.d"
@@ -83,7 +85,6 @@ required_items:
     - "{{ docker_dir }}/appdata/promtail/etc"
     - "{{ docker_dir }}/appdata/homeassistant"
     - "{{ docker_dir }}/compose-files"
-    - "{{ docker_compose_dir }}"
   no_recurse_folders:
     - "{{ docker_dir }}/appdata/shared/plexms"
     - "{{ docker_dir }}/appdata/shared/radarr/MediaCover"
@@ -93,6 +94,7 @@ required_items:
     - /var/log/nginx/{{ domain_name }}.access.log
     - /var/log/nginx/{{ domain_name }}.error.log
     - /var/log/nginx/nginx-error.log
+    - "{{ user_dir }}/.docker/config.json"    # Needs to be owned by the user, otherwise docker login fails.
     - "{{ docker_dir }}/scripts/mail.txt"
     - "{{ docker_dir }}/appdata/mqtt/log/mosquitto.log"
     - "{{ docker_dir }}/appdata/mqtt/config/passwd"
