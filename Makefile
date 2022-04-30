@@ -118,14 +118,14 @@ edit-vars-all:
 edit-vars-inventory:
 	ansible-vault edit --vault-password-file ~/.ansible/password inventory
 
-# # Decrypt all files in this repo
-# decrypt:
-# 	ansible-vault decrypt --vault-password-file ~/.ansible/password group_vars/all.yml
-# 	ansible-vault decrypt --vault-password-file ~/.ansible/password inventory
-# 	@# ansible-vault decrypt --vault-password-file ~/.ansible/password docker_vm_vars.yml
+# Decrypt all files in this repo
+decrypt:
+	ansible-vault decrypt --vault-password-file ~/.ansible/password group_vars/all.yml
+	ansible-vault decrypt --vault-password-file ~/.ansible/password inventory
+	@# ansible-vault decrypt --vault-password-file ~/.ansible/password docker_vm_vars.yml
 
-# # Encrypt all files in this repo
-# encrypt:
-# 	ansible-vault encrypt --vault-password-file ~/.ansible/password group_vars/all.yml
-# 	ansible-vault encrypt --vault-password-file ~/.ansible/password inventory
-# 	@# ansible-vault encrypt --vault-password-file ~/.ansible/password docker_vm_vars.yml
+# Encrypt all files in this repo
+encrypt:
+	ansible-vault encrypt --vault-password-file ~/.ansible/password group_vars/all.yml
+	ansible-vault encrypt --vault-password-file ~/.ansible/password inventory
+	@# ansible-vault encrypt --vault-password-file ~/.ansible/password docker_vm_vars.yml
