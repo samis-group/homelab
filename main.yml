@@ -1,5 +1,5 @@
 ---
-- name: Setup Docker VM and containers
+- name: Setup Proxmox VM
   hosts: docker
   become: true
 
