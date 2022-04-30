@@ -47,10 +47,19 @@
     user: root
     job: "{{ docker_dir }}/scripts/docker-backup.sh"
 
-- name: Cron - prune > 7 day old unused Docker images daily
+- name: Cron - Prune > 7 day old unused Docker images daily
   ansible.builtin.cron:
     name: prune docker images daily ( > 7 day old )
     minute: "0"
     hour: "3"
     user: "{{ main_user }}"
     job: "/usr/bin/docker system prune -af  --filter 'until=168h'"
+
+- name: Cron - Remove unused Docker volumes weekly
+  ansible.builtin.cron:
+    name: prune docker images daily ( > 7 day old )
+    minute: "0"
+    hour: "2"
+    weekday: "5"
+    user: "{{ main_user }}"
+    job: "/usr/bin/docker volume prune"

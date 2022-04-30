@@ -87,7 +87,8 @@ services:
     volumes:
       - ${DOCKERDIR}/appdata/jellyfin:/config
       - ${DOCKERDIR}/appdata/shared/jellyfin/metadata:/config/metadata
-      - ${USERDIR}/mount/video:/data/media
+      - ${USERDIR}/mount/movies:/data/media/movies
+      - ${USERDIR}/mount/tv:/data/media/tv
       - /dev/shm:/data/transcode # Offload transcoding to RAM if you have enough RAM
     labels:
       - "traefik.enable=true"

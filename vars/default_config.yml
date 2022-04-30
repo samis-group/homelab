@@ -75,6 +75,7 @@ required_items:
     - /var/log/nginx
     - "{{ docker_dir }}/secrets"
     - "{{ docker_dir }}/scripts"
+    - "{{ docker_dir }}/appdata/mariadb/config/initdb.d"
     - "{{ docker_dir }}/appdata/mqtt/log"
     - "{{ docker_dir }}/appdata/mqtt/config"
     - "{{ docker_dir }}/appdata/traefik/acme"
@@ -82,6 +83,7 @@ required_items:
     - "{{ docker_dir }}/appdata/promtail/etc"
     - "{{ docker_dir }}/appdata/homeassistant"
     - "{{ docker_dir }}/compose-files"
+    - "{{ docker_compose_dir }}"
   no_recurse_folders:
     - "{{ docker_dir }}/appdata/shared/plexms"
     - "{{ docker_dir }}/appdata/shared/radarr/MediaCover"

@@ -57,6 +57,20 @@ scrape_configs:
       labels:
         job: {{ domain_name }}.error.log
         __path__: "/var/log/nginx/{{ domain_name }}.error.log"
+  - job_name: docs.{{ domain_name }}.access.log
+    static_configs:
+    - targets:
+        - localhost
+      labels:
+        job: docs.{{ domain_name }}.access.log
+        __path__: "/var/log/nginx/docs.{{ domain_name }}.access.log"
+  - job_name: docs.{{ domain_name }}.error.log
+    static_configs:
+    - targets:
+        - localhost
+      labels:
+        job: docs.{{ domain_name }}.error.log
+        __path__: "/var/log/nginx/docs.{{ domain_name }}.error.log"
   - job_name: nginx-error.log
     static_configs:
     - targets:

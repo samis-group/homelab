@@ -70,7 +70,8 @@ services:
       #- "$PLEX_WEB_TOOLS_PORT:33400"
     volumes:
       - ${DOCKERDIR}/appdata/plexms:/config
-      - ${USERDIR}/mount/video:/data
+      - ${USERDIR}/mount/movies:/data/movies
+      - ${USERDIR}/mount/tv:/data/tv
       - /dev/shm:/transcode # Offload transcoding to RAM if you have enough RAM. Otherwise, disk:
       # Optional: separate volumes as it's where I'll be storing metadata to severely reduce the space required when I backup these containers
       - ${DOCKERDIR}/appdata/shared/plexms/Library/Application Support/Plex Media Server/Cache:/config/Library/Application Support/Plex Media Server/Cache
@@ -157,7 +158,7 @@ services:
       - ${DOCKERDIR}/appdata/shared/radarr/MediaCover:/config/MediaCover
       - ${DOCKERDIR}/appdata/radarr:/config
       - ${USERDIR}/mount/downloads:/downloads
-      - ${USERDIR}/mount/video/movies:/movies
+      - ${USERDIR}/mount/movies:/movies
       - "/etc/localtime:/etc/localtime:ro"
     environment:
       <<: *default-tz-uid-gid
@@ -205,7 +206,7 @@ services:
       - ${DOCKERDIR}/appdata/shared/sonarr/MediaCover:/config/MediaCover
       - ${DOCKERDIR}/appdata/sonarr:/config
       - ${USERDIR}/mount/downloads:/downloads
-      - ${USERDIR}/mount/video/tv:/tv
+      - ${USERDIR}/mount/tv:/tv
       - "/etc/localtime:/etc/localtime:ro"
     environment:
       <<: *default-tz-uid-gid
@@ -288,8 +289,8 @@ services:
       - ${BAZARR_PORT}:6767
     volumes:
       - ${DOCKERDIR}/appdata/bazarr:/config
-      - ${USERDIR}/mount/video/movies:/movies
-      - ${USERDIR}/mount/video/tv:/tv
+      - ${USERDIR}/mount/movies:/movies
+      - ${USERDIR}/mount/tv:/tv
     environment:
       <<: *default-tz-uid-gid
     labels:

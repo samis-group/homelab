@@ -1,12 +1,4 @@
 ---
-- name: Copy docker compose files to docker host
-  copy:
-    src: files/docker/compose-files
-    dest: "{{ docker_dir }}"
-    owner: "{{ main_user }}"
-    group: "{{ docker_group }}"
-    mode: '0644'
-
 - name: Copy .env template
   template:
     src: docker/.env
@@ -14,3 +6,11 @@
     owner: "{{ main_user }}"
     group: "{{ docker_group }}"
     mode: '0755'
+
+- name: Copy docker compose files to docker host
+  copy:
+    src: files/docker/compose-files
+    dest: "{{ docker_dir }}"
+    owner: "{{ main_user }}"
+    group: "{{ docker_group }}"
+    mode: '0644'

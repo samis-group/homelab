@@ -4,6 +4,16 @@
 ###    PLEASE MAKE CHANGES THERE    ###
 #######################################
 
+###############################################################################################
+#               Core objects like volumes and networks are declared in this file              #
+###############################################################################################
+
+###############################################################################################
+#      There is no need to create any networks/volumes outside this docker-compose file.      #
+#   You may customize the network subnets (192.168.90.0/24 and 91.0/24) below as you please.  #
+#        Also same with volumes. I use NFS mounts on my synology NAS, you do you boo          #
+###############################################################################################
+
 version: "3.7"
 
 ########################### EXTENSION FIELDS
@@ -22,14 +32,8 @@ x-logging: &logging
     options:
       loki-url: "http://${SERVER_IP}:${LOKI_PORT}/loki/api/v1/push"
 
-###############################################################################################
-########################################## NETWORKS ###########################################
-###############################################################################################
-#                             Yes they are setup in this container.                           #
-#          There is no need to create any networks outside this docker-compose file.          #
-#   You may customize the network subnets (192.168.90.0/24 and 91.0/24) below as you please.  #
-#         Docker Compose version 3.5 or higher required to define networks this way.          #
-###############################################################################################
+########################### NETWORKS
+# Docker Compose version 3.5 or higher required to define networks this way.
 
 networks:
   defaulty:
@@ -397,16 +401,7 @@ services:
 
   # MariaDB - MySQL Database
   # https://hub.docker.com/r/linuxserver/mariadb/
-  # After starting container for first time dexec in and mysqladmin -u root password <password>
-  # Also setup authelia db and user:
-  # CREATE DATABASE '{{ authelia.database.name }}';
-  # CREATE USER '{{ authelia.database.username }}'@'%' IDENTIFIED BY 'password';
-  # GRANT ALL PRIVILEGES ON *.* TO '{{ authelia.database.username }}'@'%';
-  # CREATE USER '{{ mariadb.user }}'@'%' IDENTIFIED BY '{{ mariadb.password }}';
-  # GRANT ALL PRIVILEGES ON *.* TO '{{ mariadb.user }}'@'%';
-  # FLUSH PRIVILEGES;
-  # The home assistant/authelia users must have greants on the home assistant/authelia db's with host set to '%'. Use this command to find out:
-  # SELECT User, Host, Password FROM mysql.user;
+  # After starting container for the first time, if you ran the ansible playbook, it will have created a file to bootstrap it: `templates/docker/appdata/mariadb/config/initdb.d/authelia.sql`
   mariadb:
     container_name: mariadb
     image: lscr.io/linuxserver/mariadb
@@ -416,19 +411,19 @@ services:
     networks:
       - defaulty
     healthcheck:
-      test: nc -z localhost 3306
-      interval: 60s
-      timeout: 3s
-      retries: 3
+      test: ["CMD", 'mysqladmin', 'ping', '-h', 'localhost', '-u', 'root', '-p$$MYSQL_ROOT_PASSWORD']
+      interval: 20s
+      timeout: 10s
+      retries: 10
     ports:
       - "${MARIADB_PORT}:3306"
     volumes:
-      - ${DOCKERDIR}/appdata/mariadb:/config  # Contains the db itself and all assorted settings.
+      - ${DOCKERDIR}/appdata/mariadb/config:/config   # Contains the db itself and all assorted settings.
     environment:
       MYSQL_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}   # Set this to root password for installation (minimum 4 characters).
-      MYSQL_DATABASE: ${MARIADB_DATABASE}   # Specify the name of a database to be created on image startup (I created hass).
-      MYSQL_USER: ${MARIADB_USER}   # This user will have superuser access to the database specified by MYSQL_DATABASE above (do not use root here), (I created hass).
-      MYSQL_PASSWORD: ${MARIADB_PASSWORD}   # Set this to the password you want to use for you MYSQL_USER above (minimum 4 characters) (I did for hass user)..
+      MYSQL_DATABASE: ${MARIADB_DATABASE}             # Specify the name of a database to be created on image startup (I created hass).
+      MYSQL_USER: ${MARIADB_USER}                     # This user will have superuser access to the database specified by MYSQL_DATABASE above (do not use root here), (I created hass).
+      MYSQL_PASSWORD: ${MARIADB_PASSWORD}             # Set this to the password you want to use for you MYSQL_USER above (minimum 4 characters) (I did for hass user)..
       <<: *default-tz-uid-gid
     <<: *logging
 
