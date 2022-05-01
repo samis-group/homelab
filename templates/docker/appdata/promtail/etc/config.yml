@@ -78,3 +78,10 @@ scrape_configs:
       labels:
         job: nginx-error.log
         __path__: "/var/log/nginx/nginx-error.log"
+  - job_name: mosquitto.log
+    static_configs:
+    - targets:
+        - localhost
+      labels:
+        job: mosquitto.log
+        __path__: "{{ docker_dir }}/appdata/mqtt/log/mosquitto.log"   # Not working...
