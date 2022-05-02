@@ -1,11 +1,16 @@
 ---
+- name: Create docker group if non existant
+  group:
+    name: "{{ docker_group }}"
+    state: present
+
 # Create user based on username
 - name: Create user and add to docker/sudo groups
   user:
     name: "{{ main_user }}"
-    password: "{{ ansible_sudo_pass | password_hash('sha512', 'mysecretsalt') }}"
+    password: "{{ ansible_become_password | password_hash('sha512', 'mysecretsalt') }}"
     groups:
-      - docker
+      - "{{ docker_group }}"
       - sudo
     append: true
     state: present

@@ -1,2 +1,7 @@
 ---
 - src: arillso.logrotate
+- src: geerlingguy.docker
+- src: geerlingguy.ntp
+
+- name: udelarinterior.proxmox_create_kvm
+  src: https://github.com/UdelaRInterior/ansible-role-proxmox-create-kvm.git

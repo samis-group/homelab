@@ -87,26 +87,3 @@
   when: >
     gh_compose_api.json.name not in dc_cur_ver.stdout
     or dc_cur_ver.stdout is not defined
-
-#####################
-### Docker Extras ###
-#####################
-
-- name: Install Loki plugin for logging driver
-  community.docker.docker_plugin:
-    plugin_name: grafana/loki-docker-driver:latest
-    state: present
-    alias: loki
-    # Need to figure out how to do this from cmd to ansible: --grant-all-permissions
-    # It could already be default? meeds testing -> https://github.com/ansible-collections/community.docker/issues/145
-    # Otherwise just run the command via cli:
-    # docker plugin install grafana/loki-docker-driver:latest --alias loki --grant-all-permissions
-
-# This is for me to obtain my personal docker images.
-- name: Log into gitlab container registry.
-  community.docker.docker_login:
-    registry_url: https://registry.gitlab.com
-    username: "{{ gitlab.username }}"
-    password: "{{ gitlab.personal_access_token }}"
-    debug: true
-    config_path: "{{ user_dir }}/.docker/config.json"   # Ansible logs in as root, so need to manually configure this.

@@ -1,0 +1,112 @@
+---
+###########################
+### Configure Docker VM ###
+###########################
+
+- name: Configure Docker VM
+  hosts: docker
+  become: true
+
+  # Load in our default and vaulted vars
+  vars_files:
+    - vars/vault.yml
+
+  # Allow user to override defaults with their custom config file
+  pre_tasks:
+
+    - name: Include playbook configuration.
+      include_vars: "{{ item }}"
+      with_fileglob:
+        - "{{ playbook_dir }}/vars/config.yml"
+      # Special tag 'always' -> https://docs.ansible.com/ansible/latest/user_guide/playbooks_tags.html#special-tags-always-and-never
+      tags: ["always"]
+
+    - name: Instantiate some extra vars from included vars
+      set_fact:
+        user_dir: /home/{{ main_user }}
+        docker_dir: /home/{{ main_user }}/docker
+        git_dir: /home/{{ main_user }}/git/personal
+        secrets_dir: /home/{{ main_user }}/docker/secrets
+      tags: ["always"]
+
+    # This is to get the UID and GID variables to use later in multiple areas
+    - name: Get user info or create a user if one doesn't exist
+      import_tasks: tasks/check_user.yml
+      tags: ["always"]
+
+  # Import handlers for all tasks
+  handlers:
+    - import_tasks: handlers/main.yml
+
+  tasks:
+
+    - name: Install OS updates and required packages
+      import_tasks: tasks/docker/install_os_packages.yml
+      when: install_os_packages
+      tags: ["install_os_packages"]
+
+    - name: Configuring Hostname
+      import_tasks: tasks/configure_hostname.yml
+      when: configure_hostname
+      tags: ["configure_hostname"]
+
+    - name: Pre-docker install tasks
+      import_tasks: tasks/docker/pre_docker.yml
+      tags: ["pre_docker"]
+
+    - name: Configure gitlab registry and clone git repos
+      import_tasks: tasks/docker/git.yml
+      when: git
+      tags: ["git"]
+
+    - name: Installing, running and configuring Docker
+      import_tasks: tasks/install_docker.yml
+      when: install_docker
+      tags: ["install_docker"]
+
+    - name: Updating docker-compose and related files
+      import_tasks: tasks/docker/copy_files.yml
+      when: copy_files
+      tags: ["copy_files"]
+
+    - name: Updating docker-compose and related files
+      import_tasks: tasks/docker/update_compose.yml
+      when: update_compose
+      tags: ["update_compose"]
+
+    - name: Setup container directories and copy files
+      import_tasks: tasks/docker/setup_containers.yml
+      when: setup_containers
+      tags: ["setup_containers"]
+
+    - name: Write logrotate files to host
+      import_tasks: tasks/docker/logrotate.yml
+      when: logrotate
+      tags: ["logrotate"]
+
+    - name: Setup NAS mounts
+      import_tasks: tasks/docker/setup_nas_mounts.yml
+      when: setup_nas_mounts
+      tags: ["setup_nas_mounts"]
+
+    - name: Setup Crons
+      import_tasks: tasks/docker/setup_crons.yml
+      when: setup_crons
+      tags: ["setup_crons"]
+
+    - name: Run Post tasks
+      import_tasks: tasks/docker/run_post_tasks.yml
+      when: run_post_tasks
+      tags: ["run_post_tasks"]
+
+    - name: Configure Home Assistant
+      import_tasks: tasks/docker/hass_config.yml
+      when: hass_config
+      tags: ["hass_config"]
+
+    # Put tasks before this one
+
+    - name: Test Task
+      import_tasks: tasks/test_task.yml
+      when: test_task
+      tags: ["test_task"]

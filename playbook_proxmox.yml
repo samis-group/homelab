@@ -1,0 +1,43 @@
+---
+- name: Provision VM's on Proxmox Host
+  hosts: proxmox
+
+  # Load in our default and vaulted vars
+  vars_files:
+    - vars/vault.yml
+
+  # Allow user to override defaults with their custom config file
+  pre_tasks:
+
+    - name: Include playbook configuration.
+      include_vars: "{{ item }}"
+      with_fileglob:
+        - "{{ playbook_dir }}/vars/config.yml"
+      # Special tag 'always' -> https://docs.ansible.com/ansible/latest/user_guide/playbooks_tags.html#special-tags-always-and-never
+      tags: ["always"]
+
+    - name: Instantiate some extra vars from included vars
+      set_fact:
+        user_dir: /home/{{ main_user }}
+        docker_dir: /home/{{ main_user }}/docker
+        git_dir: /home/{{ main_user }}/git/personal
+        secrets_dir: /home/{{ main_user }}/docker/secrets
+      tags: ["always"]
+
+    # This is to get the UID and GID variables to use later in multiple areas
+    - name: Get user info or create a user if one doesn't exist
+      import_tasks: tasks/check_user.yml
+      tags: ["always"]
+
+  # roles:
+  #   - provision-docker-vm
+
+  tasks:
+    - name: debug test
+      debug:
+        msg: "DOMAIN"
+    # This isn't ready yet...
+    # - name: Create VM in Proxmox
+    #   import_role:
+    #     name: provision-docker-vm
+    #   register: vm_provision

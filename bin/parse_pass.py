@@ -5,8 +5,8 @@ import os
 
 # in case there are spaces, no quotes or whatever they do
 password = ''.join(sys.argv[1::])
-folderpath = os.path.expanduser('~/.ansible/')
-filename = 'password'
+folderpath = f'{os.getcwd()}/'
+filename = '.vault-password'
 filepath = folderpath + filename
 
 # If file exists and isn't empty, let's break out early

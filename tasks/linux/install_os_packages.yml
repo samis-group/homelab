@@ -1,0 +1,93 @@
+---
+- name: Apt Upgrade
+  apt:
+    name: '*'
+    state: latest
+    update_cache: true
+
+- name: Add apt repo's
+  ansible.builtin.apt_repository:
+    repo: "{{ item }}"
+    state: present
+  with_items:
+    - 'ppa:yktooo/ppa'
+
+- name: Install required packages
+  apt:
+    state: present
+    pkg:
+      - wget
+      - curl                   # Docker
+      - telnet
+      - net-tools
+      - logrotate
+      - ca-certificates   # Docker
+      - gnupg               # Docker
+      - lsb-release        # Docker
+      - htop
+      - make
+      - vim
+      - stow
+      - python3
+      - python3-pip
+      - cifs-utils
+      - nfs-common
+      - bash-completion
+      - apt-transport-https
+      - software-properties-common
+      - jq
+      - git
+      - unzip
+      - snapd
+      - pwgen
+
+- name: Install required GUI packages
+  apt:
+    state: present
+    pkg:
+      - gimp
+      - flameshot
+      - gnome-tweaks
+      - vlc
+      - appmenu-gtk3-module
+      - indicator-sound-switcher
+  when: has_gui is defined
+
+- name: pip self-update
+  pip:
+    name: pip
+    state: latest
+
+- name: Install required python modules
+  pip:
+    name:
+      - docker
+      - passlib
+      - pyyaml
+
+# Vundle install
+- name: Clone Vundle
+  git:
+    repo: https://github.com/VundleVim/Vundle.vim.git
+    dest: "{{ user_dir }}/.vim/bundle/Vundle.vim"
+    clone: true
+    update: true
+
+- name: Install Snaps
+  community.general.snap:
+    name: "{{ item }}"
+  with_list:
+    - bitwarden
+    - spotify
+    - teams
+    - mysql-workbench-community
+  when: has_gui is defined
+
+- name: Install Snaps (classic)
+  community.general.snap:
+    name: "{{ item }}"
+    classic: true
+  with_list:
+    - slack
+    - code
+  when: has_gui is defined

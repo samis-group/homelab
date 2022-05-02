@@ -1,43 +1,66 @@
-# Homelab
+# Ubuntu Desktop Ansible Playbook
 
 ![Logo](files/logo.png)
 
 ![ubuntu-20-04]
-![badge-windows-10]
-![badge-windows-11]
 ![badge-license]
 
-This repository contains all of my playbooks and configurations to install and configure my Docker VM on proxmox, configures some containers, can even setup my windows/linux desktop PC. You are able to completely tear this down and rebuild it (this does not install proxmox, it cannot do this bit for you).
+This playbook installs and configures my Ubuntu Desktop on proxmox, configures the VM and containers.
 
 > ❗ **This playbook was tested on Ubuntu 20.04. Other versions may work but have not been tested.**
 
 ## Contents
 
-- [Homelab](#homelab)
-  - [Contents](#contents)
-  - [Playbook capabilities](#playbook-capabilities)
-  - [Setup the Ansible Control Node (where you will run the playbook from)](#setup-the-ansible-control-node-where-you-will-run-the-playbook-from)
-  - [Provision the Ubuntu Docker VM in Proxmox](#provision-the-ubuntu-docker-vm-in-proxmox)
-    - [Deploy SSH key and test](#deploy-ssh-key-and-test)
-      - [Troubleshooting Host Setup](#troubleshooting-host-setup)
-  - [Running the Playbook](#running-the-playbook)
-    - [Running a specific set of tagged tasks](#running-a-specific-set-of-tagged-tasks)
-  - [Overriding Defaults](#overriding-defaults)
-  - [Things to note](#things-to-note)
-  - [Tasks to perform after playbook is complete](#tasks-to-perform-after-playbook-is-complete)
-  - [Author](#author)
-  - [License](#license)
+* [Playbook capabilities](#playbook-capabilities)
+* [Setup the Ansible Control Node](#Setup-the-Ansible-Control-Node-(where-you-will-run-the-playbook-from))
+* [Provision the Ubuntu Desktop in Proxmox](#Provision-the-Ubuntu-Docker-VM-in-Proxmox)
+  * [Deploy SSH key and test](#Deploy-SSH-key-and-test)
+    * [Troubleshooting Host Setup](#Troubleshooting-Host-Setup)
+* [Running the Playbook](#Running-the-Playbook)
+  * [Running a specific set of tagged tasks](#Running-a-specific-set-of-tagged-tasks)
+* [Overriding Defaults](#Overriding-Defaults)
+* [Author](#Author)
+* [License](#License)
 
 ## Playbook capabilities
 
 > **NOTE:** The Playbook is fully configurable. You can skip or reconfigure any task by [Overriding Defaults](#overriding-defaults).
 
-- Most common actions can be performed by issuing the associated `make` command. Go to Makefile to see what it can do.
-  - Most of these make commands that run plays where you need verbose output (-vvv), simply append `-v` to the make target and it will run it verbosely, e.g. `make update-compose-v`
+* Most common actions can be performed by issuing the associated `make` command. Go to Makefile to see what it can do.
+  * Most of these make commands that run plays where you need verbose output (-vvv), simply append `-v` to the make target and it will run it verbosely, e.g. `make update-compose-v`
 
 ## Setup the Ansible Control Node (where you will run the playbook from)
 
-1. Clone this repo locally (change to https method if you aren't me): `git clone git@gitlab.com:th3cookie/docker-playbook.git`
+### If it is this same machine
+
+Remember to clone and setup the [dotfiles repo](https://gitlab.com/th3cookie/dotfiles).
+
+Setup things:
+```bash
+mkdir -p .ssh
+cd .ssh/
+touch id_rsa_personal id_ecdsa_git
+# Fill in these ssh keys
+chmod 600 id_*
+ssh-add id_*
+# Install openssh-server so we can connect and run tasks
+sudo apt update
+sudo apt install openssh-server make
+sudo ufw allow ssh      # If running ufw
+touch ~/.ssh/authorized_keys
+# Make sure root user has the key as well
+touch /root/.ssh/authorized_keys
+# Add your public keys there
+chmod 600 ~/.ssh/authorized_keys
+chmod 600 /root/.ssh/authorized_keys
+```
+
+1. Clone this repo locally (change to https method if you aren't me):
+
+```bash
+git clone git@gitlab.com:th3cookie/ubuntu-desktop-playbook.git
+cd linux-desktop-playbook/
+```
 
 2. Run the following command substituting your ansible vault password as required (skip inputting the password argument if you don't use ansible-vault or you have already stored this password in `~/.ansible/password` as per my other playbooks). This will [install ansible](https://docs.ansible.com/ansible/latest/installation_guide/index.html), upgrade pip and store your password inside of the file located in `~/.ansible/password` for use with `ansible-vault`:
 
@@ -72,13 +95,13 @@ make decrypt
 make encrypt
 ```
 
-## Provision the Ubuntu Docker VM in Proxmox
+## Provision the Ubuntu Desktop in Proxmox
 
 > ❗ **If you have already provisioned the VM, skip this step. I'm using Proxmox to provision the VM.** ❗
 
 Before running ansible, Ensure you have created a template from an OS that can be cloned.
 
-Populate your proxmox vars in [this defaults file in the `provision-docker-vm` role](roles/provision-docker-vm/defaults/main.yml) according to how you want to provision the docker VM in your proxmox environment.
+Populate your proxmox vars in [this defaults file in the `provision-docker-vm` role](roles/provision-docker-vm/defaults/main.yml) according to how you want to provision the Ubuntu Desktop in your proxmox environment.
 
 Install dependencies required on the **proxmox host** (if required - i.e. first time):
 
@@ -87,7 +110,7 @@ ssh proxmox
 apt install python3-pip && pip3 install proxmoxer requests
 ```
 
-Now let's deploy our docker VM to proxmox:
+Now let's deploy our Ubuntu Desktop to proxmox:
 
 ```bash
 make provision-vm
@@ -111,7 +134,7 @@ ansible-vault edit --vault-password-file ~/.ansible/password inventory
 
 #### Troubleshooting Host Setup
 
-**TBA**.
+**TBA**
 
 ## Running the Playbook
 
@@ -165,33 +188,20 @@ make list-vars
 ```
 
 Check the following files for these configurable items:
-
-- [group_vars/all](group_vars/all)
-- [vars/default_config.yml](vars/default_config.yml)
-- [vars/config.yml](vars/config.yml)
-- [vars/vault.yml](vars/vault.yml)
-
-## Things to note
-
-When doing a git pull, recurse into submodules as well to pull any submodule updates, otherwise you'll potentially push old code into prod.
-
-```bash
-git pull --recurse-submodules
-```
-
-## Tasks to perform after playbook is complete
-
-1. Setup [PlexKodiConnect](https://github.com/croneter/PlexKodiConnect/wiki/Installation#automatic-installation-highly-recommended)
+* [group_vars/all](group_vars/all)
+* [vars/default_config.yml](vars/default_config.yml)
+* [vars/config.yml](vars/config.yml)
+* [inventory](inventory)
 
 ## Author
 
-This project was created by [Sami Shakir](https://www.linkedin.com/in/sami-shakir/). Feel free to use/fork it.
+This project was created by [Sami Shakir](https://www.linkedin.com/in/nabokih/). Feel free to use/fork it.
 
 ## License
 
 This software is available under the following licenses:
 
-- **[MIT](./LICENSE)**
+* **[MIT](./LICENSE)**
 
 [ubuntu-20-04]: https://img.shields.io/badge/OS-Ubuntu%2020.04-blue
 [badge-license]: https://img.shields.io/badge/License-MIT-informational

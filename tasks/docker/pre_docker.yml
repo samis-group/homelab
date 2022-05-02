@@ -1,9 +1,4 @@
 ---
-- name: Set Hostname
-  hostname:
-    name: "{{ hostname }}"
-  when: configure_hostname
-
 ### Old method when it was one massive docker-compose.yml ###
 # - name: Read docker-compose.yml into variable for parsing service names
 #   delegate_to: localhost

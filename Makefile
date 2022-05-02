@@ -1,14 +1,35 @@
 .PHONY: execute execute-v test test-v test-vvv run-tags run-tags-v provision-vm provision-vm-v update-compose update-compose-v setup-containers setup-containers-v list-tags list-vars setup apt pip reqs store-password githook decrypt encrypt
 
-# Run the playbook (Assumes 'make setup' has been run)
+# Run the playbook (Assumes 'make setup' has been run). Note: Vault password file directive is now specified in 'ansible.cfg'.
 execute:
 	@ansible-playbook main.yml
 
 execute-v:
 	@ansible-playbook -vvv main.yml
 
+wsl:
+	@ansible-playbook main.yml --limit wsl
+
+wsl-v:
+	@ansible-playbook -vvv main.yml --limit wsl
+
+windows:
+	@ansible-playbook main.yml --limit win10ssh
+
+windows-v:
+	@ansible-playbook -vvv main.yml --limit win10ssh
+
+windows-test:
+	@ansible-playbook --tags "test_task" -e "test_task=true" main.yml --limit win10ssh
+
+windows-test-v:
+	@ansible-playbook --tags "test_task" -e "test_task=true" main.yml --limit win10ssh
+
+chocolatey:
+	@ansible-playbook --tags "chocolatey" -e "chocolatey=true" main.yml --limit win10ssh
+
 # Setup entire environment
-setup: apt pip reqs
+setup: apt pip reqs store-password githook
 
 # Ensure python and pip (assumes ubuntu host)
 apt:
@@ -23,6 +44,45 @@ pip:
 reqs:
 	@ansible-galaxy install -r requirements.yml
 	@ansible-galaxy install -r roles/requirements.yml
+
+# Store your password for use with the playbook commands and if the vault is encrypted
+# Python is just 1000% better at parsing raw data than bash/GNU Make. /rant
+store-password:
+	@red=`tput setaf 1`
+	@green=`tput setaf 2`
+	@reset=`tput sgr0`
+	@if [ -n "$${VAULT_PASS}" ]; then\
+		if [ ! -d ~/.ansible ]; then\
+			mkdir ~/.ansible;\
+		fi;\
+		echo "$${VAULT_PASS}" > ~/.ansible/password;\
+		if [ ! "$${VAULT_PASS}" = "$$(cat ~/.ansible/password)" ]; then\
+			echo "$$(tput setaf 1)PASSWORD WAS NOT ABLE TO UPDATE! Please manually invoke the custom python script to do this for you as follows:";\
+			echo "./bin/parse_pass.py 'super_secret_password' <- Make sure to use single quotes.$$(tput sgr0)";\
+		else\
+			echo "$$(tput setaf 2)PASSWORD SUCCESSFULLY STORED IN '~/.ansible/password'!$$(tput sgr0)";\
+		fi;\
+	fi
+
+# Creates a pre-commit webhook so that you don't accidentally commit decrypted vault upstream
+githook:
+	@if [ -d .git/ ]; then\
+		if [ -e .git/hooks/pre-commit ]; then\
+			echo "$$(tput setaf 2)Removing Existing pre-commit...$$(tput sgr0)";\
+	  	rm .git/hooks/pre-commit;\
+		fi;\
+  fi
+	@cp bin/git-vault-check.sh .git/hooks/pre-commit
+	@chmod +x .git/hooks/pre-commit
+	@echo "$$(tput setaf 2)Githook Deployed!$$(tput sgr0)"
+
+# List variables
+ifeq (list-vars, $(firstword $(MAKECMDGOALS)))
+  extrafiles := $(wordlist 2, $(words $(MAKECMDGOALS)), $(MAKECMDGOALS))
+  $(eval $(extrafiles):;@true)
+endif
+list-vars:
+	@./bin/vars_list.py group_vars/all.yml vars/default_config.yml vars/config.yml vars/vault.yml $(extrafiles)
 
 # List the available tags that you can run standalone from the playbook
 list-tags:
@@ -78,58 +138,16 @@ setup-containers:
 setup-containers-v:
 	@ansible-playbook -vvv --tags "copy_files,update_compose,setup_containers" -e "copy_files=true" -e "update_compose=true" main.yml
 
-#######################################################
-### Deprecated makes from when i used ansible-vault ###
-#######################################################
+# Let's allow the user to edit the ansible vaults in-place instead of flat out decrypting it to reduce risk of pushing it in cleartext to remote repo.
+# Even though I've got the git commit hook in place, when the repo name changes for example, and repo is cloned fresh, this poses a problem when forgetting to run `make setup` first and deploying the hook.
+# This approach is just far safer than decrypting and encrypting the files themselves below.
+edit-vault:
+	ansible-vault edit vars/vault.yml
 
-# # List variables
-# ifeq (list-vars, $(firstword $(MAKECMDGOALS)))
-#   extrafiles := $(wordlist 2, $(words $(MAKECMDGOALS)), $(MAKECMDGOALS))
-#   $(eval $(extrafiles):;@true)
-# endif
-# list-vars:
-# 	@./bin/vars_list.py group_vars/all.yml vars/default_config.yml vars/config.yml inventory $(extrafiles)
+# Decrypt all files in this repo
+decrypt:
+	ansible-vault decrypt vars/vault.yml
 
-# # Store your password for use with the playbook commands and if the vault is encrypted
-# # Python is just 1000% better at parsing raw data than bash/GNU Make. /rant
-# store-password:
-# 	@red=`tput setaf 1`
-# 	@green=`tput setaf 2`
-# 	@reset=`tput sgr0`
-# 	@if [ -n "$${VAULT_PASS}" ]; then\
-# 		if [ ! -d ~/.ansible ]; then\
-# 			mkdir ~/.ansible;\
-# 		fi;\
-# 		echo "$${VAULT_PASS}" > ~/.ansible/password;\
-# 		if [ ! "$${VAULT_PASS}" = "$$(cat ~/.ansible/password)" ]; then\
-# 			echo "$$(tput setaf 1)PASSWORD WAS NOT ABLE TO UPDATE! Please manually invoke the custom python script to do this for you as follows:";\
-# 			echo "./bin/parse_pass.py 'super_secret_password' <- Make sure to use single quotes.$$(tput sgr0)";\
-# 		else\
-# 			echo "$$(tput setaf 2)PASSWORD SUCCESSFULLY STORED IN '~/.ansible/password'!$$(tput sgr0)";\
-# 		fi;\
-# 	fi
-
-# # Creates a pre-commit webhook so that you don't accidentally commit decrypted vault upstream
-# githook:
-# 	@./bin/git_init.sh
-
-# # Let's allow the user to edit the ansible vaults in-place instead of flat out decrypting it to reduce risk of pushing it in cleartext to remote repo.
-# # Even though I've got the git commit hook in place, when the repo name changes for example, and repo is cloned fresh, this poses a problem when forgetting to run `make setup` first and deploying the hook.
-# # This approach is just far safer than decrypting and encrypting the files themselves below.
-# edit-vars-all:
-# 	ansible-vault edit --vault-password-file ~/.ansible/password group_vars/all.yml
-
-# edit-vars-inventory:
-# 	ansible-vault edit --vault-password-file ~/.ansible/password inventory
-
-# # Decrypt all files in this repo
-# decrypt:
-# 	ansible-vault decrypt --vault-password-file ~/.ansible/password group_vars/all.yml
-# 	ansible-vault decrypt --vault-password-file ~/.ansible/password inventory
-# 	@# ansible-vault decrypt --vault-password-file ~/.ansible/password docker_vm_vars.yml
-
-# # Encrypt all files in this repo
-# encrypt:
-# 	ansible-vault encrypt --vault-password-file ~/.ansible/password group_vars/all.yml
-# 	ansible-vault encrypt --vault-password-file ~/.ansible/password inventory
-# 	@# ansible-vault encrypt --vault-password-file ~/.ansible/password docker_vm_vars.yml
+# Encrypt all files in this repo
+encrypt:
+	ansible-vault encrypt vars/vault.yml

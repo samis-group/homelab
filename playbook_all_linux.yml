@@ -1,0 +1,15 @@
+---
+####################################
+### Run tasks on all linux hosts ###
+####################################
+
+- name: Run tasks on all linux hosts
+  hosts: docker wsl sami_pc_linux proxmox
+  become: true
+  # Load in our default and vaulted vars
+  vars_files:
+    - vars/vault.yml
+  tasks:
+    - name: Set timezone
+      timezone:
+        name: "{{ tz }}"

@@ -1,0 +1,25 @@
+---
+# Install Chocolatey packages
+- name: Ensure configured Chocolatey packages are installed
+  win_chocolatey:
+    name: "{{ item.name | default(item) }}"  # Installing sequentially so we know which fails
+    state: present
+    ignore_checksums: true
+  ignore_errors: true  # Some packages fail to install, but we don't want the whole playbook to not run because of it.
+  loop: "{{ choco_installed_packages }}"
+
+# This is breaking and is redundant anyway because there is an app installed via chocolatey that checks and updates daily.
+# # Upgrade all chocolatey packages
+# - name: Upgrade installed chocolatey packages
+#   win_chocolatey:
+#     name: all
+#     state: latest
+
+### Package Specific ###
+
+# Ensure user has access to specific dirs
+# TODO
+# with your dir: C:\ProgramData\chocolatey\lib\tor-browser\tools\tor-browser
+# Watch this vid from 45s -> https://youtu.be/2pcZF-dwn1A?t=45
+# and write ansible to do this.
+# - name: Give user access to required dirs

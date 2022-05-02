@@ -1,0 +1,17 @@
+---
+# Try to set the power plan
+- name: "Ensure power plan set to {{ power_plan_set }}"
+  win_power_plan:
+    name: "{{ power_plan_set }}"
+  ignore_errors: true
+  register: powerplan_output
+
+# If the Ultimate Perforfmance power plan that I use isn't there, create it and set it again
+- name: Create Ultimate Perforfmance power plan
+  ansible.windows.win_command: powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61
+  when: powerplan_output.failed == true
+
+- name: "Ensure power plan set to {{ power_plan_set }} if it failed the first time"
+  win_power_plan:
+    name: "{{ power_plan_set }}"
+  when: powerplan_output.failed == true

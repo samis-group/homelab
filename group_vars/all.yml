@@ -1,4 +1,15 @@
 ---
+main_user: sami                 # User that will be created and will manage the systems/containers
+main_user_ssh_key_filename: id_rsa_docker
+main_user_ssh_key_title: "{{ main_user }}-id_rsa_docker"
+docker_group: docker            # Leave this as 'docker', the user will need to be added to this group to run docker
+network_gateway: 10.0.0.1       # Typically your router IP
+local_network: 10.0.0.0/16      # Your local subnet that will be used to whitelist certain aceess to resources
+ssh:                            # SSH key to connect to docker vm
+  key_private: "{{ user_dir }}/.ssh/id_rsa_personal"
+  key_public: "{{ user_dir }}/.ssh/id_rsa_personal.pub"
+tz: 'Australia/Sydney'          # Timezone setting
+
 # Playbook run tasks default actions:
 install_os_packages: true
 configure_hostname: true
@@ -64,9 +75,12 @@ watchtower_interval: 15000
 # Traefik rules (not docker)
 home_assistant_port: '8123'
 oauth_port: '4181'
+pfsense_ip: 10.0.0.1  # pfsense router IP
 pfsense_port: '50000'
 syncthing_port: '8384'
+proxmox_ip: 10.0.0.2  # proxmox hypervisor IP
 proxmox_port: '8006'
+vpn_provider: NORDVPN           # Reference haugene/transmission-openvpn -> http://haugene.github.io/docker-transmission-openvpn/supported-providers
 
 # Required directories and files to be created before docker templates/files can be copied - recursive
 required_items:
@@ -101,9 +115,42 @@ required_items:
     - "{{ docker_dir }}/appdata/traefik/acme/acme.json"
     - "{{ docker_dir }}/appdata/homeassistant/home-assistant.log"   # Required for hacs to install.. Check it's install script code..
 
+nas:
+  ip: 10.0.0.3  # Synology NAS IP
+  port: '5000'  # Synology NAS Port
+  mounts:   # NFS Mounts from the Synology NAS
+    docker_backups:
+      local_mapping: "{{ user_dir }}/mount/docker_backups"
+      remote_mapping: "/volume1/nfs/docker_backups"
+    downloads:
+      local_mapping: "{{ user_dir }}/mount/downloads"
+      remote_mapping: "/volume1/nfs/downloads"
+    motioneye:
+      local_mapping: "{{ user_dir }}/mount/motioneye"
+      remote_mapping: "/volume1/nfs/motioneye"
+    tv:
+      local_mapping: "{{ user_dir }}/mount/tv"
+      remote_mapping: "/volume1/video/tv"
+    movies:
+      local_mapping: "{{ user_dir }}/mount/movies"
+      remote_mapping: "/volume1/video/movies"
+    syncthing:
+      local_mapping: "{{ user_dir }}/mount/syncthing"
+      remote_mapping: "/volume1/nfs/syncthing"
+    sami_pictures:
+      local_mapping: "{{ user_dir }}/mount/photos/sami"
+      remote_mapping: "/volume1/Samis_Folder/Photos"
+    family_pictures:
+      local_mapping: "{{ user_dir }}/mount/photos/family"
+      remote_mapping: "/volume1/Photos"
+
 ##############################################
 ######### Currently Unused Variables #########
 ##############################################
+
+##### SYSTEM
+
+# pihole_ip=x.x.x.x             # `ip a`
 
 ##### PORTS
 
@@ -131,3 +178,41 @@ required_items:
 # NUC_PLEX_HOLLYWOOD=2
 # SYN_PLEX_TVSHOWS=2
 # NUC_PLEX_TVSHOWS=16
+
+##### DOMAIN
+
+# cloudflare_zoneid=
+# subdomain=sub
+
+##### DATABASE
+
+# db_host=
+# db_port=
+# mysql_root_password=
+
+##### SECURITY AND PRIVACY
+
+# ipvanish_username=
+# ipvanish_password=
+# http_username=
+# http_password=
+# lidarr_api_key=
+# sabnzbd_api_key=
+
+##### NOTIFICATIONS
+
+# tgram_bot_token=
+# tgram_chat_id=
+
+##### APPS
+
+# jdown_vnc_passwd=
+# handbrake_vnc_passwd=
+# firefox_vnc_passwd=
+# filebot_vnc_passwd=
+# qdirstat_vnc_passwd=
+# mkvtoolnix_vnc_passwd=
+# makemkv_vnc_passwd=
+# guac_mysql_user=
+# guac_mysql_password=
+# pihole_webpassword=
