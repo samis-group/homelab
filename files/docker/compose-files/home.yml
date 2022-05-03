@@ -156,6 +156,8 @@ services:
     image: eclipse-mosquitto:latest
     init: true
     restart: always
+    networks:
+      - traefik_proxy
     healthcheck:
       test: nc -z localhost 1883
       interval: 60s
@@ -179,15 +181,20 @@ services:
   # zigbee2mqtt
   # https://hub.docker.com/r/koenkk/zigbee2mqtt/
   # You also need to add home assistant -> https://github.com/zigbee2mqtt/hassio-zigbee2mqtt
+  # This containers' configuration can entirely be set using environment variables -> https://www.zigbee2mqtt.io/guide/configuration/#environment-variables
   zigbee2mqtt:
     container_name: zigbee2mqtt
     image: koenkk/zigbee2mqtt:latest
     init: true
     restart: always
-    network_mode: host
+    networks:
+      - traefik_proxy
+    depends_on: # Put this back once mqtt is good.
+      mqtt:
+        condition: service_healthy
     user: ${PUID}:${PGID}
     healthcheck:
-      test: nc -z localhost ${ZIGBEE2MQTT_PORT}
+      test: nc -z localhost 8080
       interval: 60s
       timeout: 3s
       retries: 3
@@ -195,17 +202,35 @@ services:
     group_add:
       - dialout
     ports:
-      # Frontend port
-      - ${ZIGBEE2MQTT_PORT}:${ZIGBEE2MQTT_PORT}
+      - ${ZIGBEE2MQTT_PORT}:8080  # Frontend port
     environment:
       - TZ=${TZ}
+      - ZIGBEE2MQTT_CONFIG_HOMEASSISTANT=true
+      - ZIGBEE2MQTT_CONFIG_PERMIT_JOIN=false
+      - ZIGBEE2MQTT_CONFIG_MQTT_BASE_TOPIC=zigbee2mqtt
+      - ZIGBEE2MQTT_CONFIG_MQTT_SERVER=mqtt://mqtt:1883
+      - ZIGBEE2MQTT_CONFIG_MQTT_USER=${ZIGBEE2MQTT_USER}
+      - ZIGBEE2MQTT_CONFIG_MQTT_PASSWORD=${ZIGBEE2MQTT_PASS}
+      - ZIGBEE2MQTT_CONFIG_SERIAL_PORT=${ZIGBEE_ADAPTER_TTY}
+      - ZIGBEE2MQTT_CONFIG_FRONTEND=true
+      - ZIGBEE2MQTT_CONFIG_ADVANCED_LOG_SYMLINK_CURRENT=true
     volumes:
       - ${DOCKERDIR}/appdata/zigbee2mqtt:/app/data
-      - /run/udev:/run/udev:ro 
+      - /run/udev:/run/udev:ro
     devices:
       # This is the conbee device mapping
       - "${ZIGBEE_ADAPTER_TTY}:/dev/ttyZigbee"
     privileged: true
+    labels:
+      - "traefik.enable=true"
+      ## HTTP Routers
+      - "traefik.http.routers.zigbee2mqtt-rtr.entrypoints=https"
+      - "traefik.http.routers.zigbee2mqtt-rtr.rule=Host(`zigbee.${DOMAINNAME}`)"
+      ## Middlewares
+      - "traefik.http.routers.zigbee2mqtt-rtr.middlewares=chain-oauth@file"
+      ## HTTP Services
+      - "traefik.http.routers.zigbee2mqtt-rtr.service=zigbee2mqtt-svc"
+      - "traefik.http.services.zigbee2mqtt-svc.loadbalancer.server.port=8080"
     <<: *logging
 
   # Display zigbee devices and the status of each of them.

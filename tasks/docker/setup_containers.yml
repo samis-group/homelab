@@ -146,24 +146,24 @@
 ### zigbee2mqtt ###
 ###################
 
-- name: Setup zigbee2mqtt configuration file
-  blockinfile:
-    path: "{{ docker_dir }}/appdata/zigbee2mqtt/configuration.yaml"
-    create: true
-    owner: "{{ main_user }}"
-    group: "{{ docker_group }}"
-    block: |
-      homeassistant: true
-      permit_join: false
-      mqtt:
-        base_topic: zigbee2mqtt
-        server: mqtt://localhost
-        user: {{ zigbe2mqtt_user }}
-        password: {{ mqtt_logins[zigbe2mqtt_user] }}
-      serial:
-        port: {{ home_assistant.zigbee_adapter_tty }} 
-      frontend:
-        port: {{ zigbee2mqtt_port }}
+# - name: Setup zigbee2mqtt configuration file
+#   blockinfile:
+#     path: "{{ docker_dir }}/appdata/zigbee2mqtt/configuration.yaml"
+#     create: true
+#     owner: "{{ main_user }}"
+#     group: "{{ docker_group }}"
+#     block: |
+#       homeassistant: true
+#       permit_join: false
+#       mqtt:
+#         base_topic: zigbee2mqtt
+#         server: mqtt://localhost
+#         user: {{ zigbe2mqtt_user }}
+#         password: {{ mqtt_logins[zigbe2mqtt_user] }}
+#       serial:
+#         port: {{ home_assistant.zigbee_adapter_tty }}
+#       frontend:
+#         port: {{ zigbee2mqtt_port }}
 
 # Required?
 # - name: Importing update-compose task

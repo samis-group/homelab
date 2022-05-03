@@ -7,27 +7,6 @@ execute:
 execute-v:
 	@ansible-playbook -vvv main.yml
 
-wsl:
-	@ansible-playbook main.yml --limit wsl
-
-wsl-v:
-	@ansible-playbook -vvv main.yml --limit wsl
-
-windows:
-	@ansible-playbook main.yml --limit win10ssh
-
-windows-v:
-	@ansible-playbook -vvv main.yml --limit win10ssh
-
-windows-test:
-	@ansible-playbook --tags "test_task" -e "test_task=true" main.yml --limit win10ssh
-
-windows-test-v:
-	@ansible-playbook --tags "test_task" -e "test_task=true" main.yml --limit win10ssh
-
-chocolatey:
-	@ansible-playbook --tags "chocolatey" -e "chocolatey=true" main.yml --limit win10ssh
-
 # Setup entire environment
 setup: apt pip reqs store-password githook
 
@@ -52,15 +31,12 @@ store-password:
 	@green=`tput setaf 2`
 	@reset=`tput sgr0`
 	@if [ -n "$${VAULT_PASS}" ]; then\
-		if [ ! -d ~/.ansible ]; then\
-			mkdir ~/.ansible;\
-		fi;\
-		echo "$${VAULT_PASS}" > ~/.ansible/password;\
-		if [ ! "$${VAULT_PASS}" = "$$(cat ~/.ansible/password)" ]; then\
+		./bin/parse_pass.py "$${VAULT_PASS}";\
+		if [ ! "$${VAULT_PASS}" = "$$(cat ./.vault-password)" ]; then\
 			echo "$$(tput setaf 1)PASSWORD WAS NOT ABLE TO UPDATE! Please manually invoke the custom python script to do this for you as follows:";\
 			echo "./bin/parse_pass.py 'super_secret_password' <- Make sure to use single quotes.$$(tput sgr0)";\
 		else\
-			echo "$$(tput setaf 2)PASSWORD SUCCESSFULLY STORED IN '~/.ansible/password'!$$(tput sgr0)";\
+			echo "$$(tput setaf 2)PASSWORD SUCCESSFULLY STORED IN '.vault-password'!$$(tput sgr0)";\
 		fi;\
 	fi
 
@@ -121,22 +97,43 @@ provision-vm-v:
 	@ansible-playbook -vvv provision_vm.yml
 
 update-compose:
-	@ansible-playbook --tags "update_compose" -e "update_compose=true" main.yml
+	@ansible-playbook --tags "update_compose" -e "update_compose=true" main.yml --limit docker
 
 update-compose-v:
-	@ansible-playbook -vvv --tags "update_compose" -e "update_compose=true" main.yml
+	@ansible-playbook -vvv --tags "update_compose" -e "update_compose=true" main.yml --limit docker
 
 copy-files:
-	@ansible-playbook --tags "copy_files,update_compose" -e "copy_files=true" -e "update_compose=true" main.yml
+	@ansible-playbook --tags "copy_files,update_compose" -e "copy_files=true" -e "update_compose=true" main.yml --limit docker
 
 copy-files-v:
-	@ansible-playbook -vvv --tags "copy_files,update_compose" -e "copy_files=true" -e "update_compose=true" main.yml
+	@ansible-playbook -vvv --tags "copy_files,update_compose" -e "copy_files=true" -e "update_compose=true" main.yml --limit docker
 
 setup-containers:
-	@ansible-playbook --tags "copy_files,update_compose,setup_containers" -e "copy_files=true" -e "update_compose=true" main.yml
+	@ansible-playbook --tags "copy_files,update_compose,setup_containers" -e "copy_files=true" -e "update_compose=true" main.yml --limit docker
 
 setup-containers-v:
-	@ansible-playbook -vvv --tags "copy_files,update_compose,setup_containers" -e "copy_files=true" -e "update_compose=true" main.yml
+	@ansible-playbook -vvv --tags "copy_files,update_compose,setup_containers" -e "copy_files=true" -e "update_compose=true" main.yml --limit docker
+
+wsl:
+	@ansible-playbook main.yml --limit wsl
+
+wsl-v:
+	@ansible-playbook -vvv main.yml --limit wsl
+
+windows:
+	@ansible-playbook main.yml --limit win10ssh
+
+windows-v:
+	@ansible-playbook -vvv main.yml --limit win10ssh
+
+windows-test:
+	@ansible-playbook --tags "test_task" -e "test_task=true" main.yml --limit win10ssh
+
+windows-test-v:
+	@ansible-playbook --tags "test_task" -e "test_task=true" main.yml --limit win10ssh
+
+chocolatey:
+	@ansible-playbook --tags "chocolatey" -e "chocolatey=true" main.yml --limit win10ssh
 
 # Let's allow the user to edit the ansible vaults in-place instead of flat out decrypting it to reduce risk of pushing it in cleartext to remote repo.
 # Even though I've got the git commit hook in place, when the repo name changes for example, and repo is cloned fresh, this poses a problem when forgetting to run `make setup` first and deploying the hook.
