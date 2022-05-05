@@ -41,7 +41,8 @@ access_control:
   networks:
     - name: lan
       networks:
-      - 10.0.0.0/16
+      - {{ local_network_lan }}
+      - {{ local_network_homelab }}
       # - REPLACE_WITH_WAN_IP
     - name: docker
       networks:

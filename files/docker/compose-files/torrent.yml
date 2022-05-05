@@ -60,7 +60,7 @@ services:
     environment:
       PRIVATE_KEY: ${NORDVPN_PRIVATE_KEY}   # required
       DNS: "1.1.1.1,8.8.8.8,1.0.0.1"
-      NET_LOCAL: ${LOCAL_NETWORK}
+      NET_LOCAL: "${LOCAL_NETWORK_LAN},${LOCAL_NETWORK_HOMELAB}"
     sysctls:
       - net.ipv4.conf.all.src_valid_mark=1  # May be required. (depends on multiple factors)
       - net.ipv6.conf.all.disable_ipv6=1    # Recomended if using ipv4 only
@@ -118,7 +118,7 @@ services:
     environment:
       <<: *default-tz-uid-gid
       TRANSMISSION_WEB_HOME: /transmission-web-control/   # optional theme
-      # WHITELIST: ${LOCAL_NETWORK}   # optional
+      # WHITELIST: "${LOCAL_NETWORK_LAN},${LOCAL_NETWORK_HOMELAB}"   # optional
       # - HOST_WHITELIST=dnsnane list #optional
       # - USER=username #optional
       # - PASS=password #optional

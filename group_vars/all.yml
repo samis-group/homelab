@@ -3,8 +3,9 @@ main_user: sami                 # User that will be created and will manage the 
 main_user_ssh_key_filename: id_rsa_docker
 main_user_ssh_key_title: "{{ main_user }}-id_rsa_docker"
 docker_group: docker            # Leave this as 'docker', the user will need to be added to this group to run docker
-network_gateway: 10.0.0.1       # Typically your router IP
-local_network: 10.0.0.0/16      # Your local subnet that will be used to whitelist certain aceess to resources
+network_gateway: 10.10.0.1       # Typically your router IP
+local_network_lan: 10.0.0.0/24      # Your local LAN subnet that will be used to whitelist certain aceess to resources
+local_network_homelab: 10.10.0.0/24 # Your local homelab subnet that will be used to whitelist certain aceess to resources
 ssh:                            # SSH key to connect to docker vm
   key_private: "{{ user_dir }}/.ssh/id_rsa_personal"
   key_public: "{{ user_dir }}/.ssh/id_rsa_personal.pub"
@@ -75,10 +76,10 @@ watchtower_interval: 15000
 # Traefik rules (not docker)
 home_assistant_port: '8123'
 oauth_port: '4181'
-pfsense_ip: 10.0.0.1  # pfsense router IP
+pfsense_ip: 10.10.0.1  # pfsense router IP
 pfsense_port: '50000'
 syncthing_port: '8384'
-proxmox_ip: 10.0.0.2  # proxmox hypervisor IP
+proxmox_ip: 10.10.0.10  # proxmox hypervisor IP
 proxmox_port: '8006'
 vpn_provider: NORDVPN           # Reference haugene/transmission-openvpn -> http://haugene.github.io/docker-transmission-openvpn/supported-providers
 
@@ -116,7 +117,7 @@ required_items:
     - "{{ docker_dir }}/appdata/homeassistant/home-assistant.log"   # Required for hacs to install.. Check it's install script code..
 
 nas:
-  ip: 10.0.0.3  # Synology NAS IP
+  ip: 10.10.0.2  # Synology NAS IP
   port: '5000'  # Synology NAS Port
   mounts:   # NFS Mounts from the Synology NAS
     docker_backups:
