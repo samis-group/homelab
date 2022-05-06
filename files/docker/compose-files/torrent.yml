@@ -117,8 +117,8 @@ services:
       - nordlynx
     environment:
       <<: *default-tz-uid-gid
-      TRANSMISSION_WEB_HOME: /transmission-web-control/   # optional theme
-      # WHITELIST: "${LOCAL_NETWORK_LAN},${LOCAL_NETWORK_HOMELAB}"   # optional
+      # TRANSMISSION_WEB_HOME: /transmission-web-control/   # optional theme
+      # WHITELIST: ${LOCAL_NETWORK}   # optional
       # - HOST_WHITELIST=dnsnane list #optional
       # - USER=username #optional
       # - PASS=password #optional
