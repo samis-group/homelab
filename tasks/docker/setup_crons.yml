@@ -21,14 +21,16 @@
     user: "{{ main_user }}"
     job: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin
 
-- name: Cron - Update docker containers daily
-  ansible.builtin.cron:
-    name: update docker containers daily
-    minute: "0"
-    hour: "4"
-    user: "{{ main_user }}"
-    job: "bash -ic \"dcpull all; dstopall; drmcont; dcup all\" 2>&1 | logger -t dockerlogs"
-    # job: "cd {{ docker_dir }}; /usr/local/bin/docker-compose pull; /usr/local/bin/docker-compose up -d --remove-orphans"
+# Disabling this one for the time being as it is breaking my containers sometimes..
+# Will perhaps get ride of it altogether as I have watchtower
+# - name: Cron - Update docker containers daily
+#   ansible.builtin.cron:
+#     name: update docker containers daily
+#     minute: "0"
+#     hour: "4"
+#     user: "{{ main_user }}"
+#     job: "bash -ic \"dcpull all; dstopall; drmcont; dcup all\" 2>&1 | logger -t dockerlogs"
+#    # job: "cd {{ docker_dir }}; /usr/local/bin/docker-compose pull; /usr/local/bin/docker-compose up -d --remove-orphans"
 
 - name: Cron - Start Docker containers at boot
   ansible.builtin.cron:
