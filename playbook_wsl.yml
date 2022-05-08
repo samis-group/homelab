@@ -28,7 +28,7 @@
 
     # This is to get the UID and GID variables to use later in multiple areas
     - name: Get user info or create a user if one doesn't exist
-      import_tasks: tasks/check_user.yml
+      import_tasks: tasks/linux/check_user.yml
       tags: ["always"]
 
   # Import handlers for all tasks
@@ -47,7 +47,7 @@
       tags: ["install_os_packages"]
 
     - name: Install and run Docker
-      import_tasks: tasks/install_docker.yml
+      import_tasks: tasks/linux/install_docker.yml
       when: install_docker
       tags: ["install_docker"]
 

@@ -1,4 +1,14 @@
 ---
+######## WARNING
+# Needs testing on a throwaway machine first -> https://github.com/lae/ansible-role-proxmox
+# - name: Setup proxmox cluster on bare metal debian
+#   hosts: proxmox-nodes
+#   become: True
+#   roles:
+#     - role: lae.proxmox
+#         - pve_group: all
+#         - pve_reboot_on_kernel_update: true
+
 - name: Provision VM's on Proxmox Host
   hosts: proxmox
 
@@ -26,13 +36,32 @@
 
     # This is to get the UID and GID variables to use later in multiple areas
     - name: Get user info or create a user if one doesn't exist
-      import_tasks: tasks/check_user.yml
+      import_tasks: tasks/linux/check_user.yml
       tags: ["always"]
 
   # roles:
   #   - provision-docker-vm
 
   tasks:
+  # Need to ensure that:
+    # Proxmox is setup/configured (Nag removal, telegraf, crons stuff like that)
+      # add the following entries to /etc/sudoers file:
+        # # Cmnd alias specification
+        # Cmnd_Alias SMARTCTL = /usr/sbin/smartctl
+        # # Give telegraf user access to exec scripts
+        # telegraf  ALL=(ALL) NOPASSWD: SMARTCTL, /etc/telegraf/scripts/
+        # Defaults!SMARTCTL !logfile, !syslog, !pam_session
+    # The cloud image (ubuntu most likely) is downloaded and the template is configured
+      # https://www.youtube.com/watch?v=shiIi38cJe4
+      # https://docs.technotim.live/posts/cloud-init-cloud-image/#instructions
+      # https://github.com/techno-tim/k3s-ansible
+    # Appropriate VM's are provisioned (k3s cluster, docker etc... whatever I'm currently running) -> https://www.youtube.com/watch?v=CbkEWcUZ7zM
+    # /etc/telegraf needs to be owned by telegraf:telegraf recursively
+
+  # Other useful resources:
+    # https://github.com/FuzzyMistborn/infra
+    # https://github.com/ironicbadger/infra
+
     - name: debug test
       debug:
         msg: "DOMAIN"

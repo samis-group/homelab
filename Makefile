@@ -7,6 +7,10 @@ execute:
 execute-v:
 	@ansible-playbook -vvv main.yml
 
+# # This will make everything from absolutely nothing but proxmox.
+# from-scratch:
+# 	@
+
 # Setup entire environment
 setup: apt pip reqs store-password githook
 
@@ -89,6 +93,9 @@ ifeq (run-tags-v, $(firstword $(MAKECMDGOALS)))
 endif
 run-tags-v:
 	@ansible-playbook -vvv --tags $(runargs) main.yml
+
+docker:
+	@ansible-playbook main.yml --limit docker
 
 provision-vm:
 	@ansible-playbook provision_vm.yml

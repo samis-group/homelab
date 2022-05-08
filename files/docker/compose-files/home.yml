@@ -34,7 +34,7 @@ networks:
 services:
   # Home Assistant Core - Home Automation
   # https://hub.docker.com/r/homeassistant/home-assistant/
-  # We do traefik via file rule, because of host networking
+  # If it's your first time starting it up, go via the port and setup, otherwise it won't import the http integration to work with reverse proxy
   # Also install the following from HACS:
   # https://github.com/thomasloven/lovelace-slider-entity-row
   homeassistant:

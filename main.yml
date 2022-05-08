@@ -1,16 +1,23 @@
 ---
-
-- name: All Linux Playbook
-  import_playbook: playbook_all_linux.yml
-
+# Let's first ensure that:
+  # Proxmox is setup/configured (Checkout this role to configure a proxmox cluster on debian -> https://github.com/lae/ansible-role-proxmox)
+  # The cloud image (ubuntu most likely) is downloaded and the template is configured
+  # Optional: Appropriate VM's are provisioned (k3s cluster, docker etc... whatever I'm currently running)
 - name: Proxmox Playbook
   import_playbook: playbook_proxmox.yml
 
+# Setup and configure Docker VM
 - name: Docker Playbook
   import_playbook: playbook_docker.yml
 
+# Run this on all linux machines
+- name: All Linux Playbook
+  import_playbook: playbook_all_linux.yml
+
+# Configure WSL
 - name: WSL Playbook
   import_playbook: playbook_wsl.yml
 
+# Configure Windows
 - name: Windows Playbook
   import_playbook: playbook_windows.yml

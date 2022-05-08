@@ -1,7 +1,7 @@
 ---
 - name: Copy main telegraf config files to PC
   win_copy:
-    src: files/C/Program Files/telegraf
+    src: files/windows/C/Program Files/telegraf
     dest: C:\Program Files
   notify: restart telegraf
 

@@ -1,7 +1,14 @@
 ---
-- src: arillso.logrotate
-- src: geerlingguy.docker
-- src: geerlingguy.ntp
-
-- name: udelarinterior.proxmox_create_kvm
+# Proxmox #
+- src: lae.proxmox  # Setup pve cluster on debian) - # Currently Unused
+- name: udelarinterior.proxmox_create_kvm   # Provision the docker/k3s nodes - # Currently Unused
   src: https://github.com/UdelaRInterior/ansible-role-proxmox-create-kvm.git
+- src: ironicbadger.proxmox_nag_removal # Currently Unused
+- src: rossmcdonald.telegraf  # Currently Unused -> https://github.com/rossmcdonald/telegraf
+
+# Docker #
+- src: arillso.logrotate
+
+# WSL #
+- src: geerlingguy.docker # Currently Unused
+- src: geerlingguy.ntp  # Currently Unused - This is also for proxmox above

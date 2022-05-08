@@ -14,6 +14,11 @@ docker_dev
 [proxmox]
 proxmox-backend.samishakir.com   # Or IP address/whatever
 
+# List out all proxmox nodes in the entire cluster
+[proxmox_nodes:children]
+# proxmox-backend.samishakir.com   # Or IP address/whatever
+proxmox
+
 [sami_pc_linux]
 localhost       # Or IP address/whatever
 
