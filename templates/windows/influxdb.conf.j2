@@ -12,14 +12,14 @@
 #  ##   ex: urls = ["https://us-west-2-1.aws.cloud2.influxdata.com"]
   urls = ["http://docker.{{ domain_name }}:8086"]
 #
-#  ## Token for authentication.
-  token = "{{ influxdb_windows_pc_token }}"
-#
 #  ## Organization is the name of the organization you wish to write to; must exist.
-  organization = "{{ influxdb_org_name }}"
+  organization = "{{ influxdb.org_name }}"
 #
 #  ## Destination bucket to write into.
-  bucket = "{{ influxdb_windows_bucket_name }}"
+  bucket = "{{ influxdb.windows_bucket_name }}"
+#
+#  ## Token for authentication.
+  token = "{{ influxdb.windows_pc_token }}"
 #
 #  ## The value of this tag will be used to determine the bucket.  If this
 #  ## tag is not set the 'bucket' option is used as the default.
