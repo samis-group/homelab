@@ -6,7 +6,7 @@
     return_content: true
   register: gh_hass_custom_components
   failed_when: gh_hass_custom_components.status != 200
-  with_dict: "{{ home_assistant.custom_components }}"
+  with_dict: "{{ hass.custom_components }}"
 
 - name: Set zip url's for custom_components
   set_fact:
@@ -16,7 +16,7 @@
 
 # - name: combine custom_components vars - Neat way to combine two dicts in one line using jinja
 #   set_fact:
-#     custom_components_updated: "{{ home_assistant.custom_components | default({}) | combine( custom_components_urls, recursive=True) }}"
+#     custom_components_updated: "{{ hass.custom_components | default({}) | combine( custom_components_urls, recursive=True) }}"
 
 - name: Calculate total number of custom_components to be installed
   set_fact:
@@ -31,7 +31,7 @@
 
 - name: Calculate number of existing custom_components
   find:
-    paths: "{{ docker_dir }}/appdata/homeassistant/custom_components"
+    paths: "{{ docker_dir }}/appdata/hass/custom_components"
     file_type: directory
   register: custom_components_found
 
@@ -45,7 +45,7 @@
     dest: "/tmp/{{ item.key }}.zip"
     force: true
   with_dict: "{{ custom_components_urls }}"
-  when: custom_components_found.examined < home_assistant.custom_components | list | count
+  when: custom_components_found.examined < hass.custom_components | list | count
 
 - name: extract custom_components to docker machine
   unarchive:
@@ -56,7 +56,7 @@
     group: "{{ docker_group }}"
   with_dict: "{{ custom_components_urls }}"
   # Only do this if there are missing custom_components
-  when: custom_components_found.examined < home_assistant.custom_components | list | count
+  when: custom_components_found.examined < hass.custom_components | list | count
 
 - name: Find component files
   find:
@@ -67,27 +67,27 @@
     patterns: "{{ item.key }}"
   register: find_components_folders
   with_dict: "{{ custom_components_urls }}"
-  when: custom_components_found.examined < home_assistant.custom_components | list | count
+  when: custom_components_found.examined < hass.custom_components | list | count
 
 - name: copy components to home assistant container
   copy:
     src: "{{ item.files[0].path }}"
-    dest: "{{ docker_dir }}/appdata/homeassistant/custom_components/"
+    dest: "{{ docker_dir }}/appdata/hass/custom_components/"
     remote_src: true
     owner: "{{ main_user }}"
     group: "{{ docker_group }}"
   with_items: "{{ find_components_folders.results }}"
-  when: custom_components_found.examined < home_assistant.custom_components | list | count
+  when: custom_components_found.examined < hass.custom_components | list | count
 
 # HACS is special:
 - name: Install HACS custom component
   shell:
     cmd: wget -O - https://get.hacs.xyz | bash -
-    chdir: "{{ docker_dir }}/appdata/homeassistant"
+    chdir: "{{ docker_dir }}/appdata/hass"
 
 - name: Fixing HACS perms
   file:
-    dest: "{{ docker_dir }}/appdata/homeassistant/custom_components"
+    dest: "{{ docker_dir }}/appdata/hass/custom_components"
     owner: "{{ main_user }}"
     group: "{{ docker_group }}"
     recurse: true 
@@ -98,9 +98,9 @@
 
 # - name: Make Zigbee device permissions accessible to containers
 #   file:
-#     path: "{{ home_assistant.zigbee_adapter_tty }}"
+#     path: "{{ hass.zigbee_adapter_tty }}"
 #     owner: "{{ main_user }}"
-#   when: home_assistant.zigbee_adapter_tty is defined
+#   when: hass.zigbee_adapter_tty is defined
 
 # - name: obtain zigbee device serial
 #   shell:

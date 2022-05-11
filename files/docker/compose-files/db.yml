@@ -56,7 +56,7 @@ services:
       - DOCKER_INFLUXDB_INIT_USERNAME=${SERVICES_USERNAME}
       - DOCKER_INFLUXDB_INIT_PASSWORD=${SERVICES_PASSWORD}
       - DOCKER_INFLUXDB_INIT_ORG=home
-      - DOCKER_INFLUXDB_INIT_BUCKET=home_assistant
+      - DOCKER_INFLUXDB_INIT_BUCKET=hass
       - DOCKER_INFLUXDB_INIT_RETENTION=26w # Change this to however many weeks you want influxdb to retain data on the initial bucket created. Omit to store data indefinitely.
       # # Logging queries for troubleshooting - DOESN'T CURRENTLY WORK and no idea why? :sadface:
       # - INFLUXDB_DATA_QUERY_LOG_ENABLED=true

@@ -30,26 +30,21 @@ localhost
 ###############
 
 [win10]
-10.0.0.26
+10.0.0.2
 [win10:vars]
 ansible_connection=winrm
 ansible_winrm_server_cert_validation=ignore
 
 [win10ssh]
-10.0.0.27
+10.0.0.2
 
 [win11ssh]
-10.0.0.27
-
-# This one is my microsoft login user
-[win11ssh_personal]
-10.0.0.27
+10.0.0.11
 
 # Specify vars for windows SSH connections
 [windows_ssh:children]
 win10ssh
 win11ssh
-win11ssh_personal
 [windows_ssh:vars]
 ansible_connection=ssh
 ansible_shell_type=cmd

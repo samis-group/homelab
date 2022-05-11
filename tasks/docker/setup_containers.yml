@@ -161,7 +161,7 @@
 #         user: {{ zigbe2mqtt_user }}
 #         password: {{ mqtt_logins[zigbe2mqtt_user] }}
 #       serial:
-#         port: {{ home_assistant.zigbee_adapter_tty }}
+#         port: {{ hass.zigbee_adapter_tty }}
 #       frontend:
 #         port: {{ zigbee2mqtt_port }}
 

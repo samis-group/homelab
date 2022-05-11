@@ -51,6 +51,12 @@
       - passlib
       - pyyaml
 
+- name: mark vundle dir as safe in git config
+  community.general.git_config:
+    name: safe.directory
+    scope: global
+    value: "{{ user_dir }}/.vim/bundle/Vundle.vim"
+
 # Vundle install
 - name: Clone Vundle
   git:

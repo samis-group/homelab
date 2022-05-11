@@ -7,9 +7,20 @@ execute:
 execute-v:
 	@ansible-playbook -vvv main.yml
 
-# # This will make everything from absolutely nothing but proxmox.
+# # This will make everything from absolutely nothing but debian machines.
 # from-scratch:
 # 	@
+
+yamllint:
+	yamllint -f parsable .
+
+# Diagnostic output; useful when run in a git hook
+_start-check:
+	@echo 'Running "make check"'
+
+# Run all tests and linters
+check: _start-check yamllint
+	@echo '**** LGTM! ****'
 
 # Setup entire environment
 setup: apt pip reqs store-password githook

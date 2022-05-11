@@ -74,7 +74,7 @@ name_servers: '1.1.1.1,1.0.0.1'
 watchtower_interval: 15000
 
 # Traefik rules (not docker)
-home_assistant_port: '8123'
+hass_port: '8123'
 oauth_port: '4181'
 pfsense_ip: 10.10.0.1  # pfsense router IP
 pfsense_port: '50000'
@@ -98,7 +98,6 @@ required_items:
     - "{{ docker_dir }}/appdata/traefik/acme"
     - "{{ docker_dir }}/appdata/traefik/rules"
     - "{{ docker_dir }}/appdata/promtail/etc"
-    - "{{ docker_dir }}/appdata/homeassistant"
     - "{{ docker_dir }}/compose-files"
   no_recurse_folders:
     - "{{ docker_dir }}/appdata/shared/plexms"
@@ -114,7 +113,6 @@ required_items:
     - "{{ docker_dir }}/appdata/mqtt/log/mosquitto.log"
     - "{{ docker_dir }}/appdata/mqtt/config/passwd"
     - "{{ docker_dir }}/appdata/traefik/acme/acme.json"
-    - "{{ docker_dir }}/appdata/homeassistant/home-assistant.log"   # Required for hacs to install.. Check it's install script code..
 
 nas:
   ip: 10.10.0.2  # Synology NAS IP

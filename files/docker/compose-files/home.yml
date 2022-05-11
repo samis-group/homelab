@@ -37,8 +37,8 @@ services:
   # If it's your first time starting it up, go via the port and setup, otherwise it won't import the http integration to work with reverse proxy
   # Also install the following from HACS:
   # https://github.com/thomasloven/lovelace-slider-entity-row
-  homeassistant:
-    container_name: homeassistant
+  hass:
+    container_name: hass
     image: homeassistant/home-assistant:stable
     init: true
     restart: always
@@ -58,12 +58,12 @@ services:
       zigbee2mqtt:  # zigbee2mqtt is optional (only if you want to add Zigbee devices and have a zigbee sniffer attached).
         condition: service_started
     # ports:
-    #   - "${HOME_ASSISTANT_PORT}:8123"
+    #   - "${HASS_PORT}:8123"
     devices:    # If you have any zigbee usb devices, mount them here
       - ${ZIGBEE_ADAPTER_TTY}:/dev/ttyACM0    # Use this for conbee II
     privileged: true
     volumes:
-      - ${DOCKERDIR}/appdata/homeassistant:/config
+      - ${DOCKERDIR}/appdata/hass:/config
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
       #- ${USERDIR}/mount/motioneye:/media/motioneye
@@ -101,10 +101,10 @@ services:
     networks:
       - traefik_proxy
     depends_on:
-      - homeassistant
+      - hass
     volumes:
       - "${DOCKERDIR}/appdata/hass-configurator:/config"
-      - "${DOCKERDIR}/appdata/homeassistant:/hass-config"
+      - "${DOCKERDIR}/appdata/hass:/hass-config"
       # For git Integration
       - "${SSH_KEY_PRIVATE}:/root/.ssh/id_rsa:ro"
       - "${SSH_KEY_PUBLIC}:/root/.ssh/id_rsa.pub:ro"
@@ -131,13 +131,13 @@ services:
     ports:
       - "${EUFY_SECURITY_WS_PORT}:3000/tcp"   # Websocket app port used for home assistant integration
     depends_on:
-      - homeassistant
+      - hass
     environment:
       USERNAME: ${EUFY_ADDON_EMAIL}
       PASSWORD: ${EUFY_ADDON_PASSWORD}
     # volumes:
     #   - "${DOCKERDIR}/appdata/hass-configurator:/config"
-    #   - "${DOCKERDIR}/appdata/homeassistant:/hass-config"
+    #   - "${DOCKERDIR}/appdata/hass:/hass-config"
     # user: "${PUID}:${PGID}"
     <<: *logging
 

@@ -126,13 +126,13 @@ services:
     volumes:
       - ${DOCKERDIR}/appdata/vscode:/config
       ### Private Repos ###
-      - ${GITDIR}/homeassistant/:/code/homeassistant
-      - ${GITDIR}/docker-playbook/:/code/docker-playbook
-      - ${USERDIR}/dotfiles:/code/dotfiles
-      - ${DOCKERDIR}/appdata/nginx:/code/nginx
-      - ${DOCKERDIR}/appdata/api:/code/api
-      - ${DOCKERDIR}/appdata/docs:/code/docs
-      - ${DOCKERDIR}/appdata/homeassistant:/code/homeassistant
+      - ${GITDIR}/hass/:/code/gitdir/hass
+      - ${GITDIR}/docker-playbook/:/code/gitdir/docker-playbook
+      - ${USERDIR}/dotfiles:/code/gitdir/dotfiles
+      - ${DOCKERDIR}/appdata/nginx:/code/dockerdir/nginx
+      - ${DOCKERDIR}/appdata/api:/code/dockerdir/api
+      - ${DOCKERDIR}/appdata/docs:/code/dockerdir/docs
+      - ${DOCKERDIR}/appdata/hass:/code/dockerdir/hass
     environment:
       <<: *default-tz-uid-gid
       PASSWORD: ${SERVICES_PASSWORD}        # optional

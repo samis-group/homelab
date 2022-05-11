@@ -90,3 +90,11 @@
     mode: '0755'
     recurse: true
   with_dict: "{{ gitlab.clone_repos }}"
+
+- name: Touch home-assistant.log for hacs to install as it's install script requires this file to exist
+  file:
+    path: "{{ docker_dir }}/appdata/hass/home-assistant.log"
+    state: touch
+    owner: "{{ main_user }}"
+    group: "{{ docker_group }}"
+    mode: '0644'
