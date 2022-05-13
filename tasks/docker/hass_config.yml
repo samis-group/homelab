@@ -18,16 +18,16 @@
 #   set_fact:
 #     custom_components_updated: "{{ hass.custom_components | default({}) | combine( custom_components_urls, recursive=True) }}"
 
-- name: Calculate total number of custom_components to be installed
-  set_fact:
-    custom_components_to_install: >-
-      {% set count = [] %}
-      {%- for result in gh_hass_custom_components.results -%}
-      {%- if result.status == 200 -%}
-      {%- set __ = count.append(1) -%}
-      {%- endif -%}
-      {%- endfor -%}
-      {{ count|length }}
+# - name: Calculate total number of custom_components to be installed
+#   set_fact:
+#     custom_components_to_install: >-
+#       {% set count = [] %}
+#       {%- for result in gh_hass_custom_components.results -%}
+#       {%- if result.status == 200 -%}
+#       {%- set __ = count.append(1) -%}
+#       {%- endif -%}
+#       {%- endfor -%}
+#       {{ count|length }}
 
 - name: Calculate number of existing custom_components
   find:
@@ -39,13 +39,17 @@
   debug:
     var: custom_components_found
 
+- name: Subtract 1 from custom_components_found because hacs gets installed later separately so let's make up for it here
+  set_fact: 
+    custom_components_count: "{{ custom_components_found.examined - 1 }}"
+
 - name: Download latest release
   get_url:
     url: "{{ item.value.zip_url }}"
     dest: "/tmp/{{ item.key }}.zip"
     force: true
   with_dict: "{{ custom_components_urls }}"
-  when: custom_components_found.examined < hass.custom_components | list | count
+  when: custom_components_count | int < hass.custom_components | list | count
 
 - name: extract custom_components to docker machine
   unarchive:
@@ -56,7 +60,7 @@
     group: "{{ docker_group }}"
   with_dict: "{{ custom_components_urls }}"
   # Only do this if there are missing custom_components
-  when: custom_components_found.examined < hass.custom_components | list | count
+  when: custom_components_count | int < hass.custom_components | list | count
 
 - name: Find component files
   find:
@@ -64,10 +68,10 @@
     depth: 4
     recurse: true
     file_type: directory
-    patterns: "{{ item.key }}"
+    patterns: "{{ item.value.custom_component_name }}"
   register: find_components_folders
-  with_dict: "{{ custom_components_urls }}"
-  when: custom_components_found.examined < hass.custom_components | list | count
+  with_dict: "{{ hass.custom_components }}"
+  when: custom_components_count | int < hass.custom_components | list | count
 
 - name: copy components to home assistant container
   copy:
@@ -77,7 +81,8 @@
     owner: "{{ main_user }}"
     group: "{{ docker_group }}"
   with_items: "{{ find_components_folders.results }}"
-  when: custom_components_found.examined < hass.custom_components | list | count
+  when: custom_components_count | int < hass.custom_components | list | count
+  # notify: restart hass container
 
 # HACS is special:
 - name: Install HACS custom component
