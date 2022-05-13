@@ -108,6 +108,9 @@ run-tags-v:
 docker:
 	@ansible-playbook main.yml --limit docker
 
+docker-v:
+	@ansible-playbook main.yml -vvv --limit docker
+
 provision-vm:
 	@ansible-playbook provision_vm.yml
 

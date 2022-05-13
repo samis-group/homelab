@@ -42,6 +42,7 @@ services:
     image: homeassistant/home-assistant:stable
     init: true
     restart: always
+    # user: "${PUID}:${PGID}"   # hass runs with root user so files get created as root, if i find a way around this, i want the user to run hass so there are no perm issues.
     healthcheck:
       test: curl --connect-timeout 10 --silent -f http://localhost:8123/ || exit 1
       interval: 45s

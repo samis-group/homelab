@@ -70,6 +70,13 @@
 # This is better than making your own docker image because changes made by the hass UI can be tracked as well.
 # Baked images are done via code, so would still need to setup repo to track it. Not worth it then.
 
+- name: mark git dirs as safe in git config
+  community.general.git_config:
+    name: safe.directory
+    scope: global
+    value: "{{ docker_dir }}/appdata/{{ item.key }}"
+  with_dict: "{{ gitlab.clone_repos }}"
+
 - name: Checkout source code
   git: 
     repo: "{{ item.value }}"
