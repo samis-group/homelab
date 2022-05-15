@@ -92,6 +92,11 @@
   #   - provision-docker-vm
 
   tasks:
+    # - name: Create VM in Proxmox
+    #   import_role:
+    #     name: provision-docker-vm
+    #   register: vm_provision
+
     - name: debug test
       debug:
         msg: "whatevs"
