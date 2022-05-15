@@ -4,7 +4,7 @@
 ####################################
 
 - name: Run tasks on all linux hosts
-  hosts: docker wsl sami_pc_linux proxmox
+  hosts: docker localhost proxmox
   become: true
   # Load in our default and vaulted vars
   vars_files:

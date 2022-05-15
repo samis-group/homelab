@@ -4,7 +4,7 @@
 ###########
 
 - name: Setup WSL
-  hosts: wsl
+  hosts: localhost
   become: true
 
   # Load in our vars

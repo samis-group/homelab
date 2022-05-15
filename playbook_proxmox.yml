@@ -1,8 +1,23 @@
 ---
 # Todo:
-  # Proxmox is setup/configured (Checkout this role to configure a proxmox cluster on debian -> https://github.com/lae/ansible-role-proxmox)
+  # Proxmox is installed from scratch on debian boxes (Checkout this role to configure a proxmox cluster on debian -> https://github.com/lae/ansible-role-proxmox)
+  # Proxmox is setup/configured (Nag removal, telegraf, crons stuff like that)
+    # add the following entries to /etc/sudoers file:
+      # # Cmnd alias specification
+      # Cmnd_Alias SMARTCTL = /usr/sbin/smartctl
+      # # Give telegraf user access to exec scripts
+      # telegraf  ALL=(ALL) NOPASSWD: SMARTCTL, /etc/telegraf/scripts/
+      # Defaults!SMARTCTL !logfile, !syslog, !pam_session
   # The cloud image (ubuntu most likely) is downloaded and the template is configured
-  # Optional: Appropriate VM's are provisioned (k3s cluster, docker etc... whatever I'm currently running)
+    # https://www.youtube.com/watch?v=shiIi38cJe4
+    # https://docs.technotim.live/posts/cloud-init-cloud-image/#instructions
+    # https://github.com/techno-tim/k3s-ansible
+  # Appropriate VM's are provisioned (k3s cluster, docker etc... whatever I'm currently running) -> https://www.youtube.com/watch?v=CbkEWcUZ7zM
+  # /etc/telegraf needs to be owned by telegraf:telegraf recursively
+
+# Other useful resources:
+  # https://github.com/FuzzyMistborn/infra
+  # https://github.com/ironicbadger/infra
 
 ### WARNING - Needs testing on a throwaway machine first -> https://github.com/lae/ansible-role-proxmox
 # - name: Setup proxmox cluster on bare metal debian
@@ -41,25 +56,10 @@
       import_tasks: tasks/linux/check_user.yml
       tags: ["always"]
 
-  # tasks:
-    # To Do - Need to ensure that:
-      # Proxmox is setup/configured (Nag removal, telegraf, crons stuff like that)
-        # add the following entries to /etc/sudoers file:
-          # # Cmnd alias specification
-          # Cmnd_Alias SMARTCTL = /usr/sbin/smartctl
-          # # Give telegraf user access to exec scripts
-          # telegraf  ALL=(ALL) NOPASSWD: SMARTCTL, /etc/telegraf/scripts/
-          # Defaults!SMARTCTL !logfile, !syslog, !pam_session
-      # The cloud image (ubuntu most likely) is downloaded and the template is configured
-        # https://www.youtube.com/watch?v=shiIi38cJe4
-        # https://docs.technotim.live/posts/cloud-init-cloud-image/#instructions
-        # https://github.com/techno-tim/k3s-ansible
-      # Appropriate VM's are provisioned (k3s cluster, docker etc... whatever I'm currently running) -> https://www.youtube.com/watch?v=CbkEWcUZ7zM
-      # /etc/telegraf needs to be owned by telegraf:telegraf recursively
-
-    # Other useful resources:
-      # https://github.com/FuzzyMistborn/infra
-      # https://github.com/ironicbadger/infra
+  tasks:
+    - name: debug test
+      debug:
+        msg: "whatevs"
 
 - name: Download Ubuntu Cloud-Image and create a template from it
   hosts: proxmox1
@@ -91,13 +91,13 @@
   # roles:
   #   - provision-docker-vm
 
+  tasks:
+    - name: debug test
+      debug:
+        msg: "whatevs"
+
     # This isn't ready yet...
     # - name: Create VM in Proxmox
     #   import_role:
     #     name: provision-docker-vm
     #   register: vm_provision
-
-  tasks:
-    - name: debug test
-      debug:
-        msg: "whatevs"
