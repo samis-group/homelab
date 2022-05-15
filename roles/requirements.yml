@@ -1,5 +1,12 @@
 ---
 # Proxmox #
+## Personal Roles
+# - src: https://gitlab.com/sami-group/ansible-roles/create-proxmox-template-from-ubuntu-cloud-image.git
+# - src: ssh://git@gitlab.com:sami-group/ansible-roles/create-proxmox-template-from-ubuntu-cloud-image.git
+#   scm: git
+#   name: create-proxmox-template-from-ubuntu-cloud-image
+
+## Others
 - src: lae.proxmox  # Setup pve cluster on debian) - # Currently Unused
 - name: udelarinterior.proxmox_create_kvm   # Provision the docker/k3s nodes - # Currently Unused
   src: https://github.com/UdelaRInterior/ansible-role-proxmox-create-kvm.git

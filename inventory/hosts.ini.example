@@ -1,8 +1,11 @@
+docker.example.com       # Or IP address/whatever
+docker-dev.example.com   # Or IP address/whatever
+
 [docker]
-docker.samishakir.com       # Or IP address/whatever
+docker.example.com       # Or IP address/whatever
 
 [docker_dev]
-docker-dev.samishakir.com   # Or IP address/whatever
+docker-dev.example.com   # Or IP address/whatever
 
 [docker_all:children]
 docker
@@ -12,11 +15,11 @@ docker_dev
 ; hostname=docker-vm  # Default in case not specified in host inventory above
 
 [proxmox]
-proxmox-backend.samishakir.com   # Or IP address/whatever
+proxmox-backend.example.com   # Or IP address/whatever
 
 # List out all proxmox nodes in the entire cluster
 [proxmox_nodes:children]
-# proxmox-backend.samishakir.com   # Or IP address/whatever
+# proxmox-backend.example.com   # Or IP address/whatever
 proxmox
 
 [sami_pc_linux]

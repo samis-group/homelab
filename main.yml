@@ -3,8 +3,8 @@
   # Proxmox is setup/configured (Checkout this role to configure a proxmox cluster on debian -> https://github.com/lae/ansible-role-proxmox)
   # The cloud image (ubuntu most likely) is downloaded and the template is configured
   # Optional: Appropriate VM's are provisioned (k3s cluster, docker etc... whatever I'm currently running)
-- name: Proxmox Playbook
-  import_playbook: playbook_proxmox.yml
+# - name: Proxmox Playbook
+#   import_playbook: playbook_proxmox.yml
 
 # Setup and configure Docker VM
 - name: Docker Playbook

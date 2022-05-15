@@ -33,7 +33,7 @@ services:
   # https://hub.docker.com/_/influxdb
   influxdb:
     container_name: influxdb
-    image: influxdb:latest
+    image: influxdb:2.2
     init: true
     restart: always
     healthcheck:
@@ -81,7 +81,7 @@ services:
   # Create a new user with admin privileges. Cannot login as MySQL root for some reason.
   phpmyadmin:
     container_name: phpmyadmin
-    image: phpmyadmin/phpmyadmin:latest
+    image: phpmyadmin:latest
     init: true
     restart: unless-stopped
     networks:

@@ -85,7 +85,7 @@ services:
   # https://hub.docker.com/_/traefik
   traefik:
     container_name: traefik
-    image: traefik:rocamadour
+    image: traefik:v2.7
     init: true
     restart: always
     healthcheck:
@@ -360,7 +360,7 @@ services:
   # https://hub.docker.com/r/grafana/loki
   loki:
     container_name: loki
-    image: grafana/loki:2.3.0
+    image: grafana/loki:2.5.0
     init: true
     restart: always
     healthcheck:
@@ -378,9 +378,10 @@ services:
       - ${DOCKERDIR}/appdata/loki/data:/data/loki
     command: -config.file=/etc/loki/loki-config.yaml
 
+  # https://hub.docker.com/r/grafana/promtail
   promtail:
     container_name: promtail
-    image: grafana/promtail:2.4.1
+    image: grafana/promtail:2.5.0
     init: true
     restart: unless-stopped
     # healthcheck:
@@ -404,7 +405,7 @@ services:
   # After starting container for the first time, if you ran the ansible playbook, it will have created a file to bootstrap it: `templates/docker/appdata/mariadb/config/initdb.d/authelia.sql`
   mariadb:
     container_name: mariadb
-    image: lscr.io/linuxserver/mariadb
+    image: lscr.io/linuxserver/mariadb:10.5.15
     init: true
     restart: unless-stopped
     # network_mode: host
@@ -474,7 +475,7 @@ services:
   grafana:
     container_name: grafana
     # Using ubuntu image instead of alpine because of the plugin `grafana-image-renderer` only being available on ubuntu. Revert back to `latest` if they fix this -> https://grafana.com/docs/grafana/latest/installation/docker/#build-with-grafana-image-renderer-plugin-pre-installed
-    image: grafana/grafana:latest-ubuntu
+    image: grafana/grafana:8.5.2
     init: true
     restart: always
     healthcheck:
