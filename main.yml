@@ -1,7 +1,7 @@
 ---
 # Setup and configure proxmox hosts
-# - name: Proxmox Playbook
-#   import_playbook: playbook_proxmox.yml
+- name: Proxmox Playbook
+  import_playbook: playbook_proxmox.yml
 
 # Setup and configure Docker VM
 - name: Docker Playbook

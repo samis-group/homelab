@@ -29,7 +29,7 @@
 #         - pve_reboot_on_kernel_update: true
 
 - name: Configure Proxmox
-  hosts: proxmox_nodes
+  hosts: proxmox
   # Load in our default and vaulted vars
   vars_files: &vars_files   # Anchors to re-use the code later. No point duplicating code.
     - vars/vault.yml

@@ -104,10 +104,3 @@
       import_tasks: tasks/docker/hass_config.yml
       when: hass_config
       tags: ["hass_config"]
-
-    # Put tasks before this one
-
-    - name: Test Task
-      import_tasks: tasks/test_task.yml
-      when: test_task
-      tags: ["test_task"]
