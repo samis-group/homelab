@@ -1,0 +1,6 @@
+---
+# wget -qO- https://repos.influxdata.com/influxdb.key | apt-key add -
+- name: Add influxdb apt signing key
+  ansible.builtin.apt_key:
+    url: https://repos.influxdata.com/influxdb.key
+    state: present

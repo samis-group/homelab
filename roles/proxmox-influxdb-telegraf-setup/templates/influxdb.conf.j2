@@ -1,0 +1,6 @@
+# Configuration for sending metrics to InfluxDB
+[[outputs.influxdb_v2]]
+    urls = ["http://{{ docker_ip }}:8086"]
+    token = "{{ influxdb_proxmox_token }}"
+    organization = "{{ influxdb_org_name }}"
+    bucket = "{{ influxdb_proxmox_bucket_name }}"

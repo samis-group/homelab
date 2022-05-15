@@ -1,0 +1,4 @@
+---
+hostname: "wsl.{{ domain_name }}"
+ansible_ssh_private_key_file: ~/.ssh/id_rsa_personal
+ansible_ssh_user: "{{ main_user }}"

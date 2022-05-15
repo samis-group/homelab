@@ -1,0 +1,5 @@
+---
+- name: Copy startup bat script
+  win_copy:
+    src: files/windows/C/startup.bat
+    dest: C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Startup

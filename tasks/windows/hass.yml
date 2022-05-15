@@ -1,0 +1,20 @@
+---
+- name: Check if Hass is already running
+  ansible.windows.win_powershell:
+    script: (Get-Process -Name hass-workstation-service).ProcessName
+  register: hass_result
+  ignore_errors: true
+
+# - name: debug hass_result
+#   debug:
+#     msg: "the result: {{ item.fully_qualified_error_id }}"
+#   loop: "{{ hass_result.error }}"
+
+# This was damn annoying, is there no way to grab a single element of a nested list without looping through it?
+# Above debug has been left commented so I know what it took to get here.
+# Resource that helped -> https://www.middlewareinventory.com/blog/ansible-dict-object-has-no-attribute-stdout-or-stderr-how-to-resolve/
+- name: Install hass-workstation-service
+  win_package:
+    path: https://hassworkstationstorage.z6.web.core.windows.net/publish/setup.exe
+  when: "'Cannot find a process' in item.output"
+  loop: "{{ hass_result.error }}"

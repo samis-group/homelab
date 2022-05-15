@@ -1,0 +1,12 @@
+---
+# This is a template
+# - name: Execute startup.bat on boot
+#   community.windows.win_scheduled_task:
+#     name: startup.bat
+#     description: Execute startup.bat on boot
+#     actions:
+#     - path: C:\startup.bat
+#     triggers:
+#     - type: boot
+#     run_level: highest
+#     state: present

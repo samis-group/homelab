@@ -1,17 +1,19 @@
-# Docker VM Ansible Playbook
+# Homelab
 
 ![Logo](files/logo.png)
 
 ![ubuntu-20-04]
+![badge-windows-10]
+![badge-windows-11]
 ![badge-license]
 
-This playbook installs and configures my Docker VM on proxmox, configures the VM and containers.
+This repository contains all of my playbooks and configurations to install and configure my Docker VM on proxmox, configures some containers, can even setup my windows/linux desktop PC. You are able to completely tear this down and rebuild it (this does not install proxmox, it cannot do this bit for you).
 
 > ❗ **This playbook was tested on Ubuntu 20.04. Other versions may work but have not been tested.**
 
 ## Contents
 
-- [Docker VM Ansible Playbook](#docker-vm-ansible-playbook)
+- [Homelab](#homelab)
   - [Contents](#contents)
   - [Playbook capabilities](#playbook-capabilities)
   - [Setup the Ansible Control Node (where you will run the playbook from)](#setup-the-ansible-control-node-where-you-will-run-the-playbook-from)
@@ -167,7 +169,7 @@ Check the following files for these configurable items:
 - [group_vars/all](group_vars/all)
 - [vars/default_config.yml](vars/default_config.yml)
 - [vars/config.yml](vars/config.yml)
-- [inventory](inventory)
+- [vars/vault.yml](vars/vault.yml)
 
 ## Things to note
 
@@ -183,7 +185,7 @@ git pull --recurse-submodules
 
 ## Author
 
-This project was created by [Sami Shakir](https://www.linkedin.com/in/nabokih/). Feel free to use/fork it.
+This project was created by [Sami Shakir](https://www.linkedin.com/in/sami-shakir/). Feel free to use/fork it.
 
 ## License
 
@@ -192,4 +194,6 @@ This software is available under the following licenses:
 - **[MIT](./LICENSE)**
 
 [ubuntu-20-04]: https://img.shields.io/badge/OS-Ubuntu%2020.04-blue
+[badge-windows-10]: https://img.shields.io/badge/OS-Windows%2010%2020H2-blue
+[badge-windows-11]: https://img.shields.io/badge/OS-Windows%2011%2021H2-blue
 [badge-license]: https://img.shields.io/badge/License-MIT-informational

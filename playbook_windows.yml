@@ -1,0 +1,118 @@
+---
+###############
+### Windows ###
+###############
+
+- name: Setup Windows PC
+  hosts: win10ssh
+
+  # Load in our vars
+  vars_files:
+    - vars/vault.yml
+
+  # Allow user to override defaults with their custom config file
+  pre_tasks:
+    - name: Include playbook configuration.
+      include_vars: "{{ item }}"
+      with_fileglob:
+        - "{{ playbook_dir }}/config.yml"
+      # Special tag 'always' -> https://docs.ansible.com/ansible/latest/user_guide/playbooks_tags.html#special-tags-always-and-never
+      tags: ["always"]
+
+  # Import handlers for all tasks
+  handlers:
+    - name: restart telegraf
+      win_service:
+        name: telegraf
+        state: restarted
+
+  tasks:
+
+    - name: Install Windows Updates
+      import_tasks: tasks/windows/updates.yml
+      when: install_windows_updates
+      tags: ["install_windows_updates"]
+
+    - name: Remove Windows Bloatware
+      import_tasks: tasks/windows/debloat.yml
+      when: remove_bloatware
+      tags: ["remove_bloatware"]
+
+    - name: Install Windows Features
+      import_tasks: tasks/windows/windows_features.yml
+      when: install_windows_features
+      tags: ["install_windows_features"]
+
+    - name: Install Chocolatey Packages
+      import_tasks: tasks/windows/chocolatey.yml
+      when: chocolatey
+      tags: ["chocolatey"]
+
+    - name: Copy required files
+      import_tasks: tasks/windows/copy_files.yml
+      tags: ["copy_files"]
+
+    - name: Install hass-workstation-service
+      import_tasks: tasks/windows/hass.yml
+      when: hass
+      tags: ["hass"]
+
+    - name: Install and Configure Telegraf for Reporting to InfluxDB
+      import_tasks: tasks/windows/telegraf.yml
+      when: install_telegraf
+      tags: ["install_telegraf"]
+
+    - import_tasks: tasks/windows/wsl2.yml
+      when: install_wsl2
+      tags: ["install_wsl2"]
+
+    - import_tasks: tasks/windows/schedule_tasks.yml
+      when: schedule_tasks
+      tags: ["schedule_tasks"]
+
+    - import_tasks: tasks/windows/fonts.yml
+      when: install_fonts
+      tags: ["install_fonts"]
+
+    - import_tasks: tasks/windows/explorer.yml
+      when: configure_explorer
+      tags: ["configure_explorer"]
+
+    - import_tasks: tasks/windows/taskbar.yml
+      when: configure_taskbar
+      tags: ["configure_taskbar"]
+
+    - import_tasks: tasks/windows/start_menu.yml
+      when: configure_start_menu
+      tags: ["configure_start_menu"]
+
+    - import_tasks: tasks/windows/sounds.yml
+      when: set_sound_scheme
+      tags: ["set_sound_scheme"]
+
+    - import_tasks: tasks/windows/mouse.yml
+      when: disable_mouse_acceleration
+      tags: ["disable_mouse_acceleration"]
+
+    - import_tasks: tasks/windows/power_plan.yml
+      when: power_plan
+      tags: ["power_plan"]
+
+    - import_tasks: tasks/windows/remote_desktop.yml
+      when: remote_desktop_enabled
+      tags: ["remote_desktop_enabled"]
+
+    - import_tasks: tasks/windows/desktop.yml
+      when: remove_desktop_icons
+      tags: ["remove_desktop_icons"]
+
+    - import_tasks: tasks/windows/hostname.yml
+      when: configure_hostname
+      tags: ["configure_hostname"]
+
+    # Put tasks before this one
+
+    - name: Test Task
+      import_tasks: tasks/windows/test_task.yml
+      when: test_task
+      tags: ["test_task"]

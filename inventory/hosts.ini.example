@@ -1,0 +1,59 @@
+docker.example.com       # Or IP address/whatever
+docker-dev.example.com   # Or IP address/whatever
+
+[docker]
+docker.example.com       # Or IP address/whatever
+
+[docker_dev]
+docker-dev.example.com   # Or IP address/whatever
+
+[docker_all:children]
+docker
+docker_dev
+; # Setting defaults for every host here, to override these, specify them per host above
+; [docker_all:vars]
+; hostname=docker-vm  # Default in case not specified in host inventory above
+
+[proxmox]
+proxmox-backend.example.com   # Or IP address/whatever
+
+# List out all proxmox nodes in the entire cluster
+[proxmox_nodes:children]
+# proxmox-backend.example.com   # Or IP address/whatever
+proxmox
+
+[sami_pc_linux]
+localhost       # Or IP address/whatever
+
+[wsl]
+localhost
+
+###############
+### Windows ###
+###############
+
+[win10]
+10.0.0.2
+[win10:vars]
+ansible_connection=winrm
+ansible_winrm_server_cert_validation=ignore
+
+[win10ssh]
+10.0.0.2
+
+[win11ssh]
+10.0.0.11
+
+# Specify vars for windows SSH connections
+[windows_ssh:children]
+win10ssh
+win11ssh
+[windows_ssh:vars]
+ansible_connection=ssh
+ansible_shell_type=cmd
+ansible_ssh_common_args='-o StrictHostKeyChecking=no -o ControlMaster=auto -o ControlPersist=18000'
+
+# Group all windows
+[windows:children]
+win10
+windows_ssh

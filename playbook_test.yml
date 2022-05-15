@@ -1,0 +1,50 @@
+---
+- name: Test Playbook
+  hosts: docker
+  become: true
+  # Load in our default and vaulted vars
+  vars_files:
+    - vars/vault.yml
+  tasks:
+    - name: Set timezone
+      timezone:
+        name: "{{ tz }}"
+
+  pre_tasks:
+    # Allow user to override defaults with their custom config file.
+    # include_vars has a higher precedence than vars_files above, so import these files as overrides.
+    - name: Include playbook configuration.
+      include_vars: "{{ item }}"
+      with_fileglob:
+        - "{{ playbook_dir }}/vars/config.yml"
+      # Special tag 'always' -> https://docs.ansible.com/ansible/latest/user_guide/playbooks_tags.html#special-tags-always-and-never
+      tags: ["always"]
+
+    # Setup some required variables for the rest of the playbook
+    - name: Instantiate some extra vars from included vars
+      set_fact:
+        user_dir: /home/{{ main_user }}
+        docker_dir: /home/{{ main_user }}/docker
+        git_dir: /home/{{ main_user }}/git/personal
+        secrets_dir: /home/{{ main_user }}/docker/secrets
+      tags: ["always"]
+
+    # This is to get the PUID and PGID variables to use later in multiple areas
+    - name: Get user info or create a user if one doesn't exist
+      import_tasks: tasks/linux/check_user.yml
+      tags: ["always"]
+
+  # Import handlers for all tasks
+  handlers:
+    - import_tasks: handlers/main.yml
+
+##################
+### Start here ###
+##################
+
+  tasks:
+    - name: Apt Upgrade
+      apt:
+        name: '*'
+        state: latest
+        update_cache: true

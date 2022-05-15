@@ -1,0 +1,5 @@
+# Cron to gather disk usage stats of Pve for influxdb and telegraf
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+
+5 * * * * root /etc/telegraf/scripts/pvesm.sh > /etc/telegraf/scripts/output/pvesm.log

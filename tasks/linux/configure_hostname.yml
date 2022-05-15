@@ -1,0 +1,11 @@
+---
+- name: Set Hostname
+  hostname:
+    name: "{{ hostname }}"
+  # register: testvar
+  # ignore_errors: true
+  when: configure_hostname
+
+# - name: debug
+#   debug:
+#     var: testvar

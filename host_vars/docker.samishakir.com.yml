@@ -1,0 +1,3 @@
+---
+docker_ip: 10.10.0.20
+hostname: docker.samishakir.com
