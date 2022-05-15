@@ -66,11 +66,11 @@
 
   # Load in our default and vaulted vars
   vars_files:
-    <<: *vars_files
+    *vars_files
 
   # Allow user to override defaults with their custom config file
   pre_tasks:
-    <<: *pre_tasks
+    *pre_tasks
 
   tasks:
     - name: debug test
@@ -82,11 +82,11 @@
 
   # Load in our default and vaulted vars
   vars_files:
-    <<: *vars_files
+    *vars_files
 
   # Allow user to override defaults with their custom config file
   pre_tasks:
-    <<: *pre_tasks
+    *pre_tasks
 
   # roles:
   #   - provision-docker-vm
