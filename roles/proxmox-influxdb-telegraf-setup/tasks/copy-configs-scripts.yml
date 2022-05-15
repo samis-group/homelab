@@ -1,0 +1,13 @@
+---
+
+- name: Copy configurations and script files to proxmox server
+  ansible.builtin.copy:
+    src: etc/
+    dest: /etc/
+  notify: restart cron
+
+- name: Copy influxdb configuration template to proxmox server
+  ansible.builtin.template:
+    src: influxdb.conf.j2
+    dest: /etc/telegraf/telegraf.d/influxdb.conf
+  notify: restart telegraf

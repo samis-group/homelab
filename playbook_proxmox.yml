@@ -1,4 +1,9 @@
 ---
+# Todo:
+  # Proxmox is setup/configured (Checkout this role to configure a proxmox cluster on debian -> https://github.com/lae/ansible-role-proxmox)
+  # The cloud image (ubuntu most likely) is downloaded and the template is configured
+  # Optional: Appropriate VM's are provisioned (k3s cluster, docker etc... whatever I'm currently running)
+
 ### WARNING - Needs testing on a throwaway machine first -> https://github.com/lae/ansible-role-proxmox
 # - name: Setup proxmox cluster on bare metal debian
 #   hosts: proxmox_nodes
