@@ -37,7 +37,7 @@
 
   # Import handlers for all tasks
   handlers:
-    - import_tasks: handlers/main.yml
+    - import_tasks: handlers/docker.yml
 
   tasks:
 

@@ -1,6 +1,0 @@
----
-
-influxdb_apt_key: True
-add_influxdb_repo: True
-install_packages: True
-copy_configs_scripts: True

@@ -56,10 +56,28 @@
       import_tasks: tasks/linux/check_user.yml
       tags: ["always"]
 
+  roles:
+    - ironicbadger.proxmox_nag_removal
+
+  # Import handlers for all tasks
+  handlers:
+    - import_tasks: handlers/proxmox.yml
+
   tasks:
-    - name: debug test
-      debug:
-        msg: "whatevs"
+    - name: Install OS updates and required packages
+      import_tasks: tasks/proxmox/install_os_packages.yml
+      when: install_os_packages
+      tags: ["install_os_packages"]
+
+    - name: Setup and configure influxdb
+      import_tasks: tasks/proxmox/influxdb_setup.yml
+      when: influxdb_setup
+      tags: ["influxdb_setup"]
+
+    - name: Copy files to proxmox host
+      import_tasks: tasks/proxmox/copy_files.yml
+      when: copy_files
+      tags: ["copy_files"]
 
 - name: Download Ubuntu Cloud-Image and create a template from it
   hosts: proxmox1
@@ -71,6 +89,10 @@
   # Allow user to override defaults with their custom config file
   pre_tasks:
     *pre_tasks
+
+  # Import handlers for all tasks
+  handlers:
+    - import_tasks: handlers/proxmox.yml
 
   tasks:
     - name: debug test
@@ -91,12 +113,11 @@
   # roles:
   #   - provision-docker-vm
 
-  tasks:
-    # - name: Create VM in Proxmox
-    #   import_role:
-    #     name: provision-docker-vm
-    #   register: vm_provision
+  # Import handlers for all tasks
+  handlers:
+    - import_tasks: handlers/proxmox.yml
 
+  tasks:
     - name: debug test
       debug:
         msg: "whatevs"

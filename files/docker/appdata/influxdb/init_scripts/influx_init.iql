@@ -1,0 +1,3 @@
+influx bucket create --name proxmox --retention 90d
+influx bucket create --name pfsense --retention 90d
+influx bucket create --name sami-pc --retention 90d

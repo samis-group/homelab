@@ -109,10 +109,3 @@
     - import_tasks: tasks/windows/hostname.yml
       when: configure_hostname
       tags: ["configure_hostname"]
-
-    # Put tasks before this one
-
-    - name: Test Task
-      import_tasks: tasks/windows/test_task.yml
-      when: test_task
-      tags: ["test_task"]

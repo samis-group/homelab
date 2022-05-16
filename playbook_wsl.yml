@@ -50,10 +50,3 @@
       import_tasks: tasks/linux/install_docker.yml
       when: install_docker
       tags: ["install_docker"]
-
-    # Put tasks before this one
-
-    - name: Test Task
-      import_tasks: tasks/test_task.yml
-      when: test_task
-      tags: ["test_task"]

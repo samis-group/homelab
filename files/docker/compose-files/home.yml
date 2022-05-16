@@ -161,7 +161,7 @@ services:
       - traefik_proxy
     healthcheck:
       test: nc -z localhost 1883
-      interval: 60s
+      interval: 10s
       timeout: 3s
       retries: 3
     user: ${PUID}:${PGID}

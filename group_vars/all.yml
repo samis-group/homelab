@@ -143,6 +143,8 @@ nas:
       local_mapping: "{{ user_dir }}/mount/photos/family"
       remote_mapping: "/volume1/Photos"
 
+docker_ip: 10.10.0.20   # this is my docker prod vm, docker-dev has a diff IP but host_vars overwrite group_vars
+
 ##############################################
 ######### Currently Unused Variables #########
 ##############################################

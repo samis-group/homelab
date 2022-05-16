@@ -38,7 +38,7 @@ services:
     restart: always
     healthcheck:
       test: curl -sI http://127.0.0.1:8086
-      interval: 60s
+      interval: 10s
       timeout: 3s
       retries: 3
     networks:
@@ -50,6 +50,7 @@ services:
     volumes:
       - ${DOCKERDIR}/appdata/influxdb/config:/etc/influxdb2
       - ${DOCKERDIR}/appdata/influxdb/data:/var/lib/influxdb2
+      - ${DOCKERDIR}/appdata/influxdb/init_scripts/:/docker-entrypoint-initdb.d   # Bucket initialization script + bootstrapping influxdb
     environment:
       - TZ=${TZ}
       - DOCKER_INFLUXDB_INIT_MODE=setup
