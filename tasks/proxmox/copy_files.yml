@@ -1,10 +1,11 @@
 ---
-- name: Copy proxmox configurations and script files maintaining perms from repo
-  copy:
-    src: files/proxmox
-    dest: "{{ user_dir }}"
-    owner: root
-    group: root
+# No files currently.
+# - name: Copy proxmox configurations and script files maintaining perms from repo
+#   copy:
+#     src: files/proxmox
+#     dest: "{{ user_dir }}"
+#     owner: root
+#     group: root
 
 # Ensure the path to the templates files exist as they would in the docker directory
 # i.e. this task is going to just copy them in a templated way from src to dest

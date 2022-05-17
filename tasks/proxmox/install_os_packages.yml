@@ -5,15 +5,13 @@
     state: latest
     update_cache: true
 
-# apt install lm-sensors watch sudo nvme-cli telegraf
 - name: Install required packages for telegraf
   apt:
     state: latest
     pkg:
-    - lm-sensors
+    # - lm-sensors
     - watch
     - sudo
-    - nvme-cli
-    - telegraf
-  # systemctl restart pvestatd
-  notify: restart pvestatd
+    # - nvme-cli
+    # - telegraf
+  # notify: restart pvestatd

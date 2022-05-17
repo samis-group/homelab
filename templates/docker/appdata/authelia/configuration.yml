@@ -57,7 +57,7 @@ access_control:
       - "authelia.{{ domain_name }}"
       - "api.{{ domain_name }}"
       policy: bypass
-    # Allow certain bypasses to internal (LAN) users
+    # Bypass LAN and Docker internal network traffic to certain endpoints.
     - domain:
       - "hass.{{ domain_name }}"
       - "home-assistant.{{ domain_name }}"
@@ -70,6 +70,12 @@ access_control:
         - lan
         - docker
       policy: bypass
+    # Anyone not a family member is not allowed access to my private stash of docs, soz <3
+    - domain: "docs.{{ domain_name }}"
+      subject: "group:not-family"
+      policy: deny
+      resources:
+      - '/[sS][aA][mM][iI]/.*'
     # Users accessing overseerr
     - domain:
       - "tv.{{ domain_name }}"
@@ -101,7 +107,7 @@ session:
   # same_site: lax    # Doco -> https://www.authelia.com/docs/configuration/session/#same_site
   # This secret is set using the env variables AUTHELIA_SESSION_SECRET
   # secret: unsecure_session_secret # use docker env instead AUTHELIA_SESSION_SECRET
-  expiration: 12h  # 12 Hours
+  expiration: 1w  # 1 week -> https://www.authelia.com/docs/configuration/#duration-notation-format-unit-legend
   inactivity: 5m  # 5 minutes
   remember_me_duration: 1M      # 1 Month?
 

@@ -24,7 +24,7 @@ ifeq (run-tags, $(firstword $(MAKECMDGOALS)))
   $(eval $(runargs):;@true)
 endif
 run-tags:
-	@ansible-playbook -i inventory/hosts.ini --tags $(runargs) main.yml
+	@ansible-playbook -i inventory/hosts.ini --tags $(runargs) playbook_docker.yml
 
 # VERBOSE - Run only the tags passed in separated by comma (e.g. make run-tags update_compose,logrotate)
 ifeq (run-tags-v, $(firstword $(MAKECMDGOALS)))
@@ -32,7 +32,7 @@ ifeq (run-tags-v, $(firstword $(MAKECMDGOALS)))
   $(eval $(runargs):;@true)
 endif
 run-tags-v:
-	@ansible-playbook -i inventory/hosts.ini -vvv --tags $(runargs) main.yml
+	@ansible-playbook -i inventory/hosts.ini -vvv --tags $(runargs) playbook_docker.yml
 
 ###########
 # Proxmox #

@@ -1,14 +1,10 @@
 ---
 - name: Test Playbook
-  hosts: docker
-  become: true
+  hosts: proxmox
+  # hosts: docker
   # Load in our default and vaulted vars
   vars_files:
     - vars/vault.yml
-  tasks:
-    - name: Set timezone
-      timezone:
-        name: "{{ tz }}"
 
   pre_tasks:
     # Allow user to override defaults with their custom config file.
@@ -36,15 +32,28 @@
 
   # Import handlers for all tasks
   handlers:
-    - import_tasks: handlers/main.yml
+    - import_tasks: handlers/proxmox.yml
+    - import_tasks: handlers/docker.yml
 
 ##################
 ### Start here ###
 ##################
 
+  # roles:
+  #   - create-proxmox-template-from-ubuntu-cloud-image
+
   tasks:
-    - name: Apt Upgrade
-      apt:
-        name: '*'
-        state: latest
-        update_cache: true
+    # - name: Clone template to new VM
+    #   proxmox_kvm:
+    #     node: "{{ pve.proxmox_node }}"
+    #     api_user: "{{ pve.proxmox_api_user }}"
+    #     api_password: "{{ pve.proxmox_api_pass }}"
+    #     api_host: "{{ proxmox_ip }}"
+    #     clone: "{{ item.value.template | default(vms_def.template) }}"
+    #     full: "yes"
+    #     name: "{{ item.value.name }}"
+    #     storage: "{{ item.value.storage | default(vms_def.storage) }}" 
+    #     timeout: "{{ pve.clone_timeout }}"
+    #     newid: "{{ item.value.vmid }}"
+    #   register: vm_new
+    #   loop: "{{ vms | dict2items }}"

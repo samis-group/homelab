@@ -1,21 +1,9 @@
 ---
 # Todo:
   # Proxmox is installed from scratch on debian boxes (Checkout this role to configure a proxmox cluster on debian -> https://github.com/lae/ansible-role-proxmox)
-  # Proxmox is setup/configured (Nag removal, telegraf, crons stuff like that)
-    # add the following entries to /etc/sudoers file:
-      # # Cmnd alias specification
-      # Cmnd_Alias SMARTCTL = /usr/sbin/smartctl
-      # # Give telegraf user access to exec scripts
-      # telegraf  ALL=(ALL) NOPASSWD: SMARTCTL, /etc/telegraf/scripts/
-      # Defaults!SMARTCTL !logfile, !syslog, !pam_session
-  # The cloud image (ubuntu most likely) is downloaded and the template is configured
-    # https://www.youtube.com/watch?v=shiIi38cJe4
-    # https://docs.technotim.live/posts/cloud-init-cloud-image/#instructions
-    # https://github.com/techno-tim/k3s-ansible
   # Appropriate VM's are provisioned (k3s cluster, docker etc... whatever I'm currently running) -> https://www.youtube.com/watch?v=CbkEWcUZ7zM
-  # /etc/telegraf needs to be owned by telegraf:telegraf recursively
 
-# Other useful resources:
+# useful resources:
   # https://github.com/FuzzyMistborn/infra
   # https://github.com/ironicbadger/infra
 
@@ -51,7 +39,7 @@
         secrets_dir: /home/{{ main_user }}/docker/secrets
       tags: ["always"]
 
-    # This is to get the UID and GID variables to use later in multiple areas
+    # This is to get the PUID and PGID variables to use later in multiple areas
     - name: Get user info or create a user if one doesn't exist
       import_tasks: tasks/linux/check_user.yml
       tags: ["always"]
@@ -64,22 +52,21 @@
     - import_tasks: handlers/proxmox.yml
 
   tasks:
+    - name: Ensure proxmox host is up, if not, send a Wake-on-LAN packet
+      import_tasks: tasks/proxmox/host_start.yml
+      tags: ["host_start"]
+
     - name: Install OS updates and required packages
       import_tasks: tasks/proxmox/install_os_packages.yml
       when: install_os_packages
       tags: ["install_os_packages"]
-
-    - name: Setup and configure influxdb
-      import_tasks: tasks/proxmox/influxdb_setup.yml
-      when: influxdb_setup
-      tags: ["influxdb_setup"]
 
     - name: Copy files to proxmox host
       import_tasks: tasks/proxmox/copy_files.yml
       when: copy_files
       tags: ["copy_files"]
 
-- name: Download Ubuntu Cloud-Image and create a template from it
+- name: Download Ubuntu Cloud-Image and make it a template
   hosts: proxmox1
 
   # Load in our default and vaulted vars
@@ -94,10 +81,8 @@
   handlers:
     - import_tasks: handlers/proxmox.yml
 
-  tasks:
-    - name: debug test
-      debug:
-        msg: "whatevs"
+  roles:
+    - create-proxmox-template-from-ubuntu-cloud-image
 
 - name: Provision VM's on Proxmox Host
   hosts: proxmox1
@@ -110,20 +95,17 @@
   pre_tasks:
     *pre_tasks
 
-  # roles:
-  #   - provision-docker-vm
-
   # Import handlers for all tasks
   handlers:
     - import_tasks: handlers/proxmox.yml
 
   tasks:
-    - name: debug test
-      debug:
-        msg: "whatevs"
+    - name: Provision VM's
+      import_tasks: tasks/proxmox/provision_vms.yml
+      when: provision_vms
+      tags: ["provision_vms"]
 
-    # This isn't ready yet...
-    # - name: Create VM in Proxmox
-    #   import_role:
-    #     name: provision-docker-vm
-    #   register: vm_provision
+    - name: Start VM's
+      import_tasks: tasks/proxmox/vm_start.yml
+      when: vm_start
+      tags: ["vm_start"]

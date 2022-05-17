@@ -1,1 +1,189 @@
 ---
+# Run `make update-compose` whenever it needs updating.
+update_compose: true
+setup_containers: true
+setup_nas_mounts: true
+setup_crons: true
+run_post_tasks: true
+hass_config: true
+git: true
+
+# Traefik rules (not docker)
+hass_port: '8123'
+oauth_port: '4181'
+pfsense_port: '50000'
+syncthing_port: '8384'
+vpn_provider: NORDVPN           # Reference haugene/transmission-openvpn -> http://haugene.github.io/docker-transmission-openvpn/supported-providers
+
+# Docker .env file defaults
+# Ports
+bazarr_port: '6767'
+jackett_port: '9117'
+grafana_port: '3000'
+plex_port: '32400'
+plex_web_tools_port: '33400'
+jellyfin_port: '8096'
+portainer_port: '9000'
+radarr_port: '7878'
+sonarr_port: '8989'
+prowlarr_port: '9696'
+tautulli_port: '8181'
+qbittorrent_port: '8787'
+transmission_port: '9091'
+mosquitto_http_port: '1883'
+mosquitto_ws_port: '9001'
+mosquitto_https_port: '8883'
+loki_port: '3100'
+moviematch_port: '8001'
+vscode_port: '8446'
+overseerr_port: '5055'
+homer_port: '8456'
+mariadb_port: '3306'
+phpmyadmin_port: '8000'
+authelia_port: '9092'
+tdarr:
+  webui_port: '8265'
+  server_port: '8266'
+  node_port: '8267'
+photoprism_port: '2342'
+eufy_security_ws_port: '3007'
+zigbee2mqtt_port: '9442'
+zigbee2mqttassistant_port: '8881'
+redis_port: '6379'
+rediscommander_port: '8081'
+hass_configurator_port: '3218'
+mkdocs_port: '8554'
+node_api_port: '8555'
+
+# Required directories and files to be created before docker templates/files can be copied - recursive
+required_items:
+  folders:
+    - /usr/local/bin
+    - /var/log/traefik
+    - /var/log/nginx
+    - "{{ user_dir }}/.docker"
+    - "{{ docker_dir }}/secrets"
+    - "{{ docker_dir }}/scripts"
+    - "{{ docker_dir }}/appdata/mariadb/config/initdb.d"
+    - "{{ docker_dir }}/appdata/mqtt/log"
+    - "{{ docker_dir }}/appdata/mqtt/config"
+    - "{{ docker_dir }}/appdata/traefik/acme"
+    - "{{ docker_dir }}/appdata/traefik/rules"
+    - "{{ docker_dir }}/appdata/promtail/etc"
+    - "{{ docker_dir }}/compose-files"
+  no_recurse_folders:
+    - "{{ docker_dir }}/appdata/shared/plexms"
+    - "{{ docker_dir }}/appdata/shared/radarr/MediaCover"
+    - "{{ docker_dir }}/appdata/shared/sonarr/MediaCover"
+  files:
+    - /var/log/traefik/traefik.log
+    - /var/log/nginx/{{ domain_name }}.access.log
+    - /var/log/nginx/{{ domain_name }}.error.log
+    - /var/log/nginx/nginx-error.log
+    - "{{ user_dir }}/.docker/config.json"    # Needs to be owned by the user, otherwise docker login fails.
+    - "{{ docker_dir }}/scripts/mail.txt"
+    - "{{ docker_dir }}/appdata/mqtt/log/mosquitto.log"
+    - "{{ docker_dir }}/appdata/mqtt/config/passwd"
+    - "{{ docker_dir }}/appdata/traefik/acme/acme.json"
+
+nas:
+  ip: 10.10.0.2  # Synology NAS IP
+  port: '5000'  # Synology NAS Port
+  mounts:   # NFS Mounts from the Synology NAS
+    docker_backups:
+      local_mapping: "{{ user_dir }}/mount/docker_backups"
+      remote_mapping: "/volume1/nfs/docker_backups"
+    downloads:
+      local_mapping: "{{ user_dir }}/mount/downloads"
+      remote_mapping: "/volume1/nfs/downloads"
+    motioneye:
+      local_mapping: "{{ user_dir }}/mount/motioneye"
+      remote_mapping: "/volume1/nfs/motioneye"
+    tv:
+      local_mapping: "{{ user_dir }}/mount/tv"
+      remote_mapping: "/volume1/video/tv"
+    movies:
+      local_mapping: "{{ user_dir }}/mount/movies"
+      remote_mapping: "/volume1/video/movies"
+    syncthing:
+      local_mapping: "{{ user_dir }}/mount/syncthing"
+      remote_mapping: "/volume1/nfs/syncthing"
+    sami_pictures:
+      local_mapping: "{{ user_dir }}/mount/photos/sami"
+      remote_mapping: "/volume1/Samis_Folder/Photos"
+    family_pictures:
+      local_mapping: "{{ user_dir }}/mount/photos/family"
+      remote_mapping: "/volume1/Photos"
+
+##############################################
+######### Currently Unused Variables #########
+##############################################
+
+##### SYSTEM
+
+# pihole_ip=x.x.x.x             # `ip a`
+
+##### PORTS
+
+# organizer_port: '9001'
+# zoneminder_http_port: ''
+# zoneminder_https_port: ''
+# apcupsd_port: ''
+# emby_port: ''
+# guacamole_port: ''
+# ha_dockermon_port: ''
+# heimdall_port: ''
+# ipvanish_proxy_port: ''
+# ipvanish_remote_server: ''
+# jdownloader_port: ''
+# lidarr_port: ''
+# nzbhydra_port: ''
+# sabnzbd_port: ''
+# sabnzbd_port: ''
+
+##### PLEX
+
+# Plex libraries section id. Remember to change the numbers below to reflect your library. Add more as needed.
+# ALWAYS DO A DRY RUN TO VERIFY BEFORE SYNCING (I'm commenting them out because they may cause issues for you deploying)
+# SYN_PLEX_HOLLYWOOD=1
+# NUC_PLEX_HOLLYWOOD=2
+# SYN_PLEX_TVSHOWS=2
+# NUC_PLEX_TVSHOWS=16
+
+##### DOMAIN
+
+# cloudflare_zoneid=
+# subdomain=sub
+
+##### DATABASE
+
+# db_host=
+# db_port=
+# mysql_root_password=
+
+##### SECURITY AND PRIVACY
+
+# ipvanish_username=
+# ipvanish_password=
+# http_username=
+# http_password=
+# lidarr_api_key=
+# sabnzbd_api_key=
+
+##### NOTIFICATIONS
+
+# tgram_bot_token=
+# tgram_chat_id=
+
+##### APPS
+
+# jdown_vnc_passwd=
+# handbrake_vnc_passwd=
+# firefox_vnc_passwd=
+# filebot_vnc_passwd=
+# qdirstat_vnc_passwd=
+# mkvtoolnix_vnc_passwd=
+# makemkv_vnc_passwd=
+# guac_mysql_user=
+# guac_mysql_password=
+# pihole_webpassword=

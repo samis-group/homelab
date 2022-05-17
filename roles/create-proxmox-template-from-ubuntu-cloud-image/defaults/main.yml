@@ -1,0 +1,16 @@
+---
+img_dir: "/var/tmp/cloud_image"
+proxmox_ip: 10.10.0.10    # Set this yourself
+
+ubuntu:
+  version_name: "jammy"
+  cpu_arch: amd64
+  release: current
+
+ubuntu_img_template_url: https://cloud-images.ubuntu.com/{{ ubuntu.version_name }}/{{ ubuntu.release }}/{{ ubuntu.version_name }}-server-cloudimg-{{ ubuntu.cpu_arch }}.img
+
+# My vm's are defined in `group_vars/all.yml`
+vm_template:
+  name: UbuntuCloud
+  vmid: 8000
+  password: "{{ ansible_become_password }}"   # Set this yourself, mine is in my vault
