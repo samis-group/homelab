@@ -42,8 +42,12 @@ access_control:
     - name: lan
       networks:
       - {{ local_network_lan }}
+    - name: iot
+      networks:
+      - {{ local_network_iot }}
+    - name: homelab
+      networks:
       - {{ local_network_homelab }}
-      # - REPLACE_WITH_WAN_IP
     - name: docker
       networks:
       - 192.168.90.0/23
@@ -57,10 +61,18 @@ access_control:
       - "authelia.{{ domain_name }}"
       - "api.{{ domain_name }}"
       policy: bypass
-    # Bypass LAN and Docker internal network traffic to certain endpoints.
+    # Bypass local subnets for hass.
     - domain:
       - "hass.{{ domain_name }}"
       - "home-assistant.{{ domain_name }}"
+      networks:
+        - lan
+        - iot   # For hass dashboard casting to google hub
+        - homelab
+        - docker
+      policy: bypass
+    # Bypass other domains for certain local subnets only
+    - domain:
       - "tv.{{ domain_name }}"
       - "overseerr.{{ domain_name }}"
       - "docs.{{ domain_name }}"
@@ -68,6 +80,7 @@ access_control:
       - "homer.{{ domain_name }}"
       networks:
         - lan
+        - homelab
         - docker
       policy: bypass
     # Anyone not a family member is not allowed access to my private stash of docs, soz <3

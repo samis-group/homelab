@@ -5,6 +5,7 @@ main_user_ssh_key_title: "{{ main_user }}-id_rsa_docker"
 docker_group: docker            # Leave this as 'docker', the user will need to be added to this group to run docker
 network_gateway: 10.10.0.1       # Typically your router IP
 local_network_lan: 10.0.0.0/24      # Your local LAN subnet that will be used to whitelist certain aceess to resources
+local_network_iot: 10.4.0.0/24      # Your local IOT subnet that will be used to whitelist certain aceess to resources
 local_network_homelab: 10.10.0.0/24 # Your local homelab subnet that will be used to whitelist certain aceess to resources
 ssh:                            # SSH key to connect to docker vm
   key_private: "{{ user_dir }}/.ssh/id_rsa_personal"
