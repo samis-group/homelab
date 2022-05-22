@@ -32,8 +32,8 @@
       tags: ["always"]
 
   # Import handlers for all tasks
-  handlers:
-    - import_tasks: handlers/main.yml
+  # handlers:
+  #   - import_tasks: handlers/main.yml
 
   # roles:
   #   - geerlingguy.docker  # Use docker desktop WSL integration instead.

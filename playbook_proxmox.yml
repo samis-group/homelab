@@ -66,25 +66,7 @@
       when: copy_files
       tags: ["copy_files"]
 
-- name: Download Ubuntu Cloud-Image and make it a template
-  hosts: proxmox1
-
-  # Load in our default and vaulted vars
-  vars_files:
-    *vars_files
-
-  # Allow user to override defaults with their custom config file
-  pre_tasks:
-    *pre_tasks
-
-  # Import handlers for all tasks
-  handlers:
-    - import_tasks: handlers/proxmox.yml
-
-  roles:
-    - create-proxmox-template-from-ubuntu-cloud-image
-
-- name: Provision VM's on Proxmox Host
+- name: Download and configure ubuntu template and Provision VM's on Proxmox Host
   hosts: proxmox1
 
   # Load in our default and vaulted vars
@@ -109,3 +91,29 @@
       import_tasks: tasks/proxmox/vm_start.yml
       when: vm_start
       tags: ["vm_start"]
+
+    - name: Create Ubuntu VM Template from cloud image
+      import_role:
+        name: proxmox-template-from-ubuntu-cloud-image
+      when: create_vm_template
+      tags: ["create_vm_template"]
+
+# LXC Containers - not done yet
+
+# - name: Download and Configure LXC Containers on Proxmox Host
+#   hosts: proxmox1
+
+#   # Load in our default and vaulted vars
+#   vars_files:
+#     *vars_files
+
+#   # Allow user to override defaults with their custom config file
+#   pre_tasks:
+#     *pre_tasks
+
+#   # Import handlers for all tasks
+#   handlers:
+#     - import_tasks: handlers/proxmox.yml
+
+#   roles:
+#     - udelarinterior.proxmox_create_lxc

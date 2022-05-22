@@ -9,8 +9,31 @@
 execute:
 	@ansible-playbook -i inventory/hosts.ini main.yml
 
+# Verbose option
 execute-v:
 	@ansible-playbook -i inventory/hosts.ini -vvv main.yml
+
+# ##########################################################################
+# # This will make everything from absolutely nothing but debian machines. #
+# ##########################################################################
+# from-scratch:
+# 	@
+
+##############
+# Test Tasks #
+##############
+
+# Run the test playbook
+test:
+	@ansible-playbook -i inventory/hosts.ini playbook_test.yml
+
+# Verbose option
+test-v:
+	@ansible-playbook -i inventory/hosts.ini -v playbook_test.yml
+
+# Verboserer option
+test-vvv:
+	@ansible-playbook -i inventory/hosts.ini -vvv playbook_test.yml
 
 ###################################
 ### Include all other makefiles ###

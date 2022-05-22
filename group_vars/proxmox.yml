@@ -2,3 +2,4 @@
 influxdb_setup: true
 provision_vms: true
 vm_start: false  # Start VM's
+create_vm_template: false

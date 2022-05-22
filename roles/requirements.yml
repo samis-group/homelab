@@ -8,14 +8,15 @@
 
 ## Others
 - src: lae.proxmox  # Setup pve cluster on debian) - # Currently Unused
-- name: udelarinterior.proxmox_create_kvm   # Provision the docker/k3s nodes - # Currently Unused
-  src: https://github.com/UdelaRInterior/ansible-role-proxmox-create-kvm.git
+- src: udelarinterior.proxmox_create_kvm   # Provision the docker/k3s nodes - # Currently Unused
+- src: udelarinterior.proxmox_create_lxc   # LXC containers provision
 - src: ironicbadger.proxmox_nag_removal # Currently Unused
 - src: rossmcdonald.telegraf  # Currently Unused -> https://github.com/rossmcdonald/telegraf
 
 # Docker #
 - src: arillso.logrotate
+- src: geerlingguy.docker   # Currently Unused
 
 # WSL #
-- src: geerlingguy.docker # Currently Unused
+# geerlingguy.docker as above
 - src: geerlingguy.ntp  # Currently Unused - This is also for proxmox above

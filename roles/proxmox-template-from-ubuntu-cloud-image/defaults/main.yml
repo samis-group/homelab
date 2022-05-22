@@ -1,6 +1,7 @@
 ---
 img_dir: "/var/tmp/cloud_image"
 proxmox_ip: 10.10.0.10    # Set this yourself
+force_template_rebuild: false
 
 ubuntu:
   version_name: "jammy"
