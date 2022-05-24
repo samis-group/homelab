@@ -53,7 +53,7 @@ services:
       traefik_proxy:
         ipv4_address: 192.168.90.134 # You can specify a static IP
     volumes:
-    - "/var/log/nginx:/var/log/nginx"   # For Grafana logging
+      - "/var/log/nginx:/var/log/nginx"   # For Grafana logging
     ### ALL DONE IN DOCKERFILE NOW (PRIVATE REPO) ###
     # - "${DOCKERDIR}/appdata/nginx/conf.d:/etc/nginx/conf.d"
     # - "${DOCKERDIR}/appdata/nginx/nginx.conf:/etc/nginx/nginx.conf"
