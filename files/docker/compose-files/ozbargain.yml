@@ -14,7 +14,6 @@ services:
   ozbargain:
     image: registry.gitlab.com/sami-group/ozbargain_bot:latest
     init: true
-    user: ${PUID}:${PGID}
     container_name: ozbargain
     restart: unless-stopped
     volumes:
@@ -22,3 +21,7 @@ services:
     environment:
       OZBARGAIN_SLACK_WEBHOOK: ${OZBARGAIN_SLACK_WEBHOOK}
       OZBARGAIN_SLACK_WEBHOOK_FRONTPAGE: ${OZBARGAIN_SLACK_WEBHOOK_FRONTPAGE}
+      PUID: ${PUID}
+      PGID: ${PGID}
+      # OZBARGAIN_TIMESTAMP_OVERRIDE: 2
+      RUN_ON_BOOT: yes
