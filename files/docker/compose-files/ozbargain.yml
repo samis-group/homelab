@@ -25,3 +25,4 @@ services:
       PGID: ${PGID}
       # OZBARGAIN_TIMESTAMP_OVERRIDE: 2
       RUN_ON_BOOT: yes
+      TZ: ${TZ}
