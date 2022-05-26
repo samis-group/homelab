@@ -22,12 +22,15 @@
       tags: ["always"]
 
     # Setup some required variables for the rest of the playbook
+    - name: Instantiate user_dir
+      set_fact:
+        user_dir: "{{ lookup('env', 'HOME') }}"
+      tags: ["always"]
     - name: Instantiate some extra vars from included vars
       set_fact:
-        user_dir: /home/{{ main_user }}
-        docker_dir: /home/{{ main_user }}/docker
-        git_dir: /home/{{ main_user }}/git/personal
-        secrets_dir: /home/{{ main_user }}/docker/secrets
+        docker_dir: "{{ user_dir }}/docker"
+        git_dir: "{{ user_dir }}/git/personal"
+        secrets_dir: "{{ user_dir }}/docker/secrets"
       tags: ["always"]
 
     # This is to get the PUID and PGID variables to use later in multiple areas

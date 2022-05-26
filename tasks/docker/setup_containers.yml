@@ -57,12 +57,21 @@
     mode: '0644'
   when: authelia_found|int < authelia_hashed_passwords.users | list | count
 
+# This won't exist on initial run, so let's check the containers existence first and restart conditionally if it exists
+- name: Check if Authelia is running
+  docker_container_info:
+    name: authelia
+  register: authelia_running
+
 - name: Restart Authelia
   docker_container:
-    name: "authelia"
+    name: authelia
     state: started
     restart: yes
-  when: authelia_found|int < authelia_hashed_passwords.users | list | count
+  # When you have multiple conditions that all need to be true (that is, a logical and), you can specify them as a list
+  when:
+    - authelia_found|int < authelia_hashed_passwords.users | list | count
+    - authelia_running.exists
 
 ############
 ### MQTT ###
@@ -91,13 +100,38 @@
       {%- endfor -%}
       {{ count|length }}
 
+# Check if mqtt is running, if not, we create one adhoc and destroy it afterwards
+- name: Check if MQTT is running
+  docker_container_info:
+    name: mqtt
+  register: mqtt_running
+
+- name: Start mqtt container with volume mounted to store htpasswd items in
+  community.docker.docker_container:
+    name: mqtt
+    image: eclipse-mosquitto:latest
+    user: "{{ puid }}:{{ pgid }}"
+    auto_remove: yes
+    volumes:
+      - "{{ docker_dir }}/appdata/mqtt/config:/mosquitto/config"
+    env_file: "{{ docker_dir }}/.env"
+    # command: ["sleep", "infinity"]
+  when: not mqtt_running.exists
+
 - name: Regenerate file if any user not in mqtt passwd
   community.docker.docker_container_exec:
     container: mqtt
     command: "mosquitto_passwd -b /mosquitto/config/passwd {{ item.key }} {{ item.value }}"
   with_dict: "{{ mqtt_logins }}"
   when: mqtt_found|int < mqtt_logins|list|count
-  no_log: true
+  # no_log: true
+
+- name: Remove mqtt container if it was created by ansible
+  community.docker.docker_container:
+    name: mqtt
+    image: eclipse-mosquitto:latest
+    state: absent
+  when: not mqtt_running.exists
 
 ################
 ### htpasswd ###

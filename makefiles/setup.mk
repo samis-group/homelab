@@ -1,3 +1,5 @@
+.PHONY: setup apt pip reqs store-password githook
+
 # Setup entire environment
 setup: apt pip reqs store-password githook
 

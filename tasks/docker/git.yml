@@ -9,8 +9,9 @@
   user:
     name: "{{ main_user }}"
     generate_ssh_key: yes
-    ssh_key_file: "{{ user_dir }}/.ssh/{{ main_user_ssh_key_filename }}"
+    ssh_key_file: "{{ user_dir }}/.ssh/{{ main_user_ssh_key_prefix ~ inventory_hostname_short }}"
 
+# TODO: Needs checking of fingerprint, remove key if not same
 - name: Check if GitLab has this user's SSH key
   uri:
     url: "{{ gitlab.api_url }}/user/keys"
@@ -21,11 +22,15 @@
       Content-Type: "application/json"
   register: user_ssh_keys
 
+- name: debug user_ssh_keys
+  debug:
+    var: user_ssh_keys
+
 - name: Assign ssh key to a variable
   shell:
-    cat {{ user_dir }}/.ssh/{{ main_user_ssh_key_filename }}.pub
+    cat {{ user_dir }}/.ssh/{{ main_user_ssh_key_prefix ~ inventory_hostname_short }}.pub
   register: deployer_user_public_key
-  when: not user_ssh_keys.json | selectattr('title', 'equalto', main_user_ssh_key_title) | list | length > 0
+  when: not user_ssh_keys.json | selectattr('title', 'equalto', main_user_ssh_key_prefix ~ inventory_hostname_short) | list | length > 0
 
 - name: Push the generated ssh key to the GitLab instance
   uri:
@@ -37,24 +42,24 @@
         Content-Type: "application/json"
       body: >
         {
-          "title": "{{ main_user_ssh_key_title }}", 
+          "title": "{{ main_user_ssh_key_prefix ~ inventory_hostname_short }}", 
           "key": "{{ deployer_user_public_key.stdout_lines.0 }}"
         }
       body_format: json
-  when: not user_ssh_keys.json | selectattr('title', 'equalto', main_user_ssh_key_title) | list | length > 0
+  when: not user_ssh_keys.json | selectattr('title', 'equalto', main_user_ssh_key_prefix ~ inventory_hostname_short) | list | length > 0
 
 - name: Ensure .ssh/config file exists
   file:
     state: touch
     path: "{{ user_dir }}/.ssh/config"
-  when: not user_ssh_keys.json | selectattr('title', 'equalto', main_user_ssh_key_title) | list | length > 0
+  when: not user_ssh_keys.json | selectattr('title', 'equalto', main_user_ssh_key_prefix ~ inventory_hostname_short) | list | length > 0
 
 - name: Disable host key checking
   lineinfile:
     path: "{{ user_dir }}/.ssh/config"
     line: "Host *\n \tStrictHostKeyChecking no\n\tUserKnownHostsFile=/dev/null"
     regexp: '^Host \*$'
-  when: not user_ssh_keys.json | selectattr('title', 'equalto', main_user_ssh_key_title) | list | length > 0
+  when: not user_ssh_keys.json | selectattr('title', 'equalto', main_user_ssh_key_prefix ~ inventory_hostname_short) | list | length > 0
 
 - name: Add deploy group to sudoers file and validate
   lineinfile:
@@ -64,30 +69,84 @@
     line: '%{{ docker_group }} ALL=(ALL) NOPASSWD:ALL'
     validate: "visudo -cf %s"
 
-# TODO:
-# Figure out how to add private repo as submodule for home assistant (git@gitlab.com:th3cookie/home-assistant.git).
-# track changes made on the server in a repo on that host (i.e. make the files a repo).
-# This is better than making your own docker image because changes made by the hass UI can be tracked as well.
-# Baked images are done via code, so would still need to setup repo to track it. Not worth it then.
+### This may not be required now that I set `become: false` on checkout of source code. Needs testing..
+# - name: mark git dirs as safe in git config
+#   community.general.git_config:
+#     name: safe.directory
+#     scope: global
+#     value: "{{ docker_dir }}/appdata/{{ item.key }}"
+#   with_dict: "{{ gitlab.clone_repos }}"
 
-- name: mark git dirs as safe in git config
-  community.general.git_config:
-    name: safe.directory
-    scope: global
-    value: "{{ docker_dir }}/appdata/{{ item.key }}"
-  with_dict: "{{ gitlab.clone_repos }}"
+################
+### Dotfiles ###
+################
+
+- name: Get dotfiles repo
+  git: 
+    repo: "{{ gitlab.dotfiles.repo }}"
+    dest: "{{ user_dir }}/.dotfiles"
+    version: "{{ gitlab.dotfiles.branch }}"
+    track_submodules: true
+    key_file: "{{ user_dir }}/.ssh/{{ main_user_ssh_key_prefix ~ inventory_hostname_short }}"
+    accept_hostkey: true
+  ignore_errors: true
+  become: false
+
+- name: checkout docker branch in dotfiles-extras repo
+  git: 
+    repo: "{{ gitlab.dotfiles.extra_repo }}"
+    dest: "{{ user_dir }}/.dotfiles/dotfiles-extra"
+    version: "{{ gitlab.dotfiles.extra_branch }}"
+    key_file: "{{ user_dir }}/.ssh/{{ main_user_ssh_key_prefix ~ inventory_hostname_short }}"
+    accept_hostkey: true
+  ignore_errors: true
+  become: false
+
+- name: Build directories list
+  ansible.builtin.find:
+    paths: ["{{ user_dir }}/.dotfiles"]
+    recurse: no
+    file_type: directory
+  register: files_to_stow
+
+### Needs work
+# - name: Set conflicting stow files fact
+#   set_fact:
+#     stow_conflicts:
+#       - "{{ user_dir }}/.bashrc"
+#       - "{{ user_dir }}/.gitconfig"
+#       - "{{ user_dir }}/.ssh/config"
+
+# - name: Move conflicting files
+#   copy:
+#     remote_src: True
+#     src: "{{ item }}"
+#     dest: "{{ item }}.old"
+#   with_items: "{{ stow_conflicts }}"
+
+# - name: Remove original files in place of stowed dotfiles
+#   file:
+#     path: "{{ item }}"
+#     state: absent
+#   with_items: "{{ stow_conflicts }}"
+
+- name: Deploy dotfiles with stow
+  ansible.builtin.shell: stow {{ item.path | basename }}
+  environment:
+    STOW_DIR: "{{ user_dir }}/.dotfiles"
+  changed_when: false
+  with_items: '{{ files_to_stow.files }}'
 
 - name: Checkout source code
   git: 
     repo: "{{ item.value }}"
     dest: "{{ docker_dir }}/appdata/{{ item.key }}"
-    key_file: "{{ user_dir }}/.ssh/{{ main_user_ssh_key_filename }}"
+    key_file: "{{ user_dir }}/.ssh/{{ main_user_ssh_key_prefix ~ inventory_hostname_short }}"
     accept_hostkey: true
-    # clone: false    # Default: true
-    # update: false   # Default: true
   with_dict: "{{ gitlab.clone_repos }}"
   register: git_checkout_code
   ignore_errors: true   # Because Home assistant gets changed to, and realistically, this only needs to be run initially anyway.
+  become: false
 
 # Let's assert that the last command is a success when certain things exist - Needs work
 # There is no success_when variable that I can use the loop above so I have to assert something after the fact.

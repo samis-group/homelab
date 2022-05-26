@@ -1,6 +1,7 @@
 ###########
 # Proxmox #
 ###########
+.PHONY: proxmox-vm proxmox-vm-v proxmox-vms proxmox-vm-template proxmox-force-vm-template
 
 proxmox:
 	@ansible-playbook -i inventory/hosts.ini playbook_proxmox.yml

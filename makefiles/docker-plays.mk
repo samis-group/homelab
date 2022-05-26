@@ -1,6 +1,7 @@
 ##########
 # Docker #
 ##########
+.PHONY: update-compose update-compose-v setup-containers setup-containers-v
 
 docker:
 	@ansible-playbook -i inventory/hosts.ini playbook_docker.yml
@@ -27,7 +28,7 @@ docker-setup-containers-v:
 	@ansible-playbook -i inventory/hosts.ini -vvv --tags "copy_files,update_compose,setup_containers" -e "copy_files=true" -e "update_compose=true" playbook_docker.yml
 
 # Run only the tags passed in separated by comma (e.g. make run-tags update_compose,logrotate)
-ifeq (run-tags, $(firstword $(MAKECMDGOALS)))
+ifeq (docker-run-tags, $(firstword $(MAKECMDGOALS)))
   runargs := $(wordlist 2, $(words $(MAKECMDGOALS)), $(MAKECMDGOALS))
   $(eval $(runargs):;@true)
 endif
@@ -35,7 +36,7 @@ docker-run-tags:
 	@ansible-playbook -i inventory/hosts.ini --tags $(runargs) playbook_docker.yml
 
 # VERBOSE - Run only the tags passed in separated by comma (e.g. make run-tags update_compose,logrotate)
-ifeq (run-tags-v, $(firstword $(MAKECMDGOALS)))
+ifeq (docker-run-tags-v, $(firstword $(MAKECMDGOALS)))
   runargs := $(wordlist 2, $(words $(MAKECMDGOALS)), $(MAKECMDGOALS))
   $(eval $(runargs):;@true)
 endif

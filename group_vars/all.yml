@@ -1,7 +1,7 @@
 ---
 main_user: sami                 # User that will be created and will manage the systems/containers
-main_user_ssh_key_filename: id_rsa_docker
-main_user_ssh_key_title: "{{ main_user }}-id_rsa_docker"
+ssh_key_prefix: id_rsa_
+main_user_ssh_key_prefix: "{{ main_user }}-{{ ssh_key_prefix }}"
 docker_group: docker            # Leave this as 'docker', the user will need to be added to this group to run docker
 network_gateway: 10.10.0.1       # Typically your router IP
 local_network_lan: 10.0.0.0/24      # Your local LAN subnet that will be used to whitelist certain aceess to resources
@@ -36,11 +36,12 @@ vms_def:
   vga: serial0
   boot_order: "c"
   boot_disk: "scsi0"
+  cloudinit_drive: ide2   # After successful creation and bootstrapping, we want to remove the cloud init drive, it gets created as this, change it here if it changes in proxmox.
 
 # VM's and their details
 vms:
   docker2:
-    name: docker2
+    name: docker2   # This must match the subdomain name exactly as DNS records get created from this (i.e. <name>.domain.com)
     template: "{{ cloud_image_template_name }}"
     ip_address: "10.10.0.22"  # Required
     user: "{{ main_user }}"
@@ -51,7 +52,7 @@ vms:
     storage: 'local-lvm'
     hdd_size: "4G"
   docker3:
-    name: docker3
+    name: docker3   # This must match the subdomain name exactly as DNS records get created from this (i.e. <name>.domain.com)
     template: "{{ cloud_image_template_name }}"
     ip_address: "10.10.0.23"  # Required
     user: "{{ main_user }}"

@@ -9,13 +9,12 @@
 
 This repository contains all of my playbooks and configurations to install and configure everything in my homelab, from scratch (i.e. from just a few debian boxes, you can spin up an entire proxmox cluster, with docker/kubernetes vm's, all setup and configured, reverse proxy, DNS, the whole lot.. depending on the tech I'm using).
 
-DNS is managed manually in cloudflare and there are no current plans for me to automate creating these records.. sorry. They're all essentially just CNAME's pointing to my reverse proxy (traefik for now).
-
 It creates a ubuntu template from the public cloud image, creates my VM's on proxmox and configures all containers. You are able to completely tear this down and rebuild it (this does not install proxmox yet, in the future it will).
 
 This repo can even setup my windows/linux desktop PC's.
 
 > ❗ **This playbook was tested on Ubuntu 20.04. Other versions may work but have not been tested.**
+> ❗ **DNS is managed manually for the docker containers, but any VM's will have DNS created for them. There are no current plans for me to automate creating container records, i know there is a container that will do this for you..**
 
 ## Contents
 

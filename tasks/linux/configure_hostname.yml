@@ -1,7 +1,7 @@
 ---
 - name: Set Hostname
   hostname:
-    name: "{{ hostname }}"
+    name: "{{ inventory_hostname }}"
   # register: testvar
   # ignore_errors: true
   when: configure_hostname

@@ -1,5 +1,6 @@
 ---
 influxdb_setup: true
 provision_vms: true
-vm_start: false  # Start VM's
 create_vm_template: false
+vm_start: true      # Start VM's
+vm_post_tasks: true # Run post tasks

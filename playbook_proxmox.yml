@@ -79,7 +79,13 @@
     - import_tasks: handlers/proxmox.yml
 
   tasks:
-    - name: Provision VM's
+    - name: Create Ubuntu VM Template from cloud image
+      import_role:
+        name: proxmox-template-from-ubuntu-cloud-image
+      when: create_vm_template
+      tags: ["create_vm_template"]
+
+    - name: Provision VM's from template
       import_tasks: tasks/proxmox/provision_vms.yml
       when: provision_vms
       tags: ["provision_vms"]
@@ -89,11 +95,10 @@
       when: vm_start
       tags: ["vm_start"]
 
-    - name: Create Ubuntu VM Template from cloud image
-      import_role:
-        name: proxmox-template-from-ubuntu-cloud-image
-      when: create_vm_template
-      tags: ["create_vm_template"]
+    - name: Run Post Tasks
+      import_tasks: tasks/proxmox/vm_post_tasks.yml
+      when: vm_post_tasks
+      tags: ["vm_post_tasks"]
 
 # LXC Containers - not done yet
 

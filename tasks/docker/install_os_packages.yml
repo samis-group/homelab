@@ -30,6 +30,7 @@
       - git
       - apache2-utils
       - unzip
+      - stow
 
 - name: pip self-update
   pip:

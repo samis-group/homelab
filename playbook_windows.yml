@@ -66,9 +66,9 @@
       when: install_wsl2
       tags: ["install_wsl2"]
 
-    - import_tasks: tasks/windows/schedule_tasks.yml
-      when: schedule_tasks
-      tags: ["schedule_tasks"]
+    # - import_tasks: tasks/windows/schedule_tasks.yml
+    #   when: schedule_tasks
+    #   tags: ["schedule_tasks"]
 
     - import_tasks: tasks/windows/fonts.yml
       when: install_fonts

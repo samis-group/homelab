@@ -8,3 +8,7 @@
     name: "{{ item.value.name }}"
     state: started
   loop: "{{ vms | dict2items }}"
+
+- name: Pausing until VM's are started and bootstrapped by cloud-init. Cancel early if console appears quiet on the new VM's. The last entry should show that it "Reached target Cloud-init target".
+  pause:
+    minutes: 10

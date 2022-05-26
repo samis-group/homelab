@@ -29,6 +29,12 @@
 #       {%- endfor -%}
 #       {{ count|length }}
 
+- name: Ensure the custom_components dir exists on new installs
+  file:
+    path: "{{ docker_dir }}/appdata/hass/custom_components"
+    state: directory
+    mode: '0755'
+
 - name: Calculate number of existing custom_components
   find:
     paths: "{{ docker_dir }}/appdata/hass/custom_components"

@@ -1,4 +1,4 @@
-.PHONY: execute execute-v test test-v test-vvv run-tags run-tags-v provision-vm provision-vm-v update-compose update-compose-v setup-containers setup-containers-v list-tags list-vars setup apt pip reqs store-password githook decrypt encrypt
+.PHONY: execute execute-v test test-v test-vvv
 
 ##############################################
 ### Main operation when only `make` is run ###

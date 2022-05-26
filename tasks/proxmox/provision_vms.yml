@@ -1,8 +1,12 @@
 ---
-# Issue with this is it is not updating the cloud-init values per machine once it's cloned. Not sure why?
-# Could be you need to boot up the machine, shutdown, then you can change IP.
-# I was able to change IP with this command, just need to loop all vm's and apply:
-# qm set 202 --ipconfig0 'ip=10.10.0.22/24,gw=10.10.0.1'
+- name: Setup cloudflare DNS for VM's
+  community.general.cloudflare_dns:
+    zone: "{{ domain_name }}"
+    record: "{{ item.value.name }}"
+    type: A
+    value: "{{ item.value.ip_address | default(vms_def.storage) }}"
+    api_token: "{{ cloudflare_api_token }}"
+  loop: "{{ vms | dict2items }}"
 
 - name: Clone template to new VM's
   proxmox_kvm:

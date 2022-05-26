@@ -1,0 +1,21 @@
+---
+# After successful creation and bootstrapping, we want to remove the cloud init drive.
+# It is defined in the defaults, if it changes device name/numbering, adjust there.
+- name: Remove Cloud-init drives from vms
+  shell:
+    cmd: "qm set {{ item.value.vmid }} --delete {{ vms_def.cloudinit_drive }}"
+  loop: "{{ vms | dict2items }}"
+
+- name: Restart VM's
+  community.general.proxmox_kvm:
+    node: "{{ pve.proxmox_node }}"
+    api_user: "{{ pve.proxmox_api_user }}"
+    api_password: "{{ pve.proxmox_api_pass }}"
+    api_host: "{{ proxmox_ip }}"
+    name: "{{ item.value.name }}"
+    state: restarted
+  loop: "{{ vms | dict2items }}"
+
+- name: pause 5m So that ansible can run configuration playbooks after reboots, if only proxmox is the playbook, you may safely exit now. Have a great day!
+  pause:
+    minutes: 5
