@@ -1,0 +1,172 @@
+---
+ansible_become_password: XXXXXXXXXX   # The `main_user` password and also the password ansible will use when connecting and becoming root
+domain_name: example.com              # Domain name that traefik resides
+services_username: user               # Username to login to services
+services_password: XXXXXXXXXXXXXX     # Password to login to services
+gmail_address: email@gmail.com        # Your main gmail address that will be used to send mail from
+gmail_pass: XXXXXXXXXXXXXX            # This is your normal gmail password
+gmail_app_pass: XXXXXXXXXXXXXX        # This is the app password you generate here -> https://myaccount.google.com/apppasswords. Hint: Check password manager.
+eufy_addon_email: email@gmail.com     # Your secondary eufy account with devices shared to it (Don't use your primary account for security reasons)
+eufy_addon_password: XXXXXXXXXXXXXX   # Password of this secondary eufy account with shared devices
+cloudflare_email: email@gmail.com     # Search "API" in your password manager
+cloudflare_api_token: XXXXXXXXXXXXXX-XXXXXXXXXXXXXX
+cloudflare_api_key: XXXXXXXXXXXXXXXXXXXXXXXXXXXX      # This is the "Global API Key" (same entry as above in your password manager)
+vpn_user: email@gmail.com             # VPN Provider username
+vpn_pass: XXXXXXXXXXXXXX              # VPN Provider password
+# The nordvpn_private_key can be obtained using `docker run --rm --cap-add=NET_ADMIN -e USER=${VPN_USER} -e PASS=${VPN_PASS} bubuntux/nordvpn nord_private_key`
+nordvpn_private_key: XXXXXXXXXXXXXX/XXXXXXXXXXXXXX=   # For nordlynx
+google_client_id: XXXXXXXXXXXXXX-XXXXXXXXXXXXXX.apps.googleusercontent.com  # For oauth container
+google_client_secret: XXXXXXXXXXXXXX_XXXXXXXXX        # For oauth container
+oauth_secret: XXXXXXXXXXXXXXXXXXXXXXXXXXXX            # This is randomly generated with `openssl rand -hex 16`
+radarr_api_key: XXXXXXXXXXXXXXXXXXXXXXXXXXXX          # Radarr API Key taken from the UI once logged in
+sonarr_api_key: XXXXXXXXXXXXXXXXXXXXXXXXXXXX          # Sonarr API Key taken from the UI once logged in
+bazarr_api_key: XXXXXXXXXXXXXXXXXXXXXXXXXXXX          # Bazarr API Key taken from the UI once logged in
+prowlarr_api_key: XXXXXXXXXXXXXXXXXXXXXXXXXXXX        # Prowlarr API Key taken from the UI once logged in
+plex_claim: claim-XXXXXXXXXXXXXX                      # Grab claim from -> https://www.plex.tv/claim/
+plex_token: XXXXXXXXXXXXXX-XXXXXXXXXXXXXX             # Find yours -> https://support.plex.tv/articles/204059436-finding-an-authentication-token-x-plex-token/
+traefik_pilot_token: XXXXXXXXXXXXXX-XXXXXXXXXXXXXX-XXXXXXXXXXXXXX  # traefik pilot token to connect to traefik pilot
+
+# Proxmox bits for one host in cluster where tasks will be run
+pve:
+  proxmox_api_user: root@pam    # Most likely?
+  proxmox_api_pass: XXXXXXXXXXXXXX
+  proxmox_node: pve
+  clone_timeout: "300"          # seconds that clone job spend change based on logs
+  mac: XX:XX:XX:XX:XX:XX        # MAC address of the proxmox server for WOL
+  broadcast: '255.255.255.255'  # broadcast network parameter for WOL
+
+gitlab:
+  username: XXXXXXXXXXXXXX
+  runner_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXX          # From your GROUP runner page -> https://gitlab.com/groups/sami-shakir/-/runners
+  personal_access_token: XXXXXXXXXXXXXX-XXXXXXXXXXX   # API token for docker vm to login and access gitlab registry and api
+  git_dir: "{{ user_dir }}/git/personal"
+  api_url: https://gitlab.com/api/v4
+  clone_repos:
+    # Format - Dockerdir: Repo URL
+    # Ask for access if you want to see...
+    hass: git@gitlab.com:sami-group/docker/hass.git
+    nginx: git@gitlab.com:sami-group/docker/nginx.git
+    docs: git@gitlab.com:sami-group/docker/docs.git
+    api: git@gitlab.com:sami-group/docker/api.git
+
+mariadb:
+  hostname: mariadb              # Mariadb hostname (usually the container name, it's on the default network so any containers on this network can use this hostname to communicate with it)
+  root_password: XXXXXXXXXXXXXX  # optional - Initial mysql root user password
+  database: XXXXXXXXXXXXXX       # Specify the name of a database to be created on image startup. Home-assistant for my case
+  user: XXXXXXXXXXXXXX           # optional - Initial mysql username with below password
+  password: XXXXXXXXXXXXXX       # optional - Initial mysql user password with above user
+
+redis:
+  host: redis                # Hostname of the redis container
+  password: XXXXXXXXXXXXXX   # Password to use redis
+
+authelia:
+  jwt_secret: XXXXXXXXXXXXXXXXXXXXXXXXXXXX # Randomly generated string
+  session_secret: 'XXXXXXXXXXXXXX'         # Randomly generated string - The secret key used to encrypt session data in Redis - https://www.authelia.com/docs/configuration/session/#secret
+  storage_encryption_key: 'XXXXXXXXXXXXXX' # Randomly generated string - used to encrypt data in the database - https://www.authelia.com/docs/configuration/storage/#encryption_key
+  database:   # MariaDB details - Please create this DB/user/pass manually
+  # CREATE DATABASE '{{ authelia.database.name }}';
+  # CREATE USER '{{ authelia.database.username }}'@'%' IDENTIFIED BY '{{ authelia.database.password }}';
+  # GRANT ALL PRIVILEGES ON {{ authelia.database.name }}.* TO '{{ authelia.database.username }}'@'%';
+  # FLUSH PRIVILEGES;
+    name: XXXXXXXXXXXXXX
+    username: XXXXXXXXXXXXXX
+    password: XXXXXXXXXXXXXX
+  smtp:   # SMTP settings to connect to an external SMTP server to send forgotten password emails
+    sender: donotreply@example.com      # What you want the sender email to be (this can be different to the authentication address to connect to SMTP server)
+    host: smtp.gmail.com                # SMTP hostname - e.g. smtp.gmail.com
+    port: 465                           # port for remote SMTP server - e.g. 465 for google  
+  users:    # These are the users that will be created in the authelia `users_database.yml` file
+    user1:   # Username
+      displayname: "user1"
+      password: XXXXXXXXXXXXXX   # Must escape single quotes
+      email: email@gmail.com
+      groups:
+        - admins
+        - dev
+        - household
+        - users
+        - family
+    user2:   # Username
+      displayname: "user2"
+      password: XXXXXXXXXXXXXX   # Must escape single quotes
+      email: email@gmail.com
+      groups:
+        - users
+        - not-family
+
+mqtt_logins:          # mqtt users that can authenticate and pub/sub to mqtt - key,val = user,pass
+  mqtt-user: XXXXXXXXXXXXXX
+  user-pc: XXXXXXXXXXXXXX
+  hass: XXXXXXXXXXXXXX
+  zigbee: XXXXXXXXXXXXXX
+
+zigbe2mqtt_user: XXXXXXXXXXXXXX   # MQTT user for zigbee2mqtt container - Must match one of the mqtt users above
+
+htpasswd_logins:      # htpasswd file generation - key,val = user,pass
+  user: "{{ services_password }}"
+  # user2: test
+
+hass:
+  port: XXXX
+  # To find this zigbee_adapter_tty, on the docker host type `ls -l /dev/serial/by-id`
+  # Resource -> https://www.zigbee2mqtt.io/guide/installation/20_zigbee2mqtt-fails-to-start.html#which-port-should-i-use-for-texas-instruments-launchxl-cc26x2r1-cc1352p-2-dev-ttyacm0-or-dev-ttyacm1
+  zigbee_adapter_tty: /dev/ttyACM0
+  # These are the git api URL's to pull facts about version and download url for custom_components
+  # The heys serve as the component name that will be unzipped into "custom_components" dir. The zip file you download must contain this name inside it at a maximum 4 depth
+  # the 'github_repo' should be in the format "user/repo"
+  custom_components:
+    eufy_security:
+      custom_component_name: eufy_security    # This is the folder named 'custom_components' inside the zip file of the component you are downloading. People writing modules are not consistent in naming conventions. 
+      github_repo: fuatakgun/eufy_security
+    scheduler-component:
+      custom_component_name: scheduler
+      github_repo: nielsfaber/scheduler-component
+    browser_mod:
+      custom_component_name: browser_mod
+      github_repo: thomasloven/hass-browser_mod
+  # home assistant secrets config
+  external_url: "https://hass.{{ domain_name }}"
+  internal_url: "http://{{ docker_ip }}:XXXX"
+  http_trusted_proxies: "XXX.XXX.XXX.XXX/23"
+  # My PC static IP address for openhwmonitor and other integration to hass
+  pc_host: XXX.XXX.XXX.XXX
+  docker_host: "{{ docker_ip }}"
+  # home assistant secrets config
+  home_name: "Home"
+  latitude_home: XXX.XXXXXXX
+  longitude_home: XXX.XXXXXXX
+  elevation: XX.XX
+  currency: "XXX"
+  influxdb_glob_entities:  # Entities in glob format that you want to store data for in influxdb
+    - "*user_pc*"
+    - "*_door_*"
+    - "*hp_envy*"
+    - "light.*"   # All lights pls
+  mqtt_username: "XXXXXXX"     # MQTT logins must exist in mqtt_logins var above
+  mqtt_password: "XXXXXXX"     # MQTT logins must exist in mqtt_logins var above
+
+influxdb:
+  org_name: XXXXXXX
+  org_id: "XXXXXXX"  # This is in the URL after /orgs
+  hass_bucket_name: XXXXXXX
+  hass_token: XXXXXXXXXXXXXX-XXXXXXXXXXXXXX-XXXXXXXXXXXXXXXXXXXXX==
+  windows_bucket_name: user-pc
+  windows_pc_token: XXXXXXXXXXXXXX-XXXXXXXXXXXXXX-XXXXXXX==
+  proxmox_bucket_name: XXXXXXX
+  proxmox_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX==
+
+ozbargain:
+  slack_webhook: https://hooks.slack.com/services/XXXXXXXXXXXXXXX/XXXXXXXXXXXXXXX/XXXXXXXXXXXXXXX
+  slack_webhook_frontpage: https://hooks.slack.com/services/XXXXXXXXXXXXXXX/XXXXXXXXXXXXXXX/XXXXXXXXXXXXXXX
+
+photoprism:
+  admin_password: "{{ services_password }}"
+  # MariaDB details - Please create this DB/user/pass manually
+  # CREATE DATABASE '{{ photoprism.database_name }}';
+  # CREATE USER '{{ photoprism.database_username }}'@'%' IDENTIFIED BY '{{ photoprism.database_password }}';
+  # GRANT ALL PRIVILEGES ON {{ photoprism.database_name }}.* TO '{{ photoprism.database_username }}'@'%';
+  # FLUSH PRIVILEGES;
+  database_name: XXXXXXXXXXXXXXX
+  database_username: XXXXXXXXXXXXXXX
+  database_password: XXXXXXXXXXXXXXX

@@ -7,7 +7,13 @@
 ![badge-windows-11]
 ![badge-license]
 
-This repository contains all of my playbooks and configurations to install and configure my Docker VM on proxmox, configures some containers, can even setup my windows/linux desktop PC. You are able to completely tear this down and rebuild it (this does not install proxmox, it cannot do this bit for you).
+This repository contains all of my playbooks and configurations to install and configure everything in my homelab, from scratch (i.e. from just a few debian boxes, you can spin up an entire proxmox cluster, with docker/kubernetes vm's, all setup and configured, reverse proxy, DNS, the whole lot.. depending on the tech I'm using).
+
+DNS is managed manually in cloudflare and there are no current plans for me to automate creating these records.. sorry. They're all essentially just CNAME's pointing to my reverse proxy (traefik for now).
+
+It creates a ubuntu template from the public cloud image, creates my VM's on proxmox and configures all containers. You are able to completely tear this down and rebuild it (this does not install proxmox yet, in the future it will).
+
+This repo can even setup my windows/linux desktop PC's.
 
 > ❗ **This playbook was tested on Ubuntu 20.04. Other versions may work but have not been tested.**
 
@@ -17,9 +23,9 @@ This repository contains all of my playbooks and configurations to install and c
   - [Contents](#contents)
   - [Playbook capabilities](#playbook-capabilities)
   - [Setup the Ansible Control Node (where you will run the playbook from)](#setup-the-ansible-control-node-where-you-will-run-the-playbook-from)
-  - [Provision the Ubuntu Docker VM in Proxmox](#provision-the-ubuntu-docker-vm-in-proxmox)
+  - [Setup Proxmox Host](#setup-proxmox-host)
     - [Deploy SSH key and test](#deploy-ssh-key-and-test)
-      - [Troubleshooting Host Setup](#troubleshooting-host-setup)
+    - [Troubleshooting Host Setup](#troubleshooting-host-setup)
   - [Running the Playbook](#running-the-playbook)
     - [Running a specific set of tagged tasks](#running-a-specific-set-of-tagged-tasks)
   - [Overriding Defaults](#overriding-defaults)
@@ -33,14 +39,14 @@ This repository contains all of my playbooks and configurations to install and c
 
 > **NOTE:** The Playbook is fully configurable. You can skip or reconfigure any task by [Overriding Defaults](#overriding-defaults).
 
-- Most common actions can be performed by issuing the associated `make` command. Go to Makefile to see what it can do.
+- Most common actions can be performed by issuing the associated `make` command. Go to the [Makefile](Makefile) to see what it can do.
   - Most of these make commands that run plays where you need verbose output (-vvv), simply append `-v` to the make target and it will run it verbosely, e.g. `make update-compose-v`
 
 ## Setup the Ansible Control Node (where you will run the playbook from)
 
 1. Clone this repo locally (change to https method if you aren't me): `git clone git@gitlab.com:th3cookie/docker-playbook.git`
 
-2. Run the following command substituting your ansible vault password as required (skip inputting the password argument if you don't use ansible-vault or you have already stored this password in `~/.ansible/password` as per my other playbooks). This will [install ansible](https://docs.ansible.com/ansible/latest/installation_guide/index.html), upgrade pip and store your password inside of the file located in `~/.ansible/password` for use with `ansible-vault`:
+2. Run the following command substituting your ansible vault password as required (skip inputting the password argument if you don't use ansible-vault or you have already stored this password). This will [install ansible](https://docs.ansible.com/ansible/latest/installation_guide/index.html), upgrade pip and store your password inside of the file located in `~/.ansible/password` for use with `ansible-vault`:
 
 ```bash
 # Use single quotes only!
@@ -57,13 +63,17 @@ There is a ***very small*** chance that your password will not have exported int
 ./bin/parse_pass.py 'super_secret_password'
 ```
 
-3. Copy the [inventory.example](./inventory.example) file and fill it in with your host IP address and local admin account credentials:
+3. Copy the [hosts.ini](inventory/hosts.ini.example) file and fill it in with your host IP address and local admin account credentials (overwrite mine):
 
 ```bash
-cp inventory.example inventory
+cp inventory/hosts.ini.example inventory/hosts.ini
 ```
 
-4. Do the same with all of the files in the [group_vars](./group_vars) folder.
+4. Do the same with the [vault](vars/vault.yml) (overwrite mine).
+
+```bash
+cp vars/vault.yml.example vars/vault.yml
+```
 
 :information_source: **If you want to encrypt/decrypt your files, just issue these commands**:
 
@@ -73,25 +83,15 @@ make decrypt
 make encrypt
 ```
 
-## Provision the Ubuntu Docker VM in Proxmox
+## Setup Proxmox Host
 
-> ❗ **If you have already provisioned the VM, skip this step. I'm using Proxmox to provision the VM.** ❗
-
-Before running ansible, Ensure you have created a template from an OS that can be cloned.
-
-Populate your proxmox vars in [this defaults file in the `provision-docker-vm` role](roles/provision-docker-vm/defaults/main.yml) according to how you want to provision the docker VM in your proxmox environment.
+**Automation is TBD Mostly... Manual steps below after you install proxmox on the bare metal host.**
 
 Install dependencies required on the **proxmox host** (if required - i.e. first time):
 
 ```bash
 ssh proxmox
 apt install python3-pip && pip3 install proxmoxer requests
-```
-
-Now let's deploy our docker VM to proxmox:
-
-```bash
-make provision-vm
 ```
 
 ### Deploy SSH key and test
@@ -110,7 +110,7 @@ Ensure that your inventory file is correctly setup (**Hint**: You can run `make 
 ansible-vault edit --vault-password-file ~/.ansible/password inventory
 ```
 
-#### Troubleshooting Host Setup
+### Troubleshooting Host Setup
 
 **TBA**.
 
@@ -124,7 +124,7 @@ make
 make execute
 ```
 
-*Alternatively*:
+*Alternatively*, the long hand way:
 
 ```bash
 ansible-playbook --vault-password-file ~/.ansible/password main.yml
@@ -152,7 +152,7 @@ make list-tags
 
 ## Overriding Defaults
 
-You can override any of the defaults configured in `vars/default_config.yml` by creating a `vars/config.yml` file, and setting the overrides in there. For example, you can tell it to configure the hostname, and pass in the hostname value to configure it to with something like:
+You can override any of the defaults configured in these playbooks by adding your entries to the `vars/config.yml` file. For example, you can tell it to configure the hostname, and pass in the hostname value to configure it to with something like:
 
 ```yaml
 configure_hostname: true
@@ -204,5 +204,7 @@ This software is available under the following licenses:
 Resources that I used to build stuff will be put here, there may be some missing, so thanks to the FOSS community in general.
 
 [ironicbadger-infra](https://github.com/ironicbadger/infra)
+
 [FuzzyMistborn-infra](https://github.com/FuzzyMistborn/infra)
+
 [techno-tim/k3s-ansible](https://github.com/techno-tim/k3s-ansible)
