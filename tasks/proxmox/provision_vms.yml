@@ -1,6 +1,6 @@
 ---
 # Issue with this is it is not updating the cloud-init values per machine once it's cloned. Not sure why?
-# Could be related to the below commented out code bits, explaining you need to boot up the machine, shutdown, then you can change IP.
+# Could be you need to boot up the machine, shutdown, then you can change IP.
 # I was able to change IP with this command, just need to loop all vm's and apply:
 # qm set 202 --ipconfig0 'ip=10.10.0.22/24,gw=10.10.0.1'
 

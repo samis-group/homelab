@@ -12,6 +12,7 @@
 #         - pve_group: all
 #         - pve_reboot_on_kernel_update: true
 
+# Configure all proxmox hosts
 - name: Configure Proxmox
   hosts: proxmox
   # Load in our default and vaulted vars
