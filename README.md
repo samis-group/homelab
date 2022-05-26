@@ -44,6 +44,8 @@ This repo can even setup my windows/linux desktop PC's.
 
 ## Setup the Ansible Control Node (where you will run the playbook from)
 
+*Pre note for me*: run the alias `ssa` first ;)
+
 1. Clone this repo locally (change to https method and don't recurse submodules if you aren't me): `git clone --recurse-submodules git@gitlab.com:sami-group/homelab.git`. **NOTE**: My Host inventories are managed in a private submodule.
 
 2. Run the following command substituting your ansible vault password as required (skip inputting the password argument if you don't use ansible-vault or you have already stored this password). This will [install ansible](https://docs.ansible.com/ansible/latest/installation_guide/index.html), upgrade pip and store your password inside of the file located in `~/.ansible/password` for use with `ansible-vault`:
@@ -81,6 +83,12 @@ cp vars/vault.yml.example vars/vault.yml
 make decrypt
 # or
 make encrypt
+```
+
+If you are **NOT** the owner of this repo, **copy the [host_vars_example](host_vars_example/) folder as well**, otherwise if you're me, skip this as it should have imported your submodule previously (I use a private submodule).
+
+```bash
+cp host_vars_example host_vars
 ```
 
 ## Setup Proxmox Host
