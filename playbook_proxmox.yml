@@ -3,10 +3,6 @@
   # Proxmox is installed from scratch on debian boxes (Checkout this role to configure a proxmox cluster on debian -> https://github.com/lae/ansible-role-proxmox)
   # Appropriate VM's are provisioned (k3s cluster, docker etc... whatever I'm currently running) -> https://www.youtube.com/watch?v=CbkEWcUZ7zM
 
-# useful resources:
-  # https://github.com/FuzzyMistborn/infra
-  # https://github.com/ironicbadger/infra
-
 ### WARNING - Needs testing on a throwaway machine first -> https://github.com/lae/ansible-role-proxmox
 # - name: Setup proxmox cluster on bare metal debian
 #   hosts: proxmox_nodes

@@ -1,0 +1,3 @@
+[submodule "host_vars"]
+	path = host_vars
+	url = git@gitlab.com:sami-group/ansible/homelab-host-vars.git
