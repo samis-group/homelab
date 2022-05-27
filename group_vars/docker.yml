@@ -7,6 +7,7 @@ setup_crons: true
 run_post_tasks: true
 hass_config: true
 git: true
+copy_bashrc: true
 
 # Traefik rules (not docker)
 hass_port: '8123'

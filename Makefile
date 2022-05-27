@@ -13,11 +13,12 @@ execute:
 execute-v:
 	@ansible-playbook -i inventory/hosts.ini -vvv main.yml
 
-# ##########################################################################
-# # This will make everything from absolutely nothing but debian machines. #
-# ##########################################################################
-# from-scratch:
-# 	@
+##########################################################################
+# This will make everything from absolutely nothing but debian machines. #
+#        You must have setup authorized keys and can ssh to them         #
+##########################################################################
+from-scratch:
+	@ansible-playbook -i inventory/hosts.ini main.yml -e "create_vm_template=true"
 
 ##############
 # Test Tasks #

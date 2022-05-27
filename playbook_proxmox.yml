@@ -63,7 +63,7 @@
       when: copy_files
       tags: ["copy_files"]
 
-- name: Download and configure ubuntu template and Provision VM's on Proxmox Host
+- name: Download and configure base ubuntu template from cloud image
   hosts: proxmox1
 
   # Load in our default and vaulted vars
@@ -85,20 +85,54 @@
       when: create_vm_template
       tags: ["create_vm_template"]
 
+# Run this play with the docker host inventory, (load vm definition vars defined in each host_vars/host item), but delegate the tasks to proxmox
+- name: Provision VM's on Proxmox Host
+  hosts: docker   
+  gather_facts: false   # Because they don't exist yet
+
+  # Load in our default and vaulted vars
+  vars_files:
+    *vars_files
+
+  # Allow user to override defaults with their custom config file
+  pre_tasks:
+    - name: Include playbook configuration.
+      include_vars: "{{ item }}"
+      with_fileglob:
+        - "{{ playbook_dir }}/vars/config.yml"
+      # Special tag 'always' -> https://docs.ansible.com/ansible/latest/user_guide/playbooks_tags.html#special-tags-always-and-never
+      tags: ["always"]
+
+    - name: Instantiate some extra vars from included vars
+      set_fact:
+        user_dir: /home/{{ main_user }}
+        docker_dir: /home/{{ main_user }}/docker
+        git_dir: /home/{{ main_user }}/git/personal
+        secrets_dir: /home/{{ main_user }}/docker/secrets
+      tags: ["always"]
+
+  # Import handlers for all tasks
+  handlers:
+    - import_tasks: handlers/proxmox.yml
+
+  tasks:
     - name: Provision VM's from template
       import_tasks: tasks/proxmox/provision_vms.yml
       when: provision_vms
       tags: ["provision_vms"]
+      delegate_to: proxmox
 
     - name: Start VM's
       import_tasks: tasks/proxmox/vm_start.yml
       when: vm_start
       tags: ["vm_start"]
+      delegate_to: proxmox
 
     - name: Run Post Tasks
       import_tasks: tasks/proxmox/vm_post_tasks.yml
       when: vm_post_tasks
       tags: ["vm_post_tasks"]
+      delegate_to: proxmox
 
 # LXC Containers - not done yet
 

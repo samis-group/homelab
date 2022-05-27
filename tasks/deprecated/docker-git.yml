@@ -1,0 +1,34 @@
+---
+### This may not be required now that I set `become: false` on checkout of source code. Needs testing..
+- name: mark git dirs as safe in git config
+  community.general.git_config:
+    name: safe.directory
+    scope: global
+    value: "{{ docker_dir }}/appdata/{{ item.key }}"
+  with_dict: "{{ gitlab.clone_repos }}"
+
+# Let's assert that the last command is a success when certain things exist - Needs work
+# There is no success_when variable that I can use the loop above so I have to assert something after the fact.
+- name: debugging git_checkout_code
+  debug:
+    var: git_checkout_code
+- name: Is it an error we can disregard?
+  assert:
+    that:
+      - "'unsafe repository' in item['msg']"
+      - "'is owned by someone else' in item['msg']"
+      - "'Local modifications exist' in item['msg']"
+    fail_msg: "The last task failed, please review."
+    success_msg: "The last task failures were expected. Continuing..."
+  with_items: git_checkout_code.results
+
+# Might be redundant due to become:false above
+- name: Fix repo ownership to user
+  file:
+    path: "{{ docker_dir }}/appdata/{{ item.key }}"
+    state: directory
+    owner: "{{ main_user }}"
+    group: "{{ docker_group }}"
+    mode: '0755'
+    recurse: true
+  with_dict: "{{ gitlab.clone_repos }}"

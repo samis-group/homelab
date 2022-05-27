@@ -45,8 +45,3 @@
       import_tasks: tasks/wsl/install_os_packages.yml
       when: install_os_packages
       tags: ["install_os_packages"]
-
-    - name: Install and run Docker
-      import_tasks: tasks/linux/install_docker.yml
-      when: install_docker
-      tags: ["install_docker"]

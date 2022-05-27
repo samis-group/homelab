@@ -5,6 +5,7 @@
 
 - name: Configure Docker VM
   hosts: docker
+  remote_user: "{{ vm.user | default(vm_defaults.user) }}"  # Login as user and become root
   become: true
 
   # Load in our default and vaulted vars
@@ -42,6 +43,15 @@
   handlers:
     - import_tasks: handlers/docker.yml
 
+  roles:
+    - role: geerlingguy.docker
+      vars:
+        docker_install_compose: "false"   # I prefer to install the docker plugin version from apt repo (check install_os_packages task), until this role supports the plugin install -> https://github.com/geerlingguy/ansible-role-docker/issues/355
+        # docker_compose_version: "v2.5.0"
+        docker_users: ["{{ vm.user | default(vm_defaults.user) }}"]    # list of users who will be added to the docker group
+      when: install_docker
+      tags: ["install_docker"]
+
   tasks:
 
     - name: Install OS updates and required packages
@@ -62,11 +72,6 @@
       import_tasks: tasks/docker/git.yml
       when: git
       tags: ["git"]
-
-    - name: Installing, running and configuring Docker
-      import_tasks: tasks/linux/install_docker.yml
-      when: install_docker
-      tags: ["install_docker"]
 
     - name: Updating docker-compose and related files
       import_tasks: tasks/docker/copy_files.yml

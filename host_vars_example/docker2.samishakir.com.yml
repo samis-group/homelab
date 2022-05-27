@@ -1,0 +1,6 @@
+---
+vm:
+  name: docker2   # Required - This must match the subdomain name exactly as DNS records get created from this (i.e. <name>.domain.com)
+  ip_address: "{{ vm_defaults.network }}22"  # Required
+  id: 202   # Required
+  hdd_size: "4G"

@@ -1,3 +1,6 @@
 ---
-docker_ip: X.X.X.X
-hostname: docker-dev.example.com
+vm:
+  name: docker-dev   # This must match the subdomain name exactly as DNS records get created from this (i.e. <name>.domain.com)
+  ip_address: "{{ vm_defaults.network }}29"  # Required
+  id: 203   # Required
+  hdd_size: "6G"
