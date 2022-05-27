@@ -1,0 +1,42 @@
+---
+##############
+### Docker ###
+##############
+
+- name: Add docker apt signing key
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+    keyring: /etc/apt/trusted.gpg.d/docker-archive-keyring.gpg
+
+- name: Print CPU architecture Value
+  command: "dpkg --print-architecture"
+  register: print_cpu_arch
+  changed_when: false
+
+- name: Set CPU architecture Value to variable
+  set_fact:
+    cpu_arch: "{{ print_cpu_arch.stdout }}"
+
+- name: Print lsb_release Value
+  command: "lsb_release -cs"
+  register: print_lsb_release
+  changed_when: false
+
+- name: Set lsb_release Value to variable
+  set_fact:
+    lsb_release: "{{ print_lsb_release.stdout }}"
+
+- name: Add docker repository into sources list
+  apt_repository:
+    repo: "deb [arch={{ cpu_arch }} signed-by=/etc/apt/trusted.gpg.d/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu {{ lsb_release }} stable"
+    state: present
+
+- name: Update repositories cache and install docker packages
+  apt:
+    update_cache: true
+    pkg:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+  notify: restart docker  # Also enables it to start on boot

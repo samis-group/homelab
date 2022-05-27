@@ -3,8 +3,8 @@
 # It is defined in the defaults, if it changes device name/numbering, adjust there.
 - name: Remove Cloud-init drives from vms
   shell:
-    cmd: "qm set {{ item.value.vmid }} --delete {{ vms_def.cloudinit_drive }}"
-  loop: "{{ vms | dict2items }}"
+    cmd: "qm set {{ vm.id }} --delete {{ vm.cloudinit_drive | default(vm_defaults.cloudinit_drive) }}"
+  when: cloned_vm.changed
 
 - name: Restart VM's
   community.general.proxmox_kvm:
@@ -12,9 +12,9 @@
     api_user: "{{ pve.proxmox_api_user }}"
     api_password: "{{ pve.proxmox_api_pass }}"
     api_host: "{{ proxmox_ip }}"
-    name: "{{ item.value.name }}"
+    name: "{{ vm.name }}"
     state: restarted
-  loop: "{{ vms | dict2items }}"
+  when: cloned_vm.changed
 
 - name: pause 5m So that ansible can run configuration playbooks after reboots, if only proxmox is the playbook, you may safely exit now. Have a great day!
   pause:

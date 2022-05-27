@@ -2,11 +2,10 @@
 - name: Setup cloudflare DNS for VM's
   community.general.cloudflare_dns:
     zone: "{{ domain_name }}"
-    record: "{{ item.value.name }}"
+    record: "{{ vm.name }}"
     type: A
-    value: "{{ item.value.ip_address | default(vms_def.storage) }}"
+    value: "{{ vm.ip_address }}"
     api_token: "{{ cloudflare_api_token }}"
-  loop: "{{ vms | dict2items }}"
 
 - name: Clone template to new VM's
   proxmox_kvm:
@@ -14,32 +13,32 @@
     api_user: "{{ pve.proxmox_api_user }}"
     api_password: "{{ pve.proxmox_api_pass }}"
     api_host: "{{ proxmox_ip }}"
-    clone: "{{ item.value.template }}"
+    clone: "{{ vm.template | default(vm_defaults.template) }}"
     full: "yes"
-    name: "{{ item.value.name }}"
-    storage: "{{ item.value.storage | default(vms_def.storage) }}" 
+    name: "{{ vm.name }}"
+    storage: "{{ vm.storage | default(vm_defaults.storage) }}" 
     timeout: "{{ pve.clone_timeout }}"
     ipconfig:
-      ipconfig0: "ip={{ item.value.ip_address }}/{{ vms_def.netmask }},gw={{ vms_def.gateway }}"
-    boot: "{{ item.value.boot_order | default(vms_def.boot_order) }}"
-    bootdisk: "{{ item.value.boot_disk | default(vms_def.boot_disk) }}"
-    newid: "{{ item.value.vmid }}"
-    ciuser: "{{ item.value.user | default(vms_def.user) }}"
-    cipassword: "{{ item.value.password | default(omit) }}" #OPTIONAL
-    sshkeys: "{{ item.value.ssh_key | default(vms_def.ssh_key) }}"
+      ipconfig0: "ip={{ vm.ip_address }}/{{ vm_defaults.netmask }},gw={{ vm_defaults.gateway }}"
+    boot: "{{ vm.boot_order | default(vm_defaults.boot_order) }}"
+    bootdisk: "{{ vm.boot_disk | default(vm_defaults.boot_disk) }}"
+    newid: "{{ vm.id }}"
+    ciuser: "{{ vm.user | default(vm_defaults.user) }}"
+    cipassword: "{{ vm.password | default(vm_defaults.password) }}" # OPTIONAL
+    sshkeys: "{{ vm.ssh_key | default(vm_defaults.ssh_key) }}"
     nameservers:
-      - "{{ item.value.dns1| default(vms_def.dns1) }}"
-      - "{{ item.value.dns2| default(vms_def.dns2) }}"
-    cores: "{{ item.value.cores| default(vms_def.cores) }}"
-    memory: "{{ item.value.ram| default(vms_def.ram) }}"
-  loop: "{{ vms | dict2items }}"
+      - "{{ vm.dns1 | default(vm_defaults.dns1) }}"
+      - "{{ vm.dns2 | default(vm_defaults.dns2) }}"
+    cores: "{{ vm.cores | default(vm_defaults.cores) }}"
+    memory: "{{ vm.ram | default(vm_defaults.ram) }}"
+  register: cloned_vm
 
 - name: Expand disks for each VM to their configured amount
   shell:
-    cmd: "qm resize {{ item.value.vmid }} scsi0 {{ item.value.hdd_size | default(vms_def.hdd_size) }}"
-  loop: "{{ vms | dict2items }}"
+    cmd: "qm resize {{ vm.id }} {{ vm.boot_disk | default(vm_defaults.boot_disk) }} {{ vm.hdd_size | default(vm_defaults.hdd_size) }}"
+  when: cloned_vm.changed
 
 - name: Update IP addresses for VM's
   shell:
-    cmd: "qm set {{ item.value.vmid }} --ipconfig0 ip={{ item.value.ip_address }}/{{ vms_def.netmask }},gw={{ vms_def.gateway }}"
-  loop: "{{ vms | dict2items }}"
+    cmd: "qm set {{ vm.id }} --ipconfig0 ip={{ vm.ip_address }}/{{ vm_defaults.netmask }},gw={{ vm_defaults.gateway }}"
+  when: cloned_vm.changed
