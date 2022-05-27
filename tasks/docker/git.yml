@@ -110,12 +110,28 @@
   register: files_to_stow
 
 ### Needs work
-# - name: Set conflicting stow files fact
-#   set_fact:
-#     stow_conflicts:
-#       - "{{ user_dir }}/.bashrc"
-#       - "{{ user_dir }}/.gitconfig"
-#       - "{{ user_dir }}/.ssh/config"
+- name: Set conflicting stow files fact
+  set_fact:
+    stow_conflicts:
+      - "{{ user_dir }}/.bashrc"
+      - "{{ user_dir }}/.gitconfig"
+      - "{{ user_dir }}/.ssh/config"
+
+# https://stackoverflow.com/questions/34064083/how-to-check-if-symbolic-link-exists-no-matter-where-its-pointing-to
+- name: stat stow_conflicts files to see if they exist, and if they are links
+  stat:
+    path: "{{ item }}"
+  register: links
+  with_items: "{{ stow_conflicts }}"
+
+- name: debug links
+  debug:
+    var: links
+
+- name: debug links
+  debug:
+    msg: "link exists"
+  when: links.stat.islnk is defined and links.stat.islnk
 
 # - name: Move conflicting files
 #   copy:
@@ -137,7 +153,7 @@
   changed_when: false
   with_items: '{{ files_to_stow.files }}'
 
-- name: Checkout source code
+- name: Checkout docker containers source code
   git: 
     repo: "{{ item.value }}"
     dest: "{{ docker_dir }}/appdata/{{ item.key }}"
@@ -163,15 +179,16 @@
 #     success_msg: "The last task failures were expected. Continuing..."
 #   with_items: git_checkout_code.results
 
-- name: Fix repo ownership to user
-  file:
-    path: "{{ docker_dir }}/appdata/{{ item.key }}"
-    state: directory
-    owner: "{{ main_user }}"
-    group: "{{ docker_group }}"
-    mode: '0755'
-    recurse: true
-  with_dict: "{{ gitlab.clone_repos }}"
+# Might be redundant due to become:false above
+# - name: Fix repo ownership to user
+#   file:
+#     path: "{{ docker_dir }}/appdata/{{ item.key }}"
+#     state: directory
+#     owner: "{{ main_user }}"
+#     group: "{{ docker_group }}"
+#     mode: '0755'
+#     recurse: true
+#   with_dict: "{{ gitlab.clone_repos }}"
 
 - name: Touch home-assistant.log for hacs to install as it's install script requires this file to exist
   file:

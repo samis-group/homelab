@@ -14,54 +14,28 @@ tz: 'Australia/Sydney'          # Timezone setting
 
 cloud_image_template_name: UbuntuCloud
 
-# Default VM configs - Mine is in `group_vars/all.yml` due to using it outside the role to provision vm's wth defaults as well
-vms_def:
+# Default VM configs - Each VM has it's overrides specified in it's own host_vars/hostname config file
+vm_def:
   distro: ubuntu
   template: "{{ cloud_image_template_name }}"   # VM or template to clone
   user: "{{ main_user }}" # Change this if this isn't set outside the role.
+  password: "{{ ansible_become_password }}"
   ssh_key: "ssh-rsa AAAAB3NzaC1yc2EAAAABJQAAAQEAiwG7uO5R8EzOLvoQEBc9TGyBMMEYlQf7NfwF3JH687WElHLc7bY1HTZ+VcEt+l7kvJfISAeJHdthpCT46ecPirLvz5oIOI1meXRPYXg5fKSJ+itAsfSupjg2/kRUHzI+NJjJap+KU21zEUxCqbTreJ3kSV58F/947uRDyMa0Ofammkx7LY8Kohsr99NtVsHXI71gSTngw/cIe5OR0F1qfxpsBwWw8daN+SYLe0tEtOHVZvGDVDbJhv1GW9PjQxSjx/8QEdi7FMT4ahwHxEcyG5+NhUg+DAo1RKoPYPAM5wwk9O7w+Y31EBP5wYc3FSiOPObcmIoBWxnUrZuD74dtaQ== Sami-id_rsa_personal"
-  dns1: "8.8.8.8"
-  dns2: "8.8.4.4"
+  network: "10.10.0." # Network WITHOUT the last digit ## NOT VM VAR
+  netmask: "24" # network mask ## NOT VM VAR
+  gateway: "10.10.0.1" # gateway ### NOT VM var
+  dns1: "{{ vm_def.gateway }}"   # My Primary DNS is the router, it recursively resolves upstream to cloudflare + google, but all requests through it.
+  # dns2: "8.8.4.4"
   hdd_size: "16G"
   cores: "4"
   ram: "2048" # Memory ram for each VM in MB
   network_device: 'virtio,bridge=vmbr0'
   storage: "local-lvm" # proxmox storage for VMs
-  ## Proxmox recommened config for cloud init
-  ## These values are for all the VMs, pending to add as VM var
-  network: "10.10.0." # Network WITHOUT the last digit ## NOT VM VAR
-  netmask: "24" # network mask ## NOT VM VAR
-  gateway: "10.10.0.1" # gateway ### NOT VM var
   serial: socket
   vga: serial0
   boot_order: "c"
   boot_disk: "scsi0"
   cloudinit_drive: ide2   # After successful creation and bootstrapping, we want to remove the cloud init drive, it gets created as this, change it here if it changes in proxmox.
-
-# VM's and their details
-vms:
-  docker2:
-    name: docker2   # This must match the subdomain name exactly as DNS records get created from this (i.e. <name>.domain.com)
-    template: "{{ cloud_image_template_name }}"
-    ip_address: "10.10.0.22"  # Required
-    user: "{{ main_user }}"
-    password: "{{ ansible_become_password }}"
-    ssh_key: "ssh-rsa AAAAB3NzaC1yc2EAAAABJQAAAQEAiwG7uO5R8EzOLvoQEBc9TGyBMMEYlQf7NfwF3JH687WElHLc7bY1HTZ+VcEt+l7kvJfISAeJHdthpCT46ecPirLvz5oIOI1meXRPYXg5fKSJ+itAsfSupjg2/kRUHzI+NJjJap+KU21zEUxCqbTreJ3kSV58F/947uRDyMa0Ofammkx7LY8Kohsr99NtVsHXI71gSTngw/cIe5OR0F1qfxpsBwWw8daN+SYLe0tEtOHVZvGDVDbJhv1GW9PjQxSjx/8QEdi7FMT4ahwHxEcyG5+NhUg+DAo1RKoPYPAM5wwk9O7w+Y31EBP5wYc3FSiOPObcmIoBWxnUrZuD74dtaQ== Sami-id_rsa_personal"
-    dns1: "{{ vms_def.network }}1"  # pfsense router acts as a dns resolver
-    vmid: 202   # Required
-    storage: 'local-lvm'
-    hdd_size: "4G"
-  docker3:
-    name: docker3   # This must match the subdomain name exactly as DNS records get created from this (i.e. <name>.domain.com)
-    template: "{{ cloud_image_template_name }}"
-    ip_address: "10.10.0.23"  # Required
-    user: "{{ main_user }}"
-    password: "{{ ansible_become_password }}"
-    ssh_key: "ssh-rsa AAAAB3NzaC1yc2EAAAABJQAAAQEAiwG7uO5R8EzOLvoQEBc9TGyBMMEYlQf7NfwF3JH687WElHLc7bY1HTZ+VcEt+l7kvJfISAeJHdthpCT46ecPirLvz5oIOI1meXRPYXg5fKSJ+itAsfSupjg2/kRUHzI+NJjJap+KU21zEUxCqbTreJ3kSV58F/947uRDyMa0Ofammkx7LY8Kohsr99NtVsHXI71gSTngw/cIe5OR0F1qfxpsBwWw8daN+SYLe0tEtOHVZvGDVDbJhv1GW9PjQxSjx/8QEdi7FMT4ahwHxEcyG5+NhUg+DAo1RKoPYPAM5wwk9O7w+Y31EBP5wYc3FSiOPObcmIoBWxnUrZuD74dtaQ== Sami-id_rsa_personal"
-    dns1: "{{ vms_def.network }}1"  # pfsense router acts as a dns resolver
-    vmid: 203   # Required
-    storage: 'local-lvm'
-    hdd_size: "6G"
 
 # Playbook run tasks default actions:
 install_os_packages: true
