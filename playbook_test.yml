@@ -1,6 +1,6 @@
 ---
 - name: Test Playbook
-  hosts: proxmox
+  hosts: docker
   # hosts: docker
   # Load in our default and vaulted vars
   vars_files:
@@ -43,3 +43,9 @@
   #   - create-proxmox-template-from-ubuntu-cloud-image
 
   tasks:
+    - name: Gather all facts of cloud init
+      community.general.cloud_init_data_facts:
+      register: ci_result
+
+    - ansible.builtin.debug:
+        var: ci_result

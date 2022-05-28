@@ -7,38 +7,121 @@
     value: "{{ vm.ip_address }}"
     api_token: "{{ cloudflare_api_token }}"
 
-- name: Clone template to new VM's
-  proxmox_kvm:
-    node: "{{ pve.proxmox_node }}"
-    api_user: "{{ pve.proxmox_api_user }}"
-    api_password: "{{ pve.proxmox_api_pass }}"
-    api_host: "{{ proxmox_ip }}"
-    clone: "{{ vm.template | default(vm_defaults.template) }}"
-    full: "yes"
-    name: "{{ vm.name }}"
-    storage: "{{ vm.storage | default(vm_defaults.storage) }}" 
-    timeout: "{{ pve.clone_timeout }}"
-    ipconfig:
-      ipconfig0: "ip={{ vm.ip_address }}/{{ vm_defaults.netmask }},gw={{ vm_defaults.gateway }}"
-    boot: "{{ vm.boot_order | default(vm_defaults.boot_order) }}"
-    bootdisk: "{{ vm.boot_disk | default(vm_defaults.boot_disk) }}"
-    newid: "{{ vm.id }}"
-    ciuser: "{{ vm.user | default(vm_defaults.user) }}"
-    cipassword: "{{ vm.password | default(vm_defaults.password) }}" # OPTIONAL
-    sshkeys: "{{ vm.ssh_key | default(vm_defaults.ssh_key) }}"
-    nameservers:
-      - "{{ vm.dns1 | default(vm_defaults.dns1) }}"
-      - "{{ vm.dns2 | default(vm_defaults.dns2) }}"
-    cores: "{{ vm.cores | default(vm_defaults.cores) }}"
-    memory: "{{ vm.ram | default(vm_defaults.ram) }}"
-  register: cloned_vm
+- name: Provision VM's
+  include_role: udelarinterior.proxmox_create_kvm
+  vars: 
+    pve_node: "{{ pve.proxmox_node }}"
+    pve_api_host: "{{ proxmox_ip }}"
+    pve_api_user: "{{ pve.proxmox_api_user }}"
+    pve_api_password: "{{ pve.proxmox_api_pass }}"
+    pve_kvm_started_after_provision: true
+    pve_kvm_clone_from_existing: true
+    pve_kvm_clone_post_configure: true
+    pve_kvm_update: true
+    pve_kvm_wait_for_ssh_connection: true
+    pve_kvm_wait_for_ssh_connection_remote_user: "{{ vm.user | default(vm_defaults.user) }}"
+    pve_kvm_wait_for_ssh_connection_timeout: 90
+    # pve_onboot: no    # Specifies whether a VM will be started during system bootup.
+    pve_kvm_boot: "{{ vm.boot_order | default(vm_defaults.boot_order) }}"  # Optional - # Specify the boot order: a = floppy, c = hard disk, d = CD-ROM, n = network
+    pve_kvm_bootdisk: "{{ vm.boot_disk | default(vm_defaults.boot_disk) }}"  # Optional
+    pve_kvm_description: "{{ vm.description | default(omit) }}"  # Optional
+    pve_kvm_hardware_virtualization: "{{ vm.virtualization | default(omit) }}"  # Optional
+    pve_kvm_sockets: "{{ vm.cpu_sockets | default(omit) }}"  # Optional
+    pve_kvm_cores: "{{ vm.cores | default(vm_defaults.cores) }}"  # Optional
+    pve_kvm_cpuunits: "{{ vm.cpu_units | default(omit) }}"  # Optional - Specify CPU weight for a VM
+    pve_kvm_cpulimit: "{{ vm.cpu_limit | default(omit) }}"  # Optional - Specify if CPU usage will be limited. Value 0 indicates no CPU limit.
+    pve_kvm_memory: "{{ vm.memory | default(vm_defaults.memory) }}"  # Optional
+    pve_kvm_balloon: "{{ vm.balloon | default(omit) }}"  # Optional - Using zero disables the balloon driver
+    pve_kvm_shares: "{{ vm.memory_shares | default(omit) }}"  # Optional - Amount of memory shares for auto-ballooning
+    pve_kvm_vga: "{{ vm.vga | default(vm_defaults.vga) }}"
+    pve_kvm_net_interfaces: "{{ vm.net_interfaces | default(vm_defaults.net_interfaces) }}"
+    pve_kvm_hard_disks: "{{ vm.hard_disks | default(vm_defaults.hard_disks) }}"
+    pve_kvm_ciuser: "{{ vm.user | default(vm_defaults.user) }}"
+    pve_kvm_cipassword: "{{ vm.password | default(vm_defaults.password) }}"
+    pve_kvm_sshkeys: "{{ vm.ssh_key | default(vm_defaults.ssh_key) }}"
+    pve_kvm_ipconfig: "{{ vm.ipconfig | default(vm_defaults.ipconfig) }}"
+    pve_kvm_nameservers: "{{ vm.boot_order | default(vm_defaults.boot_order) }}"
+    pve_kvm_clone_vmid: "{{ template_vm_id }}"   # Required - ID of VM to be cloned
+    pve_kvm_clone_newid: "{{ vm.id }}"  # Required
+    pve_kvm_clone_vm: "{{ vm.template | default(vm_defaults.template) }}"
+    pve_kvm_clone_storage: "{{ vm.storage | default(vm_defaults.storage) }}"
+    # pve_kvm_clone_target: "{{ pve_node }}"  # Target node. Only allowed if the original VM is on shared storage.
+    # This list indicates for each identifier of a VM storage unit, the amount of bytes to increase its size.
+    # To use in combination with pve_kvm_clone_post_configure: true
+    # pve_kvm_clone_grow_disks:
+    # - disk: "{{ vm.boot_disk | default(vm_defaults.boot_disk) }}"
+    #   increment: 30G
 
-- name: Expand disks for each VM to their configured amount
-  shell:
-    cmd: "qm resize {{ vm.id }} {{ vm.boot_disk | default(vm_defaults.boot_disk) }} {{ vm.hdd_size | default(vm_defaults.hdd_size) }}"
-  when: cloned_vm.changed
+# - name: Clone template to new VM's
+#   proxmox_kvm:
+#     node: "{{ pve.proxmox_node }}"
+#     api_user: "{{ pve.proxmox_api_user }}"
+#     api_password: "{{ pve.proxmox_api_pass }}"
+#     api_host: "{{ proxmox_ip }}"
+#     clone: "{{ vm.template | default(vm_defaults.template) }}"
+#     full: "yes"
+#     name: "{{ vm.name }}"
+#     storage: "{{ vm.storage | default(vm_defaults.storage) }}" 
+#     timeout: "{{ pve.clone_timeout }}"
+#     ipconfig:
+#       ipconfig0: "ip={{ vm.ip_address }}/{{ vm_defaults.netmask }},gw={{ vm_defaults.gateway }}"
+#     boot: "{{ vm.boot_order | default(vm_defaults.boot_order) }}"
+#     bootdisk: "{{ vm.boot_disk | default(vm_defaults.boot_disk) }}"
+#     newid: "{{ vm.id }}"
+#     ciuser: "{{ vm.user | default(vm_defaults.user) }}"
+#     cipassword: "{{ vm.password | default(vm_defaults.password) }}" # OPTIONAL
+#     sshkeys: "{{ vm.ssh_key | default(vm_defaults.ssh_key) }}"
+#     nameservers:
+#       - "{{ vm.dns1 | default(vm_defaults.dns1) }}"
+#       - "{{ vm.dns2 | default(vm_defaults.dns2) }}"
 
-- name: Update IP addresses for VM's
-  shell:
-    cmd: "qm set {{ vm.id }} --ipconfig0 ip={{ vm.ip_address }}/{{ vm_defaults.netmask }},gw={{ vm_defaults.gateway }}"
-  when: cloned_vm.changed
+#   register: cloned_vm
+
+#   proxmox_kvm:
+#     node: "{{ pve.proxmox_node }}"
+#     api_user: "{{ pve.proxmox_api_user }}"
+#     api_password: "{{ pve.proxmox_api_pass }}"
+#     api_host: "{{ proxmox_ip }}"
+#     clone: "{{ vm.template | default(vm_defaults.template) }}"
+#     full: "yes"
+#     name: "{{ vm.name }}"
+#     storage: "{{ vm.storage | default(vm_defaults.storage) }}" 
+#     timeout: "{{ pve.clone_timeout }}"
+#     ipconfig:
+#       ipconfig0: "ip={{ vm.ip_address }}/{{ vm_defaults.netmask }},gw={{ vm_defaults.gateway }}"
+#     boot: "{{ vm.boot_order | default(vm_defaults.boot_order) }}"
+#     bootdisk: "{{ vm.boot_disk | default(vm_defaults.boot_disk) }}"
+#     newid: "{{ vm.id }}"
+#     ciuser: "{{ vm.user | default(vm_defaults.user) }}"
+#     cipassword: "{{ vm.password | default(vm_defaults.password) }}" # OPTIONAL
+#     sshkeys: "{{ vm.ssh_key | default(vm_defaults.ssh_key) }}"
+#     nameservers:
+#       - "{{ vm.dns1 | default(vm_defaults.dns1) }}"
+#       - "{{ vm.dns2 | default(vm_defaults.dns2) }}"
+#     cores: "{{ vm.cores }}"
+#     memory: "{{ vm.memory }}"
+
+# - name: update cloud-init settings
+#   proxmox_kvm:
+
+#     balloon: '{{ item.item.value.balloon | default(defaults.balloon) }}'
+#     vga: 'serial0'
+#     serial: '{"serial0":"socket"}'
+#     ostype: '{{ item.item.value.ostype | default(defaults.ostype) }}'
+#     cpu: '{{ item.item.value.cpu | default(defaults.cpu) }}'
+#     bootdisk: "scsi0"
+#     boot: "c"
+#     update: yes
+#   with_items: "{{ cloned_vms_pve.results }}"
+#   when: item.changed
+#   no_log: True
+
+# - name: Expand disks for each VM to their configured amount
+#   shell:
+#     cmd: "qm resize {{ vm.id }} {{ vm.boot_disk | default(vm_defaults.boot_disk) }} {{ vm.hdd_size | default(vm_defaults.hdd_size) }}"
+#   when: cloned_vm.changed
+
+# - name: Update IP addresses for VM's
+#   shell:
+#     cmd: "qm set {{ vm.id }} --ipconfig0 ip={{ vm.ip_address }}/{{ vm_defaults.netmask }},gw={{ vm_defaults.gateway }}"
+#   when: cloned_vm.changed

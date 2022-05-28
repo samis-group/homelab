@@ -37,17 +37,22 @@ pve:
 
 gitlab:
   username: XXXXXXXXXXXXXX
-  runner_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXX          # From your GROUP runner page -> https://gitlab.com/groups/sami-shakir/-/runners
-  personal_access_token: XXXXXXXXXXXXXX-XXXXXXXXXXX   # API token for docker vm to login and access gitlab registry and api
+  personal_access_token: XXXXXXXXXXXXXX   # API token for docker vm to login and access gitlab registry and api and clone repos
+  runner_token: XXXXXXXXXXXXXX         # From your GROUP runner page -> https://gitlab.com/groups/sami-shakir/-/runners
   git_dir: "{{ user_dir }}/git/personal"
   api_url: https://gitlab.com/api/v4
-  clone_repos:
-    # Format - Dockerdir: Repo URL
-    # Ask for access if you want to see...
-    hass: git@gitlab.com:sami-group/docker/hass.git
-    nginx: git@gitlab.com:sami-group/docker/nginx.git
-    docs: git@gitlab.com:sami-group/docker/docs.git
-    api: git@gitlab.com:sami-group/docker/api.git
+
+gitlab_clone_container_repos:
+  # Format - Dockerdir: Repo URL
+  hass: https://{{ gitlab.username }}:{{ gitlab.personal_access_token }}@gitlab.com:XXXXXXXXXXXXXX
+  nginx: https://{{ gitlab.username }}:{{ gitlab.personal_access_token }}@gitlab.com:XXXXXXXXXXXXXX
+  docs: https://{{ gitlab.username }}:{{ gitlab.personal_access_token }}@gitlab.com:XXXXXXXXXXXXXX
+  api: https://{{ gitlab.username }}:{{ gitlab.personal_access_token }}@gitlab.com:XXXXXXXXXXXXXX
+gitlab_clone_dotfiles:
+  main_repo: https://{{ gitlab.username }}:{{ gitlab.personal_access_token }}@gitlab.com:XXXXXXXXXXXXXX
+  main_branch: main
+  extra_repo: https://{{ gitlab.username }}:{{ gitlab.personal_access_token }}@gitlab.com:XXXXXXXXXXXXXX
+  extra_branch: docker-vm
 
 mariadb:
   hostname: mariadb              # Mariadb hostname (usually the container name, it's on the default network so any containers on this network can use this hostname to communicate with it)

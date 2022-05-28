@@ -1,0 +1,16 @@
+---
+# Command - tar -xzvf /home/sami/mount/docker_backups/api.tar.gz -C ~/docker/appdata/
+
+# Ensure the path to the templates files exist as they would in the docker directory
+# i.e. this task is going to just copy them in a templated way from src to dest
+- name: find backup tarballs
+  find:
+    paths: "{{ nas.mounts.docker_backups.local_mapping }}"
+  register: docker_backup_tarballs
+
+- name: Extract docker backups into {{ docker_dir }}/appdata/
+  ansible.builtin.unarchive:
+    src: "{{ item.path }}"
+    dest: "{{ docker_dir }}/appdata/"
+    remote_src: yes
+  with_items: "{{ docker_backup_tarballs.files }}"

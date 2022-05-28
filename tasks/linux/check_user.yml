@@ -1,27 +1,13 @@
 ---
-- name: Create docker group if non existent
-  group:
-    name: "{{ docker_group }}"
-    state: present
-
-# Create user based on username
-- name: Create user and add to {{ docker_group }}/sudo/dialout groups
+# get user info
+- name: get user info
   user:
     name: "{{ main_user }}"
-    password: "{{ ansible_become_password | password_hash('sha512', 'mysecretsalt') }}"
-    groups:
-      - "{{ docker_group }}"
-      - sudo
-      - dialout
-    append: true
-    state: present
-    shell: /bin/bash
-    createhome: true
-    home: "{{ user_dir }}"
-  register: user_created
+  register: user_info
+  ignore_errors: true
 
 # Grab UID/GID into vars
 - name: set variables UID and GID for user to use in the rest of the playbook
   set_fact:
-    puid: "{{ user_created.uid }}"
-    pgid: "{{ user_created.group }}"
+    puid: "{{ user_info.uid  | default('1000') }}"
+    pgid: "{{ user_info.group | default('1000') }}"

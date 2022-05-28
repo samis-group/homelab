@@ -8,6 +8,7 @@ run_post_tasks: true
 hass_config: true
 git: true
 copy_bashrc: true
+restore_docker_data: false  # WARNING - Setting this to true will override your current docker data as it restores the tarballs from the NAS. There will be a make to run this on a host you specify.
 
 # Traefik rules (not docker)
 hass_port: '8123'

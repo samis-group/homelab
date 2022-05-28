@@ -1,18 +1,18 @@
 ---
-###########################
-### Configure Docker VM ###
-###########################
+###################
+### k3s cluster ###
+###################
 
-- name: Configure Docker VM
-  hosts: docker
+- name: Configure k3s cluster
+  hosts: k3s
   remote_user: "{{ vm.user | default(vm_defaults.user) }}"  # Login as user and become root
   become: true
 
   # Load in our default and vaulted vars
-  vars_files:
+  vars_files: &vars_files   # Anchors to re-use the code later. No point duplicating code.
     - vars/vault.yml
 
-  pre_tasks:
+  pre_tasks: &pre_tasks   # Anchors to re-use the code later. No point duplicating code.
     # Allow user to override defaults with their custom config file.
     # include_vars has a higher precedence than vars_files above, so import these files as overrides.
     - name: Include playbook configuration.
@@ -29,9 +29,9 @@
       tags: ["always"]
     - name: Instantiate some extra vars from included vars
       set_fact:
-        docker_dir: "{{ user_dir }}/docker"
+        # docker_dir: "{{ user_dir }}/docker"
         git_dir: "{{ user_dir }}/git/personal"
-        secrets_dir: "{{ user_dir }}/docker/secrets"
+        # secrets_dir: "{{ user_dir }}/docker/secrets"
       tags: ["always"]
 
     # This is to get the PUID and PGID variables to use later in multiple areas
@@ -41,7 +41,7 @@
 
   # Import handlers for all tasks
   handlers:
-    - import_tasks: handlers/docker.yml
+    - import_tasks: handlers/k3s.yml
 
   roles:
     - role: geerlingguy.docker
@@ -64,15 +64,14 @@
       when: configure_hostname
       tags: ["configure_hostname"]
 
+    - name: Pre-docker install tasks
+      import_tasks: tasks/docker/pre_docker.yml
+      tags: ["pre_docker"]
+
     - name: Configure gitlab registry and clone git repos
       import_tasks: tasks/docker/git.yml
       when: git
       tags: ["git"]
-
-    - name: Run Post docker install tasks
-      import_tasks: tasks/docker/run_post_tasks.yml
-      when: run_post_tasks
-      tags: ["run_post_tasks"]
 
     - name: Updating docker-compose and related files
       import_tasks: tasks/docker/copy_files.yml
@@ -104,12 +103,12 @@
       when: setup_crons
       tags: ["setup_crons"]
 
+    - name: Run Post tasks
+      import_tasks: tasks/docker/run_post_tasks.yml
+      when: run_post_tasks
+      tags: ["run_post_tasks"]
+
     - name: Configure Home Assistant
       import_tasks: tasks/docker/hass_config.yml
       when: hass_config
       tags: ["hass_config"]
-
-    - name: Restore docker data from NFS mount on NAS? (optional)
-      import_tasks: tasks/docker/restore_docker_data.yml
-      when: restore_docker_data
-      tags: ["restore_docker_data"]
