@@ -1,6 +1,6 @@
 # Ubuntu Desktop Ansible Playbook
 
-![Logo](files/logo.png)
+![Logo](docs/assets/logo.png)
 
 ![ubuntu-20-04]
 ![badge-license]
@@ -11,16 +11,17 @@ This playbook installs and configures my Ubuntu Desktop on proxmox, configures t
 
 ## Contents
 
-* [Playbook capabilities](#playbook-capabilities)
-* [Setup the Ansible Control Node](#Setup-the-Ansible-Control-Node-(where-you-will-run-the-playbook-from))
-* [Provision the Ubuntu Desktop in Proxmox](#Provision-the-Ubuntu-Docker-VM-in-Proxmox)
-  * [Deploy SSH key and test](#Deploy-SSH-key-and-test)
-    * [Troubleshooting Host Setup](#Troubleshooting-Host-Setup)
-* [Running the Playbook](#Running-the-Playbook)
-  * [Running a specific set of tagged tasks](#Running-a-specific-set-of-tagged-tasks)
-* [Overriding Defaults](#Overriding-Defaults)
-* [Author](#Author)
-* [License](#License)
+- [Playbook capabilities](#playbook-capabilities)
+- [Setup the Ansible Control Node](#Setup-the-Ansible-Control-Node-(where-you-will-run-the-playbook-from))
+  - [If it is this same machine](#If-it-is-this-same-machine)
+- [Provision the Ubuntu Desktop in Proxmox](#Provision-the-Ubuntu-Docker-VM-in-Proxmox)
+  - [Deploy SSH key and test](#Deploy-SSH-key-and-test)
+    - [Troubleshooting Host Setup](#Troubleshooting-Host-Setup)
+- [Running the Playbook](#Running-the-Playbook)
+  - [Running a specific set of tagged tasks](#Running-a-specific-set-of-tagged-tasks)
+- [Overriding Defaults](#Overriding-Defaults)
+- [Author](#Author)
+- [License](#License)
 
 ## Playbook capabilities
 

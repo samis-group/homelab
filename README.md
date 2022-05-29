@@ -1,6 +1,6 @@
 # Homelab
 
-![Logo](files/logo.png)
+![ansible-docker-logo](docs/assets/logo.png)
 
 ![ubuntu-20-04]
 ![badge-windows-10]
