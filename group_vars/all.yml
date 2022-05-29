@@ -19,9 +19,9 @@ vm_defaults:
   default_behavior: compatibility
   serial: socket
   vga: serial0
+  boot_disk: "scsi0"
   boot_order: "c"
   timeout: 300  # My tiny intel nuc can't deal with the IO bottle-necking due to spinning up 5 servers simultaneously :(
-  boot_disk: "scsi0"
   cloudinit_drive: ide2   # After successful creation and bootstrapping, we want to remove the cloud init drive, it gets created as this, change it here if it changes in proxmox.
   ipconfig:
     ipconfig0: "ip={{ vm_network }}200/{{ vm_netmask }},gw={{ vm_gateway }}"  # default ip address is X.X.X.200
