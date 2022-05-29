@@ -1,6 +1,6 @@
 # Windows Ansible Playbook
 
-![Logo](files/logo.png)
+![Logo](docs/assets/logo.png)
 
 ![badge-windows-10]
 ![badge-windows-11]
@@ -10,20 +10,20 @@ This playbook installs and configures most of the software I use on my Windows 1
 
 ## Contents
 
-* [Playbook capabilities](#playbook-capabilities)
-* [Setup the Ansible Control Node](#Setup-the-Ansible-Control-Node-(where-you-will-run-the-playbook-from))
-* [Setup the Host Windows PC](#Setup-the-Windows-Host-(where-ansible-playbook-will-be-run-on))
-  * [OpenSSH method](#OpenSSH-method)
-  * [WinRM method](#WinRM-method)
-    * [Network Settings](#Network-Settings)
-    * [Ansible Setup](#Ansible-Setup)
-    * [Troubleshooting Host Setup](#Troubleshooting-Host-Setup)
-* [Running the Playbook](#Running-the-Playbook)
-  * [Running a specific set of tagged tasks](#Running-a-specific-set-of-tagged-tasks)
-* [Included Applications / Configuration (Defaults)](#Included-Applications-/-Configuration-(Defaults))
-* [Overriding Defaults](#Overriding-Defaults)
-* [Author](#Author)
-* [License](#License)
+- [Playbook capabilities](#playbook-capabilities)
+- [Setup the Ansible Control Node](#Setup-the-Ansible-Control-Node-(where-you-will-run-the-playbook-from))
+- [Setup the Host Windows PC](#Setup-the-Windows-Host-(where-ansible-playbook-will-be-run-on))
+  - [OpenSSH method](#OpenSSH-method)
+  - [WinRM method](#WinRM-method)
+    - [Network Settings](#Network-Settings)
+    - [Ansible Setup](#Ansible-Setup)
+    - [Troubleshooting Host Setup](#Troubleshooting-Host-Setup)
+- [Running the Playbook](#Running-the-Playbook)
+  - [Running a specific set of tagged tasks](#Running-a-specific-set-of-tagged-tasks)
+- [Included Applications / Configuration (Defaults)](#Included-Applications-/-Configuration-(Defaults))
+- [Overriding Defaults](#Overriding-Defaults)
+- [Author](#Author)
+- [License](#License)
 
 ## Playbook capabilities
 
