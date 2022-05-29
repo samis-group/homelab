@@ -35,9 +35,10 @@
   # handlers:
   #   - import_tasks: handlers/main.yml
 
-  # roles:
-  #   - geerlingguy.docker  # Use docker desktop WSL integration instead.
-  #   - geerlingguy.ntp   # geerlingguy roles don't work in WSL.
+  roles:
+    - andrewrothstein.kubectl
+    # - geerlingguy.docker  # Use docker desktop WSL integration instead.
+    # - geerlingguy.ntp   # geerlingguy roles don't work in WSL.
 
   tasks:
 

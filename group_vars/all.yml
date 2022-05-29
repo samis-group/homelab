@@ -1,41 +1,47 @@
 ---
-main_user: sami                 # User that will be created and will manage the systems/containers
-ssh_key_prefix: id_rsa_
-main_user_ssh_key_prefix: "{{ main_user }}-{{ ssh_key_prefix }}"
-docker_group: docker            # Leave this as 'docker', the user will need to be added to this group to run docker
-network_gateway: 10.10.0.1       # Typically your router IP
-local_network_lan: 10.0.0.0/24      # Your local LAN subnet that will be used to whitelist certain aceess to resources
-local_network_iot: 10.4.0.0/24      # Your local IOT subnet that will be used to whitelist certain aceess to resources
-local_network_homelab: 10.10.0.0/24 # Your local homelab subnet that will be used to whitelist certain aceess to resources
-ssh:                            # SSH key to connect to docker vm
-  key_private: "{{ user_dir }}/.ssh/id_rsa_personal"
-  key_public: "{{ user_dir }}/.ssh/id_rsa_personal.pub"
-tz: 'Australia/Sydney'          # Timezone setting
-
-cloud_image_template_name: UbuntuCloud
-
 # Default VM configs - Each VM has it's overrides specified in it's own host_vars/hostname config file inside the 'vm' mapping
+template_vm_id: 8000
 vm_defaults:
+  update: true  # Allow vm to update hardware below after full clone
   distro: ubuntu
-  template: "{{ cloud_image_template_name }}"   # VM or template to clone
+  template: "UbuntuCloud-{{ default_ubuntu_version_name }}"   # VM or template to clone - Default to currently used ubuntu template name
   user: "{{ main_user }}" # Change this if this isn't set outside the role.
   password: "{{ ansible_become_password }}"
   ssh_key: "ssh-rsa AAAAB3NzaC1yc2EAAAABJQAAAQEAiwG7uO5R8EzOLvoQEBc9TGyBMMEYlQf7NfwF3JH687WElHLc7bY1HTZ+VcEt+l7kvJfISAeJHdthpCT46ecPirLvz5oIOI1meXRPYXg5fKSJ+itAsfSupjg2/kRUHzI+NJjJap+KU21zEUxCqbTreJ3kSV58F/947uRDyMa0Ofammkx7LY8Kohsr99NtVsHXI71gSTngw/cIe5OR0F1qfxpsBwWw8daN+SYLe0tEtOHVZvGDVDbJhv1GW9PjQxSjx/8QEdi7FMT4ahwHxEcyG5+NhUg+DAo1RKoPYPAM5wwk9O7w+Y31EBP5wYc3FSiOPObcmIoBWxnUrZuD74dtaQ== Sami-id_rsa_personal"
-  network: "10.10.0." # Network WITHOUT the last digit ## NOT VM VAR
-  netmask: "24" # network mask ## NOT VM VAR
-  gateway: "10.10.0.1" # gateway ### NOT VM var
-  dns1: "10.10.0.1"    # My Primary DNS is the router, it recursively resolves upstream to cloudflare + google, but all requests through it.
-  dns2: "8.8.4.4"
+  nameservers:
+    - "{{ vm_gateway }}"    # My Primary DNS is the router, it recursively resolves upstream to cloudflare + google, but all requests through it.
+    - "8.8.4.4"
   cores: "4"
-  ram: "2048" # Memory ram for each VM in MB
+  memory: "2048"  # ram for each VM in MB - Must be quoted as a string, not an integer
   hdd_size: "16G"
-  storage: "local-lvm" # proxmox storage for VMs
+  storage: "local-lvm"  # proxmox storage for VMs
   network_device: 'virtio,bridge=vmbr0'
+  default_behavior: compatibility
   serial: socket
   vga: serial0
-  boot_order: "c"
   boot_disk: "scsi0"
+  boot_order: "c"
+  timeout: 300  # My tiny intel nuc can't deal with the IO bottle-necking due to spinning up 5 servers simultaneously :(
   cloudinit_drive: ide2   # After successful creation and bootstrapping, we want to remove the cloud init drive, it gets created as this, change it here if it changes in proxmox.
+  ipconfig:
+    ipconfig0: "ip={{ vm_network }}200/{{ vm_netmask }},gw={{ vm_gateway }}"  # default ip address is X.X.X.200
+
+# Overwrite template role default mapping here because it's specified above
+# Have to do the whole mapping because it won't work otherwise
+default_ubuntu_version_name: jammy
+
+ssh:                            # SSH key to connect to docker vm
+  key_prefix: id_rsa_
+  key_private: "{{ user_dir }}/.ssh/id_rsa_personal"
+  key_public: "{{ user_dir }}/.ssh/id_rsa_personal.pub"
+main_user_ssh_key_prefix: "{{ main_user }}-{{ ssh.key_prefix }}"
+vm_network: "10.10.0." # Network WITHOUT the last digit ## NOT VM VAR
+vm_netmask: "24" # network mask ## NOT VM VAR
+vm_gateway: "10.10.0.1" # gateway ### NOT VM var
+local_network_lan: 10.0.0.0/24      # Your local LAN subnet that will be used to whitelist certain aceess to resources
+local_network_iot: 10.4.0.0/24      # Your local IOT subnet that will be used to whitelist certain aceess to resources
+local_network_homelab: "{{ vm_network }}0/{{ vm_netmask }}"   # Your local homelab subnet that will be used to whitelist certain aceess to resources
+tz: 'Australia/Sydney'          # Timezone setting
 
 # Playbook run tasks default actions:
 install_os_packages: true
@@ -43,14 +49,13 @@ install_os_packages: true
 copy_files: true
 test_task: false    # Do not change this. If you want to run the test task, use `make test` instead.
 install_docker: true
-provision_vms: true
-vm_start: true      # Start VM's
-vm_post_tasks: true # Run post tasks
+provision_k3s_vms: true
+provision_docker_vms: false
 
 # Others
 name_servers: '1.1.1.1,1.0.0.1'
 watchtower_interval: 15000
-docker_ip: 10.10.0.20   # this is my docker prod vm, docker-dev has a diff IP but host_vars overwrite group_vars
+docker_ip: 10.10.0.20   # This is a default, each host should override this in host_vars
 pfsense_ip: 10.10.0.1  # pfsense router IP
 proxmox_ip: 10.10.0.10  # proxmox hypervisor IP
 proxmox_port: '8006'

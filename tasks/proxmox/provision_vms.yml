@@ -2,9 +2,9 @@
 - name: Setup cloudflare DNS for VM's
   community.general.cloudflare_dns:
     zone: "{{ domain_name }}"
-    record: "{{ vm.name }}"
+    record: "{{ vm.name | default(inventory_hostname_short) }}"
     type: A
-    value: "{{ vm.ip_address }}"
+    value: "{{ vm_ip_address }}"
     api_token: "{{ cloudflare_api_token }}"
 
 - name: Clone template to new VM's
@@ -13,32 +13,92 @@
     api_user: "{{ pve.proxmox_api_user }}"
     api_password: "{{ pve.proxmox_api_pass }}"
     api_host: "{{ proxmox_ip }}"
+    proxmox_default_behavior: "{{ vm_defaults.default_behavior | default('compatibility') }}"
+    validate_certs: "{{ vm_defaults.validate_certs | default(omit) }}"
+    name: "{{ vm.name | default(inventory_hostname_short) }}"
+    newid: "{{ vm.id | default(omit) }}"
     clone: "{{ vm.template | default(vm_defaults.template) }}"
     full: "yes"
-    name: "{{ vm.name }}"
-    storage: "{{ vm.storage | default(vm_defaults.storage) }}" 
-    timeout: "{{ pve.clone_timeout }}"
-    ipconfig:
-      ipconfig0: "ip={{ vm.ip_address }}/{{ vm_defaults.netmask }},gw={{ vm_defaults.gateway }}"
+    storage: "{{ vm.storage | default(vm_defaults.storage) }}"
+    timeout: "{{ vm_defaults.timeout | default(omit) }}"
+    target: "{{ vm_defaults.clone_target | default(omit) }}"
+  register: cloned_vm
+
+- name: Post-clone configuration - update virtual machine resources
+  proxmox_kvm:
+    update: true
+    node: "{{ pve.proxmox_node }}"
+    api_user: "{{ pve.proxmox_api_user }}"
+    api_password: "{{ pve.proxmox_api_pass }}"
+    api_host: "{{ proxmox_ip }}"
+    proxmox_default_behavior: "{{ vm_defaults.default_behavior | default('compatibility') }}"
+    validate_certs: "{{ vm_defaults.validate_certs | default(omit) }}"
+    name: "{{ vm.name | default(inventory_hostname_short) }}"
+    vmid: "{{ vm.id | default(omit) }}"
+    timeout: "{{ vm_defaults.timeout | default(omit) }}"
+    description: "{{ vm.description | default(omit) }}"
+    kvm: "{{ vm.hardware_virtualization | default(omit) }}"
+    ostype: "{{ vm.ostype | default(omit) }}"
+    sockets: "{{ vm.sockets | default(omit) }}"
+    cores: "{{ vm.cores | default(vm_defaults.cores) }}"
+    cpu: "{{ vm.cpu | default(omit) }}"
+    cpuunits: "{{ vm.cpu_units | default(omit) }}"
+    cpulimit: "{{ vm.cpu_limit | default(omit) }}"
+    memory: "{{ vm.memory | default(vm_defaults.memory) }}"
+    balloon: "{{ vm.balloon | default(omit) }}"
+    vga: "{{ vm.vga | default(vm_defaults.vga) }}"
+    acpi: "{{ vm.acpi | default(omit) }}"
+    agent: "{{ vm.agent | default(omit) }}"
+    args: "{{ vm.args | default(omit) }}"
+    autostart: "{{ vm.autostart | default(omit) }}"
+    bios: "{{ vm.bios | default(omit) }}"
     boot: "{{ vm.boot_order | default(vm_defaults.boot_order) }}"
     bootdisk: "{{ vm.boot_disk | default(vm_defaults.boot_disk) }}"
-    newid: "{{ vm.id }}"
+    citype: "{{ vm.citype | default(omit) }}"
+    cicustom: "{{ vm.cicustom | default(omit) }}"
     ciuser: "{{ vm.user | default(vm_defaults.user) }}"
-    cipassword: "{{ vm.password | default(vm_defaults.password) }}" # OPTIONAL
+    cipassword: "{{ vm.password | default(vm_defaults.password) }}"
     sshkeys: "{{ vm.ssh_key | default(vm_defaults.ssh_key) }}"
-    nameservers:
-      - "{{ vm.dns1 | default(vm_defaults.dns1) }}"
-      - "{{ vm.dns2 | default(vm_defaults.dns2) }}"
-    cores: "{{ vm.cores | default(vm_defaults.cores) }}"
-    memory: "{{ vm.ram | default(vm_defaults.ram) }}"
-  register: cloned_vm
+    ipconfig: "{{ vm.ipconfig | default(vm_defaults.ipconfig) }}"
+    nameservers: "{{ vm.nameservers | default(vm_defaults.nameservers) }}"
+    searchdomains: "{{ vm.search_domains | default(omit) }}"
+    delete: "{{ vm.delete | default(omit) }}"
+    digest: "{{ vm.digest | default(omit) }}"
+    force: "{{ vm.force | default(omit) }}"
+    freeze: "{{ vm.freeze | default(omit) }}"
+    hostpci: "{{ vm.hostpci | default(omit) }}"
+    hotplug: "{{ vm.hotplug | default(omit) }}"
+    hugepages: "{{ vm.hugepages | default(omit) }}"
+    keyboard: "{{ vm.keyboard | default(omit) }}"
+    localtime: "{{ vm.localtime | default(omit) }}"
+    lock: "{{ vm.lock | default(omit) }}"
+    machine: "{{ vm.machine | default(omit) }}"
+    migrate_downtime: "{{ vm.migrate_downtime | default(omit) }}"
+    migrate_speed: "{{ vm.migrate_speed | default(omit) }}"
+    numa: "{{ vm.numa | default(omit) }}"
+    numa_enabled: "{{ vm.numa_enabled | default(omit) }}"
+    onboot: "{{ vm.onboot | default(omit) }}"
+    parallel: "{{ vm.parallel | default(omit) }}"
+    pool: "{{ vm.pool | default(omit) }}"
+    protection: "{{ vm.protection | default(omit) }}"
+    reboot: "{{ vm.reboot | default(omit) }}"
+    revert: "{{ vm.revert | default(omit) }}"
+    scsihw: "{{ vm.scsihw | default(omit) }}"
+    serial: "{{ vm.serial | default(omit) }}"
+    shares: "{{ vm.shares | default(omit) }}"
+    skiplock: "{{ vm.skiplock | default(omit) }}"
+    smbios: "{{ vm.smbios | default(omit) }}"
+    startdate: "{{ vm.startdate | default(omit) }}"
+    startup: "{{ vm.startup | default(omit) }}"
+    state: "{{ vm.state | default(omit) }}"
+    tablet: "{{ vm.tablet | default(omit) }}"
+    tags: "{{ vm.tags | default(omit) }}"
+    tdf: "{{ vm.tdf | default(omit) }}"
+    vcpus: "{{ vm.vcpus | default(omit) }}"
+    watchdog: "{{ vm.watchdog | default(omit) }}"
+  when: cloned_vm.changed
 
 - name: Expand disks for each VM to their configured amount
   shell:
     cmd: "qm resize {{ vm.id }} {{ vm.boot_disk | default(vm_defaults.boot_disk) }} {{ vm.hdd_size | default(vm_defaults.hdd_size) }}"
-  when: cloned_vm.changed
-
-- name: Update IP addresses for VM's
-  shell:
-    cmd: "qm set {{ vm.id }} --ipconfig0 ip={{ vm.ip_address }}/{{ vm_defaults.netmask }},gw={{ vm_defaults.gateway }}"
   when: cloned_vm.changed

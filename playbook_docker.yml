@@ -64,14 +64,15 @@
       when: configure_hostname
       tags: ["configure_hostname"]
 
-    - name: Pre-docker install tasks
-      import_tasks: tasks/docker/pre_docker.yml
-      tags: ["pre_docker"]
-
     - name: Configure gitlab registry and clone git repos
       import_tasks: tasks/docker/git.yml
       when: git
       tags: ["git"]
+
+    - name: Run Post docker install tasks
+      import_tasks: tasks/docker/run_post_tasks.yml
+      when: run_post_tasks
+      tags: ["run_post_tasks"]
 
     - name: Updating docker-compose and related files
       import_tasks: tasks/docker/copy_files.yml
@@ -103,12 +104,12 @@
       when: setup_crons
       tags: ["setup_crons"]
 
-    - name: Run Post tasks
-      import_tasks: tasks/docker/run_post_tasks.yml
-      when: run_post_tasks
-      tags: ["run_post_tasks"]
-
     - name: Configure Home Assistant
       import_tasks: tasks/docker/hass_config.yml
       when: hass_config
       tags: ["hass_config"]
+
+    - name: Restore docker data from NFS mount on NAS? (optional)
+      import_tasks: tasks/docker/restore_docker_data.yml
+      when: restore_docker_data
+      tags: ["restore_docker_data"]

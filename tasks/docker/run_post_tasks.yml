@@ -1,17 +1,124 @@
 ---
-###############################################
-### Tasks performed after docker is running ###
-###############################################
+- name: Create docker group if non existent
+  group:
+    name: "{{ docker_group }}"
+    state: present
 
-- name: Install Loki plugin for logging driver
+# Create user based on username
+- name: Create user and add to {{ docker_group }}/sudo/dialout groups
+  user:
+    name: "{{ main_user }}"
+    password: "{{ ansible_become_password | password_hash('sha512', 'mysecretsalt') }}"
+    groups:
+      - "{{ docker_group }}"
+      - sudo
+      - dialout
+    append: true
+    state: present
+    shell: /bin/bash
+    createhome: true
+    home: "{{ user_dir }}"
+  register: user_created
+
+- name: Set regex glob var for reading compose files
+  set_fact:
+    file_regex: >-
+      ^([^\.]*).*
+
+# Grab filenames from compose-files not in unused to create dirs for
+- name: Read docker-compose filenames into variables
+  delegate_to: localhost
+  command: "find {{ playbook_dir }}/files/docker/compose-files -type f -not -path '*/unused/*' -not -name '*.env*' -not -name 'Makefile'"
+  register: dc_files
+
+- name: Read yaml file into variable for parsing service names
+  delegate_to: localhost
+  command: "cat {{ item }}"
+  register: dc_obj
+  with_items: "{{ dc_files.stdout_lines }}"
+
+- name: Create dict dc_yaml_object from docker-compose file
+  set_fact:
+    # Set dict inside jinja, iterate through all services appending to that jinja dict, end loop and return that list
+    dc_yaml_objs: >-
+      {%- set yaml_objs = [] -%}
+      {%- for item in dc_obj.results -%}
+      {%- set obj = item.stdout | from_yaml -%}
+      {%- do yaml_objs.append(obj) -%}
+      {%- endfor -%}
+      {{ yaml_objs }}
+
+- name: Create docker-compose services list fact
+  set_fact:
+    # Set dict inside jinja, iterate through all services appending to that jinja dict, end loop and return that list to ansible list
+    services: >-
+      {%- set services = [] -%}
+      {%- for obj in dc_yaml_objs -%}
+      {%- for key, value in obj.services.items() -%}
+      {%- do services.append(key) -%}
+      {%- endfor -%}
+      {%- endfor -%}
+      {{ services }}
+
+- name: Create directories for services
+  file:
+    path: "{{ docker_dir }}/appdata/{{ item }}"
+    state: directory
+    owner: "{{ main_user }}"
+    group: "{{ docker_group }}"
+    mode: '0755'
+  with_items: "{{ services }}"
+
+- name: Create required directories recursively
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ main_user }}"
+    group: "{{ docker_group }}"
+    mode: '0755'
+    recurse: true
+  with_items: "{{ required_items.folders }}"
+
+# Optimize the playbook by non-recursively creating dirs (these are big)
+- name: Create required directories non-recursively
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ main_user }}"
+    group: "{{ docker_group }}"
+    mode: '0755'
+    recurse: false
+  with_items: "{{ required_items.no_recurse_folders }}"
+
+- name: Touch required files to ensure they exists
+  file:
+    path: "{{ item }}"
+    state: touch
+    owner: "{{ main_user }}"
+    group: "{{ docker_group }}"
+    mode: '0644'
+  with_items: "{{ required_items.files }}"
+
+- name: Install Loki docker plugin for logging driver
   community.docker.docker_plugin:
     plugin_name: grafana/loki-docker-driver:latest
     state: present
     alias: loki
-    # Need to figure out how to do this from cmd to ansible: --grant-all-permissions
-    # It could already be default? meeds testing -> https://github.com/ansible-collections/community.docker/issues/145
-    # Otherwise just run the command via cli:
-    # docker plugin install grafana/loki-docker-driver:latest --alias loki --grant-all-permissions
+  notify: restart docker
+
+- name: Enable Loki docker plugin
+  community.docker.docker_plugin:
+    plugin_name: grafana/loki-docker-driver:latest
+    state: enable
+    alias: loki
+
+- name: Copy docker daemon.json
+  template:
+    src: "docker/daemon.json"
+    dest: "/etc/docker/daemon.json"
+    # owner: "{{ main_user }}"
+    # group: "{{ docker_group }}"
+    mode: '0644'
 
 # This is for me to obtain my personal docker images.
 - name: Log into gitlab container registry.

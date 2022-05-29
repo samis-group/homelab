@@ -28,6 +28,7 @@ This repo can even setup my windows/linux desktop PC's.
   - [Running the Playbook](#running-the-playbook)
     - [Running a specific set of tagged tasks](#running-a-specific-set-of-tagged-tasks)
   - [Overriding Defaults](#overriding-defaults)
+  - [Common makes with examples](#common-makes-with-examples)
   - [Things to note](#things-to-note)
   - [Tasks to perform after playbook is complete](#tasks-to-perform-after-playbook-is-complete)
   - [Author](#author)
@@ -178,6 +179,15 @@ Check the following files for these configurable items:
 - [vars/default_config.yml](vars/default_config.yml)
 - [vars/config.yml](vars/config.yml)
 - [vars/vault.yml](vars/vault.yml)
+
+## Common makes with examples
+
+> Restore docker container data to docker2 VM.
+> WARNING - This will potentially overwrite the current data
+
+```bash
+make docker-restore-containers docker2
+```
 
 ## Things to note
 

@@ -5,9 +5,9 @@
 
 - name: Get dotfiles repo
   git: 
-    repo: "{{ gitlab.dotfiles.repo }}"
+    repo: "{{ gitlab_clone_dotfiles.main_repo }}"
     dest: "{{ user_dir }}/.dotfiles"
-    version: "{{ gitlab.dotfiles.branch }}"
+    version: "{{ gitlab_clone_dotfiles.main_branch }}"
     track_submodules: true
     key_file: "{{ user_dir }}/.ssh/{{ main_user_ssh_key_prefix ~ inventory_hostname_short }}"
     accept_hostkey: true
@@ -16,9 +16,9 @@
 
 - name: checkout docker branch in dotfiles-extras repo
   git: 
-    repo: "{{ gitlab.dotfiles.extra_repo }}"
+    repo: "{{ gitlab_clone_dotfiles.extra_repo }}"
     dest: "{{ user_dir }}/.dotfiles/dotfiles-extra"
-    version: "{{ gitlab.dotfiles.extra_branch }}"
+    version: "{{ gitlab_clone_dotfiles.extra_branch }}"
     key_file: "{{ user_dir }}/.ssh/{{ main_user_ssh_key_prefix ~ inventory_hostname_short }}"
     accept_hostkey: true
   ignore_errors: true

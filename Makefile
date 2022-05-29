@@ -1,5 +1,10 @@
 .PHONY: execute execute-v test test-v test-vvv
 
+# This grabs the passed arguments and stores them in make variable `runargs`
+# So we can use them in any make target (even includes)
+runargs := $(wordlist 2, $(words $(MAKECMDGOALS)), $(MAKECMDGOALS))
+$(eval $(runargs):;@true)
+
 ##############################################
 ### Main operation when only `make` is run ###
 ##############################################

@@ -1,0 +1,12 @@
+---
+- name: Install kubectl on local machine
+  import_role:
+    name: andrewrothstein.kubectl
+  delegate_to: localhost
+
+- name: copy kubectl config from main-main k3s server
+  fetch:
+    src: "{{ user_dir }}/.kube/config"
+    dest: "{{ user_dir }}/.kube/config"
+    flat: yes
+  when: ansible_host == hostvars[groups['k3s_main'][0]]['ansible_host'] | default(groups['k3s_main'][0])
