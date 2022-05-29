@@ -2,52 +2,29 @@
 # Default VM configs - Each VM has it's overrides specified in it's own host_vars/hostname config file inside the 'vm' mapping
 template_vm_id: 8000
 vm_defaults:
+  update: true  # Allow vm to update hardware below after full clone
   distro: ubuntu
   template: "UbuntuCloud-{{ default_ubuntu_version_name }}"   # VM or template to clone - Default to currently used ubuntu template name
   user: "{{ main_user }}" # Change this if this isn't set outside the role.
   password: "{{ ansible_become_password }}"
   ssh_key: "ssh-rsa AAAAB3NzaC1yc2EAAAABJQAAAQEAiwG7uO5R8EzOLvoQEBc9TGyBMMEYlQf7NfwF3JH687WElHLc7bY1HTZ+VcEt+l7kvJfISAeJHdthpCT46ecPirLvz5oIOI1meXRPYXg5fKSJ+itAsfSupjg2/kRUHzI+NJjJap+KU21zEUxCqbTreJ3kSV58F/947uRDyMa0Ofammkx7LY8Kohsr99NtVsHXI71gSTngw/cIe5OR0F1qfxpsBwWw8daN+SYLe0tEtOHVZvGDVDbJhv1GW9PjQxSjx/8QEdi7FMT4ahwHxEcyG5+NhUg+DAo1RKoPYPAM5wwk9O7w+Y31EBP5wYc3FSiOPObcmIoBWxnUrZuD74dtaQ== Sami-id_rsa_personal"
-  dns1: "10.10.0.1"    # My Primary DNS is the router, it recursively resolves upstream to cloudflare + google, but all requests through it.
-  dns2: "8.8.4.4"
+  nameservers:
+    - "{{ vm_gateway }}"    # My Primary DNS is the router, it recursively resolves upstream to cloudflare + google, but all requests through it.
+    - "8.8.4.4"
   cores: "4"
-  memory: "2048" # ram for each VM in MB - Must be quoted as a string, not an integer
+  memory: "2048"  # ram for each VM in MB - Must be quoted as a string, not an integer
   hdd_size: "16G"
-  storage: "local-lvm" # proxmox storage for VMs
+  storage: "local-lvm"  # proxmox storage for VMs
   network_device: 'virtio,bridge=vmbr0'
+  default_behavior: compatibility
   serial: socket
   vga: serial0
   boot_order: "c"
+  timeout: 300  # My tiny intel nuc can't deal with the IO bottle-necking due to spinning up 5 servers simultaneously :(
   boot_disk: "scsi0"
   cloudinit_drive: ide2   # After successful creation and bootstrapping, we want to remove the cloud init drive, it gets created as this, change it here if it changes in proxmox.
-  net_interfaces:
-  - id: net0
-    model: virtio                 # Optional. Available models: virtio - e1000 - rtl8139 - vmxnet3
-    bridge: vmbr0
-    # hwaddr: 46:70:B7:26:87:4F     # Optional. If not indicated, Proxmox will assign one automatically.
-    # firewall: true                # Optional
-    # disconnect: true              # Optional
-    # multiqueue: 2                 # Optional
-    # rate_limit: 250               # Optional (In MB/s)
-    # vlan_tag: 400                 # Optional
-  hard_disks:
-  - id: 0                         #  0 ≤ n ≤ 15
-    bus: virtio                   # Optional. Available buses: virtio (default) - ide - sata - scsi
-    storage: local-lvm
-    size: 6
-    # format: raw                   # Optional. Available formats: qcow2 - raw (default) - subvol
-    # backup: true                  # Optional
-    # skip_replication: false       # Optional
-    # cache: none                   # Optional. Available types: none (default) - directsync - writethrough - writeback - unsafe
-    # io_thread: false              # Optional
-    # ssd_emulation: false          # Optional
-  pve_kvm_ide:    # Optional
-    ide2: "local-lvm:vm-{{ template_vm_id }}-cloudinit,format=qcow2"    # Useful example to add cloud-init Drive
   ipconfig:
     ipconfig0: "ip={{ vm_network }}200/{{ vm_netmask }},gw={{ vm_gateway }}"  # default ip address is X.X.X.200
-  pve_kvm_nameservers:
-  - "{{ vm_gateway }}"  # My Primary DNS is my pfsense router, it recursively resolves upstream to cloudflare + google, but all requests through it.
-  - '8.8.8.8'
-  # pve_kvm_searchdomains: mycluster.org
 
 # Overwrite template role default mapping here because it's specified above
 # Have to do the whole mapping because it won't work otherwise
@@ -72,9 +49,8 @@ install_os_packages: true
 copy_files: true
 test_task: false    # Do not change this. If you want to run the test task, use `make test` instead.
 install_docker: true
-provision_vms: true
-vm_start: true      # Start VM's
-vm_post_tasks: true # Run post tasks
+provision_k3s_vms: true
+provision_docker_vms: false
 
 # Others
 name_servers: '1.1.1.1,1.0.0.1'

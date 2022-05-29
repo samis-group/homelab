@@ -7,7 +7,6 @@
 
 ## Others
 - src: lae.proxmox  # Setup pve cluster on debian - # Currently Unused
-- src: udelarinterior.proxmox_create_kvm   # Provision the docker/k3s nodes - # Currently Unused
 - src: udelarinterior.proxmox_create_lxc   # LXC containers provision - # Currently Unused
 - src: ironicbadger.proxmox_nag_removal
 - src: rossmcdonald.telegraf  # Currently Unused -> https://github.com/rossmcdonald/telegraf
@@ -19,3 +18,4 @@
 # WSL #
 # geerlingguy.docker as above
 - src: geerlingguy.ntp  # Currently Unused - This is also for proxmox above
+- src: andrewrothstein.kubectl  # Installs kubectl - mainly for WSL

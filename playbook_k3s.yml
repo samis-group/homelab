@@ -5,7 +5,6 @@
 
 - name: Configure k3s cluster
   hosts: k3s
-  remote_user: "{{ vm.user | default(vm_defaults.user) }}"  # Login as user and become root
   become: true
 
   # Load in our default and vaulted vars
@@ -44,71 +43,34 @@
     - import_tasks: handlers/k3s.yml
 
   roles:
-    - role: geerlingguy.docker
-      vars:
-        docker_install_compose: "false"   # I prefer to install the docker plugin version from apt repo (check install_os_packages task), until this role supports the plugin install -> https://github.com/geerlingguy/ansible-role-docker/issues/355
-        # docker_compose_version: "v2.5.0"
-        docker_users: ["{{ vm.user | default(vm_defaults.user) }}"]    # list of users who will be added to the docker group
-      when: install_docker
-      tags: ["install_docker"]
+    - role: k3s/prereq
+    - role: k3s/download
+    - role: k3s/raspberrypi
 
+- hosts: k3s_main
+  become: yes
+
+  vars_files:
+    *vars_files
+
+  pre_tasks:
+    *pre_tasks
+
+  roles:
+    - role: k3s/master
+  
   tasks:
+    - name: install kubectl on localhost and Copy kube config
+      import_tasks: tasks/k3s/kubectl_config.yml
 
-    - name: Install OS updates and required packages
-      import_tasks: tasks/docker/install_os_packages.yml
-      when: install_os_packages
-      tags: ["install_os_packages"]
+- hosts: k3s_node
+  become: yes
 
-    - name: Configuring Hostname
-      import_tasks: tasks/linux/configure_hostname.yml
-      when: configure_hostname
-      tags: ["configure_hostname"]
+  vars_files:
+    *vars_files
 
-    - name: Pre-docker install tasks
-      import_tasks: tasks/docker/pre_docker.yml
-      tags: ["pre_docker"]
+  pre_tasks:
+    *pre_tasks
 
-    - name: Configure gitlab registry and clone git repos
-      import_tasks: tasks/docker/git.yml
-      when: git
-      tags: ["git"]
-
-    - name: Updating docker-compose and related files
-      import_tasks: tasks/docker/copy_files.yml
-      when: copy_files
-      tags: ["copy_files"]
-
-    - name: Updating docker-compose and related files
-      import_tasks: tasks/docker/update_compose.yml
-      when: update_compose
-      tags: ["update_compose"]
-
-    - name: Setup container directories and copy files
-      import_tasks: tasks/docker/setup_containers.yml
-      when: setup_containers
-      tags: ["setup_containers"]
-
-    - name: Write logrotate files to host
-      import_tasks: tasks/docker/logrotate.yml
-      when: logrotate
-      tags: ["logrotate"]
-
-    - name: Setup NAS mounts
-      import_tasks: tasks/docker/setup_nas_mounts.yml
-      when: setup_nas_mounts
-      tags: ["setup_nas_mounts"]
-
-    - name: Setup Crons
-      import_tasks: tasks/docker/setup_crons.yml
-      when: setup_crons
-      tags: ["setup_crons"]
-
-    - name: Run Post tasks
-      import_tasks: tasks/docker/run_post_tasks.yml
-      when: run_post_tasks
-      tags: ["run_post_tasks"]
-
-    - name: Configure Home Assistant
-      import_tasks: tasks/docker/hass_config.yml
-      when: hass_config
-      tags: ["hass_config"]
+  roles:
+    - role: k3s/node

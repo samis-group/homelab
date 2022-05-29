@@ -3,7 +3,11 @@
 - name: Proxmox Playbook
   import_playbook: playbook_proxmox.yml
 
-# Setup and configure Docker VM
+# Setup and configure k3s VM's
+- name: k3s Playbook
+  import_playbook: playbook_k3s.yml
+
+# Setup and configure Docker VM's
 - name: Docker Playbook
   import_playbook: playbook_docker.yml
 

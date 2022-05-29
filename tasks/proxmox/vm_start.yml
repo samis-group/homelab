@@ -5,14 +5,14 @@
     api_user: "{{ pve.proxmox_api_user }}"
     api_password: "{{ pve.proxmox_api_pass }}"
     api_host: "{{ proxmox_ip }}"
-    name: "{{ vm.name }}"
+    name: "{{ vm.name | default(inventory_hostname_short) }}"
     state: started
   when: cloned_vm.changed
 
 - name: Wait until VM's are started
   wait_for:
     port: 22
-    host: "{{ vm.ip_address }}"
+    host: "{{ vm_ip_address }}"
     search_regex: OpenSSH
     # Cloud-init bootstraps by apt updating, and doing other bits and Openssh generally comes up before it finishes.
     # we need to give cloud-init time to populate facts to ansible, otherwise it exists early, hence 60s wait before cloud-init check below.
