@@ -13,9 +13,10 @@
 
 # Docker #
 - src: arillso.logrotate
-- src: geerlingguy.docker   # Currently Unused
+- src: geerlingguy.docker
 
 # WSL #
 # geerlingguy.docker as above
 - src: geerlingguy.ntp  # Currently Unused - This is also for proxmox above
 - src: andrewrothstein.kubectl  # Installs kubectl - mainly for WSL
+- src: geerlingguy.helm
