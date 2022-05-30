@@ -1,10 +1,5 @@
 ---
-- name: Install kubectl on local machine
-  import_role:
-    name: andrewrothstein.kubectl
-  delegate_to: localhost
-
-- name: copy kubectl config from main-main k3s server
+- name: copy kubectl config from k3sm1 server
   fetch:
     src: "{{ user_dir }}/.kube/config"
     dest: "{{ user_dir }}/.kube/config"

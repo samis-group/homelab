@@ -1,0 +1,11 @@
+---
+# https://kubernetes.io/docs/concepts/storage/storage-classes/#nfs
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: nas-nfs
+provisioner: example.com/external-nfs
+parameters:
+  server: "{{ nas.ip }}"
+  path: "{{ nas.mounts.k3s_appdata.remote_mapping }}"
+  readOnly: "false"

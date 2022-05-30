@@ -1,5 +1,8 @@
 .PHONY: execute execute-v test test-v test-vvv
 
+# Default make target specified here
+.DEFAULT_GOAL := execute
+
 # This grabs the passed arguments and stores them in make variable `runargs`
 # So we can use them in any make target (even includes)
 runargs := $(wordlist 2, $(words $(MAKECMDGOALS)), $(MAKECMDGOALS))
@@ -11,19 +14,19 @@ $(eval $(runargs):;@true)
 
 # Run the playbook (Assumes `make setup` has already been run, If not, go do that first).
 # Note: Vault password file directive is now specified in 'ansible.cfg'.
-execute:
-	@ansible-playbook -i inventory/hosts.ini main.yml
+execute: proxmox k3s	# Update these targets based on your deployment needs, this is my current stack
 
 # Verbose option
 execute-v:
-	@ansible-playbook -i inventory/hosts.ini -vvv main.yml
+	@ansible-playbook -i inventory/hosts.ini -vvv main.yml $(runargs)
 
 ##########################################################################
 # This will make everything from absolutely nothing but debian machines. #
 #        You must have setup authorized keys and can ssh to them         #
 ##########################################################################
+
 from-scratch:
-	@ansible-playbook -i inventory/hosts.ini main.yml -e "create_vm_template=true"
+	@ansible-playbook -i inventory/hosts.ini main.yml $(runargs)
 
 ##############
 # Test Tasks #
@@ -31,15 +34,7 @@ from-scratch:
 
 # Run the test playbook
 test:
-	@ansible-playbook -i inventory/hosts.ini playbook_test.yml
-
-# Verbose option
-test-v:
-	@ansible-playbook -i inventory/hosts.ini -v playbook_test.yml
-
-# Verboserer option
-test-vvv:
-	@ansible-playbook -i inventory/hosts.ini -vvv playbook_test.yml
+	@ansible-playbook -i inventory/hosts.ini playbook_test.yml $(runargs)
 
 ###################################
 ### Include all other makefiles ###

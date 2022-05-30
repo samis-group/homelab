@@ -47,7 +47,8 @@
     - role: k3s/download
     - role: k3s/raspberrypi
 
-- hosts: k3s_main
+- name: Configure k3s - Main VM's
+  hosts: k3s_main
   become: yes
 
   vars_files:
@@ -58,12 +59,10 @@
 
   roles:
     - role: k3s/master
-  
-  tasks:
-    - name: install kubectl on localhost and Copy kube config
-      import_tasks: tasks/k3s/kubectl_config.yml
+    - geerlingguy.helm  # Install helm on k3sm nodes to deploy charts in ansible
 
-- hosts: k3s_node
+- name: Configure k3s - Node VM's
+  hosts: k3s_node
   become: yes
 
   vars_files:
@@ -74,3 +73,48 @@
 
   roles:
     - role: k3s/node
+
+- name: Install/configure Helm/kubectl on controle node (i.e. the host you are running this playbook on, soz <3)
+  hosts: wsl  # Run on wsl as that is what I use
+  become: yes
+
+  vars_files:
+    *vars_files
+
+  pre_tasks:
+    *pre_tasks
+
+  roles:
+    - andrewrothstein.kubectl
+    - geerlingguy.helm
+
+  tasks:
+    - name: Copy kube config
+      import_tasks: tasks/k3s/kubectl_helm_config.yml
+
+- name: Deploy Helm Charts
+  hosts: k3sm1
+  become: false
+
+  vars_files:
+    *vars_files
+
+  pre_tasks:
+    *pre_tasks
+
+  tasks:
+    - name: Setup aliases and functions in bash environment
+      import_tasks: tasks/k3s/bashrc.yml
+
+    - name: Setup dependencies
+      import_tasks: tasks/k3s/dependencies.yml
+
+    - name: deploy k8s manifests
+      import_role:
+        name: geerlingguy.k8s_manifests
+      tags: ['nfs', 'XXXXX']
+
+    - name: Deploy Helm Charts
+      import_tasks: tasks/k3s/helm_charts.yml
+      tags: ["helm_charts"]
+      when: ansible_host == hostvars[groups['k3s_main'][0]]['ansible_host'] | default(groups['k3s_main'][0])  # We only want to deploy the chart to the k3sm1 (k3s-main-1) node.

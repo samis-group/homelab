@@ -1,0 +1,22 @@
+---
+- name: Apt Upgrade
+  apt:
+    name: '*'
+    state: latest
+    update_cache: true
+
+- name: Install required packages
+  apt:
+    state: present
+    pkg:
+      - python3-pip
+
+- name: pip self-update
+  pip:
+    name: pip
+    state: latest
+
+- name: Install required python modules
+  pip:
+    name:
+      - openshift

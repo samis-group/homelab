@@ -12,6 +12,9 @@
 - src: ironicbadger.proxmox_nag_removal
 - src: rossmcdonald.telegraf  # Currently Unused -> https://github.com/rossmcdonald/telegraf
 
+# k3s #
+- src: geerlingguy.k8s_manifests
+
 # Docker #
 - src: arillso.logrotate
 - src: geerlingguy.docker

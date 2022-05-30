@@ -70,6 +70,9 @@ nas:
     docker_backups:
       local_mapping: "{{ user_dir }}/mount/docker_backups"
       remote_mapping: "/volume1/nfs/docker_backups"
+    k3s_appdata:
+      local_mapping: "{{ user_dir }}/mount/k3s_appdata"
+      remote_mapping: "/volume1/nfs/k3s_appdata"
     downloads:
       local_mapping: "{{ user_dir }}/mount/downloads"
       remote_mapping: "/volume1/nfs/downloads"
