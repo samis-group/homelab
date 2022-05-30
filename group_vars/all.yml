@@ -60,3 +60,34 @@ pfsense_ip: 10.10.0.1  # pfsense router IP
 proxmox_ip: 10.10.0.10  # proxmox hypervisor IP
 proxmox_port: '8006'
 influxdb_port: '8086'
+
+nas:
+  user: "{{ main_user }}"
+  password: "{{ services_password }}"   # Make sure your nas password is up to date with the services password.
+  ip: 10.10.0.2  # Synology NAS IP
+  port: '5000'  # Synology NAS Port
+  mounts:   # NFS Mounts from the Synology NAS
+    docker_backups:
+      local_mapping: "{{ user_dir }}/mount/docker_backups"
+      remote_mapping: "/volume1/nfs/docker_backups"
+    downloads:
+      local_mapping: "{{ user_dir }}/mount/downloads"
+      remote_mapping: "/volume1/nfs/downloads"
+    motioneye:
+      local_mapping: "{{ user_dir }}/mount/motioneye"
+      remote_mapping: "/volume1/nfs/motioneye"
+    tv:
+      local_mapping: "{{ user_dir }}/mount/tv"
+      remote_mapping: "/volume1/video/tv"
+    movies:
+      local_mapping: "{{ user_dir }}/mount/movies"
+      remote_mapping: "/volume1/video/movies"
+    syncthing:
+      local_mapping: "{{ user_dir }}/mount/syncthing"
+      remote_mapping: "/volume1/nfs/syncthing"
+    sami_pictures:
+      local_mapping: "{{ user_dir }}/mount/photos/sami"
+      remote_mapping: "/volume1/Samis_Folder/Photos"
+    family_pictures:
+      local_mapping: "{{ user_dir }}/mount/photos/family"
+      remote_mapping: "/volume1/Photos"
