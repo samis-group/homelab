@@ -43,5 +43,5 @@ metal_lb_ip_range: "10.10.0.41-10.10.0.49"
 k8s_kubeconfig: ~/.kube/config
 k8s_manifests_base_dir: templates/k3s/manifests/
 k8s_resource_namespace: 'default'
-k8s_manifests:
+k8s_manifests:  # Maybe just do a jinja lookup for filenames and create a list from that? make it dynamic
   - nfs
