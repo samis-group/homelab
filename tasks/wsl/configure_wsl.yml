@@ -1,0 +1,7 @@
+---
+- name: ensure docker and ssh start on boot (might need work)
+  lineinfile:
+    path: "{{ user_dir }}/.profile"
+    block: |
+      wsl.exe -u root -e sh -c "service docker status || service docker start"
+      wsl.exe -u root -e sh -c "service ssh status || service ssh start"

@@ -4,10 +4,10 @@
 .PHONY: update-compose update-compose-v setup-containers setup-containers-v
 
 docker:
-	@ansible-playbook -i inventory/hosts.ini playbook_docker.yml
+	@ansible-playbook -i inventory/hosts.ini main.yml --limit docker
 
 docker-v:
-	@ansible-playbook -i inventory/hosts.ini playbook_docker.yml -vvv
+	@ansible-playbook -i inventory/hosts.ini main.yml --limit docker -vvv
 
 docker-update-compose:
 	@ansible-playbook -i inventory/hosts.ini --tags "update_compose" -e "update_compose=true" playbook_docker.yml

@@ -47,3 +47,6 @@
       import_tasks: tasks/wsl/install_os_packages.yml
       when: install_os_packages
       tags: ["install_os_packages"]
+
+    - name: Copy Files
+      import_tasks: tasks/wsl/configure_wsl.yml

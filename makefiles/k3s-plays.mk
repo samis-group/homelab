@@ -5,10 +5,10 @@
 .PHONY: k3s k3s-v k3s-run-tags k3s-run-tags-v
 
 k3s:
-	@ansible-playbook -i inventory/hosts.ini playbook_k3s.yml
+	@ansible-playbook -i inventory/hosts.ini main.yml --limit k3s
 
 k3s-v:
-	@ansible-playbook -i inventory/hosts.ini playbook_k3s.yml -vvv
+	@ansible-playbook -i inventory/hosts.ini main.yml --limit k3s -vvv
 
 # Run only the tags passed in separated by comma (e.g. make run-tags update_compose,logrotate)
 k3s-run-tags:
