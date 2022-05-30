@@ -20,7 +20,7 @@ This repo can even setup my windows/linux desktop PC's.
 
 - [Homelab](#homelab)
   - [Contents](#contents)
-  - [TLDR](#tldr)
+  - [TL;DR](#tldr)
   - [Playbook capabilities](#playbook-capabilities)
   - [Setup the Ansible Control Node (where you will run the playbook from)](#setup-the-ansible-control-node-where-you-will-run-the-playbook-from)
   - [Setup Proxmox Host](#setup-proxmox-host)
@@ -36,7 +36,7 @@ This repo can even setup my windows/linux desktop PC's.
   - [License](#license)
   - [Resources](#resources)
 
-## TLDR
+## TL;DR
 
 If you aren't me, this TLDR probably won't help you much, as I've got my variables encrypted in this repo. You won't have access, so read the long notes to set it all up.
 
@@ -44,6 +44,8 @@ Run the following commands to bring this entire project up from nothing but prox
 
 ```bash
 # Go through setup
+# Use single quotes only!
+export VAULT_PASS='super_secret_password'
 make setup
 
 # Make wsl, because default instance of WSL doesn't start SSH, so configure it first.
