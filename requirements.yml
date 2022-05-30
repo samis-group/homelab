@@ -2,5 +2,7 @@
 collections:
   - name: community.general
   - name: chocolatey.chocolatey
+  - name: kubernetes.core
   - name: community.windows
+
   # - name: pfsensible.core   # Unused - https://github.com/opoplawski/ansible-pfsense

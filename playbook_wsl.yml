@@ -37,6 +37,7 @@
 
   roles:
     - andrewrothstein.kubectl
+    - geerlingguy.helm
     # - geerlingguy.docker  # Use docker desktop WSL integration instead.
     # - geerlingguy.ntp   # geerlingguy roles don't work in WSL.
 
