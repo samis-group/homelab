@@ -1,0 +1,101 @@
+---
+# Run cleanup tasks if `force_template_rebuild` is true
+- name: Cleanup - Ensure existing cloud-image file is removed if force rebuilding
+  file:
+    path: "{{ img_dir }}/{{ ubuntu_img_template_url | basename }}"
+    state: absent
+  when: force_template_rebuild
+
+- name: Cleanup - Delete Template VM
+  proxmox_kvm:
+    node: "{{ pve.proxmox_node }}"
+    api_user: "{{ pve.proxmox_api_user }}"
+    api_password: "{{ pve.proxmox_api_pass }}"
+    api_host: "{{ proxmox_ip }}"
+    name: "{{ template_defaults.name }}"
+    vmid: "{{ template_vm_id }}"    # Specifying a high value for my template
+    state: absent
+  when: force_template_rebuild
+
+# Now start downloading/creating the template
+- name: Ensure cloud-images directory exists
+  file:
+    path: "{{ img_dir }}"
+    state: directory
+
+- name: Download ubuntu cloud image
+  get_url:
+    url: "{{ ubuntu_img_template_url }}"
+    dest: "{{ img_dir }}/{{ ubuntu_img_template_url | basename }}"
+
+# We attach the scsi and cloudinit disks afterwards (manual qm commands) because the ansible module doesn't allow us to update them with `update: yes`
+- name: Create new Template VM
+  proxmox_kvm:
+    node: "{{ pve.proxmox_node }}"
+    api_user: "{{ pve.proxmox_api_user }}"
+    api_password: "{{ pve.proxmox_api_pass }}"
+    api_host: "{{ proxmox_ip }}"
+    name: "{{ template_defaults.name }}"
+    vmid: "{{ template_vm_id }}"    # Specifying a high value for my template
+    storage: "{{ template_defaults.storage }}"
+    net:
+      net0: "{{ template_defaults.network_device }}"
+
+- name: Check if the vm disk has already been created. If so, Skip creating another
+  shell:
+    cmd: lvs | grep {{ template_vm_id }}-disk | wc -l
+  register: vm_disk_done
+
+# Add disks after creating vm because `qm importdisk` is not supported in the proxmox ansible module, so can only attach it afterwards
+- name: Import cloud image disk into VM
+  shell:
+    cmd: qm importdisk {{ template_vm_id }} {{ ubuntu_img_template_url | basename }} {{ template_defaults.storage }}
+    chdir: "{{ img_dir }}"
+  when: vm_disk_done.stdout | int < 1
+
+- name: Set SCSI controller and add SCSI drive attaching disk
+  shell:
+    cmd: qm set {{ template_vm_id }} --scsihw {{ template_defaults.scsihw }} --scsi0 {{ template_defaults.storage }}:vm-{{ template_vm_id }}-disk-0
+  when: vm_disk_done.stdout | int < 1
+
+- name: Check if cloudinit drive has already been created. If so, Skip creating another
+  shell:
+    cmd: lvs | grep {{ template_vm_id }}-cloudinit | wc -l
+  register: vm_cloudinit_done
+
+- name: Add Cloudinit disk
+  shell:
+    cmd: qm set {{ template_vm_id }} --ide2 {{ template_defaults.storage }}:cloudinit
+  when: vm_cloudinit_done.stdout != '1'
+
+- name: Set serial console if defined in vars
+  shell:
+    cmd: qm set {{ template_vm_id }} --serial0 {{ template_defaults.serial }} --vga {{ template_defaults.vga }}
+  when:
+    - template_defaults.serial is defined
+    - template_defaults.vga is defined
+
+# When cloning the VM, we add all the other hardware, perform updates, etc.
+# Leave this template minimal, what is below should suffice. No warranties provided.
+- name: Update VM and Cloud init setup
+  proxmox_kvm:
+    node: "{{ pve.proxmox_node }}"
+    api_user: "{{ pve.proxmox_api_user }}"
+    api_password: "{{ pve.proxmox_api_pass }}"
+    api_host: "{{ proxmox_ip }}"
+    vmid: "{{ template_vm_id }}"
+    ipconfig: "{{ template_ipconfig }}"
+    ciuser: "{{ template_defaults.user }}"
+    cipassword: "{{ template_defaults.password | default(omit) }}" # OPTIONAL
+    sshkeys: "{{ template_defaults.ssh_key }}"
+    boot: "{{ template_defaults.boot_order }}"
+    bootdisk: "{{ template_defaults.boot_disk }}"
+    nameservers: "{{ template_defaults.nameservers }}"
+    cores: "{{ template_defaults.cores }}"
+    memory: "{{ template_defaults.memory }}"
+    update: yes
+
+- name: Make this VM a template
+  shell:
+    cmd: qm template {{ template_vm_id }}
+  ignore_errors: true   # If it's already a template it complains, it's also the last task so..

@@ -46,7 +46,7 @@
     cpulimit: "{{ vm.cpu_limit | default(omit) }}"
     memory: "{{ vm.memory | default(vm_defaults.memory) }}"
     balloon: "{{ vm.balloon | default(omit) }}"
-    vga: "{{ vm.vga | default(vm_defaults.vga) }}"
+    vga: "{{ vm.vga | default(omit) }}"
     acpi: "{{ vm.acpi | default(omit) }}"
     agent: "{{ vm.agent | default(omit) }}"
     args: "{{ vm.args | default(omit) }}"

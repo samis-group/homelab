@@ -36,7 +36,7 @@
 #     success_msg: "blah"
 
 - name: Write custom line in fstab to denote mounts managed by ansible
-  ansible.builtin.lineinfile:
+  lineinfile:
     path: /etc/fstab
     insertbefore: '^{{nas.ip}}.*'
     firstmatch: true

@@ -1,0 +1,43 @@
+---
+pve:  # I override these defaults, do the same
+  proxmox_node: pve
+  proxmox_api_user: root@pam
+  proxmox_api_pass: XXXXXXXXX
+
+ubuntu:
+  version_name: "jammy"
+  cpu_arch: amd64
+  release: current
+
+# Default VM configs - Each VM has it's overrides specified in it's own host_vars/hostname config file inside the 'vm' mapping
+# Specifying defaults below, but I override this mapping in my own main playbook.
+template_defaults:
+  name: "UbuntuCloud-{{ ubuntu.version_name }}"
+  nameservers:  # I use local DNS resolver, so I specify these on all vm's
+    - "{{ vm_gateway | default('1.1.1.1') }}"  # vm_gateway is declared elsewhere in the main playbook - My Primary DNS is the router, it recursively resolves upstream to cloudflare + google, but all requests through it.
+    - "8.8.4.4"
+  user: "{{ main_user | default('1.1.1.1') }}" # Change this if this isn't set outside the role.
+  password: "{{ ansible_become_password | default(omit) }}"
+  ssh_key: "ssh-rsa AAAAB3NzaC1yc2EAAAABJQAAAQEAiwG7uO5R8EzOLvoQEBc9TGyBMMEYlQf7NfwF3JH687WElHLc7bY1HTZ+VcEt+l7kvJfISAeJHdthpCT46ecPirLvz5oIOI1meXRPYXg5fKSJ+itAsfSupjg2/kRUHzI+NJjJap+KU21zEUxCqbTreJ3kSV58F/947uRDyMa0Ofammkx7LY8Kohsr99NtVsHXI71gSTngw/cIe5OR0F1qfxpsBwWw8daN+SYLe0tEtOHVZvGDVDbJhv1GW9PjQxSjx/8QEdi7FMT4ahwHxEcyG5+NhUg+DAo1RKoPYPAM5wwk9O7w+Y31EBP5wYc3FSiOPObcmIoBWxnUrZuD74dtaQ== Sami-id_rsa_personal"
+  ip_address: "{{ vm_network | default('10.10.0.') }}200"
+  netmask: "{{ vm_netmask | default('24') }}" # network mask ## NOT VM VAR
+  gateway: "{{ vm_gateway | default('10.10.0.1') }}" # gateway ### NOT VM var
+  cores: "2"
+  memory: "2048" # ram for each VM in MB
+  scsihw: virtio-scsi-pci   # Not tested changing this
+  # vga: serial0    # If defined, this will be set
+  # serial: socket  # If defined, this will be set
+  boot_order: "c"
+  boot_disk: "scsi0"
+  storage: "local-lvm" # proxmox storage for VMs and cloudinit disk. Please ensure this matches the `pve_kvm_ide` in all.yml and in host vm definitions. https://docs.ansible.com/ansible/latest/collections/community/general/proxmox_kvm_module.html#parameter-storage
+  network_device: 'virtio,bridge=vmbr0' # https://docs.ansible.com/ansible/latest/collections/community/general/proxmox_kvm_module.html#parameter-net
+
+# Some of these variables need to be placed in a separate namespace than the template_defaults above because they reference vars from there.
+template_ipconfig:
+  ipconfig0: "ip={{ template_defaults.ip_address }}/{{ template_defaults.netmask }},gw={{ template_defaults.gateway }}"
+ubuntu_img_template_url: https://cloud-images.ubuntu.com/{{ ubuntu.version_name }}/{{ ubuntu.release }}/{{ ubuntu.version_name }}-server-cloudimg-{{ ubuntu.cpu_arch }}.img
+template_vm_id: 8000  # Separate namespace than template_defaults because we want to be able to pass this when adhoc building a new template from another version or OS entirely
+template_scsi0_device: "{{ template_defaults.storage }}:vm-{{ template_vm_id }}-disk-0"
+img_dir: "/tmp/cloud_images"
+proxmox_ip: 10.10.0.10    # Set this yourself - I overwrite this in group_vars/all.yml. Setting here as default nonetheless
+force_template_rebuild: false   # This will delete the current template and build a new one

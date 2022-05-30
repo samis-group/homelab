@@ -89,6 +89,8 @@ required_items:
     - "{{ docker_dir }}/appdata/traefik/acme/acme.json"
 
 nas:
+  user: "{{ main_user }}"
+  password: "{{ services_password }}"   # Make sure your nas password is up to date with the services password.
   ip: 10.10.0.2  # Synology NAS IP
   port: '5000'  # Synology NAS Port
   mounts:   # NFS Mounts from the Synology NAS

@@ -64,3 +64,4 @@
     dest: "{{ user_dir }}/.vim/bundle/Vundle.vim"
     clone: true
     update: true
+  become_user: "{{ main_user }}"  # We want ownership of the repo to be the user
