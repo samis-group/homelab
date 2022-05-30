@@ -1,0 +1,16 @@
+---
+####################
+### K3s Master 1 ###
+####################
+
+vm_ip_address: "{{ vm_network }}30"  # Required
+
+vm:
+  # name: k3sm1    # Default is ansible magic var `inventory_hostname_short` if omitted
+  ipconfig:
+    ipconfig0: "ip={{ vm_ip_address }}/{{ vm_netmask }},gw={{ vm_gateway }}"
+  id: 300   # Required
+  hdd_size: "12G"
+  cores: 4
+  memory: 2048
+  # template: "UbuntuCloud-jammy"   # Specify a template

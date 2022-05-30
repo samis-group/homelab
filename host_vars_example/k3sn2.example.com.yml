@@ -1,0 +1,16 @@
+---
+##################
+### K3s Node 2 ###
+##################
+
+vm_ip_address: "{{ vm_network }}36"  # Required
+
+vm:
+  # name: k3sn2    # Default is ansible magic var `inventory_hostname_short` if omitted
+  ipconfig:
+    ipconfig0: "ip={{ vm_ip_address }}/{{ vm_netmask }},gw={{ vm_gateway }}"
+  id: 306   # Required
+  hdd_size: "12G"
+  cores: 4
+  memory: 2048
+  # template: "UbuntuCloud-jammy"   # Specify a template

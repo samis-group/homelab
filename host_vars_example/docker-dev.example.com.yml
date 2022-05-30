@@ -1,6 +1,13 @@
 ---
+vm_ip_address: "{{ vm_network }}29"  # Required
+docker_ip: "{{ vm_ip_address }}"
+
 vm:
-  name: docker-dev   # This must match the subdomain name exactly as DNS records get created from this (i.e. <name>.domain.com)
-  ip_address: "{{ vm_defaults.network }}29"  # Required
+  # name: docker-dev    # Default is ansible magic var `inventory_hostname_short` if omitted
+  ipconfig:
+    ipconfig0: "ip={{ vm_ip_address }}/{{ vm_netmask }},gw={{ vm_gateway }}"
   id: 203   # Required
-  hdd_size: "6G"
+  hdd_size: "20G"
+  cores: 4
+  memory: 7000
+  # template: "UbuntuCloud-jammy"   # Specify a template
