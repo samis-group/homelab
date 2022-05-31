@@ -16,10 +16,13 @@
     name: wsl2
     ignore_checksums: true
     state: present
+  ignore_errors: true  # Choco isn't behaving as expected...
 
-- name: Ensure WSL2 with "{{ wsl2_distribution }}" installed.
-  win_chocolatey:
-    name: "{{ wsl2_distribution }}"
-    ignore_checksums: true
-    state: present
-  when: wsl2_distribution is defined
+# 22.04 not released - skip
+# - name: Ensure WSL2 with {{ wsl2_distribution }} installed.
+#   win_chocolatey:
+#     name: "{{ wsl2_distribution }}"
+#     ignore_checksums: true
+#     state: present
+#   when: wsl2_distribution is defined
+#   ignore_errors: true  # Choco isn't behaving as expected...

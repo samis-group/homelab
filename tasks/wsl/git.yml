@@ -1,0 +1,102 @@
+---
+
+### Ensure you have gitlab repos to clone! If you aren't me, do you want to run this? ###
+
+- name: Checkout containers source code
+  git: 
+    repo: "{{ item.value }}"
+    dest: "{{ user_dir }}/git/personal/containers/{{ item.key }}"
+    key_file: "{{ user_dir }}/.ssh/{{ main_user_ssh_key_prefix ~ inventory_hostname_short }}"
+    accept_hostkey: true
+  with_dict: "{{ gitlab_clone_container_repos }}"
+  register: git_checkout_code
+  ignore_errors: true   # Because Home assistant gets changed to, and realistically, this only needs to be run initially anyway.
+  become: false
+  no_log: true  # Don't spew out my token
+
+# Can't run this while I work in it... Needs testing.
+
+# - name: Checkout homelab repo
+#   git: 
+#     repo: "{{ item.value }}"
+#     dest: "{{ docker_dir }}/git/personal/{{ item.key }}"
+#     key_file: "{{ user_dir }}/.ssh/{{ main_user_ssh_key_prefix ~ inventory_hostname_short }}"
+#     accept_hostkey: true
+#   with_dict: "{{ gitlab_clone_repos.homelab }}"
+#   register: git_checkout_code
+#   ignore_errors: true   # Because Home assistant gets changed to, and realistically, this only needs to be run initially anyway.
+#   become: false
+
+# I dunno wtf this module is doing when it attempts to clone this repo submodule.. It's mangling the .git dir, needs work.
+
+# - name: Get dotfiles repo
+#   git: 
+#     repo: "{{ gitlab_clone_repos.dotfiles.base }}"
+#     dest: "{{ user_dir }}/.dotfiles"
+#     version: "{{ gitlab_clone_repos.dotfiles.base_branch | default('main') }}"
+#     track_submodules: true
+#     key_file: "{{ user_dir }}/.ssh/{{ main_user_ssh_key_prefix ~ inventory_hostname_short }}"
+#     accept_hostkey: true
+#   ignore_errors: true
+#   become: false
+
+# - name: checkout to user specified branch in dotfiles-extras repo
+#   git: 
+#     repo: "{{ gitlab_clone_repos.dotfiles.extras }}"
+#     dest: "{{ user_dir }}/.dotfiles/dotfiles-extra"
+#     version: "{{ gitlab_clone_repos.dotfiles.extra_branch }}"
+#     key_file: "{{ user_dir }}/.ssh/{{ main_user_ssh_key_prefix ~ inventory_hostname_short }}"
+#     accept_hostkey: true
+#   ignore_errors: true
+#   become: false
+
+############
+### Stow ###
+############
+
+# - name: Build directories list
+#   ansible.builtin.find:
+#     paths: ["{{ user_dir }}/.dotfiles"]
+#     recurse: no
+#     file_type: directory
+#   register: files_to_stow
+
+# - name: Set conflicting stow files fact
+#   set_fact:
+#     stow_conflicts:
+#       - "{{ user_dir }}/.bashrc"
+#       - "{{ user_dir }}/.gitconfig"
+#       - "{{ user_dir }}/.ssh/config"
+
+# # https://stackoverflow.com/questions/34064083/how-to-check-if-symbolic-link-exists-no-matter-where-its-pointing-to
+# - name: stat stow_conflicts files to see if they exist, and if they are links
+#   stat:
+#     path: "{{ item }}"
+#   register: links.results
+#   with_items: "{{ stow_conflicts }}"
+
+# - name: debug links
+#   debug:
+#     msg: "link exists"
+#   when: links.stat.islnk is defined and links.stat.islnk
+
+# - name: Move conflicting files
+#   copy:
+#     remote_src: True
+#     src: "{{ item }}"
+#     dest: "{{ item }}.old"
+#   with_items: "{{ stow_conflicts }}"
+
+# - name: Remove original files in place of stowed dotfiles
+#   file:
+#     path: "{{ item }}"
+#     state: absent
+#   with_items: "{{ stow_conflicts }}"
+
+# - name: Deploy dotfiles with stow
+#   ansible.builtin.shell: stow {{ item.path | basename }}
+#   environment:
+#     STOW_DIR: "{{ user_dir }}/.dotfiles"
+#   changed_when: false
+#   with_items: '{{ files_to_stow.files }}'
+#   ignore_errors: true

@@ -7,11 +7,11 @@
   hosts: k3s
   become: true
 
-  # Load in our default and vaulted vars
-  vars_files: &vars_files   # Anchors to re-use the code later. No point duplicating code.
+  # Load in our vaulted vars as part of the play (it needs to be done here and not inside the tasks)
+  vars_files: &vars_files
     - vars/vault.yml
 
-  pre_tasks: &pre_tasks   # Anchors to re-use the code later. No point duplicating code.
+  pre_tasks:  &pre_tasks   # Anchors to re-use the code later. No point duplicating code.
     # Allow user to override defaults with their custom config file.
     # include_vars has a higher precedence than vars_files above, so import these files as overrides.
     - name: Include playbook configuration.
@@ -21,21 +21,9 @@
       # Special tag 'always' -> https://docs.ansible.com/ansible/latest/user_guide/playbooks_tags.html#special-tags-always-and-never
       tags: ["always"]
 
-    # Setup some required variables for the rest of the playbook
-    - name: Instantiate user_dir
-      set_fact:
-        user_dir: "{{ lookup('env', 'HOME') }}"
-      tags: ["always"]
-    - name: Instantiate some extra vars from included vars
-      set_fact:
-        # docker_dir: "{{ user_dir }}/docker"
-        git_dir: "{{ user_dir }}/git/personal"
-        # secrets_dir: "{{ user_dir }}/docker/secrets"
-      tags: ["always"]
-
     # This is to get the PUID and PGID variables to use later in multiple areas
     - name: Get user info or create a user if one doesn't exist
-      import_tasks: tasks/linux/check_user.yml
+      import_tasks: tasks/linux/pre_tasks.yml
       tags: ["always"]
 
   # Import handlers for all tasks
@@ -108,13 +96,14 @@
 
     - name: Setup dependencies
       import_tasks: tasks/k3s/dependencies.yml
+      become: true
 
     - name: deploy k8s manifests
       import_role:
         name: geerlingguy.k8s_manifests
-      tags: ['nfs', 'XXXXX']
+      tags: ['nfs', 'k8s_manifests']
 
     - name: Deploy Helm Charts
-      import_tasks: tasks/k3s/helm_charts.yml
-      tags: ["helm_charts"]
+      import_tasks: tasks/k3s/deploy_helm_charts.yml
+      tags: ["deploy_helm_charts"]
       when: ansible_host == hostvars[groups['k3s_main'][0]]['ansible_host'] | default(groups['k3s_main'][0])  # We only want to deploy the chart to the k3sm1 (k3s-main-1) node.

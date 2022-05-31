@@ -9,5 +9,5 @@
 # Grab UID/GID into vars
 - name: set variables UID and GID for user to use in the rest of the playbook
   set_fact:
-    puid: "{{ user_info.uid  | default('1000') }}"
-    pgid: "{{ user_info.group | default('1000') }}"
+    puid: "{{ user_info.uid  | default(ansible_facts['env']['SUDO_UID']) }}"
+    pgid: "{{ user_info.group | default(ansible_facts['env']['SUDO_GID']) }}"

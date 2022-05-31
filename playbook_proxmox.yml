@@ -1,7 +1,6 @@
 ---
 # Todo:
   # Proxmox is installed from scratch on debian boxes (Checkout this role to configure a proxmox cluster on debian -> https://github.com/lae/ansible-role-proxmox)
-  # Appropriate VM's are provisioned (k3s cluster, docker etc... whatever I'm currently running) -> https://www.youtube.com/watch?v=CbkEWcUZ7zM
 
 ### WARNING - Needs testing on a throwaway machine first -> https://github.com/lae/ansible-role-proxmox
 # - name: Setup proxmox cluster on bare metal debian
@@ -15,12 +14,14 @@
 # Configure all proxmox hosts
 - name: Configure Proxmox
   hosts: proxmox
-  # Load in our default and vaulted vars
+
+  # Load in our default and vaulted vars as part of the play (it needs to be done here and not inside the tasks)
   vars_files: &vars_files   # Anchors to re-use the code later. No point duplicating code.
     - vars/vault.yml
 
-  # Allow user to override defaults with their custom config file
   pre_tasks: &pre_tasks   # Anchors to re-use the code later. No point duplicating code.
+    # Allow user to override defaults with their custom config file
+    # include_vars has a higher precedence than vars_files above, so import these files as overrides.
     - name: Include playbook configuration.
       include_vars: "{{ item }}"
       with_fileglob:
@@ -28,17 +29,9 @@
       # Special tag 'always' -> https://docs.ansible.com/ansible/latest/user_guide/playbooks_tags.html#special-tags-always-and-never
       tags: ["always"]
 
-    - name: Instantiate some extra vars from included vars
-      set_fact:
-        user_dir: /home/{{ main_user }}
-        docker_dir: /home/{{ main_user }}/docker
-        git_dir: /home/{{ main_user }}/git/personal
-        secrets_dir: /home/{{ main_user }}/docker/secrets
-      tags: ["always"]
-
     # This is to get the PUID and PGID variables to use later in multiple areas
     - name: Get user info or create a user if one doesn't exist
-      import_tasks: tasks/linux/check_user.yml
+      import_tasks: tasks/linux/pre_tasks.yml
       tags: ["always"]
 
   roles:
@@ -89,27 +82,11 @@
 - name: Provision VM's on Proxmox Host
   hosts: k3s
   gather_facts: false   # Because they don't exist yet
+  become: true
 
   # Load in our default and vaulted vars
   vars_files:
     *vars_files
-
-  # Allow user to override defaults with their custom config file
-  pre_tasks:
-    - name: Include playbook configuration.
-      include_vars: "{{ item }}"
-      with_fileglob:
-        - "{{ playbook_dir }}/vars/config.yml"
-      # Special tag 'always' -> https://docs.ansible.com/ansible/latest/user_guide/playbooks_tags.html#special-tags-always-and-never
-      tags: ["always"]
-
-    - name: Instantiate some extra vars from included vars
-      set_fact:
-        user_dir: /home/{{ main_user }}
-        docker_dir: /home/{{ main_user }}/docker
-        git_dir: /home/{{ main_user }}/git/personal
-        secrets_dir: /home/{{ main_user }}/docker/secrets
-      tags: ["always"]
 
   # Import handlers for all tasks
   handlers:
@@ -118,17 +95,12 @@
   tasks:
     - name: Provision VM's from template
       import_tasks: tasks/proxmox/provision_vms.yml
-      delegate_to: proxmox  # The hosts aren't provisioned yet, so no tasks should run on them. Delegate everything to proxmox but use docker inventory
-
-    - name: Start VM's
-      import_tasks: tasks/proxmox/vm_start.yml
-      delegate_to: proxmox
+      delegate_to: localhost  # The hosts aren't provisioned yet, so no tasks should run on them. Delegate everything to proxmox but use docker inventory. Also no proxmoxer pip installed, this is required.
 
     - name: Run Post Tasks
       import_tasks: tasks/proxmox/vm_post_tasks.yml
-      delegate_to: proxmox
 
-# LXC Containers - not done yet
+# LXC Containers - not done yet - Will deploy workloads such as DB server here
 
 # - name: Download and Configure LXC Containers on Proxmox Host
 #   hosts: proxmox1

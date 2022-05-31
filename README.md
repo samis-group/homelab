@@ -7,14 +7,25 @@
 ![badge-windows-11]
 ![badge-license]
 
-This repository contains all of my playbooks and configurations to install and configure everything in my homelab, from scratch (i.e. from just a few debian boxes, you can spin up an entire proxmox cluster, with docker/kubernetes vm's, all setup and configured, reverse proxy, DNS, the whole lot.. depending on the tech I'm using).
+This repository contains all of my playbooks and configurations to install and configure everything in my homelab, from scratch.
 
-It creates a ubuntu template from the public cloud image, creates my VM's on proxmox and configures all containers. You are able to completely tear this down and rebuild it (this does not install proxmox yet, in the future it will).
+In other words, from just a debian box (cluster to come):
+
+- You can spin up and configure (not yet tested) proxmox
+- Download and build an ubuntu template from the Ubuntu public cloud image
+- Clones the template to a docker vm and deploys my entire docker stack all setup and configured (There is even a make target to restore the data from backups)
+  - There's currently a kubernetes migration taking place - I've automated + built the vm's and HA k3s stack.
+  - I've started migrating to helm charts. I have 2 up, but I need to figure out how to architect deployments + services + ip allocation from my docker-compose stack. It's all TBD right now.
+- Sets up reverse proxy
+- Cloudflare DNS
+- Heaps of other stuff
+
+You are able to completely tear this down and rebuild it (this does not install proxmox yet, as that has not been tested yet. In the future it will).
 
 This repo can even setup my windows/linux desktop PC's.
 
-> ❗ **This playbook was tested on Ubuntu 20.04. Other versions may work but have not been tested.**
-> ❗ **DNS is managed manually for the docker containers, but any VM's will have DNS created for them. There are no current plans for me to automate creating container records, i know there is a container that will do this for you..**
+> ❗ **This playbook was tested on Ubuntu 22.04 and 20.04. Other versions may work but have not been tested.**
+> ❗ **DNS is managed manually for the docker containers, but any VM's will have DNS created for them. There are no current plans for me to automate creating container records, i know there is a container that will do this for you but I haven't looked into it. Soz..**
 
 ## Contents
 
@@ -64,16 +75,17 @@ It's literally as easy as that.
 
 > **NOTE:** The Playbook is fully configurable. You can skip or reconfigure any task by [Overriding Defaults](#overriding-defaults).
 
-- Most common actions can be performed by issuing the associated `make` command. Go to the [Makefile](Makefile) to see what it can do.
-  - Most of these make commands that run plays where you need verbose output (-vvv), simply append `-v` to the make target and it will run it verbosely, e.g. `make update-compose-v`
+- Most common actions can be performed by issuing the associated `make` command. Go to the [Makefile](Makefile) and associated [makefiles](makefiles/) to see what it can do.
+  - Most of these make commands that run plays where you need verbose output (-vvv), simply pass the ` -v` argument to the make target and it will run it verbosely, e.g. `make k3s ' -v'`.
+    - **yes with the leading space, because there's no way that I've been able to figure out, how to pass '-v' to make without it thinking it's for Make.. Probably use stdin? needs testing..**
 
 ## Setup the Ansible Control Node (where you will run the playbook from)
 
-*Pre note for me*: run the alias `ssa` first ;)
+*Pre-note for me*: run the alias `ssa` first ;)
 
 1. Clone this repo locally (change to https method and don't recurse submodules if you aren't me): `git clone --recurse-submodules git@gitlab.com:sami-group/homelab.git`. **NOTE**: My Host inventories are managed in a private submodule.
 
-2. Run the following command substituting your ansible vault password as required (skip inputting the password argument if you don't use ansible-vault or you have already stored this password). This will [install ansible](https://docs.ansible.com/ansible/latest/installation_guide/index.html), upgrade pip and store your password inside of the file located in `~/.ansible/password` for use with `ansible-vault`:
+2. Run the following command substituting your ansible vault password as required (skip inputting the password argument if you don't use ansible-vault or you have already stored this password). This will [install ansible and collection/role requirements](https://docs.ansible.com/ansible/latest/installation_guide/index.html), upgrade pip and install requirements, store your password inside of the file located in `~/.ansible/password` for use with `ansible-vault` and deploy a githook to ensure you don't accidentally commit your vaulted files:
 
 ```bash
 # Use single quotes only!
@@ -84,7 +96,7 @@ make setup
 | :exclamation:  IMPORTANT!  |
 |----------------------------|
 
-There is a ***very small*** chance that your password will not have exported into the file correctly as `make` and `bash` don't handle special characters well, as much as I tried to make it. It will be fine if you have a normal password with no successive backslashes like '\\\\' for example. The script will warn you if it failed and will tell you to use [this python script instead](./bin/parse_pass.py):
+There is a ***very small*** chance that your password will not have exported into the file correctly as `make` and `bash` don't handle special characters well, as much as I tried to make it. It will be fine if you have a normal password with no successive backslashes like '\\\\' for example. The script will warn you if it failed and will tell you to use [this python script I built instead](./bin/parse_pass.py):
 
 ```bash
 ./bin/parse_pass.py 'super_secret_password'
@@ -120,6 +132,8 @@ cp host_vars_example host_vars
 
 **Automation is TBD Mostly... Manual steps below after you install proxmox on the bare metal host.**
 
+*This should now be part of the automation, but since I can't test it (as i need a new server), leaving here*.
+
 Install dependencies required on the **proxmox host** (if required - i.e. first time):
 
 ```bash
@@ -129,15 +143,15 @@ apt install python3-pip && pip3 install proxmoxer requests
 
 ### Deploy SSH key and test
 
-**TBA** deploy key
+**TBA** deploy key, you should use `ssh-keygen` and `ssh-copy-id` if you have no SSH keys. [Google can help here](https://www.google.com). I have my own.
 
-Now let's test to ensure connectivity (specify the inventory file if not running in the same dir as it with the `-i` flag):
+Now let's test to ensure connectivity. Specify the inventory file with the `-i` flag, if you are not running in the same directory as it, otherwise it's just:
 
 ```bash
 ansible --vault-password-file ~/.ansible/password docker -m ping
 ```
 
-Ensure that your inventory file is correctly setup (**Hint**: You can run `make decrypt` to decrypt your vaulted files:
+Ensure that your inventory file is correctly setup (**Hint**: You can run `make decrypt` to decrypt your vaulted files):
 
 ```bash
 ansible-vault edit --vault-password-file ~/.ansible/password inventory
@@ -145,7 +159,7 @@ ansible-vault edit --vault-password-file ~/.ansible/password inventory
 
 ### Troubleshooting Host Setup
 
-**TBA**.
+**TBA**. Sorry been lazy documenting this, it should go smoothly, it's IaC + automation for a reason, right? I've already gone through the troubleshooting, it should just work, considering it starts and ends with stuff built by the community (apart from my own wrapper scripts), it's just ansible mainly. I've tried every where I could to reduce the amount of shell/command modules used, for compatibility and future support, no guarantees though.
 
 ## Running the Playbook
 
@@ -170,6 +184,8 @@ You can also filter which part of the provisioning process to run by specifying 
 ```bash
 make run-tags logrotate,install_docker
 ```
+
+Have a read through the playbooks to see which task you want to perform, and if it exists (There are tasks I just always want running).
 
 *Alternatively*, the long hand way:
 
@@ -207,11 +223,13 @@ Check the following files for these configurable items:
 
 ## Common makes with examples
 
-> Restore docker container data to docker2 VM.
+> Restore docker container data from the NFS mount on docker2 (once configured) to docker2 VM's appdata.
 > WARNING - This will potentially overwrite the current data
 
 ```bash
 make docker-restore-containers docker2
+# Then bring the stack up with - You won't have this if you aren't me.
+dcup all
 ```
 
 ## Things to note

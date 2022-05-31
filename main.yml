@@ -11,6 +11,10 @@
 - name: Docker Playbook
   import_playbook: playbook_docker.yml
 
+# Configure Windows
+- name: Windows Playbook
+  import_playbook: playbook_windows.yml
+
 # Run this on all linux machines
 - name: All Linux Playbook
   import_playbook: playbook_all_linux.yml
@@ -18,7 +22,3 @@
 # Configure WSL
 - name: WSL Playbook
   import_playbook: playbook_wsl.yml
-
-# Configure Windows
-- name: Windows Playbook
-  import_playbook: playbook_windows.yml

@@ -1,11 +1,5 @@
 ---
-pve:  # I override these defaults, do the same
-  proxmox_node: pve
-  proxmox_api_user: root@pam
-  proxmox_api_pass: XXXXXXXXX
-
 template_vm_ubuntu:
-  id: 8000  # Iterate this to create a new template
   version_number: 22.04
   cpu_arch: amd64
   release: current
@@ -23,16 +17,6 @@ template_defaults:
   ip_address: "{{ vm_network | default('10.10.0.') }}200"
   netmask: "{{ vm_netmask | default('24') }}" # network mask ## NOT VM VAR
   gateway: "{{ vm_gateway | default('10.10.0.1') }}" # gateway ### NOT VM var
-  cores: "2"
-  memory: "2048" # ram for each VM in MB
-  scsihw: virtio-scsi-pci   # Not tested changing this
-  # vga: serial0    # If defined, this will be set
-  # serial: socket  # If defined, this will be set
-  boot_order: "c"
-  boot_disk: "scsi0"
-  storage: "local-lvm" # proxmox storage for VMs and cloudinit disk. Please ensure this matches the `pve_kvm_ide` in all.yml and in host vm definitions. https://docs.ansible.com/ansible/latest/collections/community/general/proxmox_kvm_module.html#parameter-storage
-  network_device: 'virtio,bridge=vmbr0' # https://docs.ansible.com/ansible/latest/collections/community/general/proxmox_kvm_module.html#parameter-net
-  agent: true
 
 # Some of these variables need to be placed in a separate namespaces than the template_defaults above because they reference vars from there.
 template_ipconfig:
@@ -40,5 +24,4 @@ template_ipconfig:
 ubuntu_img_template_url: https://cloud-images.ubuntu.com/releases/{{ template_vm_ubuntu.version_number }}/release/ubuntu-{{ template_vm_ubuntu.version_number }}-server-cloudimg-{{ template_vm_ubuntu.cpu_arch }}.img
 template_scsi0_device: "{{ template_defaults.storage }}:vm-{{ template_vm_ubuntu.id }}-disk-0"
 img_dir: "/tmp/cloud_images"
-proxmox_ip: 10.10.0.10    # Set this yourself - I overwrite this in group_vars/all.yml. Setting here as default nonetheless
 force_template_rebuild: false   # This will delete the current template and build a new one

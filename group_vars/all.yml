@@ -1,10 +1,17 @@
 ---
+# Overwrite template role default mapping here because it's specified above
+# Have to do the whole mapping because it won't work otherwise
+template_vm_ubuntu:
+  id: 8000  # Iterate this to create a new template
+  version_number: 22.04
+  cpu_arch: amd64
+  release: current
+
 # Default VM configs - Each VM has it's overrides specified in it's own host_vars/hostname config file inside the 'vm' mapping
-template_vm_id: 8000
 vm_defaults:
   update: true  # Allow vm to update hardware below after full clone
   distro: ubuntu
-  template: "UbuntuCloud-{{ default_ubuntu_version_name }}"   # VM or template to clone - Default to currently used ubuntu template name
+  template: "UbuntuCloud-{{ template_vm_ubuntu.version_number }}"   # VM or template to clone - Default to currently used ubuntu template name
   user: "{{ main_user }}" # Change this if this isn't set outside the role.
   password: "{{ ansible_become_password }}"
   ssh_key: "ssh-rsa AAAAB3NzaC1yc2EAAAABJQAAAQEAiwG7uO5R8EzOLvoQEBc9TGyBMMEYlQf7NfwF3JH687WElHLc7bY1HTZ+VcEt+l7kvJfISAeJHdthpCT46ecPirLvz5oIOI1meXRPYXg5fKSJ+itAsfSupjg2/kRUHzI+NJjJap+KU21zEUxCqbTreJ3kSV58F/947uRDyMa0Ofammkx7LY8Kohsr99NtVsHXI71gSTngw/cIe5OR0F1qfxpsBwWw8daN+SYLe0tEtOHVZvGDVDbJhv1GW9PjQxSjx/8QEdi7FMT4ahwHxEcyG5+NhUg+DAo1RKoPYPAM5wwk9O7w+Y31EBP5wYc3FSiOPObcmIoBWxnUrZuD74dtaQ== Sami-id_rsa_personal"
@@ -25,10 +32,7 @@ vm_defaults:
   cloudinit_drive: ide2   # After successful creation and bootstrapping, we want to remove the cloud init drive, it gets created as this, change it here if it changes in proxmox.
   ipconfig:
     ipconfig0: "ip={{ vm_network }}200/{{ vm_netmask }},gw={{ vm_gateway }}"  # default ip address is X.X.X.200
-
-# Overwrite template role default mapping here because it's specified above
-# Have to do the whole mapping because it won't work otherwise
-default_ubuntu_version_name: jammy
+  agent: true   # Enable QEMU guest agent
 
 ssh:                            # SSH key to connect to docker vm
   key_prefix: id_rsa_
@@ -51,6 +55,7 @@ test_task: false    # Do not change this. If you want to run the test task, use 
 install_docker: true
 provision_k3s_vms: true
 provision_docker_vms: false
+git: true   # Docker and WSL
 
 # Others
 name_servers: '1.1.1.1,1.0.0.1'
@@ -94,3 +99,8 @@ nas:
     family_pictures:
       local_mapping: "{{ user_dir }}/mount/photos/family"
       remote_mapping: "/volume1/Photos"
+
+user_dir: /home/{{ main_user }}
+docker_dir: /home/{{ main_user }}/docker
+git_dir: /home/{{ main_user }}/git/personal
+secrets_dir: /home/{{ main_user }}/docker/secrets

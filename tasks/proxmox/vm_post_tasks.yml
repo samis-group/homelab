@@ -5,15 +5,50 @@
   shell:
     cmd: "qm set {{ vm.id }} --delete {{ vm.cloudinit_drive | default(vm_defaults.cloudinit_drive) }}"
   when: cloned_vm.changed
+  delegate_to: proxmox
 
-- name: Restart VM's
-  community.general.proxmox_kvm:
+- name: Apt Upgrade
+  apt:
+    name: '*'
+    state: latest
+    update_cache: true
+  when: cloned_vm.changed
+
+# Installing the qemu agent on the template because we cannot issue commands to the OS if the vm defines agent: true, so let's just bake the package in.
+- name: Install qemu-guest-agent
+  apt:
+    state: present
+    pkg:
+      - qemu-guest-agent
+  when: cloned_vm.changed
+
+- name: Update VM agent option to enable qemu-guest-agent
+  proxmox_kvm:
+    update: true
+    node: "{{ pve.proxmox_node }}"
+    api_user: "{{ pve.proxmox_api_user }}"
+    api_password: "{{ pve.proxmox_api_pass }}"
+    api_host: "{{ proxmox_ip }}"
+    name: "{{ vm.name | default(inventory_hostname_short) }}"
+    vmid: "{{ vm.id | default(omit) }}"
+    timeout: "{{ vm_defaults.timeout | default(omit) }}"
+    # proxmox_default_behavior: "{{ vm_defaults.default_behavior | default('compatibility') }}"
+    agent: "{%- if (vm.agent is defined) -%}{{ vm.agent }}
+            {%- elif (vm_defaults.agent is defined) -%}{{ vm_defaults.agent }}
+            {%- else -%}{{ omit }}
+            {%- endif -%}"
+  delegate_to: proxmox
+  when: cloned_vm.changed
+
+- name: Reboot VMs
+  proxmox_kvm:
     node: "{{ pve.proxmox_node }}"
     api_user: "{{ pve.proxmox_api_user }}"
     api_password: "{{ pve.proxmox_api_pass }}"
     api_host: "{{ proxmox_ip }}"
     name: "{{ vm.name | default(inventory_hostname_short) }}"
     state: restarted
+  delegate_to: proxmox
   when: cloned_vm.changed
 
 - name: Wait until vm(s) comes back online
@@ -22,3 +57,4 @@
     host: "{{ vm_ip_address }}"
     search_regex: OpenSSH
   delegate_to: localhost
+  when: cloned_vm.changed

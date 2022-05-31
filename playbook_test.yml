@@ -1,8 +1,7 @@
 ---
 - name: Test Playbook
-  hosts: docker
-  # hosts: docker
-  # Load in our default and vaulted vars
+
+  # Load in our default and vaulted vars as part of the play (it needs to be done here and not inside the tasks)
   vars_files:
     - vars/vault.yml
 
@@ -16,18 +15,9 @@
       # Special tag 'always' -> https://docs.ansible.com/ansible/latest/user_guide/playbooks_tags.html#special-tags-always-and-never
       tags: ["always"]
 
-    # Setup some required variables for the rest of the playbook
-    - name: Instantiate some extra vars from included vars
-      set_fact:
-        user_dir: /home/{{ main_user }}
-        docker_dir: /home/{{ main_user }}/docker
-        git_dir: /home/{{ main_user }}/git/personal
-        secrets_dir: /home/{{ main_user }}/docker/secrets
-      tags: ["always"]
-
     # This is to get the PUID and PGID variables to use later in multiple areas
     - name: Get user info or create a user if one doesn't exist
-      import_tasks: tasks/linux/check_user.yml
+      import_tasks: tasks/linux/pre_tasks.yml
       tags: ["always"]
 
   # Import handlers for all tasks
@@ -39,13 +29,16 @@
 ### Start here ###
 ##################
 
+  hosts: docker
+  become: true
+
   # roles:
   #   - create-proxmox-template-from-ubuntu-cloud-image
 
   tasks:
-    - name: Gather all facts of cloud init
-      community.general.cloud_init_data_facts:
-      register: ci_result
+    - name: Print all available facts
+      ansible.builtin.debug:
+        var: ansible_facts
 
-    - ansible.builtin.debug:
-        var: ci_result
+    # - name: Comment every item in /etc/environment file out - it keeps breaking windows paths in WSL, and I need those
+    #   import_tasks: tasks/wsl/configure_wsl.yml

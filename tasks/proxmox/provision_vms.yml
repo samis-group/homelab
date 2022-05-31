@@ -48,7 +48,11 @@
     balloon: "{{ vm.balloon | default(omit) }}"
     vga: "{{ vm.vga | default(omit) }}"
     acpi: "{{ vm.acpi | default(omit) }}"
-    agent: "{{ vm.agent | default(omit) }}"
+    # Can't perform OS operations unless qemu-guest-agent is installed, so leave this off until VM is bootstrapped and do it afterwards
+    # agent: "{%- if (vm.agent is defined) -%}{{ vm.agent }}
+    #         {%- elif (vm_defaults.agent is defined) -%}{{ vm_defaults.agent }}
+    #         {%- else -%}{{ omit }}
+    #         {%- endif -%}"
     args: "{{ vm.args | default(omit) }}"
     autostart: "{{ vm.autostart | default(omit) }}"
     bios: "{{ vm.bios | default(omit) }}"
@@ -102,3 +106,35 @@
   shell:
     cmd: "qm resize {{ vm.id }} {{ vm.boot_disk | default(vm_defaults.boot_disk) }} {{ vm.hdd_size | default(vm_defaults.hdd_size) }}"
   when: cloned_vm.changed
+  delegate_to: proxmox
+
+- name: 'Start VM'
+  proxmox_kvm:
+    node: "{{ pve.proxmox_node }}"
+    api_user: "{{ pve.proxmox_api_user }}"
+    api_password: "{{ pve.proxmox_api_pass }}"
+    api_host: "{{ proxmox_ip }}"
+    name: "{{ vm.name | default(inventory_hostname_short) }}"
+    state: started
+  when: cloned_vm.changed
+
+- name: Wait until VM's are started
+  wait_for:
+    port: 22
+    host: "{{ vm_ip_address }}"
+    search_regex: OpenSSH
+    # Cloud-init bootstraps by apt updating, and doing other bits and Openssh generally comes up before it finishes.
+    # we need to give cloud-init time to populate facts to ansible, otherwise it exists early, hence 60s wait before cloud-init check below.
+    delay: 60
+  delegate_to: localhost
+  when: cloned_vm.changed
+
+- name: Wait for cloud init to finish
+  community.general.cloud_init_data_facts:
+    filter: status
+  when: cloned_vm.changed
+  register: res
+  delegate_to: "{{ vm_ip_address | default(inventory_hostname) }}"
+  until: "res.cloud_init_data_facts.status.v1.stage is defined and not res.cloud_init_data_facts.status.v1.stage"
+  retries: 100
+  delay: 5

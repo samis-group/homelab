@@ -17,7 +17,10 @@
     # - telegraf
   # notify: restart pvestatd
 
-- name: Install proxmoxer pip module on proxmox hosts
+- name: Install required pip modules on proxmox host(s)
   pip:
-    name: proxmoxer
+    name: "{{ item }}"
     state: present
+  with_items:
+    - proxmoxer
+    - requests

@@ -14,7 +14,7 @@ $(eval $(runargs):;@true)
 
 # Run the playbook (Assumes `make setup` has already been run, If not, go do that first).
 # Note: Vault password file directive is now specified in 'ansible.cfg'.
-execute: proxmox k3s	# Update these targets based on your deployment needs, this is my current stack
+execute: proxmox k3s wsl windows	# Update these targets based on your deployment needs, this is my current stack
 
 # Verbose option
 execute-v:

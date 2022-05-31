@@ -1,7 +1,13 @@
 ---
-- name: ensure docker and ssh start on boot (might need work)
+- name: ensure docker and ssh start on boot
   blockinfile:
     path: "{{ user_dir }}/.profile"
     block: |
       wsl.exe -u root -e sh -c "service docker status || service docker start"
       wsl.exe -u root -e sh -c "service ssh status || service ssh start"
+
+- name: Comment every item in /etc/environment file out - it keeps breaking windows paths in WSL, and I need those
+  replace:
+    path: /etc/environment
+    regexp: '^([^#].*)$'  # In order to backreference to group \1 below, the regex needs to be inside a capture group i.e. circle brackets: ()
+    replace: '# \1'

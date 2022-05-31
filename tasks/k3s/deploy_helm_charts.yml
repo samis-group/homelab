@@ -1,0 +1,23 @@
+---
+# https://docs.ansible.com/ansible/latest/collections/kubernetes/core/helm_module.html
+- name: Install helm repositories
+  kubernetes.core.helm_repository:
+    name: "{{ item.name }}"
+    repo_url: "{{ item.url }}"
+  with_items:
+    - name: bitnami
+      url: https://charts.bitnami.com/bitnami
+    - name: k8s-at-home
+      url: https://k8s-at-home.com/charts/
+    - name: grafana
+      url: https://grafana.github.io/helm-charts
+
+### These charts install, but need to figure out how to architect it all.. ###
+- name: Install Helm Charts
+  kubernetes.core.helm:
+    name: "{{ item.name }}"
+    release_namespace: "{{ item.release_namespace }}"    # Will be web/monitoring etc later.
+    chart_ref: "{{ item.chart_ref }}"
+    # create_namespace: true
+    values: "{{ item.release_values | default(omit) }}"
+  with_items: "{{ helm_charts }}"
