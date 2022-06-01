@@ -3,8 +3,16 @@
 import sys
 import os
 
-# in case there are spaces, no quotes or whatever they do
-password = ''.join(sys.argv[1::])
+env_pass = os.environ.get('VAULT_PASS')
+
+if env_pass is not None:
+  password = env_pass
+elif len(sys.argv) > 1:
+  # in case there are spaces, no quotes or whatever the user does
+  password = ''.join(sys.argv[1::])
+else:
+  sys.exit('No password defined in env or passed as arg.')
+
 folderpath = f'{os.getcwd()}/'
 filename = '.vault-password'
 filepath = folderpath + filename

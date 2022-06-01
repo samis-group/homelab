@@ -1,0 +1,9 @@
+# Exclude the following from the dockerfile
+docs
+host_vars_example
+.git*
+.vault-password
+.yamllint.yml
+Dockerfile
+LICENSE
+README.md

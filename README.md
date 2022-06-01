@@ -33,6 +33,7 @@ This repo can even setup my windows/linux desktop PC's.
   - [Contents](#contents)
   - [TL;DR](#tldr)
   - [Playbook capabilities](#playbook-capabilities)
+    - [Build Repo Inside a Docker Container](#build-repo-inside-a-docker-container)
   - [Setup the Ansible Control Node (where you will run the playbook from)](#setup-the-ansible-control-node-where-you-will-run-the-playbook-from)
   - [Setup Proxmox Host](#setup-proxmox-host)
     - [Deploy SSH key and test](#deploy-ssh-key-and-test)
@@ -72,6 +73,21 @@ make k3s
 It's literally as easy as that.
 
 ## Playbook capabilities
+
+### Build Repo Inside a Docker Container
+
+:exclamation: **Needs work!**
+
+Yeah, you can now build this repo inside a docker container and deploy it from there, so it doesn't mess with your environment. I love ephemeral workspaces:
+
+```bash
+# Ensure you pass your ansible vault password into the container at build time. Use single quotes only!
+export VAULT_PASS='super_secret_password'
+# Build the image locally
+make build-docker
+# Run it, mounting your ssh dir (tbd as I plan to make it bootstrap setup and even entrypoints for make targets)
+docker run -v "/home/user/.ssh:/root/.ssh" --rm -it homelab_ansible
+```
 
 > **NOTE:** The Playbook is fully configurable. You can skip or reconfigure any task by [Overriding Defaults](#overriding-defaults).
 

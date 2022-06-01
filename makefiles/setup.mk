@@ -5,12 +5,12 @@ setup: apt pip reqs store-password githook
 
 # Ensure python and pip (assumes ubuntu host)
 apt:
-	@sudo apt install python3-pip
+	@$(DO_SUDO) apt install python3-pip
 
 # Install python module requirements via requirements.txt file
 pip:
-	@sudo pip3 install --upgrade pip
-	@sudo pip3 install --ignore-installed -r requirements.txt
+	@$(DO_SUDO) pip3 install --upgrade pip
+	@$(DO_SUDO) pip3 install --ignore-installed -r requirements.txt
 
 # install requirements.yml file
 reqs:

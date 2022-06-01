@@ -3,6 +3,13 @@
 # Default make target specified here
 .DEFAULT_GOAL := execute
 
+# Check if running as root, omit `sudo` from make targets if that is the case.
+ifneq ($(shell id -u), 0)
+    DO_SUDO = 'sudo'
+else
+    DO_SUDO = ''
+endif
+
 # This grabs the passed arguments and stores them in make variable `runargs`
 # So we can use them in any make target (even includes)
 runargs := $(wordlist 2, $(words $(MAKECMDGOALS)), $(MAKECMDGOALS))
@@ -28,6 +35,19 @@ everything:
 
 from-scratch:
 	@ansible-playbook -i inventory/hosts.ini main.yml $(runargs)
+
+build-docker:
+	@if [ ! -z $${VAULT_PASS} ]; then\
+		docker build --no-cache -t homelab-ansible --build-arg VAULT_PASS=$${VAULT_PASS} .;\
+	fi
+
+build-docker-cache:
+	@if [ ! -z $${VAULT_PASS} ]; then\
+		docker build -t homelab-ansible --build-arg VAULT_PASS=$${VAULT_PASS} .;\
+	fi
+
+build-docker-shell:
+	@docker run --rm -it -v "~/.ssh:/root/.ssh" homelab-ansible
 
 ##############
 # Test Tasks #

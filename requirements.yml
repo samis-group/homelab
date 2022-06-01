@@ -5,4 +5,15 @@ collections:
   - name: kubernetes.core
   - name: community.windows
 
+# # Ansible galaxy is slow and at times, can timeout. You can use git repos directly:
+# collections:
+#   - name: https://github.com/ansible-collections/community.general
+#     type: git
+#   - name: https://github.com/chocolatey/chocolatey-ansible
+#     type: git
+#   - name: https://github.com/ansible-collections/kubernetes.core
+#     type: git
+#   - name: https://github.com/ansible-collections/community.windows
+#     type: git
+
   # - name: pfsensible.core   # Unused - https://github.com/opoplawski/ansible-pfsense
