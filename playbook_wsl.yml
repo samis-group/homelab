@@ -7,13 +7,8 @@
   hosts: wsl
   become: true
 
-  # Load in our vaulted vars as part of the play (it needs to be done here and not inside the tasks)
-  vars_files:
-    - vars/vault.yml
-
   pre_tasks:
-    # Allow user to override defaults with their custom config file.
-    # include_vars has a higher precedence than vars_files above, so import these files as overrides.
+
     - name: Include playbook configuration.
       include_vars: "{{ item }}"
       with_fileglob:
@@ -26,15 +21,12 @@
       import_tasks: tasks/linux/pre_tasks.yml
       tags: ["always"]
 
-  # Import handlers for all tasks
-  # handlers:
-  #   - import_tasks: handlers/main.yml
-
   roles:
+
     - andrewrothstein.kubectl
     - geerlingguy.helm
-    # - geerlingguy.docker  # Use docker desktop WSL integration instead.
-    # - geerlingguy.ntp   # geerlingguy roles don't work in WSL.
+    # - geerlingguy.docker  # geerlingguy roles don't work in WSL - Use docker desktop WSL integration instead.
+    # - geerlingguy.ntp     # geerlingguy roles don't work in WSL.
 
   tasks:
 

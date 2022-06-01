@@ -7,13 +7,8 @@
   hosts: k3s
   become: true
 
-  # Load in our vaulted vars as part of the play (it needs to be done here and not inside the tasks)
-  vars_files: &vars_files
-    - vars/vault.yml
-
   pre_tasks:  &pre_tasks   # Anchors to re-use the code later. No point duplicating code.
-    # Allow user to override defaults with their custom config file.
-    # include_vars has a higher precedence than vars_files above, so import these files as overrides.
+
     - name: Include playbook configuration.
       include_vars: "{{ item }}"
       with_fileglob:
@@ -26,11 +21,12 @@
       import_tasks: tasks/linux/pre_tasks.yml
       tags: ["always"]
 
-  # Import handlers for all tasks
   handlers:
+
     - import_tasks: handlers/k3s.yml
 
   roles:
+
     - role: k3s/prereq
     - role: k3s/download
     - role: k3s/raspberrypi
@@ -39,13 +35,10 @@
   hosts: k3s_main
   become: yes
 
-  vars_files:
-    *vars_files
-
-  pre_tasks:
-    *pre_tasks
+  pre_tasks: *pre_tasks
 
   roles:
+
     - role: k3s/master
     - geerlingguy.helm  # Install helm on k3sm nodes to deploy charts in ansible
 
@@ -53,30 +46,25 @@
   hosts: k3s_node
   become: yes
 
-  vars_files:
-    *vars_files
-
-  pre_tasks:
-    *pre_tasks
+  pre_tasks: *pre_tasks
 
   roles:
+
     - role: k3s/node
 
-- name: Install/configure Helm/kubectl on controle node (i.e. the host you are running this playbook on, soz <3)
+- name: Install/configure Helm/kubectl on control node (i.e. the host you are running this playbook on, soz <3)
   hosts: wsl  # Run on wsl as that is what I use
   become: yes
 
-  vars_files:
-    *vars_files
-
-  pre_tasks:
-    *pre_tasks
+  pre_tasks: *pre_tasks
 
   roles:
+
     - andrewrothstein.kubectl
     - geerlingguy.helm
 
   tasks:
+
     - name: Copy kube config
       import_tasks: tasks/k3s/kubectl_helm_config.yml
 
@@ -84,13 +72,10 @@
   hosts: k3sm1
   become: false
 
-  vars_files:
-    *vars_files
-
-  pre_tasks:
-    *pre_tasks
+  pre_tasks: *pre_tasks
 
   tasks:
+
     - name: Setup aliases and functions in bash environment
       import_tasks: tasks/k3s/bashrc.yml
 

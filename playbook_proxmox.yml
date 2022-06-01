@@ -1,31 +1,24 @@
 ---
-# Todo:
-  # Proxmox is installed from scratch on debian boxes (Checkout this role to configure a proxmox cluster on debian -> https://github.com/lae/ansible-role-proxmox)
-
 ### WARNING - Needs testing on a throwaway machine first -> https://github.com/lae/ansible-role-proxmox
-# - name: Setup proxmox cluster on bare metal debian
+# - name: Setup proxmox on bare metal debian machine
 #   hosts: proxmox_nodes
 #   become: True
+
 #   roles:
+
 #     - role: lae.proxmox
 #         - pve_group: all
 #         - pve_reboot_on_kernel_update: true
 
-# Configure all proxmox hosts
 - name: Configure Proxmox
   hosts: proxmox
 
-  # Load in our default and vaulted vars as part of the play (it needs to be done here and not inside the tasks)
-  vars_files: &vars_files   # Anchors to re-use the code later. No point duplicating code.
-    - vars/vault.yml
-
   pre_tasks: &pre_tasks   # Anchors to re-use the code later. No point duplicating code.
-    # Allow user to override defaults with their custom config file
-    # include_vars has a higher precedence than vars_files above, so import these files as overrides.
+
     - name: Include playbook configuration.
       include_vars: "{{ item }}"
       with_fileglob:
-        - "{{ playbook_dir }}/vars/config.yml"
+        - "{{ playbook_dir }}/vars/config.yml"  # fileglob needs full path maybe?
       # Special tag 'always' -> https://docs.ansible.com/ansible/latest/user_guide/playbooks_tags.html#special-tags-always-and-never
       tags: ["always"]
 
@@ -35,13 +28,15 @@
       tags: ["always"]
 
   roles:
+
     - ironicbadger.proxmox_nag_removal
 
-  # Import handlers for all tasks
   handlers:
+
     - import_tasks: handlers/proxmox.yml
 
   tasks:
+
     - name: Ensure proxmox host is up, if not, send a Wake-on-LAN packet
       import_tasks: tasks/proxmox/host_start.yml
       tags: ["host_start"]
@@ -59,19 +54,14 @@
 - name: Download and configure base ubuntu template from cloud image
   hosts: proxmox1
 
-  # Load in our default and vaulted vars
-  vars_files:
-    *vars_files
+  pre_tasks: *pre_tasks
 
-  # Allow user to override defaults with their custom config file
-  pre_tasks:
-    *pre_tasks
-
-  # Import handlers for all tasks
   handlers:
+
     - import_tasks: handlers/proxmox.yml
 
   tasks:
+
     - name: Create Ubuntu VM Template from cloud image
       import_role:
         name: proxmox-template-from-ubuntu-cloud-image
@@ -80,19 +70,16 @@
 
 # Run this play with the docker host inventory, (load vm definition vars defined in each host_vars/host item), but delegate the tasks to proxmox
 - name: Provision VM's on Proxmox Host
-  hosts: k3s
+  hosts: docker
   gather_facts: false   # Because they don't exist yet
   become: true
 
-  # Load in our default and vaulted vars
-  vars_files:
-    *vars_files
-
-  # Import handlers for all tasks
   handlers:
+
     - import_tasks: handlers/proxmox.yml
 
   tasks:
+
     - name: Provision VM's from template
       import_tasks: tasks/proxmox/provision_vms.yml
       delegate_to: localhost  # The hosts aren't provisioned yet, so no tasks should run on them. Delegate everything to proxmox but use docker inventory. Also no proxmoxer pip installed, this is required.
@@ -105,17 +92,8 @@
 # - name: Download and Configure LXC Containers on Proxmox Host
 #   hosts: proxmox1
 
-#   # Load in our default and vaulted vars
-#   vars_files:
-#     *vars_files
-
-#   # Allow user to override defaults with their custom config file
-#   pre_tasks:
-#     *pre_tasks
-
-#   # Import handlers for all tasks
-#   handlers:
-#     - import_tasks: handlers/proxmox.yml
+#   pre_tasks: *pre_tasks
 
 #   roles:
+
 #     - udelarinterior.proxmox_create_lxc

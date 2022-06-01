@@ -9,27 +9,23 @@
   become_method: runas
   become_user: "{{ main_user }}"
 
-  # Load in our default and vaulted vars as part of the play (it needs to be done here and not inside the tasks)
-  vars_files:
-    - vars/vault.yml
-
   pre_tasks:
-    # Allow user to override defaults with their custom config file.
-    # include_vars has a higher precedence than vars_files above, so import these files as overrides.
+
     - name: Include playbook configuration.
       include_vars: "{{ item }}"
       with_fileglob:
         - "{{ playbook_dir }}/vars/config.yml"
       tags: ["always"]
 
-  # Import handlers for all tasks
   handlers:
+
     - name: restart telegraf
       win_service:
         name: telegraf
         state: restarted
 
   roles:
+
     - role: wsl/from-cloud-image
       when: download_wsl_instance
       tags: ["download_wsl_instance"]

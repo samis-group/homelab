@@ -4,17 +4,17 @@
 # Even though I've got the git commit hook in place, when the repo name changes for example, and repo is cloned fresh, this poses a problem when forgetting to run `make setup` first and deploying the hook.
 # This approach is just far safer than decrypting and encrypting the files themselves below.
 edit-vault:
-	ansible-vault edit vars/vault.yml
+	ansible-vault edit group_vars/all/vault
 edit-inventory:
 	ansible-vault edit inventory/hosts.ini
 
 # Decrypt all files in this repo
 decrypt:
-	ansible-vault decrypt vars/vault.yml inventory/hosts.ini
+	ansible-vault decrypt group_vars/all/vault inventory/hosts.ini
 
 # Encrypt all files in this repo
 encrypt:
-	ansible-vault encrypt vars/vault.yml inventory/hosts.ini
+	ansible-vault encrypt group_vars/all/vault inventory/hosts.ini
 
 # List variables
 ifeq (list-vars, $(firstword $(MAKECMDGOALS)))
@@ -22,7 +22,7 @@ ifeq (list-vars, $(firstword $(MAKECMDGOALS)))
   $(eval $(extrafiles):;@true)
 endif
 list-vars:
-	@./bin/vars_list.py group_vars/all.yml vars/default_config.yml vars/config.yml vars/vault.yml $(extrafiles)
+	@./bin/vars_list.py vars/config.yml group_vars/all/vault $(extrafiles)
 
 # List the available tags that you can run standalone from the playbook
 list-tags:

@@ -108,11 +108,7 @@ There is a ***very small*** chance that your password will not have exported int
 cp inventory/hosts.ini.example inventory/hosts.ini
 ```
 
-4. Do the same with the [vault](vars/vault.yml) (overwrite mine).
-
-```bash
-cp vars/vault.yml.example vars/vault.yml
-```
+4. overwrite [my own vaulted variables](group_vars/all/vars) with your vaulted items.
 
 :information_source: **If you want to encrypt/decrypt your files, just issue these commands**:
 
@@ -216,10 +212,8 @@ make list-vars
 
 Check the following files for these configurable items:
 
-- [group_vars/all](group_vars/all)
-- [vars/default_config.yml](vars/default_config.yml)
 - [vars/config.yml](vars/config.yml)
-- [vars/vault.yml](vars/vault.yml)
+- [group_vars/all/vars](group_vars/all/vars)
 
 ## Common makes with examples
 

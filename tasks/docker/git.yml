@@ -13,6 +13,7 @@
   register: git_checkout_code
   ignore_errors: true   # Because Home assistant gets changed to, and realistically, this only needs to be run initially anyway.
   become: false
+  no_log: true  # Don't spew out gitlab tokens
 
 - name: Touch home-assistant.log for hacs to install as it's install script requires this file to exist
   file:

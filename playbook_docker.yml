@@ -8,13 +8,8 @@
   remote_user: "{{ vm.user | default(main_user) }}"  # Login as user and become root
   become: true
 
-  # Load in our vaulted vars as part of the play (it needs to be done here and not inside the tasks)
-  vars_files:
-    - vars/vault.yml
-
   pre_tasks:
-    # Allow user to override defaults with their custom config file.
-    # include_vars has a higher precedence than vars_files above, so import these files as overrides.
+
     - name: Include playbook configuration.
       include_vars: "{{ item }}"
       with_fileglob:
@@ -27,11 +22,12 @@
       import_tasks: tasks/linux/pre_tasks.yml
       tags: ["always"]
 
-  # Import handlers for all tasks
   handlers:
+
     - import_tasks: handlers/docker.yml
 
   roles:
+
     - role: geerlingguy.docker
       vars:
         docker_install_compose: "false"   # I prefer to install the docker plugin version from apt repo (check install_os_packages task), until this role supports the plugin install -> https://github.com/geerlingguy/ansible-role-docker/issues/355

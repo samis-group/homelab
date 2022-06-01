@@ -1,13 +1,8 @@
 ---
 - name: Test Playbook
 
-  # Load in our default and vaulted vars as part of the play (it needs to be done here and not inside the tasks)
-  vars_files:
-    - vars/vault.yml
-
   pre_tasks:
-    # Allow user to override defaults with their custom config file.
-    # include_vars has a higher precedence than vars_files above, so import these files as overrides.
+
     - name: Include playbook configuration.
       include_vars: "{{ item }}"
       with_fileglob:
@@ -20,8 +15,8 @@
       import_tasks: tasks/linux/pre_tasks.yml
       tags: ["always"]
 
-  # Import handlers for all tasks
   handlers:
+
     - import_tasks: handlers/proxmox.yml
     - import_tasks: handlers/docker.yml
 
@@ -33,12 +28,12 @@
   become: true
 
   # roles:
-  #   - create-proxmox-template-from-ubuntu-cloud-image
+  #   - role: role-here
 
   tasks:
     - name: Print all available facts
       ansible.builtin.debug:
         var: ansible_facts
 
-    # - name: Comment every item in /etc/environment file out - it keeps breaking windows paths in WSL, and I need those
+    # - name: Import task from anywhere
     #   import_tasks: tasks/wsl/configure_wsl.yml

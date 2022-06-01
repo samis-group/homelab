@@ -1,0 +1,296 @@
+---
+# Overwrite template role default mapping here because it's specified above
+# Have to do the whole mapping because it won't work otherwise
+template_vm_ubuntu:
+  id: 8000  # Iterate this to create a new template
+  version_number: 22.04
+  cpu_arch: amd64
+  release: current
+
+# Default VM configs - Each VM has it's overrides specified in it's own host_vars/hostname config file inside the 'vm' mapping
+vm_defaults:
+  update: true  # Allow vm to update hardware below after full clone
+  distro: ubuntu
+  template: "UbuntuCloud-{{ template_vm_ubuntu.version_number }}"   # VM or template to clone - Default to currently used ubuntu template name
+  user: "{{ main_user }}" # Change this if this isn't set outside the role.
+  password: "{{ ansible_become_password }}"
+  ssh_key: "ssh-rsa AAAAB3NzaC1yc2EAAAABJQAAAQEAiwG7uO5R8EzOLvoQEBc9TGyBMMEYlQf7NfwF3JH687WElHLc7bY1HTZ+VcEt+l7kvJfISAeJHdthpCT46ecPirLvz5oIOI1meXRPYXg5fKSJ+itAsfSupjg2/kRUHzI+NJjJap+KU21zEUxCqbTreJ3kSV58F/947uRDyMa0Ofammkx7LY8Kohsr99NtVsHXI71gSTngw/cIe5OR0F1qfxpsBwWw8daN+SYLe0tEtOHVZvGDVDbJhv1GW9PjQxSjx/8QEdi7FMT4ahwHxEcyG5+NhUg+DAo1RKoPYPAM5wwk9O7w+Y31EBP5wYc3FSiOPObcmIoBWxnUrZuD74dtaQ== Sami-id_rsa_personal"
+  nameservers:
+    - "{{ vm_gateway }}"    # My Primary DNS is the router, it recursively resolves upstream to cloudflare + google, but all requests through it.
+    - "8.8.4.4"
+  cores: "4"
+  memory: "2048"  # ram for each VM in MB - Must be quoted as a string, not an integer
+  hdd_size: "16G"
+  storage: "local-lvm"  # proxmox storage for VMs
+  network_device: 'virtio,bridge=vmbr0'
+  default_behavior: compatibility
+  serial: socket
+  vga: serial0
+  boot_disk: "scsi0"
+  boot_order: "c"
+  timeout: 300  # My tiny intel nuc can't deal with the IO bottle-necking due to spinning up 5 servers simultaneously :(
+  cloudinit_drive: ide2   # After successful creation and bootstrapping, we want to remove the cloud init drive, it gets created as this, change it here if it changes in proxmox.
+  ipconfig:
+    ipconfig0: "ip={{ vm_network }}200/{{ vm_netmask }},gw={{ vm_gateway }}"  # default ip address is X.X.X.200
+  agent: true   # Enable QEMU guest agent
+
+ssh:                            # SSH key to connect to docker vm
+  key_prefix: id_rsa_
+  key_private: "{{ user_dir }}/.ssh/id_rsa_personal"
+  key_public: "{{ user_dir }}/.ssh/id_rsa_personal.pub"
+main_user_ssh_key_prefix: "{{ main_user }}-{{ ssh.key_prefix }}"
+vm_network: "10.10.0." # Network WITHOUT the last digit ## NOT VM VAR
+vm_netmask: "24" # network mask ## NOT VM VAR
+vm_gateway: "10.10.0.1" # gateway ### NOT VM var
+local_network_lan: 10.0.0.0/24      # Your local LAN subnet that will be used to whitelist certain aceess to resources
+local_network_iot: 10.4.0.0/24      # Your local IOT subnet that will be used to whitelist certain aceess to resources
+local_network_homelab: "{{ vm_network }}0/{{ vm_netmask }}"   # Your local homelab subnet that will be used to whitelist certain aceess to resources
+tz: 'Australia/Sydney'          # Timezone setting
+
+# Playbook run tasks default actions:
+install_os_packages: true
+# Run `make copy-files` whenever it needs updating.
+copy_files: true
+test_task: false    # Do not change this. If you want to run the test task, use `make test` instead.
+install_docker: true
+provision_k3s_vms: true
+provision_docker_vms: false
+git: true   # Docker and WSL
+
+# Others
+name_servers: '1.1.1.1,1.0.0.1'
+watchtower_interval: 15000
+docker_ip: 10.10.0.20   # This is a default, each host should override this in host_vars
+pfsense_ip: 10.10.0.1  # pfsense router IP
+proxmox_ip: 10.10.0.10  # proxmox hypervisor IP
+proxmox_port: '8006'
+influxdb_port: '8086'
+
+nas:
+  user: "{{ main_user }}"
+  password: "{{ services_password }}"   # Make sure your nas password is up to date with the services password.
+  ip: 10.10.0.2  # Synology NAS IP
+  port: '5000'  # Synology NAS Port
+  mounts:   # NFS Mounts from the Synology NAS
+    docker_backups:
+      local_mapping: "{{ user_dir }}/mount/docker_backups"
+      remote_mapping: "/volume1/nfs/docker_backups"
+    k3s_appdata:
+      local_mapping: "{{ user_dir }}/mount/k3s_appdata"
+      remote_mapping: "/volume1/nfs/k3s_appdata"
+    downloads:
+      local_mapping: "{{ user_dir }}/mount/downloads"
+      remote_mapping: "/volume1/nfs/downloads"
+    motioneye:
+      local_mapping: "{{ user_dir }}/mount/motioneye"
+      remote_mapping: "/volume1/nfs/motioneye"
+    tv:
+      local_mapping: "{{ user_dir }}/mount/tv"
+      remote_mapping: "/volume1/video/tv"
+    movies:
+      local_mapping: "{{ user_dir }}/mount/movies"
+      remote_mapping: "/volume1/video/movies"
+    syncthing:
+      local_mapping: "{{ user_dir }}/mount/syncthing"
+      remote_mapping: "/volume1/nfs/syncthing"
+    sami_pictures:
+      local_mapping: "{{ user_dir }}/mount/photos/sami"
+      remote_mapping: "/volume1/Samis_Folder/Photos"
+    family_pictures:
+      local_mapping: "{{ user_dir }}/mount/photos/family"
+      remote_mapping: "/volume1/Photos"
+
+user_dir: /home/{{ main_user }}
+docker_dir: /home/{{ main_user }}/docker
+git_dir: /home/{{ main_user }}/git/personal
+secrets_dir: /home/{{ main_user }}/docker/secrets
+
+##################
+### Vault vars ###
+##################
+
+# Good practice to keep vault vars visible -> https://docs.ansible.com/ansible/latest/user_guide/playbooks_best_practices.html#keep-vaulted-variables-safely-visible
+# Adjust these as you wish
+
+main_user: "{{ vault_main_user }}"  # User that will be created and will manage the systems/containers
+docker_group: "{{ vault_docker_group }}"            # Leave this as 'docker', the user will need to be added to this group to run docker
+ansible_become_password: "{{ vault_ansible_become_password }}"   # The `main_user` password and also the password ansible will use when connecting and becoming root
+domain_name: "{{ vault_domain_name }}"     # Domain name that traefik resides
+services_username: "{{ vault_services_username }}"         # Username to login to services
+services_password: "{{ vault_services_password }}"     # Password to login to services
+gmail_address: "{{ vault_gmail_address }}"  # Your main gmail address that will be used to send mail from
+gmail_pass: "{{ vault_gmail_pass }}"                # This is your normal gmail password
+gmail_app_pass: "{{ vault_gmail_app_pass }}"    # This is the app password you generate here -> https://myaccount.google.com/apppasswords. Hint: Check password manager.
+eufy_addon_email: "{{ vault_eufy_addon_email }}"   # Your secondary eufy account with devices shared to it (Don't use your primary account for security reasons)
+eufy_addon_password: "{{ vault_eufy_addon_password }}"      # Password of this secondary eufy account with shared devices
+cloudflare_email: "{{ vault_cloudflare_email }}"                            # Search "API" in your password manager
+cloudflare_api_token: "{{ vault_cloudflare_api_token }}"   # Search "Cloudflare API key - cf-ddns" in your password manager
+cloudflare_api_key: "{{ vault_cloudflare_api_key }}"        # This is the "Global API Key" (same entry as above in your password manager)
+vpn_user: "{{ vault_vpn_user }}"   # VPN Provider username
+vpn_pass: "{{ vault_vpn_pass }}"       # VPN Provider password
+# The nordvpn_private_key can be obtained using `docker run --rm --cap-add=NET_ADMIN -e USER=${VPN_USER} -e PASS=${VPN_PASS} bubuntux/nordvpn nord_private_key`
+nordvpn_private_key: "{{ vault_nordvpn_private_key }}"   # For nordlynx
+google_client_id: "{{ vault_google_client_id }}"  # For oauth container
+google_client_secret: "{{ vault_google_client_secret }}"    # For oauth container
+oauth_secret: "{{ vault_oauth_secret }}"    # This is randomly generated with `openssl rand -hex 16`
+radarr_api_key: "{{ vault_radarr_api_key }}"  # Radarr API Key taken from the UI once logged in
+sonarr_api_key: "{{ vault_sonarr_api_key }}"  # Sonarr API Key taken from the UI once logged in
+bazarr_api_key: "{{ vault_bazarr_api_key }}"  # Bazarr API Key taken from the UI once logged in
+prowlarr_api_key: "{{ vault_prowlarr_api_key }}"  # Prowlarr API Key taken from the UI once logged in
+plex_claim: "{{ vault_plex_claim }}"              # Grab claim from -> https://www.plex.tv/claim/
+plex_token: "{{ vault_plex_token }}"                    # Find yours -> https://support.plex.tv/articles/204059436-finding-an-authentication-token-x-plex-token/
+traefik_pilot_token: "{{ vault_traefik_pilot_token }}"  # traefik pilot token to connect to traefik pilot
+k3s_token: "{{ vault_k3s_token }}"   # Generate one randomly
+
+# Proxmox bits for one host in cluster where tasks will be run
+pve: "{{ vault_pve }}"
+  # proxmox_api_user: root@pam
+  # proxmox_api_pass: XXXXXXXXXXXXX
+  # proxmox_node: pve
+  # clone_timeout: "300" #seconds that clone job spend change based on logs
+  # mac: xx:xx:xx:xx:xx:xx  # MAC address of the proxmox server for WOL
+  # broadcast: '255.255.255.255' # broadcast network parameter for WOL
+
+gitlab: "{{ vault_gitlab }}"
+  # username: XXXXXXXXX
+  # personal_access_token: glpat-XXXXXXXXXXXXX   # API token for docker vm to login and access gitlab registry and api and clone repos
+  # runner_token: XXXXXXXXXXXXXXXXXXXXX         # From your GROUP runner page -> https://gitlab.com/groups/sami-shakir/-/runners
+  # git_dir: "{{ user_dir }}/git/personal"
+  # api_url: https://gitlab.com/api/v4
+
+gitlab_clone_container_repos: "{{ vault_gitlab_clone_container_repos }}"
+  # Format - Dockerdir: Repo URL
+  # hass: "https://{{ gitlab.username }}:{{ gitlab.personal_access_token }}@gitlab.com/XXXXXXXXXXXXXXX.git"
+  # nginx: "https://{{ gitlab.username }}:{{ gitlab.personal_access_token }}@gitlab.com/XXXXXXXXXXXXXXX.git"
+  # docs: "https://{{ gitlab.username }}:{{ gitlab.personal_access_token }}@gitlab.com/XXXXXXXXXXXXXXX.git"
+  # api: "https://{{ gitlab.username }}:{{ gitlab.personal_access_token }}@gitlab.com/XXXXXXXXXXXXXXX.git"
+
+gitlab_clone_repos: "{{ vault_gitlab_clone_repos }}"
+  # dotfiles:
+  #   base: "https://{{ gitlab.username }}:{{ gitlab.personal_access_token }}@gitlab.com/XXXXXXXXXXXXXXX.git"
+  #   base_branch: main
+  #   extras: "https://{{ gitlab.username }}:{{ gitlab.personal_access_token }}@gitlab.com/XXXXXXXXXXXXXXX.git"
+  #   extra_branch: main
+  # homelab: "https://{{ gitlab.username }}:{{ gitlab.personal_access_token }}@gitlab.com/XXXXXXXXXXXXXXX.git"
+
+mariadb: "{{ vault_mariadb }}"
+  # hostname: XXXXXXXX   # Mariadb hostname (usually the container name, it's on the default network so any containers on this network can use this hostname to communicate with it)
+  # root_password: XXXXXXXXXXX  # optional - Initial mysql root user password
+  # database: XXXXXX  # Specify the name of a database to be created on image startup. Home-assistant for my case
+  # user: XXXXX                        # optional - Initial mysql username with below password
+  # password: XXXXXXXXXXX   # optional - Initial mysql user password with above user
+
+redis: "{{ vault_redis }}"
+  # host: redis   # Hostname of the redis container
+  # password: XXXXXXXXXXX   # Password to use redis
+
+authelia: "{{ vault_authelia }}"
+  # jwt_secret: XXXXXXXXXXX    # Randomly generated string
+  # session_secret: 'XXXXXXXXXXX'         # Randomly generated string - The secret key used to encrypt session data in Redis - https://www.authelia.com/docs/configuration/session/#secret
+  # storage_encryption_key: 'XXXXXXXXXXX' # Randomly generated string - used to encrypt data in the database - https://www.authelia.com/docs/configuration/storage/#encryption_key
+  # database:   # MariaDB details - Please create this DB/user/pass manually
+  # # CREATE DATABASE '{{ authelia.database.name }}';
+  # # CREATE USER '{{ authelia.database.username }}'@'%' IDENTIFIED BY '{{ authelia.database.password }}';
+  # # GRANT ALL PRIVILEGES ON {{ authelia.database.name }}.* TO '{{ authelia.database.username }}'@'%';
+  # # FLUSH PRIVILEGES;
+  #   name: XXXXXXXXXXX
+  #   username: XXXXXXXXXXX
+  #   password: XXXXXXXXXXX
+  # smtp:   # SMTP settings to connect to an external SMTP server to send forgotten password emails
+  #   sender: XXXXXXXXXXX   # What you want the sender email to be (this can be different to the authentication address to connect to SMTP server)
+  #   host: smtp.gmail.com                # SMTP hostname - e.g. smtp.gmail.com
+  #   port: 465                           # port for remote SMTP server - e.g. 465 for google  
+  # users:    # These are the users that will be created in the authelia `users_database.yml` file
+  #   user1:   # Username
+  #     displayname: "user1"
+  #     password: XXXXXXXXXXXXXX   # Must escape single quotes
+  #     email: email@gmail.com
+  #     groups:
+  #       - admins
+  #       - dev
+  #       - household
+  #       - users
+  #       - family
+  #   user2:   # Username
+  #     displayname: "user2"
+  #     password: XXXXXXXXXXXXXX   # Must escape single quotes
+  #     email: email@gmail.com
+  #     groups:
+  #       - users
+  #       - not-family
+
+mqtt_logins: "{{ vault_mqtt_logins }}"          # mqtt users that can authenticate and pub/sub to mqtt - key,val = user,pass
+  # mqtt-user: XXXXXXXXXXXXXX
+  # user-pc: XXXXXXXXXXXXXX
+  # hass: XXXXXXXXXXXXXX
+  # zigbee: XXXXXXXXXXXXXX
+
+zigbe2mqtt_user: "{{ vault_zigbe2mqtt_user }}"   # MQTT user for zigbee2mqtt container - Must match one of the mqtt users above
+
+htpasswd_logins: "{{ vault_htpasswd_logins }}"      # htpasswd file generation - key,val = user,pass
+  # user: "{{ services_password }}"
+  # # user2: test
+
+hass: "{{ vault_hass }}"
+  # port: XXXX
+  # # To find this zigbee_adapter_tty, on the docker host type `ls -l /dev/serial/by-id`
+  # # Resource -> https://www.zigbee2mqtt.io/guide/installation/20_zigbee2mqtt-fails-to-start.html#which-port-should-i-use-for-texas-instruments-launchxl-cc26x2r1-cc1352p-2-dev-ttyacm0-or-dev-ttyacm1
+  # zigbee_adapter_tty: /dev/ttyACM0
+  # # These are the git api URL's to pull facts about version and download url for custom_components
+  # # The heys serve as the component name that will be unzipped into "custom_components" dir. The zip file you download must contain this name inside it at a maximum 4 depth
+  # # the 'github_repo' should be in the format "user/repo"
+  # custom_components:
+  #   eufy_security:
+  #     custom_component_name: eufy_security    # This is the folder named 'custom_components' inside the zip file of the component you are downloading. People writing modules are not consistent in naming conventions. 
+  #     github_repo: fuatakgun/eufy_security
+  #   scheduler-component:
+  #     custom_component_name: scheduler
+  #     github_repo: nielsfaber/scheduler-component
+  #   browser_mod:
+  #     custom_component_name: browser_mod
+  #     github_repo: thomasloven/hass-browser_mod
+  # # home assistant secrets config
+  # external_url: "https://hass.{{ domain_name }}"
+  # internal_url: "http://{{ docker_ip }}:XXXX"
+  # http_trusted_proxies: "XXX.XXX.XXX.XXX/23"
+  # # My PC static IP address for openhwmonitor and other integration to hass
+  # pc_host: XXX.XXX.XXX.XXX
+  # docker_host: "{{ docker_ip }}"
+  # # home assistant secrets config
+  # home_name: "Home"
+  # latitude_home: XXX.XXXXXXX
+  # longitude_home: XXX.XXXXXXX
+  # elevation: XX.XX
+  # currency: "XXX"
+  # influxdb_glob_entities:  # Entities in glob format that you want to store data for in influxdb
+  #   - "*user_pc*"
+  #   - "*_door_*"
+  #   - "*hp_envy*"
+  #   - "light.*"   # All lights pls
+  # mqtt_username: "XXXXXXX"     # MQTT logins must exist in mqtt_logins var above
+  # mqtt_password: "XXXXXXX"     # MQTT logins must exist in mqtt_logins var above
+
+influxdb: "{{ vault_influxdb }}"
+  # org_name: XXXXXXX
+  # org_id: "XXXXXXX"  # This is in the URL after /orgs
+  # hass_bucket_name: XXXXXXX
+  # hass_token: XXXXXXXXXXXXXX-XXXXXXXXXXXXXX-XXXXXXXXXXXXXXXXXXXXX==
+  # windows_bucket_name: user-pc
+  # windows_pc_token: XXXXXXXXXXXXXX-XXXXXXXXXXXXXX-XXXXXXX==
+  # proxmox_bucket_name: XXXXXXX
+  # proxmox_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX==
+
+ozbargain: "{{ vault_ozbargain }}"
+  # slack_webhook: https://hooks.slack.com/services/XXXXXXXXXXXXXXX/XXXXXXXXXXXXXXX/XXXXXXXXXXXXXXX
+  # slack_webhook_frontpage: https://hooks.slack.com/services/XXXXXXXXXXXXXXX/XXXXXXXXXXXXXXX/XXXXXXXXXXXXXXX
+
+photoprism: "{{ vault_photoprism }}"
+  # admin_password: "{{ services_password }}"
+  # # MariaDB details - Please create this DB/user/pass manually
+  # # CREATE DATABASE '{{ photoprism.database_name }}';
+  # # CREATE USER '{{ photoprism.database_username }}'@'%' IDENTIFIED BY '{{ photoprism.database_password }}';
+  # # GRANT ALL PRIVILEGES ON {{ photoprism.database_name }}.* TO '{{ photoprism.database_username }}'@'%';
+  # # FLUSH PRIVILEGES;
+  # database_name: XXXXXXXXXXXXXXX
+  # database_username: XXXXXXXXXXXXXXX
+  # database_password: XXXXXXXXXXXXXXX

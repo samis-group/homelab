@@ -1,24 +1,21 @@
 ---
-# Setup and configure proxmox hosts
-- name: Proxmox Playbook
+- name: Setup and configure proxmox hosts
   import_playbook: playbook_proxmox.yml
 
-# Setup and configure k3s VM's
-- name: k3s Playbook
+### My nuc is not powerful enough to continue building and tearing it down.
+### This k3s playbook is currently in a working state and is able to deploy helm charts.
+### I just don't use this stack yet, when I build the new server, I will.
+- name: Setup and configure k3s VM's
   import_playbook: playbook_k3s.yml
 
-# Setup and configure Docker VM's
-- name: Docker Playbook
+- name: Setup and configure Docker VM's
   import_playbook: playbook_docker.yml
 
-# Configure Windows
-- name: Windows Playbook
+- name: Configure Windows
   import_playbook: playbook_windows.yml
 
-# Run this on all linux machines
-- name: All Linux Playbook
-  import_playbook: playbook_all_linux.yml
-
-# Configure WSL
-- name: WSL Playbook
+- name: Configure WSL
   import_playbook: playbook_wsl.yml
+
+- name: Playbook to run on all linux machines
+  import_playbook: playbook_all_linux.yml

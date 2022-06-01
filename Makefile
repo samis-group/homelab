@@ -14,11 +14,12 @@ $(eval $(runargs):;@true)
 
 # Run the playbook (Assumes `make setup` has already been run, If not, go do that first).
 # Note: Vault password file directive is now specified in 'ansible.cfg'.
-execute: proxmox k3s wsl windows	# Update these targets based on your deployment needs, this is my current stack
+# Update this default target with the targets you wish to deploy. This is my current stack.
+execute: proxmox docker wsl windows
 
-# Verbose option
-execute-v:
-	@ansible-playbook -i inventory/hosts.ini -vvv main.yml $(runargs)
+# Make absolutely everything in main.yml
+everything:
+	@ansible-playbook -i inventory/hosts.ini main.yml $(runargs)
 
 ##########################################################################
 # This will make everything from absolutely nothing but debian machines. #
