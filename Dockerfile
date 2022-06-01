@@ -1,7 +1,10 @@
+# This is meant to be an ephemeral workspace to deploy these ansible playbooks.
+# It currently doesn't fully work as I found in my latest testing. that ansible-galaxy was timing out.
 FROM python:3
-# I pass VAULT_PASS in through build-args, and it's available at container build in env at my git repo as well for build ci/cd pipeline.
 
-# ARG = only available at docker build, not in container
+# I pass VAULT_PASS in through build-args when building the image.
+# it's available as an environment var in gitlab as well for use in my ci/cd pipelines that build this image.
+# ARG = only available at docker build, not in container env
 # Also, you need to declare it in your dockerfile to use it in the makes
 ARG VAULT_PASS
 ARG DEBIAN_FRONTEND=noninteractive
