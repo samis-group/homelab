@@ -29,6 +29,11 @@
         name: telegraf
         state: restarted
 
+  roles:
+    - role: wsl/from-cloud-image
+      when: download_wsl_instance
+      tags: ["download_wsl_instance"]
+
   tasks:
 
     - name: Install Windows Updates

@@ -4,7 +4,7 @@
 .PHONY: update-compose update-compose-v setup-containers setup-containers-v
 
 docker:
-	@ansible-playbook -i inventory/hosts.ini main.yml --limit docker
+	@ansible-playbook -i inventory/hosts.ini playbook_docker.yml $(runargs)
 
 docker-v:
 	@ansible-playbook -i inventory/hosts.ini main.yml --limit docker -vvv

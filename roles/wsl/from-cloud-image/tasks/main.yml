@@ -1,1 +1,16 @@
 ---
+- name: Create directory structure
+  ansible.windows.win_file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - "{{ img_dir }}"
+    - "{{ wsl_install_location }}"
+
+- name: Download ubuntu cloud image
+  win_get_url:
+    url: "{{ ubuntu_img_url }}"
+    dest: "{{ img_dir }}\\{{ ubuntu_img_url | basename }}"
+
+- name: Create default wsl instance from cloud image
+  ansible.windows.win_command: wsl --import {{ wsl_instance_name }} {{ wsl_install_location }} {{ img_dir }}\{{ ubuntu_img_url | basename }}
