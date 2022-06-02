@@ -14,7 +14,7 @@ ENV TZ=Australia/Sydney
 RUN mkdir -p /root/.ssh /root/ansible
 
 RUN apt-get update \
-  && apt-get install -y tzdata make vim openssh-server \
+  && apt-get install -y tzdata make vim openssh-server bash-completion \
   && service ssh start \
   && pip3 install --upgrade pip
 

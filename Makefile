@@ -47,7 +47,15 @@ build-docker-cache:
 	fi
 
 build-docker-shell:
-	@docker run --rm -it -v "~/.ssh:/root/.ssh" homelab-ansible
+	@docker run --rm -it \
+	-v "${HOME}/.ssh:/root/.ssh" \
+	homelab-ansible
+
+build-docker-shell-mine:
+	@docker run --rm -it \
+	-v "${HOME}/.ssh/:/root/.ssh" \
+	-v "${HOME}/.dotfiles:/root/dotfiles" \
+	homelab-ansible
 
 ##############
 # Test Tasks #

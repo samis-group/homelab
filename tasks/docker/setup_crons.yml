@@ -40,15 +40,6 @@
     job: "bash -ic \"dcup all\" 2>&1 | logger -t dockerlogs"
     # job: "cd {{ docker_dir }}; /usr/local/bin/docker-compose up -d --remove-orphans"
 
-- name: Cron - Backup Docker containers weekly
-  ansible.builtin.cron:
-    name: backup docker containers weekly
-    minute: "0"
-    hour: "3"
-    weekday: "4"
-    user: root
-    job: "{{ docker_dir }}/scripts/docker-backup.sh"
-
 - name: Cron - Prune > 7 day old unused Docker images daily
   ansible.builtin.cron:
     name: prune docker images daily ( > 7 day old )
