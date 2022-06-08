@@ -61,6 +61,12 @@ run-docker-registry-dotfiles:
 	--volume "${HOME}/.dotfiles:/home/ubuntu/dotfiles" \
 	registry.gitlab.com/sami-group/homelab
 
+run-docker-registry-dotfiles-root:
+	@${docker_run_cmd} \
+	--volume "${HOME}/.dotfiles:/home/ubuntu/dotfiles" \
+	--user='0' \
+	registry.gitlab.com/sami-group/homelab
+
 run-docker-local: build-docker
 	${docker_run_cmd} homelab
 
