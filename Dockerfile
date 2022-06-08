@@ -13,7 +13,7 @@ ENV TZ=Australia/Sydney
 RUN apt-get update \
   && apt-get install -y tzdata make vim openssh-server bash-completion sudo
 
-# Run as user
+# Setup container to run as 'ubuntu' user with same password
 RUN useradd -rm -d /home/ubuntu -s /bin/bash -g root -G sudo -u 1000 ubuntu \
   && echo "ubuntu:ubuntu" | chpasswd
 
