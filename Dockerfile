@@ -43,8 +43,7 @@ RUN echo "alias ll='ls -alh'" >> ~/.bashrc
 # Allow certain bind mounts from outside container
 VOLUME [ "/home/ubuntu/.ssh", "/home/ubuntu/ansible" ]
 
-# TODO: NEEDS WORK!
-# Open SSH because some plays delegate to localhost
+# Some plays delegate to localhost, requires access to itself on ssh
 EXPOSE 22
 
 # Parse the password from ENV and give us shell as default so we can do whatever
