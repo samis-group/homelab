@@ -15,9 +15,9 @@ endif
 runargs := $(wordlist 2, $(words $(MAKECMDGOALS)), $(MAKECMDGOALS))
 $(eval $(runargs):;@true)
 
-##############################################
-### Main operation when only `make` is run ###
-##############################################
+#-----------------------------------------
+# Main operation when only `make` is run -
+#-----------------------------------------
 
 # Run the playbook (Assumes `make setup` has already been run, If not, go do that first).
 # Note: Vault password file directive is now specified in 'ansible.cfg'.
@@ -28,45 +28,113 @@ execute: proxmox docker wsl windows
 everything:
 	@ansible-playbook -i inventory/hosts.ini main.yml $(runargs)
 
-##########################################################################
-# This will make everything from absolutely nothing but debian machines. #
-#        You must have setup authorized keys and can ssh to them         #
-##########################################################################
+#-------------------------------------------------------------------------
+# This will make everything from absolutely nothing but debian machines. -
+#        You must have setup authorized keys and can ssh to them         -
+#-------------------------------------------------------------------------
 
 from-scratch:
 	@ansible-playbook -i inventory/hosts.ini main.yml $(runargs)
 
+# If `.vault-password` file exists, source the password from it (helps with local build tests), else see if `VAULT_PASS` env var exists.
 build-docker:
-	@if [ ! -z $${VAULT_PASS} ]; then\
-		docker build --no-cache -t homelab-ansible --build-arg VAULT_PASS=$${VAULT_PASS} .;\
-	fi
+	@docker build --no-cache -t homelab .
 
+# If `.vault-password` file exists, source the password from it (helps with local build tests), else see if `VAULT_PASS` env var exists.
 build-docker-cache:
-	@if [ ! -z $${VAULT_PASS} ]; then\
-		docker build -t homelab-ansible --build-arg VAULT_PASS=$${VAULT_PASS} .;\
-	fi
+	@docker build -t homelab .
 
 build-docker-shell:
 	@docker run --rm -it \
-	-v "${HOME}/.ssh:/root/.ssh" \
-	homelab-ansible
+	--env VAULT_PASS=$${VAULT_PASS} \
+	--volume "${PWD}:/home/ubuntu/ansible/" \
+	--volume "${HOME}/.ssh/:/home/ubuntu/.ssh" \
+	homelab
 
-build-docker-shell-mine:
+build-docker-shell-dotfiles:
 	@docker run --rm -it \
-	-v "${HOME}/.ssh/:/root/.ssh" \
-	-v "${HOME}/.dotfiles:/root/dotfiles" \
-	homelab-ansible
+	--env VAULT_PASS=$${VAULT_PASS} \
+	--volume "${PWD}:/home/ubuntu/ansible/" \
+	--volume "${HOME}/.ssh/:/home/ubuntu/.ssh" \
+	--volume "${HOME}/.dotfiles:/home/ubuntu/dotfiles" \
+	homelab
 
-##############
-# Test Tasks #
-##############
+#--------------
+# Setup Tasks -
+#--------------
+
+.PHONY: setup apt pip reqs store-password githook
+
+# Setup entire environment
+setup: apt pip reqs store-password githook
+
+# Ensure python and pip (assumes ubuntu host)
+apt:
+	@$(DO_SUDO) apt install python3-pip
+
+# Install python module requirements via requirements.txt file
+pip:
+	@$(DO_SUDO) pip3 install --upgrade pip
+	@$(DO_SUDO) pip3 install --ignore-installed -r requirements.txt
+
+# install requirements.yml file
+reqs:
+	@ansible-galaxy install -r requirements.yml
+	@ansible-galaxy install -r roles/requirements.yml
+
+# Store your password for use with the playbook commands and if the vault is encrypted
+# Python is just 1000% better at parsing raw data than bash/GNU Make. /rant
+store-password:
+	@red=`tput setaf 1`
+	@green=`tput setaf 2`
+	@reset=`tput sgr0`
+	@if [ -n "$${VAULT_PASS}" ]; then\
+		./bin/parse_pass.py "$${VAULT_PASS}";\
+		if [ ! "$${VAULT_PASS}" = "$$(cat ./.vault-password)" ]; then\
+			echo "$$(tput setaf 1)PASSWORD WAS NOT ABLE TO UPDATE! Please manually invoke the custom python script to do this for you as follows:";\
+			echo "./bin/parse_pass.py 'super_secret_password' <- Make sure to use single quotes.$$(tput sgr0)";\
+		else\
+			echo "$$(tput setaf 2)PASSWORD SUCCESSFULLY STORED IN '.vault-password'!$$(tput sgr0)";\
+		fi;\
+	fi
+
+# Creates a pre-commit webhook so that you don't accidentally commit decrypted vault upstream
+githook:
+	@if [ -d .git/ ]; then\
+		if [ -e .git/hooks/pre-commit ]; then\
+			echo "$$(tput setaf 2)Removing Existing pre-commit...$$(tput sgr0)";\
+	  	rm .git/hooks/pre-commit;\
+		fi;\
+  fi
+	@cp bin/git-vault-check.sh .git/hooks/pre-commit
+	@chmod +x .git/hooks/pre-commit
+	@echo "$$(tput setaf 2)Githook Deployed!$$(tput sgr0)"
+
+#----------
+# Linters -
+#----------
+
+yamllint:
+	yamllint -f parsable .
+
+# Diagnostic output; useful when run in a git hook
+_start-check:
+	@echo 'Running "make check"'
+
+# Run all tests and linters
+check lint: _start-check yamllint
+	@echo '**** LGTM! ****'
+
+#-------------
+# Test Tasks -
+#-------------
 
 # Run the test playbook
 test:
 	@ansible-playbook -i inventory/hosts.ini playbook_test.yml $(runargs)
 
-###################################
-### Include all other makefiles ###
-###################################
+#------------------------------
+# Include all other makefiles -
+#------------------------------
 
 include makefiles/*.mk

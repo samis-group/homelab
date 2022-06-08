@@ -19,7 +19,8 @@ filepath = folderpath + filename
 
 # If file exists and isn't empty, let's break out early
 if os.path.exists(filepath) and not os.stat(filepath).st_size == 0:
-    sys.exit("Password already exists, breaking.")
+    print("Password already exists, breaking.")
+    sys.exit(0)
 
 elif not os.path.isdir(folderpath):
     os.mkdir(folderpath)

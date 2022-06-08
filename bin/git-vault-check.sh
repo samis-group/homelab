@@ -7,7 +7,7 @@
 red=`tput setaf 1`
 green=`tput setaf 2`
 reset=`tput sgr0`
-FILES_TO_CHECK="group_vars/all/vault inventory/hosts.ini"
+FILES_TO_CHECK="group_vars/all/vault.yml inventory/hosts.ini"
 for FILE_PROCESSING in $FILES_TO_CHECK; do
   # Ensure it exists first
   if [ -e "$FILE_PROCESSING" ]; then

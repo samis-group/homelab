@@ -17,13 +17,9 @@ encrypt:
 	ansible-vault encrypt group_vars/all/vault inventory/hosts.ini
 
 # List variables
-ifeq (list-vars, $(firstword $(MAKECMDGOALS)))
-  extrafiles := $(wordlist 2, $(words $(MAKECMDGOALS)), $(MAKECMDGOALS))
-  $(eval $(extrafiles):;@true)
-endif
 list-vars:
-	@./bin/vars_list.py vars/config.yml group_vars/all/vault $(extrafiles)
+	@$(CURDIR)/bin/vars_list.py vars/config.yml group_vars/all/vault.yml $(runargs)
 
 # List the available tags that you can run standalone from the playbook
 list-tags:
-	@grep 'tags:' main.yml | grep -v always | awk -F\" '{print $$2}'
+	@grep 'tags:' playbook_*.yml | grep -v always | awk -F\" '{print $$2}'

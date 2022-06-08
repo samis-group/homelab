@@ -8,9 +8,9 @@ import configparser
 def prRed(skk): print("\033[91m{}\033[00m" .format(skk))
 
 files = sys.argv[1:]
-# Python doesn't recognize 'tilde' as the home user. It isn't shell so it can't expand this, it reads the literal character, so let's set it.
-home = os.path.expanduser("~")
-ansible_password_file = f"{home}/.ansible/password"
+
+repo_dir = os.getcwd()
+ansible_password_file = f"{repo_dir}/.vault-password"
 if not os.path.isfile(ansible_password_file):
   sys.exit(f"Unable to access password file, please ensure it exists and you've setup your environment with `make setup`.")
 yaml_file_prefixes = ('yaml', 'yml')
