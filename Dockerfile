@@ -21,9 +21,9 @@ RUN mkdir -p /home/ubuntu/.ssh /home/ubuntu/ansible/roles \
 WORKDIR /home/ubuntu/ansible
 
 # Copy files and install requirements
-COPY --chown=ubuntu:root requirements* .
+COPY --chown=ubuntu:root requirements* ./
 RUN pip3 install --upgrade pip && pip3 install --no-cache-dir -r requirements.txt
-COPY --chown=ubuntu:root Makefile .
+COPY --chown=ubuntu:root Makefile ./
 COPY --chown=ubuntu:root makefiles/ makefiles/
 COPY --chown=ubuntu:root roles/requirements* roles/
 USER ubuntu
