@@ -32,10 +32,10 @@ This repo can even setup my windows/linux desktop PC's.
 - [Homelab](#homelab)
   - [Contents](#contents)
   - [TL;DR](#tldr)
-  - [Playbook capabilities](#playbook-capabilities)
-    - [Build Repo Inside a Docker Container](#build-repo-inside-a-docker-container)
-  - [Setup the Ansible Control Node (where you will run the playbook from)](#setup-the-ansible-control-node-where-you-will-run-the-playbook-from)
-  - [Setup Proxmox Host](#setup-proxmox-host)
+  - [Setup](#setup)
+    - [Setup repo inside a docker container](#setup-repo-inside-a-docker-container)
+    - [Setup the ansible control node (where you will run the playbook from) if not using docker method above](#setup-the-ansible-control-node-where-you-will-run-the-playbook-from-if-not-using-docker-method-above)
+    - [Setup Proxmox Host](#setup-proxmox-host)
     - [Deploy SSH key and test](#deploy-ssh-key-and-test)
     - [Troubleshooting Host Setup](#troubleshooting-host-setup)
   - [Running the Playbook](#running-the-playbook)
@@ -50,18 +50,18 @@ This repo can even setup my windows/linux desktop PC's.
 
 ## TL;DR
 
+❗ Ensure you already have docker installed and working locally. This pulls an image, sets it up and drops you in shell to run any make target you want.
+
 If you aren't me, this TLDR probably won't help you much, as I've got my variables encrypted in this repo. You won't have access, so read the long notes to set it all up.
 
 Run the following commands to bring this entire project up from nothing but proxmox (nothing but debian soon to come once I have new hardware to test it all as I need a spare bare metal host):
 
 ```bash
-# Go through setup
-# Use single quotes only!
-export VAULT_PASS='super_secret_password'
-make setup
+# Clone the repo
+cd ~/git/personal/ && git clone git@gitlab.com:sami-group/homelab.git && cd homelab
 
-# Make wsl, because default instance of WSL doesn't start SSH, so configure it first.
-make wsl
+# Go through setting up password. This also drops you in a container shell already setup to go.
+make run-docker-registry-dotfiles
 
 # Build and configure proxmox host
 make proxmox
@@ -70,23 +70,32 @@ make proxmox
 make k3s
 ```
 
+Optionally, run this to not spin up a container and ephemeral workspace and setup localhost wsl instance:
+
+```shell
+# Setup local env first
+make setup
+# Make wsl, because default instance of WSL doesn't start SSH, so configure it first.
+make wsl
+```
+
 It's literally as easy as that.
 
-## Playbook capabilities
+## Setup
 
-### Build Repo Inside a Docker Container
+### Setup repo inside a docker container
 
-:exclamation: **Needs work!**
+:exclamation: **In Beta!**
 
 Yeah, you can now build this repo inside a docker container and deploy it from there, so it doesn't mess with your environment. I love ephemeral workspaces:
 
 ```bash
-# Ensure you pass your ansible vault password into the container at build time. Use single quotes only!
-export VAULT_PASS='super_secret_password'
-# Build the image locally
-make build-docker
-# Run it, mounting your ssh dir (tbd as I plan to make it bootstrap setup and even entrypoints for make targets)
-docker run -v "/home/user/.ssh:/root/.ssh" --rm -it homelab_ansible
+cd wherever
+# Clone the repo
+git clone git@gitlab.com:sami-group/homelab.git && cd homelab
+
+# Build and run the public registry image (this also mounts the cloned dir and local ssh folder)
+make run-docker-registry
 ```
 
 > **NOTE:** The Playbook is fully configurable. You can skip or reconfigure any task by [Overriding Defaults](#overriding-defaults).
@@ -95,7 +104,7 @@ docker run -v "/home/user/.ssh:/root/.ssh" --rm -it homelab_ansible
   - Most of these make commands that run plays where you need verbose output (-vvv), simply pass the ` -v` argument to the make target and it will run it verbosely, e.g. `make k3s ' -v'`.
     - **yes with the leading space, because there's no way that I've been able to figure out, how to pass '-v' to make without it thinking it's for Make.. Probably use stdin? needs testing..**
 
-## Setup the Ansible Control Node (where you will run the playbook from)
+### Setup the ansible control node (where you will run the playbook from) if not using docker method above
 
 *Pre-note for me*: run the alias `ssa` first ;)
 
@@ -140,7 +149,7 @@ If you are **NOT** the owner of this repo, **copy the [host_vars_example](host_v
 cp host_vars_example host_vars
 ```
 
-## Setup Proxmox Host
+### Setup Proxmox Host
 
 **Automation is TBD Mostly... Manual steps below after you install proxmox on the bare metal host.**
 
