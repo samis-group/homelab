@@ -11,7 +11,9 @@ ENV TZ=Australia/Sydney
 
 # Ubuntu OS dependencies
 RUN apt-get update \
-  && apt-get install -y tzdata make vim openssh-server bash-completion sudo
+  && apt-get install -y tzdata make vim openssh-server bash-completion sudo \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
 
 # Setup container to run as 'ubuntu' user with same password
 RUN useradd -rm -d /home/ubuntu -s /bin/bash -g root -G sudo -u 1000 ubuntu \
