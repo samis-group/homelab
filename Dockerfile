@@ -1,5 +1,7 @@
 # This is meant to be an ephemeral workspace to deploy these ansible playbooks.
-# Simply run the image and run your playbooks.
+# This dockerfile is built in ci/cd pipelines and pushed to a registry # every single time a new commit is pushed.
+# So it is designed to be as efficient as possible, at building from docker cache.
+# With that said, once the container is built, simply run your playbooks from make targets or manually.
 FROM python:3
 
 # Ensure apt runs non-interactively due to tzdata package asking for location, argh..
