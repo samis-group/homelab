@@ -2,22 +2,26 @@
 # Simply run the image and run your playbooks.
 FROM python:3
 
-# VAULT_PASS is passed in as an ENV var and will be overwritten by the user (hopefully).
-ENV VAULT_PASS='some_password'
+# Ensure apt runs non-interactively due to tzdata package asking for location, argh..
 ARG DEBIAN_FRONTEND=noninteractive
+# Set TZ
 ENV TZ=Australia/Sydney
 
+# Ubuntu OS dependencies
 RUN apt-get update \
-  && apt-get install -y tzdata make vim openssh-server bash-completion \
-  && service ssh start
+  && apt-get install -y tzdata make vim openssh-server bash-completion sudo
 
-RUN useradd -rm -d /home/ubuntu -s /bin/bash -g root -G sudo -u 1000 ubuntu
+# Run as user
+RUN useradd -rm -d /home/ubuntu -s /bin/bash -g root -G sudo -u 1000 ubuntu \
+  && echo "ubuntu:ubuntu" | chpasswd
 
-# Ensure apt runs non-interactively due to tzdata package asking for location, argh..
+# Make required directories and chown them
 RUN mkdir -p /home/ubuntu/.ssh /home/ubuntu/ansible/roles \
-  && chown -R ubuntu:root /home/ubuntu/.ssh /home/ubuntu/ansible
+  && chown -R ubuntu:root /home/ubuntu/.ssh /home/ubuntu/ansible \
+# Also ensure sudo group users are not asked for a password when using sudo command
+  && echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
-# WORKDIR /home/ubuntu
+# Set working directory
 WORKDIR /home/ubuntu/ansible
 
 # Copy files and install requirements
@@ -26,17 +30,21 @@ RUN pip3 install --upgrade pip && pip3 install --no-cache-dir -r requirements.tx
 COPY --chown=ubuntu:root Makefile ./
 COPY --chown=ubuntu:root makefiles/ makefiles/
 COPY --chown=ubuntu:root roles/requirements* roles/
+# Install ansible requirements as the user that will execute them
+# otherwise they get stored in system files and this is the easiest way
 USER ubuntu
 RUN make reqs
-
+# Copy bin files (mainly for docker-entrypoint.sh)
 COPY --chown=ubuntu:root bin/ bin/
 
+# Setup aliases
 RUN echo "alias ll='ls -alh'" >> ~/.bashrc
 
 # Allow certain bind mounts from outside container
 VOLUME [ "/home/ubuntu/.ssh", "/home/ubuntu/ansible" ]
 
-# Open SSH because some play delegate to localhost
+# TODO: NEEDS WORK!
+# Open SSH because some plays delegate to localhost
 EXPOSE 22
 
 # Parse the password from ENV and give us shell as default so we can do whatever

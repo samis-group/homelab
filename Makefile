@@ -24,38 +24,48 @@ $(eval $(runargs):;@true)
 # Update this default target with the targets you wish to deploy. This is my current stack.
 execute: proxmox docker wsl windows
 
-# Make absolutely everything in main.yml
-everything:
-	@ansible-playbook -i inventory/hosts.ini main.yml $(runargs)
-
 #-------------------------------------------------------------------------
 # This will make everything from absolutely nothing but debian machines. -
 #        You must have setup authorized keys and can ssh to them         -
 #-------------------------------------------------------------------------
 
-from-scratch:
+everything:
 	@ansible-playbook -i inventory/hosts.ini main.yml $(runargs)
 
 # If `.vault-password` file exists, source the password from it (helps with local build tests), else see if `VAULT_PASS` env var exists.
 build-docker:
-	@docker build --no-cache -t homelab .
-
-# If `.vault-password` file exists, source the password from it (helps with local build tests), else see if `VAULT_PASS` env var exists.
-build-docker-cache:
 	@docker build -t homelab .
 
-build-docker-shell:
-	@docker run --rm -it \
-	--env VAULT_PASS=$${VAULT_PASS} \
-	--volume "${PWD}:/home/ubuntu/ansible/" \
-	--volume "${HOME}/.ssh/:/home/ubuntu/.ssh" \
-	homelab
+# If `.vault-password` file exists, source the password from it (helps with local build tests), else see if `VAULT_PASS` env var exists.
+build-docker-no-cache:
+	@docker build --no-cache -t homelab .
 
-build-docker-shell-dotfiles:
-	@docker run --rm -it \
-	--env VAULT_PASS=$${VAULT_PASS} \
+# Check if VAULT_PASS is set, and pass through to container, otherwise don't and let stdin in the parse_pass python script ask for it.
+ifeq ($(origin VAULT_PASS),undefined)
+    DO_VAULT_PASS =
+else
+    DO_VAULT_PASS = --env VAULT_PASS="${VAULT_PASS}"
+endif
+
+docker_run_cmd = \
+	docker run --rm -it $(DO_VAULT_PASS) \
 	--volume "${PWD}:/home/ubuntu/ansible/" \
-	--volume "${HOME}/.ssh/:/home/ubuntu/.ssh" \
+	--volume "${HOME}/.ssh/:/home/ubuntu/.ssh"
+
+run-docker-registry:
+	@${docker_run_cmd} \
+	registry.gitlab.com/sami-group/homelab
+
+run-docker-registry-dotfiles:
+	@${docker_run_cmd} \
+	--volume "${HOME}/.dotfiles:/home/ubuntu/dotfiles" \
+	registry.gitlab.com/sami-group/homelab
+
+run-docker-local: build-docker
+	${docker_run_cmd} homelab
+
+run-docker-local-dotfiles: build-docker
+	@${docker_run_cmd} \
 	--volume "${HOME}/.dotfiles:/home/ubuntu/dotfiles" \
 	homelab
 
@@ -82,21 +92,10 @@ reqs:
 	@ansible-galaxy install -r requirements.yml
 	@ansible-galaxy install -r roles/requirements.yml
 
-# Store your password for use with the playbook commands and if the vault is encrypted
+# Store your password if the vault is encrypted
 # Python is just 1000% better at parsing raw data than bash/GNU Make. /rant
 store-password:
-	@red=`tput setaf 1`
-	@green=`tput setaf 2`
-	@reset=`tput sgr0`
-	@if [ -n "$${VAULT_PASS}" ]; then\
-		./bin/parse_pass.py "$${VAULT_PASS}";\
-		if [ ! "$${VAULT_PASS}" = "$$(cat ./.vault-password)" ]; then\
-			echo "$$(tput setaf 1)PASSWORD WAS NOT ABLE TO UPDATE! Please manually invoke the custom python script to do this for you as follows:";\
-			echo "./bin/parse_pass.py 'super_secret_password' <- Make sure to use single quotes.$$(tput sgr0)";\
-		else\
-			echo "$$(tput setaf 2)PASSWORD SUCCESSFULLY STORED IN '.vault-password'!$$(tput sgr0)";\
-		fi;\
-	fi
+	@./bin/parse_pass.py
 
 # Creates a pre-commit webhook so that you don't accidentally commit decrypted vault upstream
 githook:
