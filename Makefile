@@ -101,7 +101,7 @@ store-password:
 githook:
 	@if [ -d .git/ ]; then\
 		if [ -e .git/hooks/pre-commit ]; then\
-			echo "$$(tput setaf 2)Removing Existing pre-commit...$$(tput sgr0)";\
+			echo "$$(tput setaf 2)Removing Existing pre-commit hook...$$(tput sgr0)";\
 	  	rm .git/hooks/pre-commit;\
 		fi;\
   fi
