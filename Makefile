@@ -2,9 +2,9 @@
 
 # Check if running as root, omit `sudo` from make targets if that is the case.
 ifneq ($(shell id -u), 0)
-    DO_SUDO = 'sudo'
+    DO_SUDO = sudo
 else
-    DO_SUDO = ''
+    DO_SUDO =
 endif
 
 # This grabs the passed arguments and stores them in make variable `runargs`
@@ -36,15 +36,21 @@ everything:
 # Docker build and run tasks -
 #-----------------------------
 
+USERID = $(shell id -u)
+
+docker_build_cmd = \
+	docker build -t homelab \
+	--build-arg UID=$(USERID)
+
 # If `.vault-password` file exists, source the password from it (helps with local build tests), else see if `VAULT_PASS` env var exists.
 build-docker:
-	@docker build -t homelab .
+	@${docker_build_cmd} .
 
 # If `.vault-password` file exists, source the password from it (helps with local build tests), else see if `VAULT_PASS` env var exists.
 build-docker-no-cache:
-	@docker build --no-cache -t homelab .
+	@${docker_build_cmd} --no-cache .
 
-# Check if VAULT_PASS is set, and pass through to container, otherwise don't and let stdin in the parse_pass python script ask for it.
+# Check if VAULT_PASS is set, and pass through to container, otherwise don't and let stdin in the parse_pass python script, ask for it.
 ifeq ($(origin VAULT_PASS),undefined)
     DO_VAULT_PASS =
 else
@@ -54,25 +60,31 @@ endif
 docker_run_cmd = \
 	docker run --rm -it $(DO_VAULT_PASS) \
 	--volume "${PWD}:/ansible/repo" \
-	--volume "${HOME}/.ssh/:/home/ubuntu/.ssh"
-	--user=${UID} \
+	--volume "${HOME}/.ssh/:/home/ubuntu/.ssh" \
+	--user=$(USERID)
+
+docker_dotfiles = --volume "${HOME}/dotfiles:/home/ubuntu/dotfiles"
+
+local_container_name = homelab
+registry_container_name = registry.gitlab.com/sami-group/homelab
 
 run-docker-registry:
 	@${docker_run_cmd} \
-	registry.gitlab.com/sami-group/homelab
+	${registry_container_name}
 
 run-docker-registry-dotfiles:
 	@${docker_run_cmd} \
-	--volume "${HOME}/dotfiles:/home/ubuntu/dotfiles" \
-	registry.gitlab.com/sami-group/homelab
+	${docker_dotfiles} \
+	${registry_container_name}
 
 run-docker-local: build-docker
-	${docker_run_cmd} homelab
+	${docker_run_cmd} \
+	${local_container_name}
 
 run-docker-local-dotfiles: build-docker
 	@${docker_run_cmd} \
-	--volume "${HOME}/dotfiles:/home/ubuntu/dotfiles" \
-	homelab
+	${docker_dotfiles} \
+	${local_container_name}
 
 reqs-docker:
 	@ansible-galaxy install -r requirements.yml -p /ansible/collections/ansible_collections
@@ -89,12 +101,12 @@ setup: apt pip reqs store-password githook
 
 # Ensure python and pip (assumes ubuntu host)
 apt:
-	@$(DO_SUDO) apt install python3-pip
+	${DO_SUDO} apt install python3-pip
 
 # Install python module requirements via requirements.txt file
 pip:
-	@$(DO_SUDO) pip3 install --upgrade pip
-	@$(DO_SUDO) pip3 install --ignore-installed -r requirements.txt
+	${DO_SUDO} pip3 install --upgrade pip
+	${DO_SUDO} pip3 install --ignore-installed -r requirements.txt
 
 # install requirements.yml file
 reqs:

@@ -11,16 +11,15 @@ ENV TZ=Australia/Sydney
 ENV ANSIBLE_ROLES_PATH=/ansible/roles
 # Run as 1000 by default unless passed in
 ARG UID=1000
-ARG GID=1000
 ARG UNAME=ubuntu
 
 # Ubuntu OS dependencies
 RUN apt-get update \
-  && apt-get install -y tzdata make vim openssh-server bash-completion sudo \
+  && apt-get install -y tzdata make vim openssh-server bash-completion sudo sshpass \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 
-# Setup container to run as 'ubuntu' user with same password
+# Setup container to run as user specified in build args with same password
 RUN useradd -rm -d /home/$UNAME -s /bin/bash -g root -G sudo -u $UID $UNAME \
   && echo "$UNAME:$UNAME" | chpasswd
 
@@ -43,6 +42,9 @@ RUN make reqs-docker
 # Copy bin files (mainly for docker-entrypoint.sh)
 COPY --chown=$UNAME:root bin/ bin/
 
+USER $UNAME
+WORKDIR /ansible/repo
+
 # Allow certain bind mounts from outside container
 VOLUME [ "/home/$UNAME/.ssh", "/ansible/repo" ]
 
@@ -51,6 +53,3 @@ EXPOSE 22
 
 # Parse the password from ENV and give us shell as default so we can do whatever
 ENTRYPOINT [ "/ansible/bin/docker-entrypoint.sh" ]
-
-USER $UNAME
-WORKDIR /ansible/repo
