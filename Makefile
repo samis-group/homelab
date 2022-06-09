@@ -1,7 +1,4 @@
-.PHONY: execute execute-v test test-v test-vvv
-
-# Default make target specified here
-.DEFAULT_GOAL := execute
+.PHONY: execute everything test 
 
 # Check if running as root, omit `sudo` from make targets if that is the case.
 ifneq ($(shell id -u), 0)
@@ -19,6 +16,9 @@ $(eval $(runargs):;@true)
 # Main operation when only `make` is run -
 #-----------------------------------------
 
+# Default make target specified here
+.DEFAULT_GOAL := execute
+
 # Run the playbook (Assumes `make setup` has already been run, If not, go do that first).
 # Note: Vault password file directive is now specified in 'ansible.cfg'.
 # Update this default target with the targets you wish to deploy. This is my current stack.
@@ -31,6 +31,10 @@ execute: proxmox docker wsl windows
 
 everything:
 	@ansible-playbook -i inventory/hosts.ini main.yml $(runargs)
+
+#-----------------------------
+# Docker build and run tasks -
+#-----------------------------
 
 # If `.vault-password` file exists, source the password from it (helps with local build tests), else see if `VAULT_PASS` env var exists.
 build-docker:
@@ -49,8 +53,9 @@ endif
 
 docker_run_cmd = \
 	docker run --rm -it $(DO_VAULT_PASS) \
-	--volume "${PWD}:/home/ubuntu/ansible/" \
+	--volume "${PWD}:/ansible/repo" \
 	--volume "${HOME}/.ssh/:/home/ubuntu/.ssh"
+	--user=${UID} \
 
 run-docker-registry:
 	@${docker_run_cmd} \
@@ -58,13 +63,7 @@ run-docker-registry:
 
 run-docker-registry-dotfiles:
 	@${docker_run_cmd} \
-	--volume "${HOME}/.dotfiles:/home/ubuntu/dotfiles" \
-	registry.gitlab.com/sami-group/homelab
-
-run-docker-registry-dotfiles-root:
-	@${docker_run_cmd} \
-	--volume "${HOME}/.dotfiles:/home/ubuntu/dotfiles" \
-	--user='0' \
+	--volume "${HOME}/dotfiles:/home/ubuntu/dotfiles" \
 	registry.gitlab.com/sami-group/homelab
 
 run-docker-local: build-docker
@@ -72,8 +71,12 @@ run-docker-local: build-docker
 
 run-docker-local-dotfiles: build-docker
 	@${docker_run_cmd} \
-	--volume "${HOME}/.dotfiles:/home/ubuntu/dotfiles" \
+	--volume "${HOME}/dotfiles:/home/ubuntu/dotfiles" \
 	homelab
+
+reqs-docker:
+	@ansible-galaxy install -r requirements.yml -p /ansible/collections/ansible_collections
+	@ansible-galaxy install -r roles/requirements.yml
 
 #--------------
 # Setup Tasks -

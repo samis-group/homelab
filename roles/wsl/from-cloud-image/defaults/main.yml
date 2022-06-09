@@ -6,6 +6,7 @@ ubuntu_img:
 
 ubuntu_img_url: https://cloud-images.ubuntu.com/releases/{{ ubuntu_img.version_number }}/release/ubuntu-{{ ubuntu_img.version_number }}-server-cloudimg-{{ ubuntu_img.cpu_arch }}-wsl.rootfs.tar.gz
 
-wsl_instance_name: "Ubuntu-{{ ubuntu_img.version_number }}-template"
+wsl_instance_name: "Ubuntu-{{ ubuntu_img.version_number }}"
 img_dir: "{{ ansible_env.TEMP }}\\wsl"
 wsl_install_location: C:\wsl\instances\{{ wsl_instance_name }}
+wsl_set_default: true   # Whether or not to make this new image the default

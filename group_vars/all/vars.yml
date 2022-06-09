@@ -112,8 +112,8 @@ secrets_dir: /home/{{ main_user }}/docker/secrets
 # Good practice to keep vault vars visible -> https://docs.ansible.com/ansible/latest/user_guide/playbooks_best_practices.html#keep-vaulted-variables-safely-visible
 # Adjust these as you wish
 
-main_user: "{{ vault_main_user }}"  # User that will be created and will manage the systems/containers
-docker_group: "{{ vault_docker_group }}"            # Leave this as 'docker', the user will need to be added to this group to run docker
+main_user: "{{ vault_main_user | default('ubuntu') }}"  # User that will be created and will manage the systems/containers
+docker_group: "{{ vault_docker_group | default('docker')  }}"            # Leave this as 'docker', the user will need to be added to this group to run docker
 ansible_become_password: "{{ vault_ansible_become_password }}"   # The `main_user` password and also the password ansible will use when connecting and becoming root
 domain_name: "{{ vault_domain_name }}"     # Domain name that traefik resides
 services_username: "{{ vault_services_username }}"         # Username to login to services

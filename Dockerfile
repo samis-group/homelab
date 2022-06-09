@@ -8,6 +8,11 @@ FROM python:3
 ARG DEBIAN_FRONTEND=noninteractive
 # Set TZ
 ENV TZ=Australia/Sydney
+ENV ANSIBLE_ROLES_PATH=/ansible/roles
+# Run as 1000 by default unless passed in
+ARG UID=1000
+ARG GID=1000
+ARG UNAME=ubuntu
 
 # Ubuntu OS dependencies
 RUN apt-get update \
@@ -16,39 +21,36 @@ RUN apt-get update \
   && rm -rf /var/lib/apt/lists/*
 
 # Setup container to run as 'ubuntu' user with same password
-RUN useradd -rm -d /home/ubuntu -s /bin/bash -g root -G sudo -u 1000 ubuntu \
-  && echo "ubuntu:ubuntu" | chpasswd
+RUN useradd -rm -d /home/$UNAME -s /bin/bash -g root -G sudo -u $UID $UNAME \
+  && echo "$UNAME:$UNAME" | chpasswd
 
 # Make required directories and chown them
-RUN mkdir -p /home/ubuntu/.ssh /home/ubuntu/ansible/roles \
-  && chown -R ubuntu:root /home/ubuntu/.ssh /home/ubuntu/ansible \
+RUN mkdir -p /home/$UNAME/.ssh /root/.ssh /ansible/roles \
+  && chown -R $UNAME:root /home/$UNAME/.ssh /ansible \
 # Also ensure sudo group users are not asked for a password when using sudo command
   && echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
 # Set working directory
-WORKDIR /home/ubuntu/ansible
+WORKDIR /ansible
 
 # Copy files and install requirements
-COPY --chown=ubuntu:root requirements* ./
+COPY --chown=$UNAME:root requirements* ./
 RUN pip3 install --upgrade pip && pip3 install --no-cache-dir -r requirements.txt
-COPY --chown=ubuntu:root Makefile ./
-COPY --chown=ubuntu:root makefiles/ makefiles/
-COPY --chown=ubuntu:root roles/requirements* roles/
-# Install ansible requirements as the user that will execute them
-# otherwise they get stored in system files and this is the easiest way
-USER ubuntu
-RUN make reqs
+COPY --chown=$UNAME:root Makefile ./
+COPY --chown=$UNAME:root makefiles/ makefiles/
+COPY --chown=$UNAME:root roles/requirements* roles/
+RUN make reqs-docker
 # Copy bin files (mainly for docker-entrypoint.sh)
-COPY --chown=ubuntu:root bin/ bin/
-
-# Setup aliases
-RUN echo "alias ll='ls -alh'" >> ~/.bashrc
+COPY --chown=$UNAME:root bin/ bin/
 
 # Allow certain bind mounts from outside container
-VOLUME [ "/home/ubuntu/.ssh", "/home/ubuntu/ansible" ]
+VOLUME [ "/home/$UNAME/.ssh", "/ansible/repo" ]
 
 # Some plays delegate to localhost, requires access to itself on ssh
 EXPOSE 22
 
 # Parse the password from ENV and give us shell as default so we can do whatever
-ENTRYPOINT [ "/home/ubuntu/ansible/bin/docker-entrypoint.sh" ]
+ENTRYPOINT [ "/ansible/bin/docker-entrypoint.sh" ]
+
+USER $UNAME
+WORKDIR /ansible/repo
