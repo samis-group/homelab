@@ -16,31 +16,31 @@ Vagrant.configure("2") do |config|
   # Main Node 1
   config.vm.define "k3sm1" do |k3sm1|
       k3sm1.vm.hostname = "k3sm1"
-      k3sm1.vm.network "private_network", bridge: "Realtek PCIe 2.5GbE Family Controller", ip: "10.10.0.30"
+      k3sm1.vm.network "private_network", bridge: "Realtek PCIe 2.5GbE Family Controller", ip: "192.168.30.30"
   end
 
   # Main Node 2
   config.vm.define "k3sm2" do |k3sm2|
       k3sm2.vm.hostname = "k3sm2"
-      k3sm2.vm.network "private_network", bridge: "Realtek PCIe 2.5GbE Family Controller", ip: "10.10.0.31"
+      k3sm2.vm.network "private_network", bridge: "Realtek PCIe 2.5GbE Family Controller", ip: "192.168.30.31"
   end
 
   # Worker Node 1
   config.vm.define "k3sn1" do |k3sn1|
     k3sn1.vm.hostname = "k3sn1"
-    k3sn1.vm.network "private_network", bridge: "Realtek PCIe 2.5GbE Family Controller", ip: "10.10.0.35"
+    k3sn1.vm.network "private_network", bridge: "Realtek PCIe 2.5GbE Family Controller", ip: "192.168.30.35"
   end
-  
+
   # Worker Node 2
   config.vm.define "k3sn2" do |k3sn2|
     k3sn2.vm.hostname = "k3sn2"
-    k3sn2.vm.network "private_network", bridge: "Realtek PCIe 2.5GbE Family Controller", ip: "10.10.0.36"
+    k3sn2.vm.network "private_network", bridge: "Realtek PCIe 2.5GbE Family Controller", ip: "192.168.30.36"
   end
-  
+
   # Worker Node 3
   config.vm.define "k3sn3" do |k3sn3|
       k3sn3.vm.hostname = "k3sn3"
-      k3sn3.vm.network "private_network", bridge: "Realtek PCIe 2.5GbE Family Controller", ip: "10.10.0.37"
+      k3sn3.vm.network "private_network", bridge: "Realtek PCIe 2.5GbE Family Controller", ip: "192.168.30.37"
   end
 
   config.vm.provision "ansible", type: "ansible", run: "never" do |ansible|
