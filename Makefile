@@ -130,6 +130,9 @@ githook:
 	@chmod +x .git/hooks/pre-commit
 	@echo "$$(tput setaf 2)Githook Deployed!$$(tput sgr0)"
 
+vagrant-setup:
+	@vagrant box add generic/ubuntu2004
+
 #----------
 # Linters -
 #----------
