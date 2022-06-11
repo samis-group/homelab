@@ -5,12 +5,25 @@
     state: latest
     update_cache: true
 
+- name: Get distribution short name
+  shell:
+    cmd: "lsb_release -cs"
+  register: wsl_distro_short_name
+
+- name: Add apt signing keys
+  apt_key:
+    url: "{{ item }}"
+    state: present
+  with_items:
+    - https://apt.releases.hashicorp.com/gpg
+
 - name: Add apt repo's
   ansible.builtin.apt_repository:
     repo: "{{ item }}"
     state: present
   with_items:
-    - 'ppa:yktooo/ppa'
+    - ppa:yktooo/ppa
+    - deb [arch=amd64] https://apt.releases.hashicorp.com {{ wsl_distro_short_name.stdout }} main
 
 - name: Install required packages
   apt:
@@ -39,6 +52,7 @@
       - git
       - unzip
       - pwgen
+      - vagrant
 
 - name: pip self-update
   pip:

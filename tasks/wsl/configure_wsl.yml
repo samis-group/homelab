@@ -5,6 +5,7 @@
     block: |
       wsl.exe -u root -e sh -c "service docker status || service docker start"
       wsl.exe -u root -e sh -c "service ssh status || service ssh start"
+      export DOCKER_HOST=tcp://127.0.0.1:2375
 
 - name: Comment every item in /etc/environment file out - it keeps breaking windows paths in WSL, and I need those
   replace:
