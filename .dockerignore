@@ -1,4 +1,4 @@
-# Exclude the following from the dockerfile
+# Exclude the following from the docker build
 docs
 host_vars_example
 .git*
