@@ -51,6 +51,32 @@
       when: copy_files
       tags: ["copy_files"]
 
+- name: Download and provision LXC templates/containers
+  hosts: lxc
+  gather_facts: false   # Because they don't exist yet
+  become: true
+
+  handlers:
+
+    - import_tasks: handlers/proxmox.yml
+
+  pre_tasks:  &pre_tasks2   # Anchors to re-use the code later. No point duplicating code.
+
+    - name: Include playbook configuration.
+      include_vars: "{{ item }}"
+      with_fileglob:
+        - "{{ playbook_dir }}/vars/config.yml"  # fileglob needs full path maybe?
+      # Special tag 'always' -> https://docs.ansible.com/ansible/latest/user_guide/playbooks_tags.html#special-tags-always-and-never
+      tags: ["always"]
+
+  tasks:
+
+    - name: Download and configure LXC containers
+      import_tasks: tasks/proxmox/provision_lxcs.yml
+      when: provision_lxcs
+      tags: ["provision_lxcs"]
+      delegate_to: proxmox1  # The hosts aren't provisioned yet, so no tasks should run on them. Delegate everything to proxmox but use lxc inventory.
+
 - name: Download and configure base ubuntu template from cloud image
   hosts: proxmox1
 
@@ -62,15 +88,15 @@
 
   tasks:
 
-    - name: Create Ubuntu VM Template from cloud image
+    - name: Create Ubuntu VM Template from public cloud image
       import_role:
-        name: proxmox-template-from-ubuntu-cloud-image
+        name: proxmox/vm-template-from-ubuntu-cloud-image
       when: create_vm_template
       tags: ["create_vm_template"]
 
 # Run this play with the docker host inventory, (load vm definition vars defined in each host_vars/host item), but delegate the tasks to proxmox
 - name: Provision VM's on Proxmox Host
-  hosts: docker
+  hosts: docker_dev
   gather_facts: false   # Because they don't exist yet
   become: true
 
@@ -78,13 +104,19 @@
 
     - import_tasks: handlers/proxmox.yml
 
+  pre_tasks: *pre_tasks2
+
   tasks:
 
     - name: Provision VM's from template
       import_tasks: tasks/proxmox/provision_vms.yml
-      delegate_to: localhost  # The hosts aren't provisioned yet, so no tasks should run on them. Delegate everything to proxmox but use docker inventory. Also no proxmoxer pip installed, this is required.
+      when: provision_vms
+      tags: ["provision_vms"]
+      delegate_to: proxmox1  # The hosts aren't provisioned yet, so no tasks should run on them. Delegate everything to proxmox but use docker inventory.
 
     - name: Run Post Tasks
+      when: provision_vms
+      tags: ["provision_vms"]
       import_tasks: tasks/proxmox/vm_post_tasks.yml
 
 # LXC Containers - not done yet - Will deploy workloads such as DB server here

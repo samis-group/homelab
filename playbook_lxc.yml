@@ -1,0 +1,73 @@
+---
+###########
+### LXC ###
+###########
+
+- name: Setup and configure dev01 Container
+  hosts: dev01
+  become: true
+
+  pre_tasks:
+
+    - name: Include playbook configuration.
+      include_vars: "{{ item }}"
+      with_fileglob:
+        - "{{ playbook_dir }}/vars/config.yml"
+      # Special tag 'always' -> https://docs.ansible.com/ansible/latest/user_guide/playbooks_tags.html#special-tags-always-and-never
+      tags: ["always"]
+
+    # This is to get the PUID and PGID variables to use later in multiple areas
+    - name: Get user info or create a user if one doesn't exist
+      import_tasks: tasks/linux/pre_tasks.yml
+      tags: ["always"]
+
+  roles:
+
+    - geerlingguy.docker  # geerlingguy roles don't work in WSL - Use docker desktop WSL integration instead.
+    - geerlingguy.ntp     # geerlingguy roles don't work in WSL.
+
+  tasks:
+
+    - name: Install OS updates and required packages
+      import_tasks: tasks/wsl/install_os_packages.yml
+      when: install_os_packages
+      tags: ["install_os_packages"]
+
+    - name: Copy git repos
+      import_tasks: tasks/wsl/git.yml
+      when: git
+      tags: ["git"]
+
+- name: Setup and configure ldap Container
+  hosts: ldap
+  become: true
+
+  pre_tasks:
+
+    - name: Include playbook configuration.
+      include_vars: "{{ item }}"
+      with_fileglob:
+        - "{{ playbook_dir }}/vars/config.yml"
+      # Special tag 'always' -> https://docs.ansible.com/ansible/latest/user_guide/playbooks_tags.html#special-tags-always-and-never
+      tags: ["always"]
+
+    # This is to get the PUID and PGID variables to use later in multiple areas
+    - name: Get user info or create a user if one doesn't exist
+      import_tasks: tasks/linux/pre_tasks.yml
+      tags: ["always"]
+
+  roles:
+
+    - geerlingguy.ntp     # geerlingguy roles don't work in WSL.
+
+  # tasks:
+
+  #   - name: Install OS updates and required packages
+  #     import_tasks: tasks/wsl/install_os_packages.yml
+  #     when: install_os_packages
+  #     tags: ["install_os_packages"]
+
+  #   - name: Copy git repos
+  #     import_tasks: tasks/wsl/git.yml
+  #     when: git
+  #     tags: ["git"]

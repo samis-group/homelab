@@ -25,6 +25,14 @@
 
     - andrewrothstein.kubectl
     - geerlingguy.helm
+    - role: markosamuli.pyenv
+      vars: # More info -> https://github.com/markosamuli/ansible-pyenv#role-variables
+        pyenv_init_shell: false # https://github.com/markosamuli/ansible-pyenv#changes-to-shell-config-files
+        pyenv_python_versions:
+          - "{{ pyenv_python310_version }}"
+          - "{{ pyenv_python39_version }}"
+          - "{{ pyenv_python38_version }}"
+          - "{{ pyenv_python37_version }}"
     # - geerlingguy.docker  # geerlingguy roles don't work in WSL - Use docker desktop WSL integration instead.
     # - geerlingguy.ntp     # geerlingguy roles don't work in WSL.
 

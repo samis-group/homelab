@@ -34,6 +34,24 @@ vm_defaults:
     ipconfig0: "ip={{ vm_network }}200/{{ vm_netmask }},gw={{ vm_gateway }}"  # default ip address is X.X.X.200
   agent: true   # Enable QEMU guest agent
 
+lxc_template:
+  storage: local # Location where the template image will download to (not the container storage)
+  image: ubuntu-22.04-standard_22.04-1_amd64.tar.zst # run `pveam available` to list available images to download.
+
+lxc_defaults:
+  template: "{{ lxc_template.storage }}:vztmpl/{{ lxc_template.image }}"
+  container_storage: local-lvm # Location where the container storage will be set to (not the imaage template storage)
+  ssh_key: "{{ vm_defaults.ssh_key }}"
+  password: "{{ ansible_become_password }}"
+  cores: "2"
+  cpus: "2"
+  memory: 2048 # memory size (in MB)
+  disk: "10" # Size of disk (in GB)
+  onboot: yes # https://docs.ansible.com/ansible/latest/collections/community/general/proxmox_module.html#parameter-onboot
+  nameserver: "{{ vm_gateway }}"  # My Primary DNS is the router, it recursively resolves upstream to cloudflare + google, but all requests through it.
+  default_behavior: compatibility
+  network_device: 'vmbr0'
+
 ssh:                            # SSH key to connect to docker vm
   key_prefix: id_rsa_
   key_private: "{{ user_dir }}/.ssh/id_rsa_personal"
@@ -53,9 +71,9 @@ install_os_packages: true
 copy_files: true
 test_task: false    # Do not change this. If you want to run the test task, use `make test` instead.
 install_docker: true
-provision_k3s_vms: true
-provision_docker_vms: false
 git: true   # Docker and WSL
+provision_vms: true   # Provision VM's
+provision_lxcs: true  # Provision LXC's
 
 # Others
 name_servers: '1.1.1.1,1.0.0.1'

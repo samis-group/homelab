@@ -11,6 +11,9 @@
 - name: Setup and configure Docker VM's
   import_playbook: playbook_docker.yml
 
+- name: Setup and configure LXC's
+  import_playbook: playbook_lxc.yml
+
 - name: Configure Windows
   import_playbook: playbook_windows.yml
 

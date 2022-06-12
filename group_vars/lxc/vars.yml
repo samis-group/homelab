@@ -1,0 +1,3 @@
+---
+main_user: root
+ansible_user: root  # LXC's use 'root' user

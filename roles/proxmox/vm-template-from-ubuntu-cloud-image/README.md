@@ -16,16 +16,6 @@ Proxmox server, with `promoxer` Ansible lastest version, tested on ansible core 
 
 This role also requires the community.general collection to be installed mainly for the proxmox module.
 
-## Installation
-
-**tbd**. I assume you put this in `requirements.yml`:
-
-```yaml
-- name: proxmox-template-from-ubuntu-cloud-image
-  src: https://gitlab.com/sami-group/ansible-roles/create-proxmox-template-from-ubuntu-cloud-image.git
-  scm: git
-```
-
 ## Usage
 
 **tbd** right now.
@@ -44,9 +34,3 @@ If you want it to do something in addition to what this role already does, for t
 
 - Me **(Patting back intensifies)**.
 - [Also credit to ferni95 for their role that I took bits off.](https://github.com/Ferni95/Ansible-Proxmox-VMs)
-
-## License
-
-This software is available under the following licenses:
-
-- **[MIT](./LICENSE)**

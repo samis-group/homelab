@@ -2,8 +2,8 @@
 # Proxmox #
 ## Personal Roles
 ### This is now just in the same repo.
-# - name: proxmox-template-from-ubuntu-cloud-image
-#   src: https://gitlab.com/sami-group/ansible-roles/create-proxmox-template-from-ubuntu-cloud-image.git
+# - name: vm-template-from-ubuntu-cloud-image
+#   src: https://gitlab.com/sami-group/ansible-roles/vm-template-from-ubuntu-cloud-image.git
 #   scm: git
 
 ## Others
@@ -24,3 +24,6 @@
 - src: geerlingguy.ntp  # Currently Unused - This is also for proxmox above
 - src: andrewrothstein.kubectl  # Installs kubectl - mainly for WSL
 - src: geerlingguy.helm
+- name: markosamuli.pyenv
+  src: https://github.com/markosamuli/ansible-pyenv.git
+  scm: git

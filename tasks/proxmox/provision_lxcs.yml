@@ -1,3 +1,65 @@
 ---
 # TODO: Provision LXC containers, to install standalone apps on
 # (like gitlab runner moving away from docker and being to completely rebuild it)
+
+- name: Setup cloudflare DNS for LXC's
+  community.general.cloudflare_dns:
+    zone: "{{ domain_name }}"
+    record: "{{ lxc_container.name | default(inventory_hostname_short) }}"
+    type: A
+    value: "{{ lxc_ip_address }}"
+    api_token: "{{ cloudflare_api_token }}"
+
+# This can fail, just ssh to pve and download the template with the command:
+# pveam download local <image_name>
+- name: Ensure LXC Template exists
+  community.general.proxmox_template:
+    node: "{{ pve.proxmox_node }}"
+    api_user: "{{ pve.proxmox_api_user }}"
+    api_password: "{{ pve.proxmox_api_pass }}"
+    api_host: "localhost"
+    storage: "{{ lxc_template.storage }}"
+    template: "{{ lxc_container.image | default(lxc_template.image) }}"
+    timeout: 120  # Turnkey images take time to download
+
+# There is a weird issue where if you are using `proxmox` module, you need to delegate the task to proxmox host and api_host must = localhost
+# I believe it is to do with it parsing IP address. I tried with a domain but no luck either. Worked when delegated the task and specifying localhost.
+- name: create LXC containers
+  community.general.proxmox:
+    node: "{{ pve.proxmox_node }}"
+    api_user: "{{ pve.proxmox_api_user }}"
+    api_password: "{{ pve.proxmox_api_pass }}"
+    api_host: "localhost"
+    proxmox_default_behavior: "{{ lxc_container.default_behavior | default(lxc_defaults.default_behavior) }}"
+    state: "present"
+    ostemplate: '{{ lxc_template.storage }}:vztmpl/{{ lxc_container.image | default(lxc_template.image) }}'
+    vmid: "{{ lxc_container.id | default(omit) }}"
+    description: "{{ lxc_container.description | default(omit) }}"
+    hostname: "{{ inventory_hostname | default(omit) }}"
+    password: "{{ lxc_container.password | default(lxc_defaults.password) }}"
+    pubkey: "{{ lxc_container.ssh_key | default(lxc_defaults.ssh_key) }}"
+    cores: "{{ lxc_container.cores | default(lxc_defaults.cores) }}"
+    cpus: "{{ lxc_container.cpus | default(lxc_defaults.cpus) }}"
+    memory: "{{ lxc_container.memory | default(lxc_defaults.memory) }}"
+    swap: "{{ lxc_container.swap | default(omit) }}"
+    disk: "{{ lxc_container.disk | default(lxc_defaults.disk) }}"
+    mounts: "{{ lxc_container.mounts | default(omit) }}"
+    netif: "{{ lxc_container.netif | default(omit) }}"
+    storage: "{{ lxc_container.container_storage | default(lxc_defaults.container_storage) }}"  # target storage
+    onboot: "{{ lxc_container.onboot | default(lxc_defaults.onboot) }}"
+    nameserver: "{{ lxc_container.nameserver | default(lxc_defaults.nameserver) }}"
+  register: created_cts_pve
+  ignore_errors: true
+
+- name: debug lxc creation
+  debug:
+    var: created_cts_pve
+
+- name: Start containers
+  community.general.proxmox:
+    vmid: "{{ lxc_container.id }}"
+    node: "{{ pve.proxmox_node }}"
+    api_user: "{{ pve.proxmox_api_user }}"
+    api_password: "{{ pve.proxmox_api_pass }}"
+    api_host: "localhost"
+    state: started
