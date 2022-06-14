@@ -18,6 +18,7 @@ install_telegraf: true
 schedule_tasks: true
 test_task: false    # Do not change this. If you want to run the test task, use `make test` instead.
 download_wsl_instance: false   # Download and create a new WSL instance from Ubuntu cloud-image
+firefox_setup: true
 
 # List of features: "Get-WindowsOptionalFeature -Online"
 # If you want to disable any features, ensure "install_windows_features" is 'true', then set the feature itself to 'false'.

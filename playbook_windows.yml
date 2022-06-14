@@ -52,6 +52,11 @@
       when: chocolatey
       tags: ["chocolatey"]
 
+    - name: Configure Firefox Profiles
+      import_tasks: tasks/windows/firefox_setup.yml
+      when: firefox_setup
+      tags: ["firefox_setup"]
+
     - name: Copy required files
       import_tasks: tasks/windows/copy_files.yml
       tags: ["copy_files"]

@@ -1,0 +1,6 @@
+---
+- name: Create Firefox Profiles
+  ansible.windows.win_command: cmd.exe /k start firefox -CreateProfile {{ item }}
+  with_items:
+    - personal
+    - work
