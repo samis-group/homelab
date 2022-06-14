@@ -1,20 +1,24 @@
 ---
-###########
-### WSL ###
-###########
+# import overrides
+- hosts: wsl
+  # Special tag "always" -> https://docs.ansible.com/ansible/latest/user_guide/playbooks_tags.html#special-tags-always-and-never
+  tags: [ "always" ]
+  gather_facts: false
+  tasks:
+  - name: Include playbook configuration.
+    include_vars: "{{ item }}"
+    with_fileglob:
+      - "{{ playbook_dir }}/vars/config.yml"
 
-- name: Setup WSL
+################
+### WSL Base ###
+################
+
+- name: Setup Base WSL (Every WSL instance)
   hosts: wsl
   become: true
 
   pre_tasks:
-
-    - name: Include playbook configuration.
-      include_vars: "{{ item }}"
-      with_fileglob:
-        - "{{ playbook_dir }}/vars/config.yml"
-      # Special tag 'always' -> https://docs.ansible.com/ansible/latest/user_guide/playbooks_tags.html#special-tags-always-and-never
-      tags: ["always"]
 
     # This is to get the PUID and PGID variables to use later in multiple areas
     - name: Get user info or create a user if one doesn't exist
@@ -23,8 +27,6 @@
 
   roles:
 
-    - andrewrothstein.kubectl
-    - geerlingguy.helm
     - role: markosamuli.pyenv
       vars: # More info -> https://github.com/markosamuli/ansible-pyenv#role-variables
         pyenv_init_shell: false # https://github.com/markosamuli/ansible-pyenv#changes-to-shell-config-files

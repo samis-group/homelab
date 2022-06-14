@@ -63,8 +63,8 @@ cd ~/git/personal/ && git clone git@gitlab.com:sami-group/homelab.git && cd home
 # Go through setting up password. This also drops you in a container shell already setup to go.
 make run-docker-registry-dotfiles
 
-# Build and configure proxmox host
-make proxmox
+# Build my current stack
+make execute
 
 # Setup k3s HA vm's
 make k3s
@@ -187,8 +187,6 @@ ansible-vault edit --vault-password-file ~/.ansible/password inventory
 If you have setup your vault password and ran the `make setup` task successfully, just run the following to execute the playbook in it's entirety:
 
 ```bash
-make
-# or
 make execute
 ```
 

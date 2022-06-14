@@ -1,4 +1,15 @@
 ---
+# import overrides
+- hosts: k3s
+  # Special tag "always" -> https://docs.ansible.com/ansible/latest/user_guide/playbooks_tags.html#special-tags-always-and-never
+  tags: [ "always" ]
+  gather_facts: false
+  tasks:
+  - name: Include playbook configuration.
+    include_vars: "{{ item }}"
+    with_fileglob:
+      - "{{ playbook_dir }}/vars/config.yml"
+
 ###################
 ### k3s cluster ###
 ###################
@@ -8,13 +19,6 @@
   become: true
 
   pre_tasks:  &pre_tasks   # Anchors to re-use the code later. No point duplicating code.
-
-    - name: Include playbook configuration.
-      include_vars: "{{ item }}"
-      with_fileglob:
-        - "{{ playbook_dir }}/vars/config.yml"
-      # Special tag 'always' -> https://docs.ansible.com/ansible/latest/user_guide/playbooks_tags.html#special-tags-always-and-never
-      tags: ["always"]
 
     # This is to get the PUID and PGID variables to use later in multiple areas
     - name: Get user info or create a user if one doesn't exist
@@ -90,5 +94,4 @@
 
     - name: Deploy Helm Charts
       import_tasks: tasks/k3s/deploy_helm_charts.yml
-      tags: ["deploy_helm_charts"]
       when: ansible_host == hostvars[groups['k3s_main'][0]]['ansible_host'] | default(groups['k3s_main'][0])  # We only want to deploy the chart to the k3sm1 (k3s-main-1) node.

@@ -1,7 +1,7 @@
 ###########
 # Proxmox #
 ###########
-.PHONY: proxmox-vm proxmox-vm-v proxmox-vms proxmox-vm-template proxmox-force-vm-template
+.PHONY: proxmox proxmox-run-tags proxmox-run-tags-v proxmox-vm-template proxmox-force-vm-template proxmox-provision-docker-vms proxmox-provision-k3s-vms
 
 proxmox:	## 🖥️ Main Proxmox playbook
 	@ansible-playbook -i inventory/hosts.ini playbook_proxmox.yml $(runargs)

@@ -1,4 +1,15 @@
 ---
+# import overrides
+- hosts: docker
+  # Special tag "always" -> https://docs.ansible.com/ansible/latest/user_guide/playbooks_tags.html#special-tags-always-and-never
+  tags: [ "always" ]
+  gather_facts: false
+  tasks:
+  - name: Include playbook configuration.
+    include_vars: "{{ item }}"
+    with_fileglob:
+      - "{{ playbook_dir }}/vars/config.yml"
+
 ###########################
 ### Configure Docker VM ###
 ###########################
@@ -9,13 +20,6 @@
   become: true
 
   pre_tasks:
-
-    - name: Include playbook configuration.
-      include_vars: "{{ item }}"
-      with_fileglob:
-        - "{{ playbook_dir }}/vars/config.yml"
-      # Special tag 'always' -> https://docs.ansible.com/ansible/latest/user_guide/playbooks_tags.html#special-tags-always-and-never
-      tags: ["always"]
 
     # This is to get the PUID and PGID variables to use later in multiple areas
     - name: Get user info or create a user if one doesn't exist
@@ -34,29 +38,24 @@
         # docker_compose_version: "v2.5.0"
         docker_users: ["{{ vm.user | default(vm_defaults.user) }}"]    # list of users who will be added to the docker group
       when: install_docker
-      tags: ["install_docker"]
 
   tasks:
 
     - name: Install OS updates and required packages
       import_tasks: tasks/docker/install_os_packages.yml
       when: install_os_packages
-      tags: ["install_os_packages"]
 
     - name: Configuring Hostname
       import_tasks: tasks/linux/configure_hostname.yml
       when: configure_hostname
-      tags: ["configure_hostname"]
 
     - name: Configure gitlab registry and clone git repos
       import_tasks: tasks/docker/git.yml
       when: git
-      tags: ["git"]
 
     - name: Run Post docker install tasks
       import_tasks: tasks/docker/run_post_tasks.yml
       when: run_post_tasks
-      tags: ["run_post_tasks"]
 
     - name: Updating docker-compose and related files
       import_tasks: tasks/docker/copy_files.yml
@@ -76,22 +75,18 @@
     - name: Write logrotate files to host
       import_tasks: tasks/docker/logrotate.yml
       when: logrotate
-      tags: ["logrotate"]
 
     - name: Setup NAS mounts
       import_tasks: tasks/docker/setup_nas_mounts.yml
       when: setup_nas_mounts
-      tags: ["setup_nas_mounts"]
 
     - name: Setup Crons
       import_tasks: tasks/docker/setup_crons.yml
       when: setup_crons
-      tags: ["setup_crons"]
 
     - name: Configure Home Assistant
       import_tasks: tasks/docker/hass_config.yml
       when: hass_config
-      tags: ["hass_config"]
 
     - name: Restore docker data from NFS mount on NAS? (optional)
       import_tasks: tasks/docker/restore_docker_data.yml

@@ -27,7 +27,7 @@ help:	# 💬 This help message
 # Run the playbook (Assumes `make setup` has already been run, If not, go do that first).
 # Note: Vault password file directive is now specified in 'ansible.cfg'.
 # Update this default target with the targets you wish to deploy. This is my current stack.
-execute: proxmox docker wsl windows	## 🔨 Execute my currently used playbooks/automations
+execute: proxmox docker wsl windows lxc	## 🔨 Execute my currently used playbooks/automations
 
 #------------------------------------------------------------------------#
 # This will make everything from absolutely nothing but debian machines. #

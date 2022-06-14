@@ -1,4 +1,15 @@
 ---
+# import overrides
+- hosts: windows
+  # Special tag "always" -> https://docs.ansible.com/ansible/latest/user_guide/playbooks_tags.html#special-tags-always-and-never
+  tags: [ "always" ]
+  gather_facts: false
+  tasks:
+  - name: Include playbook configuration.
+    include_vars: "{{ item }}"
+    with_fileglob:
+      - "{{ playbook_dir }}/vars/config.yml"
+
 ###############
 ### Windows ###
 ###############
@@ -8,14 +19,6 @@
   become: true
   become_method: runas
   become_user: "{{ main_user }}"
-
-  pre_tasks:
-
-    - name: Include playbook configuration.
-      include_vars: "{{ item }}"
-      with_fileglob:
-        - "{{ playbook_dir }}/vars/config.yml"
-      tags: ["always"]
 
   handlers:
 

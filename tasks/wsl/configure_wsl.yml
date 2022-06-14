@@ -3,6 +3,7 @@
   blockinfile:
     path: "{{ user_dir }}/.profile"
     block: |
+      # Start Docker and SSH on boot
       wsl.exe -u root -e sh -c "service docker status || service docker start"
       wsl.exe -u root -e sh -c "service ssh status || service ssh start"
       # For vagrant
@@ -25,6 +26,7 @@
 - name: Ensure vagrant config file exists
   file:
     path: /etc/vbox/networks.conf
+    state: touch
 
 - name: ensure vagrant config updated
   blockinfile:
