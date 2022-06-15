@@ -143,3 +143,8 @@ install_fonts: false
 installed_nerdfonts:
   - FiraCode
   - FantasqueSansMono
+
+firefox:
+  profiles:
+    - work
+    - personal

@@ -1,6 +1,39 @@
 ---
 - name: Create Firefox Profiles
-  ansible.windows.win_command: cmd.exe /k start firefox -CreateProfile {{ item }}
-  with_items:
-    - personal
-    - work
+  win_command: cmd.exe /k start firefox -CreateProfile {{ item }}
+  with_items: "{{ firefox.profiles }}"
+
+- name: Copy autoconfig.js file
+  win_copy:
+    src: files/windows/firefox/autoconfig.js
+    dest: C:\Program Files\Mozilla Firefox\defaults\pref\autoconfig.js
+
+- name: Copy firefox.cfg file
+  win_copy:
+    src: files/windows/firefox/firefox.cfg
+    dest: C:\Program Files\Mozilla Firefox\firefox.cfg
+
+- name: Find Firefox Profile Dirs
+  win_find:
+    file_type: directory
+    # Need to add wildcard to search to find folders
+    patterns: |
+      {%- set dirs = [] -%}
+      {%- for profile in firefox.profiles -%}
+      {%- do dirs.append('*.' ~ profile) -%}
+      {%- endfor -%}
+      {{ dirs }}
+    paths: "{{ ansible_facts.env.APPDATA }}\\Mozilla\\Firefox\\Profiles"
+  register: firefox_profile_dirs
+
+- name: Ensure required dir 'chrome' exists
+  win_file:
+    path: "{{ item.path }}\\chrome"
+    state: directory
+  with_items: "{{ firefox_profile_dirs.files }}"
+
+- name: Deploy userChrome.css file to profiles
+  win_copy:
+    src: files/windows/firefox/userChrome.css
+    dest: "{{ item.path }}\\chrome"
+  with_items: "{{ firefox_profile_dirs.files }}"
