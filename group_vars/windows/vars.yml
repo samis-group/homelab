@@ -148,3 +148,5 @@ firefox:
   profiles:
     - work
     - personal
+    - default-release
+    - default
