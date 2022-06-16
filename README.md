@@ -52,7 +52,7 @@ This repo can even setup my windows/linux desktop PC's.
 
 ❗ Ensure you already have docker installed and working locally. This pulls an image, sets it up and drops you in shell to run any make target you want.
 
-If you aren't me, this TLDR probably won't help you much, as I've got my variables encrypted in this repo. You won't have access, so read the long notes to set it all up.
+If you aren't me, this TL;DR probably won't help you much, as I've got my variables encrypted in this repo. You won't have access, so read the long notes to set it all up.
 
 Run the following commands to bring this entire project up from nothing but proxmox (nothing but debian soon to come once I have new hardware to test it all as I need a spare bare metal host):
 
