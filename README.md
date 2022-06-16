@@ -68,6 +68,9 @@ make execute
 
 # Setup k3s HA vm's
 make k3s
+
+# Setup docker vm
+make docker
 ```
 
 Optionally, run this to not spin up a container and ephemeral workspace and setup localhost wsl instance:
