@@ -1,14 +1,13 @@
 ---
-# import overrides
+#-------------------------------------#
+# Pre-tasks run before anything else! #
+#-------------------------------------#
 - hosts: docker
   # Special tag "always" -> https://docs.ansible.com/ansible/latest/user_guide/playbooks_tags.html#special-tags-always-and-never
   tags: [ "always" ]
   gather_facts: false
   tasks:
-  - name: Include playbook configuration.
-    include_vars: "{{ item }}"
-    with_fileglob:
-      - "{{ playbook_dir }}/vars/config.yml"
+    - import_tasks: tasks/pre-all.yml
 
 ###########################
 ### Configure Docker VM ###

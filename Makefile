@@ -109,7 +109,7 @@ reqs-docker:	## 🐳🚧 Install ansible galaxy requirements
 setup: apt pip reqs store-password githook	## 🚧 Run setup tasks like apt, pip requirements, store-password and githook (below)
 
 apt:	## 🚧 install apt requirements on the local system
-	${DO_SUDO} apt install python3-pip
+	${DO_SUDO} apt install python3-pip python3-testresources unzip
 
 pip:	## 🚧 Install python module requirements via requirements.txt file
 	${DO_SUDO} pip3 install --upgrade pip
@@ -133,6 +133,14 @@ githook:	## 🚧 Creates a pre-commit webhook so that you don't accidentally com
 	@cp bin/git-vault-check.sh .git/hooks/pre-commit
 	@chmod +x .git/hooks/pre-commit
 	@echo "$$(tput setaf 2)Githook Deployed!$$(tput sgr0)"
+
+bitwarden:	## 🚧 Copy bitwarden binary and login
+	@sudo unzip -n bin/bw-linux-1.22.1.zip -d /usr/bin/ && sudo chmod 755 /usr/bin/bw
+
+bitwarden-login:
+	@echo "IMPORTANT! To keep your session open, run the following: export BW_SESSION=$$(bw unlock --raw)"
+	@bw login
+	@echo "IMPORTANT! To keep your session open, run the following: export BW_SESSION=$$(bw unlock --raw)"
 
 vagrant-setup:	## 🚧 Add generic/ubuntu2004 box to vagrant (assumes vagrant is installed already, run `make wsl` to do so)
 	@vagrant box add generic/ubuntu2004
