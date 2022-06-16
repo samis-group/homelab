@@ -1,6 +1,9 @@
 ---
-
-### Ensure you have gitlab repos to clone! If you aren't me, do you want to run this? ###
+### Ensure you have gitlab repos to clone! If you aren't me, do you want to run this?
+- name: Copy gitlab credentials in credentials store file from template
+  template:
+    src: wsl/.git-credentials.j2
+    dest: "{{ user_dir }}/.git-credentials"
 
 - name: Checkout containers source code
   git:
@@ -20,16 +23,17 @@
     dest: "{{ user_dir }}/git/personal/homelab"
     key_file: "{{ user_dir }}/.ssh/{{ main_user_ssh_key_prefix ~ inventory_hostname_short }}"
     accept_hostkey: true
-  # register: git_checkout_code_homelab
+  register: git_checkout_code_homelab
   ignore_errors: true   # Because Home assistant gets changed to, and realistically, this only needs to be run initially anyway.
   become: false
-  no_log: true  # Don't spew out my token
+  no_log: true  # Don't spew out my token pls
 
 - name: Running `make setup` in homelab so your githooks are deployed - If prompted for "Password", this is the ansible vault password.
   shell:
     cmd: make setup
     chdir: "{{ user_dir }}/git/personal/homelab"
   register: make_setup
+  when: git_checkout_code_homelab is changed  # Only setup if the repo was cloned
 
 # Output make setup for debugging
 - debug: var=make_setup.stdout_lines

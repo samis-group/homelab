@@ -169,6 +169,10 @@ pve: "{{ vault_pve }}"
   # mac: xx:xx:xx:xx:xx:xx  # MAC address of the proxmox server for WOL
   # broadcast: '255.255.255.255' # broadcast network parameter for WOL
 
+github: "{{ vault_github }}"
+  # username: username
+  # token: ghp_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
 gitlab: "{{ vault_gitlab }}"
   # username: XXXXXXXXX
   # personal_access_token: glpat-XXXXXXXXXXXXX   # API token for docker vm to login and access gitlab registry and api and clone repos
