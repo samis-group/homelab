@@ -1,25 +1,21 @@
 ---
 # get user info
-# - name: get user info
-#   user:
-#     name: "{{ ansible_facts.user_id | default(main_user) }}"
-#   register: user_info
-#   ignore_errors: true
+- name: get user info
+  user:
+    name: "{{ ansible_facts['env']['SUDO_USER'] | default(ansible_facts.user_id) }}"
+  register: user_info
+  ignore_errors: true
 
-- name: Print all available facts
-  ansible.builtin.debug:
-    var: ansible_facts
+- name: debug user_info
+  debug:
+    var: user_info
 
 # Grab UID/GID into vars
 - name: set variables UID and GID for user to use in the rest of the playbook
   set_fact:
-    puid: "{{ ansible_facts['env']['SUDO_UID'] | default(ansible_facts.user_id) }}"
+    puid: "{{ ansible_facts['env']['SUDO_USER'] | default(ansible_facts.user_id) }}"
     pgid: "{{ ansible_facts['env']['SUDO_GID'] | default(ansible_facts.user_gid) }}"
     user_dir: "{{ ansible_facts.env.USER }}"
     docker_dir: /home/{{ main_user }}/docker
     git_dir: /home/{{ main_user }}/git/personal
     secrets_dir: /home/{{ main_user }}/docker/secrets
-
-- name: debug user_info
-  debug:
-    var: user_info
