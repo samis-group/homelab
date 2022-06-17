@@ -31,13 +31,13 @@
     state: present
     pkg:
       - wget
-      - curl                   # Docker
+      - curl              # Docker
       - telnet
       - net-tools
       - logrotate
       - ca-certificates   # Docker
-      - gnupg               # Docker
-      - lsb-release        # Docker
+      - gnupg             # Docker
+      - lsb-release       # Docker
       - htop
       - make
       - vim
@@ -79,4 +79,4 @@
     dest: "{{ user_dir }}/.vim/bundle/Vundle.vim"
     clone: true
     update: true
-  become_user: "{{ main_user }}"  # We want ownership of the repo to be the user
+  become_user: "{{ user_info.name }}"  # We want ownership of the repo to be the user that we're cloning to

@@ -6,12 +6,15 @@
   register: user_info
   ignore_errors: true
 
+# Print user info every run
+- debug: var=user_info
+
 # Grab UID/GID into vars
 - name: set variables UID and GID for user to use in the rest of the playbook
   set_fact:
     puid: "{{ user_info.uid | default(ansible_facts.user_id) }}"
     pgid: "{{ user_info.group | default(ansible_facts.user_gid) }}"
     user_dir: "{{ user_info.home | default(ansible_facts.env.HOME) }}"
-    docker_dir: "{{ user_info.home }}/docker"
     git_dir: "{{ user_info.home }}/git/personal"
-    secrets_dir: "{{ user_info.home }}/docker/secrets"
+    docker_dir: "{{ user_info.home }}/docker"
+    docker_secrets_dir: "{{ user_info.home }}/docker/secrets"

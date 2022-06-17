@@ -11,18 +11,6 @@
 
 - name: Test Playbook
 
-  # pre_tasks:
-
-  #   # This is to get the PUID and PGID variables to use later in multiple areas
-  #   - name: Get user info or create a user if one doesn't exist
-  #     import_tasks: tasks/linux/pre_tasks.yml
-  #     tags: ["always"]
-
-  # handlers:
-
-  #   - import_tasks: handlers/proxmox.yml
-  #   - import_tasks: handlers/docker.yml
-
 #--------------------
 # Hosts Declaration -
 #--------------------
@@ -30,6 +18,15 @@
   ### Docker
   # hosts: docker
   # become: true
+  # handlers:
+  #   - import_tasks: handlers/docker.yml
+  #   - import_tasks: handlers/proxmox.yml
+  # pre_tasks:
+  #   # This is to get the PUID and PGID variables to use later in multiple areas
+  #   - name: Get user info or create a user if one doesn't exist
+  #     import_tasks: tasks/linux/pre_tasks.yml
+  #     tags: ["always"]
+
 
   ### Windows
   # hosts: windows
@@ -37,6 +34,11 @@
   ### WSL
   hosts: wsl
   become: true
+  pre_tasks:
+    # This is to get the PUID and PGID variables to use later in multiple areas
+    - name: Get user info or create a user if one doesn't exist
+      import_tasks: tasks/linux/pre_tasks.yml
+      tags: ["always"]
 
 #--------------------
 # Roles Declaration -

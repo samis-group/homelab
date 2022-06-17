@@ -65,11 +65,11 @@
       - passlib
       - pyyaml
 
-- name: Make vundle dir
-  file:
-    path: "{{ user_dir }}/.vim/bundle"
-    state: directory
-    recurse: true
+- name: mark vundle dir as safe in git config
+  community.general.git_config:
+    name: safe.directory
+    scope: global
+    value: "{{ user_dir }}/.vim/bundle/Vundle.vim"
 
 # Vundle install
 - name: Clone Vundle
@@ -78,6 +78,7 @@
     dest: "{{ user_dir }}/.vim/bundle/Vundle.vim"
     clone: true
     update: true
+  become_user: "{{ user_info.name }}"  # We want ownership of the repo to be the user that we're cloning to
 
 - name: Install Snaps
   community.general.snap:
