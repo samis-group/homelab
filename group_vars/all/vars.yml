@@ -195,6 +195,11 @@ gitlab_clone_repos: "{{ vault_gitlab_clone_repos }}"
   #   extra_branch: main
   # homelab: "https://{{ gitlab.username }}:{{ gitlab.personal_access_token }}@gitlab.com/XXXXXXXXXXXXXXX.git"
 
+
+canstar_bitbucket: "{{ vault_canstar_bitbucket }}"
+  # username: username
+  # token: XXXXXXXXXXXXXXXX
+
 mariadb: "{{ vault_mariadb }}"
   # hostname: XXXXXXXX   # Mariadb hostname (usually the container name, it's on the default network so any containers on this network can use this hostname to communicate with it)
   # root_password: XXXXXXXXXXX  # optional - Initial mysql root user password
