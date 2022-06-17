@@ -65,6 +65,12 @@
       - passlib
       - pyyaml
 
+- name: Make vundle dir
+  file:
+    path: "{{ user_dir }}/.vim/bundle"
+    state: directory
+    recurse: true
+
 # Vundle install
 - name: Clone Vundle
   git:
