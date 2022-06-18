@@ -57,6 +57,8 @@
   roles:
 
     - riemers.gitlab-runner
+    - geerlingguy.docker  # geerlingguy roles don't work in WSL - Use docker desktop WSL integration instead.
+    - geerlingguy.ntp     # geerlingguy roles don't work in WSL.
 
 ### LDAP turnkey is a WIP
 
