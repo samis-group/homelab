@@ -48,6 +48,7 @@
     storage: "{{ lxc_container.container_storage | default(lxc_defaults.container_storage) }}"  # target storage
     onboot: "{{ lxc_container.onboot | default(lxc_defaults.onboot) }}"
     nameserver: "{{ lxc_container.nameserver | default(lxc_defaults.nameserver) }}"
+    features: "{{ lxc_container.features | default(omit) }}"
   register: created_cts_pve
   ignore_errors: true
 
@@ -63,3 +64,11 @@
     api_password: "{{ pve.proxmox_api_pass }}"
     api_host: "localhost"
     state: started
+
+- name: Wait until LXC's are started (You may need to ssh into them and ping something on the internet. I dunno why...)
+  wait_for:
+    port: 22
+    host: "{{ lxc_ip_address }}"
+    search_regex: OpenSSH
+    # delay: 60
+  delegate_to: localhost

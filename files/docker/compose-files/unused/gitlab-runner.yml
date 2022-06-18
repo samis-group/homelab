@@ -1,0 +1,29 @@
+---
+#######################################
+### THIS FILE IS MANAGED BY ANSIBLE ###
+###    PLEASE MAKE CHANGES THERE    ###
+#######################################
+
+version: "3.7"
+
+########################### SERVICES
+
+services:
+  # !!! Ensure that you register this runner in the `gitlab-register` container (check single-compose-files)
+  # https://docs.gitlab.com/runner/register/index.html#docker
+  # Alternatively, Commands to register in a nutshell:
+  # docker-compose exec gitlab-runner gitlab-runner register --non-interactive --url https://gitlab.com/ --registration-token <YOUR-GITLAB-REGISTRATION-TOKEN> --executor docker --description "Gitlab Runner 1" --docker-image "docker:stable" --docker-volumes /var/run/docker.sock:/var/run/docker.sock
+  # OR
+  # docker run --rm -it -v gitlab-runner-config:/etc/gitlab-runner gitlab/gitlab-runner:latest register
+  # https://hub.docker.com/r/gitlab/gitlab-runner
+  gitlab-runner:
+    container_name: gitlab-runner
+    image: gitlab/gitlab-runner:alpine
+    init: true
+    restart: always
+    volumes:
+      - ${DOCKERDIR}/appdata/gitlab-runner:/etc/gitlab-runner
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      TZ: $TZ
+    <<: *logging
