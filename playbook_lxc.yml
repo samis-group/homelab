@@ -14,7 +14,8 @@
 #-----#
 
 - name: Setup and configure dev01 Container
-  hosts: dev01
+  hosts: dev_lxc
+  tags: [ "lxc-dev_lxc" ]
   become: true
 
   pre_tasks:  &pre_tasks
@@ -34,31 +35,50 @@
     - name: Install OS updates and required packages
       import_tasks: tasks/wsl/install_os_packages.yml
       when: install_os_packages
-      tags: ["install_os_packages"]
+      tags: [ "install_os_packages" ]
 
     - name: Copy git repos
       import_tasks: tasks/wsl/git.yml
       when: git
-      tags: ["git"]
+      tags: [ "git" ]
 
-# - name: Setup and configure ldap Container
-#   hosts: ldap
-#   become: true
+- name: Setup Gitlab Runner LXC(s)
+  hosts: gitlab_runner
+  tags: [ "lxc-gitlab_runner" ]
+  become: true
 
-#   pre_tasks: *pre_tasks
+  pre_tasks:
 
-#   roles:
+      # This is to get the PUID and PGID variables to use later in multiple areas
+    - name: Get user info or create a user if one doesn't exist
+      import_tasks: tasks/linux/pre_tasks.yml
+      tags: [ "always" ]
 
-#     - geerlingguy.ntp     # geerlingguy roles don't work in WSL.
+  roles:
 
-#   tasks:
+    - riemers.gitlab-runner
 
-#     - name: Install OS updates and required packages
-#       import_tasks: tasks/wsl/install_os_packages.yml
-#       when: install_os_packages
-#       tags: ["install_os_packages"]
+### LDAP turnkey is a WIP
 
-#     - name: Copy git repos
-#       import_tasks: tasks/wsl/git.yml
-#       when: git
-#       tags: ["git"]
+- name: Setup and configure ldap Container
+  hosts: ldap
+  tags: [ "never", "lxc-ldap" ]
+  become: true
+
+  pre_tasks: *pre_tasks
+
+  # roles:
+
+  #   - geerlingguy.ntp     # geerlingguy roles don't work in WSL.
+
+  # tasks:
+
+  #   - name: Install OS updates and required packages
+  #     import_tasks: tasks/wsl/install_os_packages.yml
+  #     when: install_os_packages
+  #     tags: [ "install_os_packages" ]
+
+  #   - name: Copy git repos
+  #     import_tasks: tasks/wsl/git.yml
+  #     when: git
+  #     tags: [ "git" ]

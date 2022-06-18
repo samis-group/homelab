@@ -15,7 +15,7 @@
 # Hosts Declaration -
 #--------------------
 
-  ### Docker
+  # ### Docker
   # hosts: docker
   # become: true
   # handlers:
@@ -28,17 +28,26 @@
   #     tags: ["always"]
 
 
-  ### Windows
+  # ### Windows
   # hosts: windows
 
-  ### WSL
-  hosts: wsl
+  ### lxc
+  hosts: lxc
   become: true
   pre_tasks:
     # This is to get the PUID and PGID variables to use later in multiple areas
     - name: Get user info or create a user if one doesn't exist
       import_tasks: tasks/linux/pre_tasks.yml
       tags: ["always"]
+
+  # ### wsl
+  # hosts: wsl
+  # become: true
+  # pre_tasks:
+  #   # This is to get the PUID and PGID variables to use later in multiple areas
+  #   - name: Get user info or create a user if one doesn't exist
+  #     import_tasks: tasks/linux/pre_tasks.yml
+  #     tags: ["always"]
 
 #--------------------
 # Roles Declaration -
@@ -55,3 +64,5 @@
     - name: Print all available facts
       ansible.builtin.debug:
         var: ansible_facts
+
+    # - debug: var=hostvars['localhost']['ansible_facts']['env']

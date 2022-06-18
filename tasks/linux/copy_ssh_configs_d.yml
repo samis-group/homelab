@@ -1,0 +1,6 @@
+---
+# This task adds the inventory item to your ssh config.d includes dir (assuemes you have this and ssh config includes it as well)
+- name: Configure ssh config file includes (this won't help you unless you're me)
+  template:
+    src: linux/ssh_config_d.j2
+    dest: "{{ hostvars['localhost']['ansible_facts']['env']['HOME'] }}/.ssh/config.d/{{ inventory_hostname_short }}"

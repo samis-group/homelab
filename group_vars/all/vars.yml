@@ -54,8 +54,8 @@ lxc_defaults:
 
 ssh:                            # SSH key to connect to docker vm
   key_prefix: id_rsa_
-  key_private: "{{ user_dir }}/.ssh/id_rsa_personal"
-  key_public: "{{ user_dir }}/.ssh/id_rsa_personal.pub"
+  key_private: id_rsa_personal
+  key_public: id_rsa_personal.pub
 main_user_ssh_key_prefix: "{{ main_user }}-{{ ssh.key_prefix }}"
 vm_network: "10.10.0." # Network WITHOUT the last digit ## NOT VM VAR
 vm_netmask: "24" # network mask ## NOT VM VAR
@@ -74,6 +74,7 @@ install_docker: true
 git: true   # Docker and WSL
 provision_vms: true   # Provision VM's
 provision_lxcs: true  # Provision LXC's
+copy_ssh_configs: true  # Copy SSH configs to localhost (usually WSL for me) for provisioned LXCs/VMs
 
 # Others
 name_servers: '1.1.1.1,1.0.0.1'

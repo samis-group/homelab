@@ -43,6 +43,8 @@ This repo can even setup my windows/linux desktop PC's.
   - [Overriding Defaults](#overriding-defaults)
   - [Common makes with examples](#common-makes-with-examples)
   - [Things to note](#things-to-note)
+    - [Recursively pull in git](#recursively-pull-in-git)
+    - [Proxmox VM ID namespaces](#proxmox-vm-id-namespaces)
   - [Tasks to perform after playbook is complete](#tasks-to-perform-after-playbook-is-complete)
   - [Author](#author)
   - [License](#license)
@@ -252,13 +254,46 @@ make docker-restore-containers docker2
 dcup all
 ```
 
+> configure specific LXC host group. Get this from the inventory with `make edit-inventory`
+> Check playbook_lxc.yml
+
+```bash
+make lxc-LXC_HOST_GROUP_FROM_INVENTORY
+```
+
+Example:
+
+```bash
+make lxc-gitlab_runner
+```
+
 ## Things to note
+
+### Recursively pull in git
 
 When doing a git pull, recurse into submodules as well to pull any submodule updates, otherwise you'll potentially push old code into prod.
 
 ```bash
 git pull --recurse-submodules
 ```
+
+### Proxmox VM ID namespaces
+
+❗ This is mainly just for me, you can namespace yours however you want, or adjust mine depending on your needs.
+
+- 1XX - Personal Desktops and VM's
+  - 10X - *Reserved for future use* (legacy resides here)
+  - 11X - Family Desktop VM's
+  - 17X - Remote Dev environments for playing with
+- 2XX - Production VM's and LXC's for homelab environment
+  - 20X - Production k3s
+  - 21X - Production Docker w/ docker-compose files
+  - 22X - Production LXC's
+- 3XX - Development VM's and LXC's for homelab environment
+  - 30X - Development k3s
+  - 31X - Development Docker w/ docker-compose files
+  - 32X - Development LXC's
+- 8XXX - VM Templates
 
 ## Tasks to perform after playbook is complete
 

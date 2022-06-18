@@ -56,6 +56,7 @@
 
 - name: Download and provision LXC templates/containers
   hosts: lxc
+  tags: [ "proxmox-provision-lxc" ]
   gather_facts: false   # Because they don't exist yet
   become: true
 
@@ -81,8 +82,11 @@
       tags: ["create_vm_template"]
 
 # Run this play with the docker host inventory, (load vm definition vars defined in each host_vars/host item), but delegate the tasks to proxmox
-- name: Provision VM's on Proxmox Host
+- name: Provision Docker VM's on Proxmox Host
+  tags: [ "proxmox-provision-docker" ]
+  # Currently only want to ensure docker_dev is created, not messing with legacy docker inventory group
   hosts: docker_dev
+  # hosts: docker
   gather_facts: false   # Because they don't exist yet
   become: true
 
@@ -98,3 +102,39 @@
       import_tasks: tasks/proxmox/vm_post_tasks.yml
       when: provision_vms
       tags: ["provision_vms"]
+
+# load vm definition vars defined in each host_vars/host item, but delegate the tasks to proxmox
+- name: Provision k3s VM's on Proxmox Host
+  tags: [ "never", "proxmox-provision-k3s" ]  # Currently don't have a server powerful enough to continue building this, hence never tag unless specified with other tag specifically
+  hosts: k3s
+  gather_facts: false   # Because they don't exist yet
+  become: true
+
+  tasks:
+
+    - name: Provision VM's from template
+      import_tasks: tasks/proxmox/provision_vms.yml
+      when: provision_vms
+      tags: ["provision_vms"]
+      delegate_to: proxmox1  # The hosts aren't provisioned yet, so no tasks should run on them. Delegate everything to proxmox but use docker inventory.
+
+    - name: Run Post Tasks
+      import_tasks: tasks/proxmox/vm_post_tasks.yml
+      when: provision_vms
+      tags: ["provision_vms"]
+
+- hosts: localhost  # Gather localhost facts for next play
+
+- name: Setup ssh configs to localhost
+  tags: [ "copy_ssh_configs" ]
+  hosts: proxmox docker lxc
+  # hosts: proxmox docker k3s lxc   # Put this back if provisioning k3s as well
+  become: true
+
+  pre_tasks: *pre_tasks
+
+  tasks:
+
+    - import_tasks: tasks/linux/copy_ssh_configs_d.yml
+      when: copy_ssh_configs
+      delegate_to: localhost

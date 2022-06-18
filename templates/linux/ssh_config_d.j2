@@ -1,0 +1,4 @@
+Host {{ inventory_hostname_short }} {{ inventory_hostname }} {{ ansible_facts.default_ipv4.address }}
+  HostName {{ ansible_facts.default_ipv4.address }}
+  User {{ user_info.name }}
+  IdentityFile "{{ hostvars['localhost']['ansible_facts']['env']['HOME'] }}/.ssh/{{ ssh.key_private }}"

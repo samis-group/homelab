@@ -1,6 +1,7 @@
 ---
 #---------------------------------------------#
 # Run this in every playbook before anything! #
+# Therefore, keep this task list VERY simple! #
 #---------------------------------------------#
 
 # Include var overrides

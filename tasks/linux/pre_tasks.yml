@@ -2,7 +2,7 @@
 # get non-root user info
 - name: get user info
   user:
-    name: "{{ ansible_facts['env']['SUDO_USER'] | default(ansible_facts.user_id) }}"
+    name: "{{ ansible_facts['env']['SUDO_USER'] | default('root') }}"
   register: user_info
   ignore_errors: true
 
