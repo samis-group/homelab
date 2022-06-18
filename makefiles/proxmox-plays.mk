@@ -20,3 +20,6 @@ proxmox-force-vm-template:	## 🖥️ Force (re)create/(re)download Ubuntu VM Te
 
 proxmox-provision-%:	## 🖥️ Provision based on tags passed in. Check tags on the plays in `playbook_proxmox.yml` for more info.
 	@ansible-playbook -i inventory/hosts.ini playbook_proxmox.yml --tags $@ $(runargs)
+
+proxmox-provision-lxc:	## 🖥️ Provision LXC's.
+	@ansible-playbook -i inventory/hosts.ini playbook_proxmox.yml --tags lxc $(runargs)
