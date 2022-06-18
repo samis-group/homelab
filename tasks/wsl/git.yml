@@ -9,8 +9,6 @@
   git:
     repo: "{{ item.value }}"
     dest: "{{ user_dir }}/git/personal/containers/{{ item.key }}"
-    key_file: "{{ user_dir }}/.ssh/{{ main_user_ssh_key_prefix ~ inventory_hostname_short }}"
-    accept_hostkey: true
   with_dict: "{{ gitlab_clone_container_repos }}"
   # register: git_checkout_code_containers
   ignore_errors: true   # Because Home assistant gets changed to, and realistically, this only needs to be run initially anyway.
@@ -21,9 +19,17 @@
   git: 
     repo: "{{ gitlab_clone_repos.homelab }}"
     dest: "{{ user_dir }}/git/personal/homelab"
-    key_file: "{{ user_dir }}/.ssh/{{ main_user_ssh_key_prefix ~ inventory_hostname_short }}"
-    accept_hostkey: true
+    recursive: false
   register: git_checkout_code_homelab
+  ignore_errors: true   # Because Home assistant gets changed to, and realistically, this only needs to be run initially anyway.
+  become: false
+  no_log: true  # Don't spew out my token pls
+
+- name: Checkout host-vars repo
+  git: 
+    repo: "{{ gitlab_clone_repos.homelab_host_vars }}"
+    dest: "{{ user_dir }}/git/personal/homelab/host_vars"
+  register: git_checkout_code_homelab_host_vars
   ignore_errors: true   # Because Home assistant gets changed to, and realistically, this only needs to be run initially anyway.
   become: false
   no_log: true  # Don't spew out my token pls
@@ -33,7 +39,9 @@
     cmd: make setup
     chdir: "{{ user_dir }}/git/personal/homelab"
   register: make_setup
-  when: git_checkout_code_homelab is changed  # Only setup if the repo was cloned
+  when: # Only setup if the repos were cloned
+    - git_checkout_code_homelab is changed
+    - git_checkout_code_homelab_host_vars is changed
 
 # Output make setup for debugging
 - debug: var=make_setup.stdout_lines
