@@ -29,3 +29,24 @@
       Get-ItemProperty Registry::HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Lxss\*\ DistributionName |
       Where-Object -Property DistributionName -eq "{{ wsl_instance_name }}" |
       Set-ItemProperty -Name DefaultUid -Value 1000
+
+- name: Set further defaults to WSL instance manually
+  pause:
+    prompt: |
+      Press Ctrl+c and then "a" to abort. But please do the following first...
+
+      Please go manually configure the following in windows terminal:
+        - Name is: '{{ wsl_instance_name }}'
+        - Command Line should be something like: `C:\Windows\system32\wsl.exe -d {{ wsl_instance_name }}`
+        - Starting Directory: '~'
+        - Tab title: '{{ wsl_instance_name }}'
+      Please also ensure in the windows docker desktop app, that docker wsl integration is enabled on THIS WSL instance (it's per instance).
+      Also some commands to assist setup:
+        sudo apt update
+        sudo apt upgrade
+        sudo apt install make
+        git clone https://gitlab.com/sami-group/homelab.git
+        cd homelab
+        make setup
+          * Copy vault password
+        make wsl-personal
