@@ -267,6 +267,12 @@ Example:
 make lxc-gitlab_runner
 ```
 
+> Create new default WSL Instance
+
+```bash
+make windows-runtags download_wsl_instance
+```
+
 ## Things to note
 
 ### Recursively pull in git

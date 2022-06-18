@@ -19,27 +19,13 @@ schedule_tasks: true
 test_task: false    # Do not change this. If you want to run the test task, use `make test` instead.
 download_wsl_instance: false   # Download and create a new WSL instance from Ubuntu cloud-image
 firefox_setup: true
+install_wsl2: true
 
 # List of features: "Get-WindowsOptionalFeature -Online"
 # If you want to disable any features, ensure "install_windows_features" is 'true', then set the feature itself to 'false'.
 install_windows_features: true
 windows_features:
   Microsoft-Hyper-V: true
-
-# List of valid distributions that can be installed:
-# wsl-alpine
-# wsl-archlinux
-# wsl-debiangnulinux
-# wsl-fedoraremix
-# wsl-kalilinux
-# wsl-opensuse
-# wsl-sles
-# wsl-ubuntu-1604
-# wsl-ubuntu-1804
-# wsl-ubuntu-2004
-install_wsl2: true
-# I am running 22.04 which isn't out so i'm skipping this altogether.
-wsl2_distribution: wsl-ubuntu-2004  # BEFORE CHANGING THIS, ensure it exists as a choco install here -> https://community.chocolatey.org/packages?q=ubuntu
 
 choco_installed_packages:
   - googlechrome
