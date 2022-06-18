@@ -59,10 +59,6 @@
   gather_facts: false   # Because they don't exist yet
   become: true
 
-  handlers:
-
-    - import_tasks: handlers/proxmox.yml
-
   tasks:
 
     - name: Download and configure LXC containers
@@ -75,10 +71,6 @@
   hosts: proxmox1
 
   pre_tasks: *pre_tasks
-
-  handlers:
-
-    - import_tasks: handlers/proxmox.yml
 
   tasks:
 
@@ -93,10 +85,6 @@
   hosts: docker_dev
   gather_facts: false   # Because they don't exist yet
   become: true
-
-  handlers:
-
-    - import_tasks: handlers/proxmox.yml
 
   tasks:
 
