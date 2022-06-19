@@ -1522,8 +1522,8 @@ services:
       - "${DOCKERDIR}/hass-configurator:/config"
       - "${DOCKERDIR}/homeassistant:/hass-config"
       # For git Integration
-      - "${SSH_KEY_PRIVATE}:/root/.ssh/id_rsa:ro"
-      - "${SSH_KEY_PUBLIC}:/root/.ssh/id_rsa.pub:ro"
+      - "${SSH_KEY_PERSONAL}:/root/.ssh/id_rsa:ro"
+      - "${SSH_KEY_PERSONAL_PUBLIC}:/root/.ssh/id_rsa.pub:ro"
       - "${USERDIR}/.ssh/known_hosts:/root/.ssh/known_hosts:rw"
     labels:
       - "traefik.enable=true"

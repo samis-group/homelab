@@ -46,76 +46,89 @@
 # Output make setup for debugging
 - debug: var=make_setup.stdout_lines
 
-# I dunno wtf this module is doing when it attempts to clone this repo submodule.. It's mangling the .git dir, needs work.
+- name: Get dotfiles repo
+  git:
+    repo: "{{ gitlab_clone_repos.dotfiles.base }}"
+    dest: "{{ user_dir }}/.dotfiles"
+    version: "{{ gitlab_clone_repos.dotfiles.base_branch | default('main') }}"
+  register: git_checkout_dotfiles
+  ignore_errors: true
+  become: false
+  no_log: true  # Don't spew out my token pls
 
-# - name: Get dotfiles repo
-#   git:
-#     repo: "{{ gitlab_clone_repos.dotfiles.base }}"
-#     dest: "{{ user_dir }}/.dotfiles"
-#     version: "{{ gitlab_clone_repos.dotfiles.base_branch | default('main') }}"
-#     track_submodules: true
-#     key_file: "{{ user_dir }}/.ssh/{{ main_user_ssh_key_prefix ~ inventory_hostname_short }}"
-#     accept_hostkey: true
-#   ignore_errors: true
-#   become: false
+- name: checkout to user specified branch in dotfiles-extras repo
+  git:
+    repo: "{{ gitlab_clone_repos.dotfiles.extras }}"
+    dest: "{{ user_dir }}/.dotfiles/dotfiles-extra"
+    version: "{{ gitlab_clone_repos.dotfiles.extra_branch }}"
+  ignore_errors: true
+  become: false
+  when: git_checkout_dotfiles is changed
 
-# - name: checkout to user specified branch in dotfiles-extras repo
-#   git:
-#     repo: "{{ gitlab_clone_repos.dotfiles.extras }}"
-#     dest: "{{ user_dir }}/.dotfiles/dotfiles-extra"
-#     version: "{{ gitlab_clone_repos.dotfiles.extra_branch }}"
-#     key_file: "{{ user_dir }}/.ssh/{{ main_user_ssh_key_prefix ~ inventory_hostname_short }}"
-#     accept_hostkey: true
-#   ignore_errors: true
-#   become: false
+#---------------#
+# Stow dotfiles #
+#---------------#
 
-############
-### Stow ###
-############
+- name: Build top level stow directories list
+  ansible.builtin.find:
+    paths: ["{{ user_dir }}/.dotfiles"]
+    recurse: no
+    file_type: directory
+  register: files_to_stow
 
-# - name: Build directories list
-#   ansible.builtin.find:
-#     paths: ["{{ user_dir }}/.dotfiles"]
-#     recurse: no
-#     file_type: directory
-#   register: files_to_stow
+- debug: var=files_to_stow
 
-# - name: Set conflicting stow files fact
-#   set_fact:
-#     stow_conflicts:
-#       - "{{ user_dir }}/.bashrc"
-#       - "{{ user_dir }}/.gitconfig"
-#       - "{{ user_dir }}/.ssh/config"
+- name: Set conflicting stow files fact
+  set_fact:
+    stow_conflicts:
+      - "{{ user_dir }}/.bashrc"
+      - "{{ user_dir }}/.gitconfig"
+      - "{{ user_dir }}/.ssh/config"
 
-# # https://stackoverflow.com/questions/34064083/how-to-check-if-symbolic-link-exists-no-matter-where-its-pointing-to
-# - name: stat stow_conflicts files to see if they exist, and if they are links
-#   stat:
-#     path: "{{ item }}"
-#   register: links.results
-#   with_items: "{{ stow_conflicts }}"
+- name: stat stow_conflicts files to see if they exist, and if they are links
+  stat:
+    path: "{{ item }}"
+  register: stow_links
+  with_items: "{{ stow_conflicts }}"
 
-# - name: debug links
-#   debug:
-#     msg: "link exists"
-#   when: links.stat.islnk is defined and links.stat.islnk
+- name: debug stow_links
+  debug:
+    var: stow_links
+  # when: links.stat.islnk is defined and links.stat.islnk
 
-# - name: Move conflicting files
-#   copy:
-#     remote_src: True
-#     src: "{{ item }}"
-#     dest: "{{ item }}.old"
-#   with_items: "{{ stow_conflicts }}"
+- name: Move conflicting files
+  command: "mv {{ item.item }} {{ item.item }}.old"
+  args:
+    removes: "{{ item.item }}"
+    creates: "{{ item.item }}.old"
+  with_items: "{{ stow_links.results }}"
+  when: item.stat.islnk is defined and not item.stat.islnk  # Only if these are not symlinks (meaning don't operate on items already stowed)
+  become: false
 
-# - name: Remove original files in place of stowed dotfiles
-#   file:
-#     path: "{{ item }}"
-#     state: absent
-#   with_items: "{{ stow_conflicts }}"
+- name: Create required dir structure
+  file:
+    path: "{{ item }}"
+    state: directory
+    recurse: yes
+  with_items:
+    - "{{ user_dir }}/.ssh/"
+    - "{{ user_dir }}/git/personal"
+    - "{{ user_dir }}/git/work"
+  become: false
 
-# - name: Deploy dotfiles with stow
-#   ansible.builtin.shell: stow {{ item.path | basename }}
-#   environment:
-#     STOW_DIR: "{{ user_dir }}/.dotfiles"
-#   changed_when: false
-#   with_items: '{{ files_to_stow.files }}'
-#   ignore_errors: true
+- name: Create ssh key files if they don't already exist
+  file:
+    path: "{{ user_dir }}/.ssh/{{ item }}"
+    state: touch
+    mode: '0600'
+  with_items:
+    - "{{ ssh.key_personal }}"
+    - "{{ ssh.key_git }}"
+  become: false
+
+- name: Deploy dotfiles with stow
+  ansible.builtin.shell:
+    cmd: "stow -vt ~ {{ item.path.split('/')[-1] }}"
+    chdir: "{{ user_dir }}/.dotfiles"
+  with_items: "{{ files_to_stow.files }}"
+  become: false

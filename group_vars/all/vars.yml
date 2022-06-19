@@ -52,10 +52,12 @@ lxc_defaults:
   default_behavior: compatibility
   network_device: 'vmbr0'
 
-ssh:                            # SSH key to connect to docker vm
+ssh:  # SSH keys
   key_prefix: id_rsa_
-  key_private: id_rsa_personal
-  key_public: id_rsa_personal.pub
+  key_personal: id_rsa_personal
+  key_personal_public: id_rsa_personal.pub
+  key_git: id_ecdsa_git
+  key_git_public: id_ecdsa_git.pub
 main_user_ssh_key_prefix: "{{ main_user }}-{{ ssh.key_prefix }}"
 vm_network: "10.10.0." # Network WITHOUT the last digit ## NOT VM VAR
 vm_netmask: "24" # network mask ## NOT VM VAR
