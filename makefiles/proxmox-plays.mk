@@ -22,4 +22,4 @@ proxmox-provision-%:	## 🖥️ Provision based on tags passed in. Check tags on
 	@ansible-playbook -i inventory/hosts.ini playbook_proxmox.yml --tags $@ $(runargs)
 
 proxmox-provision-lxc:	## 🖥️ Provision LXC's.
-	@ansible-playbook -i inventory/hosts.ini playbook_proxmox.yml --tags lxc $(runargs)
+	@ansible-playbook -i inventory/hosts.ini playbook_proxmox.yml --tags proxmox-provision-lxc $(runargs)
