@@ -1,0 +1,87 @@
+---
+#---------------#
+# Stow dotfiles #
+#---------------#
+
+- name: Get dotfiles repo
+  git:
+    repo: "{{ gitlab_clone_repos.dotfiles.base }}"
+    dest: "{{ user_dir }}/.dotfiles"
+    version: "{{ gitlab_clone_repos.dotfiles.base_branch | default('main') }}"
+  register: git_checkout_dotfiles
+  ignore_errors: true
+  become: false
+  no_log: true  # Don't spew out my token pls
+
+- name: checkout to user specified branch in dotfiles-extras repo
+  git:
+    repo: "{{ gitlab_clone_repos.dotfiles.extras }}"
+    dest: "{{ user_dir }}/.dotfiles/dotfiles-extra"
+    version: "{{ gitlab_clone_repos.dotfiles.extra_branch }}"
+  ignore_errors: true
+  become: false
+  when: git_checkout_dotfiles is changed
+
+- name: Build top level stow directories list
+  ansible.builtin.find:
+    paths: ["{{ user_dir }}/.dotfiles"]
+    recurse: no
+    file_type: directory
+  register: files_to_stow
+
+- debug: var=files_to_stow
+
+- name: Set conflicting stow files fact
+  set_fact:
+    stow_conflicts:
+      - "{{ user_dir }}/.bashrc"
+      - "{{ user_dir }}/.gitconfig"
+      - "{{ user_dir }}/.ssh/config"
+
+- name: stat stow_conflicts files to see if they exist, and if they are links
+  stat:
+    path: "{{ item }}"
+  register: stow_links
+  with_items: "{{ stow_conflicts }}"
+
+- name: debug stow_links
+  debug:
+    var: stow_links
+  # when: links.stat.islnk is defined and links.stat.islnk
+
+- name: Move conflicting files
+  command: "mv {{ item.item }} {{ item.item }}.old"
+  args:
+    removes: "{{ item.item }}"
+    creates: "{{ item.item }}.old"
+  with_items: "{{ stow_links.results }}"
+  when: item.stat.islnk is defined and not item.stat.islnk  # Only if these are not symlinks (meaning don't operate on items already stowed)
+  become: false
+
+- name: Create required dir structure
+  file:
+    path: "{{ item }}"
+    state: directory
+    recurse: yes
+  with_items:
+    - "{{ user_dir }}/.ssh/"
+    - "{{ user_dir }}/git/personal"
+    - "{{ user_dir }}/git/work"
+  become: false
+
+- name: Create ssh key files if they don't already exist
+  file:
+    path: "{{ user_dir }}/.ssh/{{ item }}"
+    state: touch
+    mode: '0600'
+  with_items:
+    - "{{ ssh.key_personal }}"
+    - "{{ ssh.key_git }}"
+  become: false
+
+- name: Deploy dotfiles with stow
+  ansible.builtin.shell:
+    cmd: "stow -vt ~ {{ item.path.split('/')[-1] }}"
+    chdir: "{{ user_dir }}/.dotfiles"
+  with_items: "{{ files_to_stow.files }}"
+  become: false

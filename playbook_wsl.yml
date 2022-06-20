@@ -51,3 +51,8 @@
       import_tasks: tasks/wsl/git.yml
       when: git
       tags: ["git"]
+
+    - name: Clone dotfiles and stow them
+      import_tasks: tasks/wsl/stow_dotfiles.yml
+      when: stow_dotfiles
+      tags: ["stow_dotfiles"]
