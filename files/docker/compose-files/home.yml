@@ -39,8 +39,8 @@ services:
   # https://github.com/thomasloven/lovelace-slider-entity-row
   hass:
     container_name: hass
-    image: homeassistant/home-assistant:stable
-    init: true
+    image: homeassistant/home-assistant:2022.6  # Format YYYY.M
+    # init: true
     restart: always
     # user: "${PUID}:${PGID}"   # hass runs with root user so files get created as root, if i find a way around this, i want the user to run hass so there are no perm issues.
     healthcheck:
