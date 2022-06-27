@@ -46,9 +46,9 @@ services:
     restart: always
     healthcheck:
       test: curl -sI http://localhost:80
-      interval: 60s
+      interval: 5s
       timeout: 3s
-      retries: 3
+      retries: 36
     networks:
       traefik_proxy:
         ipv4_address: 192.168.90.134 # You can specify a static IP
