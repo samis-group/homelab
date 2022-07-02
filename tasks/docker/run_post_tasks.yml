@@ -180,7 +180,7 @@
       alias docprune='ddelimages ; dvolprune ; dsysprune'
       alias dexec='sudo docker exec -ti'
       # docps - list of all containers
-      alias dps='sudo docker ps -a'
+      alias dps='sudo docker ps -a --no-trunc --format "table {{.Names}}\t{{.RunningFor}}\t{{.Status}}"'
       # docdf - storage used by docker
       alias ddf='sudo docker system df'
       # dclogs <CONTAINER>
