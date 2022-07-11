@@ -274,7 +274,7 @@ services:
   bazarr:
     container_name: bazarr
     image: linuxserver/bazarr
-    init: true
+    # init: true
     restart: always
     healthcheck:
       test: curl -sI http://localhost:6767  # Healthcheck works on the IP associated with the container
@@ -310,45 +310,6 @@ services:
       - "traefik.http.routers.bazarr-rtr.service=bazarr-svc"
       - "traefik.http.routers.bazarr-rtr-bypass.service=bazarr-svc"
       - "traefik.http.services.bazarr-svc.loadbalancer.server.port=6767"
-    <<: *logging
-
-  # Jackett - Torrent proxy
-  # https://hub.docker.com/r/linuxserver/jackett
-  # Set url_base in Jackett settings if using PathPrefix
-  jackett:
-    image: linuxserver/jackett:latest
-    init: true
-    container_name: jackett
-    restart: always
-    healthcheck:
-      test: curl -sI http://localhost:9117
-      interval: 60s
-      timeout: 3s
-      retries: 3
-    networks:
-      traefik_proxy:
-        ipv4_address: 192.168.90.161 # # You can specify a static IP - I also created a non-proxied DNS record like 'jackett-dc.domain.com' pointing to this IP so i don't need to reference this all the time.
-    security_opt:
-      - no-new-privileges:true
-    ports:
-      - ${JACKETT_PORT}:9117
-    volumes:
-      - ${DOCKERDIR}/appdata/jackett:/config
-      - ${USERDIR}/mount/downloads/blackhole:/downloads
-      - "/etc/localtime:/etc/localtime:ro"
-    environment:
-      <<: *default-tz-uid-gid
-    labels:
-      - "traefik.enable=true"
-      ## HTTP Routers
-      - "traefik.http.routers.jackett-rtr.entrypoints=https"
-      - "traefik.http.routers.jackett-rtr.rule=Host(`jackett.$DOMAINNAME`)"
-      ## Middlewares
-      - "traefik.http.routers.jackett-rtr.middlewares=chain-oauth@file" # Google OAuth 2.0
-      ## HTTP Services
-      - "traefik.http.routers.jackett-rtr.service=jackett-svc"
-      - "traefik.http.services.jackett-svc.loadbalancer.server.port=9117"
-      # - "traefik.http.middlewares.jackett-https.headers.customrequestheaders.X-Forwarded-Proto=https" # Needs work -> https://github.com/Jackett/Jackett#running-jackett-behind-a-reverse-proxy
     <<: *logging
 
   # Tautulli - Plex statistics and monitoring

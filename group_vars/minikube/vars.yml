@@ -1,0 +1,40 @@
+---
+###########################################
+### geerlingguy.k8s_manifests variables ###
+###########################################
+
+k8s_kubeconfig: ~/.kube/config
+k8s_manifests_base_dir: templates/k3s/manifests/
+k8s_resource_namespace: 'default'
+k8s_manifests:  # Maybe just do a jinja lookup for filenames and create a list from that? make it dynamic
+  - nfs
+
+#######################
+### Helm Chart Data ###
+#######################
+
+helm_charts:
+  - name: nginx
+    chart_ref: bitnami/nginx
+    release_namespace: default
+    release_values:
+      service:
+        type: LoadBalancer
+        ports:
+          http: 80
+          https: 443
+        targetPort:
+          http: http
+          https: https
+  - name: grafana
+    chart_ref: bitnami/grafana
+    release_namespace: default
+    release_values:
+      replicas: 2
+      service:
+        type: LoadBalancer
+        ports:
+          grafana: 3000
+  - name: grafana-loki
+    chart_ref: bitnami/grafana-loki
+    release_namespace: default

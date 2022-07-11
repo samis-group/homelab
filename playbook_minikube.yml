@@ -1,0 +1,70 @@
+---
+#-------------------------------------#
+# Pre-tasks run before anything else! #
+#-------------------------------------#
+- hosts: minikube
+  # Special tag "always" -> https://docs.ansible.com/ansible/latest/user_guide/playbooks_tags.html#special-tags-always-and-never
+  tags: [ "always" ]
+  gather_facts: false
+  tasks:
+    - import_tasks: tasks/pre-all.yml
+
+################
+### minikube ###
+################
+
+- name: Configure minikube cluster
+  hosts: minikube
+  become: true
+
+  pre_tasks:  &pre_tasks   # Anchors to re-use the code later. No point duplicating code.
+
+    # This is to get the PUID and PGID variables to use later in multiple areas
+    - name: Get user info or create a user if one doesn't exist
+      import_tasks: tasks/linux/pre_tasks.yml
+      tags: ["always"]
+
+  roles:
+
+    - role: geerlingguy.docker
+    - role: gantsign.minikube
+    - role: geerlingguy.helm  # Install helm on minikube nodes to deploy charts in ansible
+
+- name: Install/configure Helm/kubectl on control node (i.e. the host you are running this playbook on, soz <3)
+  hosts: wsl  # Run on wsl as that is what I use
+  become: yes
+
+  pre_tasks: *pre_tasks
+
+  roles:
+
+    - andrewrothstein.kubectl
+    - geerlingguy.helm
+
+  tasks:
+
+    - name: Copy kube config
+      import_tasks: tasks/minikube/kubectl_helm_config.yml
+
+- name: Deploy Helm Charts
+  hosts: minikube
+  become: false
+
+  pre_tasks: *pre_tasks
+
+  tasks:
+
+    - name: Setup aliases and functions in bash environment
+      import_tasks: tasks/k3s/bashrc.yml
+
+    - name: Setup dependencies
+      import_tasks: tasks/k3s/dependencies.yml
+      become: true
+
+    - name: deploy k8s manifests
+      import_role:
+        name: geerlingguy.k8s_manifests # Deploys everything inside file - `group_vars/k3s/vars.yml` lines - `43-46` variables - `k8s_*`
+      tags: ['nfs', 'k8s_manifests']
+
+    - name: Deploy Helm Charts
+      import_tasks: tasks/k3s/deploy_helm_charts.yml
