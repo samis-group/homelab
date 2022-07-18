@@ -68,6 +68,9 @@
         groups: docker
         append: yes
 
+    - name: Setup Crons
+      import_tasks: tasks/lxc/gitlab-runner/setup_crons.yml
+
 ### LDAP turnkey is a WIP
 
 # - name: Setup and configure ldap Container

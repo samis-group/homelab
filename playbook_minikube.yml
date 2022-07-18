@@ -44,7 +44,7 @@
   tasks:
 
     - name: Copy kube config
-      import_tasks: tasks/minikube/kubectl_helm_config.yml
+      import_tasks: tasks/lxc/minikube/kubectl_helm_config.yml
 
 - name: Deploy Helm Charts
   hosts: minikube

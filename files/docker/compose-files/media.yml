@@ -139,7 +139,7 @@ services:
   radarr:
     container_name: radarr
     image: linuxserver/radarr
-    init: true
+    # init: true
     restart: always
     healthcheck:
       test: curl -sI http://localhost:7878
@@ -187,7 +187,7 @@ services:
   sonarr:
     container_name: sonarr
     image: linuxserver/sonarr
-    init: true
+    # init: true
     restart: always
     healthcheck:
       test: curl -sI http://localhost:8989
@@ -234,7 +234,7 @@ services:
   prowlarr:
     container_name: prowlarr
     image: ghcr.io/linuxserver/prowlarr:develop
-    init: true
+    # init: true
     restart: always
     healthcheck:
       test: curl -sI http://localhost:9696
@@ -318,7 +318,7 @@ services:
   tautulli:
     container_name: tautulli
     image: linuxserver/tautulli:latest
-    init: true
+    # init: true
     restart: always
     healthcheck:
       test: curl -sI http://localhost:8181
@@ -354,7 +354,7 @@ services:
   syncthing:
     container_name: syncthing
     image: lscr.io/linuxserver/syncthing
-    init: true
+    # init: true
     restart: always
     hostname: syncthing   # optional
     healthcheck:

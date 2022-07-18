@@ -485,7 +485,7 @@ services:
   mariadb:
     container_name: mariadb
     image: lscr.io/linuxserver/mariadb:10.5.15
-    init: true
+    # init: true
     restart: unless-stopped
     # network_mode: host
     networks:
@@ -535,7 +535,7 @@ services:
   unifi:
     container_name: unifi
     image: linuxserver/unifi-controller
-    init: true
+    # init: true
     restart: always
     healthcheck:
       test: curl -sI http://localhost:8443  # Healthcheck works on the IP associated with the container
