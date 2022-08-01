@@ -83,12 +83,17 @@ access_control:
         - homelab
         - docker
       policy: bypass
+    # Bypass internet access to Technical Docs
+    - domain: "docs.{{ domain_name }}"
+      resources:
+      - '/Technical.*'
+      policy: bypass
     # Anyone not a family member is not allowed access to my private stash of docs, soz <3
     - domain: "docs.{{ domain_name }}"
       subject: "group:not-family"
-      policy: deny
       resources:
       - '/[sS][aA][mM][iI]/.*'
+      policy: deny
     # Users accessing overseerr
     - domain:
       - "tv.{{ domain_name }}"
