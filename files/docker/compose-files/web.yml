@@ -86,10 +86,10 @@ services:
       - traefik_proxy
     user: ${PUID}:${PGID}
     healthcheck:
-      test: curl -fs http://localhost:3000/healthcheck || exit 1
-      interval: 1m
+      test: curl -fs http://localhost:3000/health || exit 1
+      interval: 5s
       timeout: 3s
-      retries: 3
+      retries: 5
     ports:
       - "${NODE_API_PORT}:3000"
     environment:
