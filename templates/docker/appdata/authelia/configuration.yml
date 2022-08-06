@@ -52,7 +52,7 @@ access_control:
       networks:
       - 192.168.90.0/23
   # Define Rules
-  ## Note: the order of the rules is important. The first policy matching (domain, resource, subject) applies.
+  ## Note: the ORDERING of the rules is important. The first policy matching (domain, resource, subject) applies.
   rules:
     # Authelia access applied to everyone
     - domain:
@@ -83,10 +83,11 @@ access_control:
         - homelab
         - docker
       policy: bypass
-    # Bypass internet access to Technical Docs
+    # Bypass internet access to Technical Docs, homepage and required assets
     - domain: "docs.{{ domain_name }}"
       resources:
-      - '/Technical.*'
+      - '^/Technical.*'
+      - '^(\/?$|.*\.css$|.*\.js$|.*\.png$|.*\.bmp$|.*\.jpg$|.*\.jpeg$|.*\.svg$|.*\.pdf$|.*\.json$)'
       policy: bypass
     # Anyone not a family member is not allowed access to my private stash of docs, soz <3
     - domain: "docs.{{ domain_name }}"

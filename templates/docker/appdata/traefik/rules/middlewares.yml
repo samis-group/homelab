@@ -61,13 +61,14 @@ http:
         stsIncludeSubdomains: true
         stsPreload: true
         forceSTSHeader: true
-        customFrameOptionsValue: "allow-from https:{{ domain_name }}" #CSP takes care of this but may be needed for organizr. 
-        contentTypeNosniff: true 
-        browserXssFilter: true 
-        referrerPolicy: "same-origin" 
+        # customFrameOptionsValue: "allow-from https:{{ domain_name }}" #CSP takes care of this but may be needed for organizr. 
+        # Sniffing will happen regardless of whether the content is trusted or untrusted. See security.stackexchange.com/a/11761/2379 . It will break your site in subtle ways. Always disable sniffing if you do not like surprises
+        contentTypeNosniff: true
+        # browserXssFilter: true
+        referrerPolicy: "same-origin"
         PermissionsPolicy: "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=(), vr=()" # fullscreen=*
         customResponseHeaders:
-          X-Robots-Tag: "none,noarchive,nosnippet,notranslate,noimageindex,"
+          X-Robots-Tag: "none,noarchive,nosnippet,notranslate,noimageindex"
           server: ""
 
     middlewares-oauth:

@@ -1,4 +1,4 @@
-# Create Proxmox Template from Ubuntu Cloud Image
+# Create WSL Instance from Ubuntu Cloud Image
 
 This role creates a brand new WSL instance by downloading the specified version of the ubuntu cloud image [published by the Canonical team here](https://cloud-images.ubuntu.com/). it provisions the instance by using this cloud image as the disk.
 
