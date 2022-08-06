@@ -48,7 +48,6 @@ docker_build_cmd = \
 	docker build -t homelab \
 	--build-arg UID=$(USERID)
 
-
 build-docker:	## 🏗️🐳 Builds the docker image locally. If `.vault-password` file exists, source the password from it (helps with local build tests), else see if `VAULT_PASS` env var exists.
 	@${docker_build_cmd} .
 

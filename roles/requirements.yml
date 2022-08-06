@@ -20,6 +20,9 @@
 - src: arillso.logrotate
 - src: geerlingguy.docker
 
+# Minikube #
+- src: gantsign.minikube
+
 # WSL #
 # geerlingguy.docker as above
 - src: geerlingguy.ntp  # Currently Unused - This is also for proxmox above

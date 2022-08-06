@@ -112,7 +112,7 @@ services:
   vscode:
     container_name: vscode
     image: lscr.io/linuxserver/code-server
-    init: true
+    # init: true
     restart: unless-stopped
     healthcheck:
       test: curl -sI http://localhost:8443

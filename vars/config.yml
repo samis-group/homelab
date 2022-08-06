@@ -4,5 +4,5 @@
 # So let's track overrides here so that we can easily rename this file and deploy fresh.
 create_vm_template: false
 provision_vms: false   # Provision VM's
-provision_lxcs: false  # Provision LXC's
+# provision_lxcs: false  # Provision LXC's
 stow_dotfiles: false

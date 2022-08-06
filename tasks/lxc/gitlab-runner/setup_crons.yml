@@ -1,0 +1,8 @@
+---
+- name: Cron - Prune > 7 day old unused Docker images daily
+  ansible.builtin.cron:
+    name: prune docker images daily ( > 1 day old )
+    minute: "0"
+    hour: "3"
+    user: "{{ main_user }}"
+    job: "/usr/bin/docker system prune -af  --filter 'until=24h'"

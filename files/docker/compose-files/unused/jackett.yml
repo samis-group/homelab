@@ -1,0 +1,74 @@
+---
+#######################################
+### THIS FILE IS MANAGED BY ANSIBLE ###
+###    PLEASE MAKE CHANGES THERE    ###
+#######################################
+
+version: "3.7"
+
+########################### EXTENSION FIELDS
+# Re-usable code so we're not duplicating these everywhere
+
+# Default TZ, uid and pid
+# To use this put this block in your service in the environments block: "<<: *default-tz-uid-gid"
+x-environment: &default-tz-uid-gid
+  TZ: $TZ
+  PUID: $PUID
+  PGID: $PGID
+
+# To use this put this block in the root of your service: "<<: *logging"
+x-logging: &logging
+  logging:
+    driver: loki
+    options:
+      loki-url: "http://localhost:${LOKI_PORT}/loki/api/v1/push"
+
+########################### NETWORKS
+
+networks:
+  traefik_proxy:
+    name: traefik_proxy
+    external: true
+
+########################### SERVICES
+
+services:
+
+  # Jackett - Torrent proxy
+  # https://hub.docker.com/r/linuxserver/jackett
+  # Set url_base in Jackett settings if using PathPrefix
+  jackett:
+    image: linuxserver/jackett:latest
+    init: true
+    container_name: jackett
+    restart: always
+    healthcheck:
+      test: curl -sI http://localhost:9117
+      interval: 60s
+      timeout: 3s
+      retries: 3
+    networks:
+      traefik_proxy:
+        ipv4_address: 192.168.90.161 # # You can specify a static IP - I also created a non-proxied DNS record like 'jackett-dc.domain.com' pointing to this IP so i don't need to reference this all the time.
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      - ${JACKETT_PORT}:9117
+    volumes:
+      - ${DOCKERDIR}/appdata/jackett:/config
+      - ${USERDIR}/mount/downloads/blackhole:/downloads
+      - "/etc/localtime:/etc/localtime:ro"
+    environment:
+      <<: *default-tz-uid-gid
+    labels:
+      - "traefik.enable=true"
+      ## HTTP Routers
+      - "traefik.http.routers.jackett-rtr.entrypoints=https"
+      - "traefik.http.routers.jackett-rtr.rule=Host(`jackett.$DOMAINNAME`)"
+      ## Middlewares
+      - "traefik.http.routers.jackett-rtr.middlewares=chain-oauth@file" # Google OAuth 2.0
+      ## HTTP Services
+      - "traefik.http.routers.jackett-rtr.service=jackett-svc"
+      - "traefik.http.services.jackett-svc.loadbalancer.server.port=9117"
+      # - "traefik.http.middlewares.jackett-https.headers.customrequestheaders.X-Forwarded-Proto=https" # Needs work -> https://github.com/Jackett/Jackett#running-jackett-behind-a-reverse-proxy
+    <<: *logging
