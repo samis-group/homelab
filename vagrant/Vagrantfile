@@ -1,79 +1,62 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+DISTRO = (ENV['DISTRO'] || "alpine312")
+BOX_REPO = (ENV['BOX_REPO'] || "generic")
+HOME = ENV['PWD']
+PROJ_HOME = File.dirname(__FILE__)
+PROJECT = File.basename(PROJ_HOME)
+NUM_NODES = (ENV['NUM_NODES'] || 0).to_i
+NODE_CPUS = (ENV['NODE_CPUS'] || 4).to_i
+NODE_MEMORY = (ENV['NODE_MEMORY'] || 8192).to_i
+NETWORK_PREFIX = ENV['NETWORK_PREFIX'] || "10.135.135"
+VAGRANT_PROVISION = ENV['VAGRANT_PROVISION'] || "./prov/vagrant"
+MOUNT_TYPE = ENV['MOUNT_TYPE'] || "virtualbox"
+
+# --- Rules for /etc/sudoers to avoid password entry configuring NFS:
+# %admin	ALL = (root) NOPASSWD: /usr/bin/sed -E -e * -ibak /etc/exports
+# %admin	ALL = (root) NOPASSWD: /usr/bin/tee -a /etc/exports
+# %admin	ALL = (root) NOPASSWD: /sbin/nfsd restart
+# --- May need to add terminal to System Preferences -> Security & Privacy -> Privacy -> Full Disk Access
+
+def provision(vm, node_num)
+  node_os = (ENV["DISTRO_#{node_num}"] || DISTRO)
+  vm.box = (ENV["BOX_#{node_num}"] || ENV["BOX"] || "#{BOX_REPO}/#{node_os}")
+  vm.hostname = "#{PROJECT}-#{node_num}-#{vm.box.gsub(/^.*\//,"")}"
+  vm.network "private_network", ip: "#{NETWORK_PREFIX}.#{100+node_num}"
+  vm.provision "shell",
+      path: VAGRANT_PROVISION,
+      env: { 'HOME' => PROJ_HOME, 'GOPATH' => ENV['GOPATH'], 'BOX' => vm.box }
+end
+
 Vagrant.configure("2") do |config|
-  # General configuration
-  config.vm.box = "generic/ubuntu2004"
-  config.vm.synced_folder ".", "/vagrant", disabled: true
-  config.ssh.insert_key = false
 
-  config.vm.provider :virtualbox do |v|
-      v.memory = 4096
-      v.cpus = 2
-      v.linked_clone = true
+  config.vm.provider "virtualbox" do |v|
+    v.cpus = NODE_CPUS
+    v.memory = NODE_MEMORY
+    v.customize ["modifyvm", :id, "--audio", "none"]
+  end
+  config.vm.provider "libvirt" do |v|
+    v.cpus = NODE_CPUS
+    v.memory = NODE_MEMORY
+  end
+  if Vagrant.has_plugin?("vagrant-timezone")
+    config.timezone.value = :host
+  end
+  if "#{MOUNT_TYPE}" == "nfs"
+    config.vm.synced_folder HOME, HOME, type: "nfs", mount_options: ["vers=3,tcp"]
+  else
+    config.vm.synced_folder HOME, HOME, type: MOUNT_TYPE
   end
 
-  # Main Node 1
-  config.vm.define "k3sm1" do |k3sm1|
-      k3sm1.vm.hostname = "k3sm1"
-      k3sm1.vm.network "private_network", bridge: "Realtek PCIe 2.5GbE Family Controller", ip: "192.168.30.30"
+  if NUM_NODES==0
+    provision(config.vm, 0)
+  else
+    (1..NUM_NODES).each do |i|
+      config.vm.define ".#{i}" do |node|
+        provision(node.vm, i)
+      end
+    end
   end
 
-  # Main Node 2
-  config.vm.define "k3sm2" do |k3sm2|
-      k3sm2.vm.hostname = "k3sm2"
-      k3sm2.vm.network "private_network", bridge: "Realtek PCIe 2.5GbE Family Controller", ip: "192.168.30.31"
-  end
-
-  # Worker Node 1
-  config.vm.define "k3sn1" do |k3sn1|
-    k3sn1.vm.hostname = "k3sn1"
-    k3sn1.vm.network "private_network", bridge: "Realtek PCIe 2.5GbE Family Controller", ip: "192.168.30.35"
-  end
-
-  # Worker Node 2
-  config.vm.define "k3sn2" do |k3sn2|
-    k3sn2.vm.hostname = "k3sn2"
-    k3sn2.vm.network "private_network", bridge: "Realtek PCIe 2.5GbE Family Controller", ip: "192.168.30.36"
-  end
-
-  # Worker Node 3
-  config.vm.define "k3sn3" do |k3sn3|
-      k3sn3.vm.hostname = "k3sn3"
-      k3sn3.vm.network "private_network", bridge: "Realtek PCIe 2.5GbE Family Controller", ip: "192.168.30.37"
-  end
-
-  config.vm.provision "ansible", type: "ansible", run: "never" do |ansible|
-      ansible.playbook = "../playbook_k3s.yml"
-      ansible.limit = "all"
-      # ansible.groups = {
-      #   "k3s_main" => ["k3sm1", "k3sm2"],
-      #   "k3s_node" => ["k3sn1", "k3sn2", "k3sn3"],
-      #   "k3s:children" => ["k3s_main", "k3s_node"],
-      #   "k3s:vars" => {"k3s_version" => "v1.23.4+k3s1",
-      #                          "ansible_user" => "vagrant",
-      #                          "systemd_dir" => "/etc/systemd/system",
-      #                          "flannel_iface" => "eth1",
-      #                          "apiserver_endpoint" => "10.10.0.40",
-      #                          "k3s_token" => "supersecret",
-      #                          "extra_server_args" => "--node-ip={{ ansible_eth1.ipv4.address }} --flannel-iface={{ flannel_iface }} --no-deploy servicelb --no-deploy traefik",
-      #                          "extra_agent_args" => "--flannel-iface={{ flannel_iface }}",
-      #                          "kube_vip_tag_version" => "v0.4.2",
-      #                          "metal_lb_speaker_tag_version" => "v0.12.1",
-      #                          "metal_lb_controller_tag_version" => "v0.12.1",
-      #                          "metal_lb_ip_range" => "10.10.0.41-10.10.0.49",
-      #                          "retry_count" => "30"}
-      # }
-      # ansible.host_vars = {
-      #   "k3sn1" => {
-      #     "server_init_args" => "--cluster-init --token {{ k3s_token }} {{ extra_server_args | default('') }}"
-      #   },
-      #   "k3sn2" => {
-      #     "server_init_args" => "--server https://10.10.0.30:6443 --token {{ k3s_token }} {{ extra_server_args | default('') }}"
-      #   },
-      #   "k3sn3" => {
-      #     "server_init_args" => "--server https://10.10.0.30:6443 --token {{ k3s_token }} {{ extra_server_args | default('') }}"
-      #   }
-      # }
-  end
 end
