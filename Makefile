@@ -108,7 +108,7 @@ reqs-docker:	## 🐳🚧 Install ansible galaxy requirements
 setup: apt pip reqs store-password githook	## 🚧 Run setup tasks like apt, pip requirements, store-password and githook (below)
 
 apt:	## 🚧 install apt requirements on the local system
-	${DO_SUDO} apt install python3-pip python3-testresources unzip
+	${DO_SUDO} apt install -y python3-pip python3-testresources unzip sshpass
 
 pip:	## 🚧 Install python module requirements via requirements.txt file
 	${DO_SUDO} pip3 install --upgrade pip
