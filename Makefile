@@ -42,10 +42,14 @@ everything:	## 🔨 Make everything...
 # Docker build and run tasks #
 #----------------------------#
 
+# Other vars
+local_container_name = homelab
+registry_container_name = registry.gitlab.com/sami-group/homelab
+
 USERID = $(shell id -u)
 
 docker_build_cmd = \
-	docker build -t homelab \
+	docker build -t ${local_container_name} \
 	--build-arg UID=$(USERID)
 
 build-docker:	## 🏗️🐳 Builds the docker image locally. If `.vault-password` file exists, source the password from it (helps with local build tests), else see if `VAULT_PASS` env var exists.
@@ -71,10 +75,6 @@ docker_run_cmd = \
 
 # Dotfiles volume bind mount var
 docker_dotfiles = --volume "${HOME}/dotfiles:/home/ubuntu/dotfiles"
-
-# Other vars
-local_container_name = homelab
-registry_container_name = registry.gitlab.com/sami-group/homelab
 
 run-docker-registry:	## 🐳 Run the docker container from the public registry
 	@${docker_run_cmd} \
