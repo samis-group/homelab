@@ -68,9 +68,9 @@
       when: hass
       tags: ["hass"]
 
-    - name: Configure Windows Credentials Store entries
-      import_tasks: tasks/windows/credentials.yml
-      tags: ["windows_credentials"]
+    # - name: Configure Windows Credentials Store entries
+    #   import_tasks: tasks/windows/credentials.yml
+    #   tags: ["windows_credentials"]
 
     - name: Install and Configure Telegraf for Reporting to InfluxDB
       import_tasks: tasks/windows/telegraf.yml
