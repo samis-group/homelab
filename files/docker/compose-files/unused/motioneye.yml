@@ -65,8 +65,9 @@ secrets:
 services:
 
   # Motioneye NVR Surveillance Software
+  # Default user = admin (Leave password blank)
   # Install in docker instructions -> https://github.com/ccrisan/motioneye/wiki/Install-In-Docker
-  # Docket hub -> https://hub.docker.com/r/ccrisan/motioneye/
+  # Docker hub -> https://hub.docker.com/r/ccrisan/motioneye/
   motioneye:
     container_name: motioneye
     image: "ccrisan/motioneye:master-amd64"
