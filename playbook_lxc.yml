@@ -26,21 +26,34 @@
       tags: ["always"]
 
   roles:
-
-    - geerlingguy.docker  # geerlingguy roles don't work in WSL - Use docker desktop WSL integration instead.
-    - geerlingguy.ntp     # geerlingguy roles don't work in WSL.
+    - andrewrothstein.kubectl
+    - gantsign.minikube
+    - geerlingguy.helm    # Install helm on minikube nodes to deploy charts in ansible
+    - geerlingguy.docker
+    - geerlingguy.ntp
+    - lxc/dev01
 
   tasks:
-
-    - name: Install OS updates and required packages
-      import_tasks: tasks/wsl/install_os_packages.yml
-      when: install_os_packages
-      tags: [ "install_os_packages" ]
 
     - name: Copy git repos
       import_tasks: tasks/wsl/git.yml
       when: git
       tags: [ "git" ]
+
+    - name: Setup aliases and functions in bash environment
+      import_tasks: tasks/k3s/bashrc.yml
+
+    - name: Setup dependencies
+      import_tasks: tasks/k3s/dependencies.yml
+      become: true
+
+    # - name: deploy k8s manifests
+    #   import_role:
+    #     name: geerlingguy.k8s_manifests # Deploys everything inside file - `group_vars/k3s/vars.yml` lines - `43-46` variables - `k8s_*`
+    #   tags: ['nfs', 'k8s_manifests']
+
+    # - name: Deploy Helm Charts
+    #   import_tasks: tasks/k3s/deploy_helm_charts.yml
 
 - name: Setup Gitlab Runner LXC(s)
   hosts: gitlab_runner

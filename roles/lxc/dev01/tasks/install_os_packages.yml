@@ -1,0 +1,45 @@
+---
+- name: Apt Upgrade
+  apt:
+    name: '*'
+    state: latest
+    update_cache: true
+
+- name: Install required packages
+  apt:
+    state: present
+    pkg:
+      - wget
+      - curl                   # Docker
+      - telnet
+      - net-tools
+      - logrotate
+      - ca-certificates   # Docker
+      - gnupg               # Docker
+      - lsb-release        # Docker
+      - htop
+      - make
+      - vim
+      - stow
+      - python3
+      - python3-pip
+      - cifs-utils
+      - nfs-common
+      - bash-completion
+      - apt-transport-https
+      - software-properties-common
+      - jq
+      - git
+      - conntrack
+
+- name: pip self-update
+  pip:
+    name: pip
+    state: latest
+
+- name: Install required python modules
+  pip:
+    name:
+      - docker
+      - passlib
+      - pyyaml
