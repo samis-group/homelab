@@ -49,6 +49,7 @@
     onboot: "{{ lxc_container.onboot | default(lxc_defaults.onboot) }}"
     nameserver: "{{ lxc_container.nameserver | default(lxc_defaults.nameserver) }}"
     features: "{{ lxc_container.features | default(omit) }}"
+    unprivileged: "{{ lxc_container.unprivileged | default(omit) }}"  # Defaults to No -> https://docs.ansible.com/ansible/latest/collections/community/general/proxmox_module.html#parameter-validate_certs
   register: created_cts_pve
   ignore_errors: true
 
