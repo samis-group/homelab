@@ -18,10 +18,10 @@ $(eval $(runargs):;@true)
 .DEFAULT_GOAL := help
 
 # Used below to indent the help list to a custom point (I like to line it up, thanks OCD)
-help_indent = 28
+help_indent = 32
 .PHONY: help
 help:	# 💬 This help message
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' ${MAKEFILE_LIST} | cut -d: -f2- | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-${help_indent}s\033[0m %s\n", $$1, $$2}'
+	@grep -E '^[a-zA-Z%_-]+:.*?## .*$$' ${MAKEFILE_LIST} | cut -d: -f2- | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-${help_indent}s\033[0m %s\n", $$1, $$2}'
 
 .PHONY: execute
 # Run the playbook (Assumes `make setup` has already been run, If not, go do that first).

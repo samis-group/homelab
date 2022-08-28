@@ -68,7 +68,7 @@
       tags: ["provision_lxcs"]
       delegate_to: proxmox1  # The hosts aren't provisioned yet, so no tasks should run on them. Delegate everything to proxmox but use lxc inventory.
 
-- name: Download and configure base ubuntu template from cloud image
+- name: Download and configure base OS templates from cloud images
   hosts: proxmox1
 
   pre_tasks: *pre_tasks
@@ -78,8 +78,14 @@
     - name: Create Ubuntu VM Template from public cloud image
       import_role:
         name: proxmox/vm-template-from-ubuntu-cloud-image
-      when: create_vm_template
-      tags: ["create_vm_template"]
+      when: create_ubuntu_vm_template
+      tags: ["create_ubuntu_vm_template"]
+
+    - name: Create Debian VM Template from public cloud image
+      import_role:
+        name: proxmox/vm-template-from-debian-cloud-image
+      when: create_debian_vm_template
+      tags: ["create_debian_vm_template"]
 
 # Run this play with the docker host inventory, (load vm definition vars defined in each host_vars/host item), but delegate the tasks to proxmox
 - name: Provision Docker VM's on Proxmox Host
@@ -93,6 +99,27 @@
   tasks:
 
     - name: Provision VM's from template
+      import_tasks: tasks/proxmox/provision_vms.yml
+      when: provision_vms
+      tags: ["provision_vms"]
+      delegate_to: proxmox1  # The hosts aren't provisioned yet, so no tasks should run on them. Delegate everything to proxmox but use docker inventory.
+
+    - name: Run Post Tasks
+      import_tasks: tasks/proxmox/vm_post_tasks.yml
+      when: provision_vms
+      tags: ["provision_vms"]
+
+- name: Provision Minikube VM on Proxmox Host
+  tags: [ "proxmox-provision-minikube" ]  # Run `make proxmox-provision-minikube` to make this vm
+  # Currently only want to ensure docker_dev is created, not messing with legacy docker inventory group
+  hosts: minikube
+  # hosts: docker
+  gather_facts: false   # Because they don't exist yet
+  become: true
+
+  tasks:
+
+    - name: Provision minikube VM from template
       import_tasks: tasks/proxmox/provision_vms.yml
       when: provision_vms
       tags: ["provision_vms"]

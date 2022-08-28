@@ -1,17 +1,67 @@
 ---
-# Overwrite template role default mapping here because it's specified above
-# Have to do the whole mapping because it won't work otherwise
+# Overwrite role template default mappings here as this is what we will use to deploy templates and iterate.
+# Have to do the whole mapping because it won't work otherwise.
 template_vm_ubuntu:
   id: 8000  # Iterate this to create a new template
   version_number: 22.04
-  cpu_arch: amd64
+  version_name: jammy
   release: current
+  cpu_arch: amd64
+
+# Default VM configs - Each VM has it's overrides specified in it's own host_vars/hostname config file inside the 'vm' mapping
+# Specifying defaults below, but I override this mapping in my own main playbook.
+template_vm_ubuntu_defaults:
+  name: "UbuntuCloud-{{ template_vm_ubuntu.version_name }}-{{ template_vm_ubuntu.version_number }}"
+  nameservers:  # I use local DNS resolver, so I specify these on all vm's
+    - "{{ vm_gateway | default('1.1.1.1') }}"  # vm_gateway is declared elsewhere in the main playbook - My Primary DNS is the router, it recursively resolves upstream to cloudflare + google, but all requests through it.
+    - "8.8.4.4"
+  user: "{{ main_user | default('1.1.1.1') }}" # Change this if this isn't set outside the role.
+  password: "{{ ansible_become_password | default(omit) }}"
+  ssh_key: "ssh-rsa AAAAB3NzaC1yc2EAAAABJQAAAQEAiwG7uO5R8EzOLvoQEBc9TGyBMMEYlQf7NfwF3JH687WElHLc7bY1HTZ+VcEt+l7kvJfISAeJHdthpCT46ecPirLvz5oIOI1meXRPYXg5fKSJ+itAsfSupjg2/kRUHzI+NJjJap+KU21zEUxCqbTreJ3kSV58F/947uRDyMa0Ofammkx7LY8Kohsr99NtVsHXI71gSTngw/cIe5OR0F1qfxpsBwWw8daN+SYLe0tEtOHVZvGDVDbJhv1GW9PjQxSjx/8QEdi7FMT4ahwHxEcyG5+NhUg+DAo1RKoPYPAM5wwk9O7w+Y31EBP5wYc3FSiOPObcmIoBWxnUrZuD74dtaQ== Sami-id_rsa_personal"
+  ip_address: "{{ vm_network | default('10.10.0.') }}200"
+  netmask: "{{ vm_netmask | default('24') }}" # network mask ## NOT VM VAR
+  gateway: "{{ vm_gateway | default('10.10.0.1') }}" # gateway ### NOT VM var
+  cores: "2"
+  memory: "2048" # ram for each VM in MB
+  scsihw: virtio-scsi-pci   # Not tested changing this
+  # vga: serial0    # If defined, this will be set
+  # serial: socket  # If defined, this will be set
+  boot_order: "c"
+  boot_disk: "scsi0"
+  storage: "local-lvm" # proxmox storage for VMs and cloudinit disk. Please ensure this matches the `pve_kvm_ide` in all.yml and in host vm definitions. https://docs.ansible.com/ansible/latest/collections/community/general/proxmox_kvm_module.html#parameter-storage
+  network_device: 'virtio,bridge=vmbr0' # https://docs.ansible.com/ansible/latest/collections/community/general/proxmox_kvm_module.html#parameter-net
+  agent: true
+
+template_vm_debian:
+  id: 8001  # Iterate this to create a new template
+  version_number: 11
+  version_name: bullseye
+  cpu_arch: amd64
+
+template_vm_debian_defaults:
+  name: "DebianCloud-{{ template_vm_debian.version_name }}-{{ template_vm_debian.version_number }}"
+  nameservers:  # I use local DNS resolver, so I specify these on all vm's
+    - "{{ vm_gateway | default('1.1.1.1') }}"  # vm_gateway is declared elsewhere in the main playbook - My Primary DNS is the router, it recursively resolves upstream to cloudflare + google, but all requests through it.
+    - "8.8.4.4"
+  user: "{{ main_user | default('1.1.1.1') }}" # Change this if this isn't set outside the role.
+  password: "{{ ansible_become_password | default(omit) }}"
+  ssh_key: "ssh-rsa AAAAB3NzaC1yc2EAAAABJQAAAQEAiwG7uO5R8EzOLvoQEBc9TGyBMMEYlQf7NfwF3JH687WElHLc7bY1HTZ+VcEt+l7kvJfISAeJHdthpCT46ecPirLvz5oIOI1meXRPYXg5fKSJ+itAsfSupjg2/kRUHzI+NJjJap+KU21zEUxCqbTreJ3kSV58F/947uRDyMa0Ofammkx7LY8Kohsr99NtVsHXI71gSTngw/cIe5OR0F1qfxpsBwWw8daN+SYLe0tEtOHVZvGDVDbJhv1GW9PjQxSjx/8QEdi7FMT4ahwHxEcyG5+NhUg+DAo1RKoPYPAM5wwk9O7w+Y31EBP5wYc3FSiOPObcmIoBWxnUrZuD74dtaQ== Sami-id_rsa_personal"
+  ip_address: "{{ vm_network | default('10.10.0.') }}201"
+  netmask: "{{ vm_netmask | default('24') }}" # network mask ## NOT VM VAR
+  gateway: "{{ vm_gateway | default('10.10.0.1') }}" # gateway ### NOT VM var
+  cores: "2"
+  memory: "2048" # ram for each VM in MB
+  scsihw: virtio-scsi-pci   # Not tested changing this
+  boot_order: "c"
+  boot_disk: "scsi0"
+  storage: "local-lvm" # proxmox storage for VMs and cloudinit disk. Please ensure this matches the `pve_kvm_ide` in all.yml and in host vm definitions. https://docs.ansible.com/ansible/latest/collections/community/general/proxmox_kvm_module.html#parameter-storage
+  network_device: 'virtio,bridge=vmbr0' # https://docs.ansible.com/ansible/latest/collections/community/general/proxmox_kvm_module.html#parameter-net
+  agent: true
 
 # Default VM configs - Each VM has it's overrides specified in it's own host_vars/hostname config file inside the 'vm' mapping
 vm_defaults:
   update: true  # Allow vm to update hardware below after full clone
-  distro: ubuntu
-  template: "UbuntuCloud-{{ template_vm_ubuntu.version_number }}"   # VM or template to clone - Default to currently used ubuntu template name
+  template: "{{ template_vm_ubuntu_defaults.name }}"   # VM or template to clone - Default to currently used ubuntu template name
   user: "{{ main_user }}" # Change this if this isn't set outside the role.
   password: "{{ ansible_become_password }}"
   ssh_key: "ssh-rsa AAAAB3NzaC1yc2EAAAABJQAAAQEAiwG7uO5R8EzOLvoQEBc9TGyBMMEYlQf7NfwF3JH687WElHLc7bY1HTZ+VcEt+l7kvJfISAeJHdthpCT46ecPirLvz5oIOI1meXRPYXg5fKSJ+itAsfSupjg2/kRUHzI+NJjJap+KU21zEUxCqbTreJ3kSV58F/947uRDyMa0Ofammkx7LY8Kohsr99NtVsHXI71gSTngw/cIe5OR0F1qfxpsBwWw8daN+SYLe0tEtOHVZvGDVDbJhv1GW9PjQxSjx/8QEdi7FMT4ahwHxEcyG5+NhUg+DAo1RKoPYPAM5wwk9O7w+Y31EBP5wYc3FSiOPObcmIoBWxnUrZuD74dtaQ== Sami-id_rsa_personal"
@@ -24,8 +74,10 @@ vm_defaults:
   storage: "local-lvm"  # proxmox storage for VMs
   network_device: 'virtio,bridge=vmbr0'
   default_behavior: compatibility
-  serial: socket
+  # for debian images, there's a bug when resizing so need to set a serial port (serial0 below) -> https://forum.proxmox.com/threads/kernel-panic-after-resizing-a-clone.93738/
   vga: serial0
+  serial:
+    serial0: socket
   boot_disk: "scsi0"
   boot_order: "c"
   timeout: 300  # My tiny intel nuc can't deal with the IO bottle-necking due to spinning up 5 servers simultaneously :(
@@ -52,21 +104,6 @@ lxc_defaults:
   default_behavior: compatibility
   network_device: 'vmbr0'
 
-ssh:  # SSH keys
-  key_prefix: id_rsa_
-  key_personal: id_rsa_personal
-  key_personal_public: id_rsa_personal.pub
-  key_git: id_ecdsa_git
-  key_git_public: id_ecdsa_git.pub
-main_user_ssh_key_prefix: "{{ main_user }}-{{ ssh.key_prefix }}"
-vm_network: "10.10.0." # Network WITHOUT the last digit ## NOT VM VAR
-vm_netmask: "24" # network mask ## NOT VM VAR
-vm_gateway: "10.10.0.1" # gateway ### NOT VM var
-local_network_lan: 10.0.0.0/24      # Your local LAN subnet that will be used to whitelist certain aceess to resources
-local_network_iot: 10.4.0.0/24      # Your local IOT subnet that will be used to whitelist certain aceess to resources
-local_network_homelab: "{{ vm_network }}0/{{ vm_netmask }}"   # Your local homelab subnet that will be used to whitelist certain aceess to resources
-tz: 'Australia/Sydney'          # Timezone setting
-
 # Playbook run tasks default actions:
 install_os_packages: true
 # Run `make copy-files` whenever it needs updating.
@@ -77,15 +114,7 @@ git: true   # Docker and WSL
 provision_vms: true   # Provision VM's
 provision_lxcs: true  # Provision LXC's
 copy_ssh_configs: true  # Copy SSH configs to localhost (usually WSL for me) for provisioned LXCs/VMs
-
-# Others
-name_servers: '1.1.1.1,1.0.0.1'
-watchtower_interval: 15000
-docker_ip: 10.10.0.20   # This is a default, each host should override this in host_vars
-pfsense_ip: 10.10.0.1  # pfsense router IP
-proxmox_ip: 10.10.0.10  # proxmox hypervisor IP
-proxmox_port: '8006'
-influxdb_port: '8086'
+tz: 'Australia/Sydney'          # Timezone setting
 
 nas:
   user: "{{ main_user }}"
@@ -168,8 +197,8 @@ helm_charts:
 # Good practice to keep vault vars visible -> https://docs.ansible.com/ansible/latest/user_guide/playbooks_best_practices.html#keep-vaulted-variables-safely-visible
 # Adjust these as you wish
 
-main_user: "{{ vault_main_user | default('ubuntu') }}"  # User that will be created and will manage the systems/containers
-docker_group: "{{ vault_docker_group | default('docker')  }}"            # Leave this as 'docker', the user will need to be added to this group to run docker
+main_user: "{{ vault_main_user }}"  # User that will be created and will manage the systems/containers
+docker_group: "{{ vault_docker_group }}"            # Leave this as 'docker', the user will need to be added to this group to run docker
 ansible_become_password: "{{ vault_ansible_become_password }}"   # The `main_user` password and also the password ansible will use when connecting and becoming root
 domain_name: "{{ vault_domain_name }}"     # Domain name that traefik resides
 services_username: "{{ vault_services_username }}"         # Username to login to services
@@ -197,12 +226,33 @@ plex_claim: "{{ vault_plex_claim }}"              # Grab claim from -> https://w
 plex_token: "{{ vault_plex_token }}"                    # Find yours -> https://support.plex.tv/articles/204059436-finding-an-authentication-token-x-plex-token/
 traefik_pilot_token: "{{ vault_traefik_pilot_token }}"  # traefik pilot token to connect to traefik pilot
 k3s_token: "{{ vault_k3s_token }}"   # Generate one randomly
+name_servers: "{{ vault_name_servers }}"
+watchtower_interval: "{{ vault_watchtower_interval }}"
+docker_ip: "{{ vault_docker_ip }}"   # This is a default, each host should override this in host_vars
+pfsense_ip: "{{ vault_pfsense_ip }}"  # pfsense router IP
+proxmox_port: "{{ vault_proxmox_port }}"
+influxdb_port: "{{ vault_influxdb_port }}"
+
+ssh: "{{ vault_ssh }}"  # SSH keys
+  # key_prefix: id_rsa_
+  # key_personal: id_rsa_personal
+  # key_personal_public: id_rsa_personal.pub
+  # key_git: id_rsa_git
+  # key_git_public: id_rsa_git.pub
+main_user_ssh_key_prefix: "{{ vault_main_user_ssh_key_prefix }}"
+vm_network: "{{ vault_vm_network }}" # Network WITHOUT the last digit ## NOT VM VAR
+vm_netmask: "{{ vault_vm_netmask }}" # network mask ## NOT VM VAR
+vm_gateway: "{{ vault_vm_gateway }}" # gateway ### NOT VM var
+local_network_lan: "{{ vault_local_network_lan }}"      # Your local LAN subnet that will be used to whitelist certain aceess to resources
+local_network_iot: "{{ vault_local_network_iot }}"      # Your local IOT subnet that will be used to whitelist certain aceess to resources
+local_network_homelab: "{{ vault_local_network_homelab }}"   # Your local homelab subnet that will be used to whitelist certain aceess to resources
 
 # Proxmox bits for one host in cluster where tasks will be run
 pve: "{{ vault_pve }}"
   # proxmox_api_user: root@pam
   # proxmox_api_pass: XXXXXXXXXXXXX
   # proxmox_node: pve
+  # proxmox_host: X.X.X.X
   # clone_timeout: "300" #seconds that clone job spend change based on logs
   # mac: xx:xx:xx:xx:xx:xx  # MAC address of the proxmox server for WOL
   # broadcast: '255.255.255.255' # broadcast network parameter for WOL

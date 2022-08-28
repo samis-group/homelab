@@ -1,0 +1,11 @@
+---
+# Create user based on username
+- name: Create user and add to {{ docker_group }}/sudo/dialout groups
+  user:
+    name: "{{ main_user }}"
+    groups:
+      - "{{ docker_group }}"
+      - sudo
+      - dialout
+    append: true
+  register: user_created

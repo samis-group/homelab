@@ -1,7 +1,7 @@
 ---
 img_dir: "/tmp/cloud_images"
 force_template_rebuild: false   # This will delete the current template and build a new one
-ubuntu_img_template_url: https://cloud-images.ubuntu.com/releases/{{ template_vm_ubuntu.version_number }}/release/ubuntu-{{ template_vm_ubuntu.version_number }}-server-cloudimg-{{ template_vm_ubuntu.cpu_arch }}.img
+debian_img_template_url: "https://cdimage.debian.org/images/cloud/{{ template_vm_debian.version_name }}/latest/debian-{{ template_vm_debian.version_number }}-genericcloud-{{ template_vm_debian.cpu_arch }}.qcow2"
 template_ipconfig:
   ipconfig0: "ip={{ template_vm_ubuntu_defaults.ip_address }}/{{ template_vm_ubuntu_defaults.netmask }},gw={{ template_vm_ubuntu_defaults.gateway }}"
 template_scsi0_device: "{{ template_vm_ubuntu_defaults.storage }}:vm-{{ template_vm_ubuntu.id }}-disk-0"

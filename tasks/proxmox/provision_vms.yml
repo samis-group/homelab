@@ -46,7 +46,7 @@
     cpulimit: "{{ vm.cpu_limit | default(omit) }}"
     memory: "{{ vm.memory | default(vm_defaults.memory) }}"
     balloon: "{{ vm.balloon | default(omit) }}"
-    vga: "{{ vm.vga | default(omit) }}"
+    vga: "{{ vm.vga | default(vm_defaults.vga) }}"
     acpi: "{{ vm.acpi | default(omit) }}"
     # Can't perform OS operations unless qemu-guest-agent is installed, so leave this off until VM is bootstrapped and do it afterwards
     # agent: "{%- if (vm.agent is defined) -%}{{ vm.agent }}
@@ -88,7 +88,7 @@
     reboot: "{{ vm.reboot | default(omit) }}"
     revert: "{{ vm.revert | default(omit) }}"
     scsihw: "{{ vm.scsihw | default(omit) }}"
-    serial: "{{ vm.serial | default(omit) }}"
+    serial: "{{ vm.serial | default(vm_defaults.serial) }}"
     shares: "{{ vm.shares | default(omit) }}"
     skiplock: "{{ vm.skiplock | default(omit) }}"
     smbios: "{{ vm.smbios | default(omit) }}"

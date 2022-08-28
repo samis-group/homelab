@@ -2,7 +2,7 @@
 # Run cleanup tasks if `force_template_rebuild` is true
 - name: Cleanup - Ensure existing cloud-image file is removed if force rebuilding
   file:
-    path: "{{ img_dir }}/{{ ubuntu_img_template_url | basename }}"
+    path: "{{ img_dir }}/{{ debian_img_template_url | basename }}"
     state: absent
   when: force_template_rebuild
 
@@ -12,8 +12,8 @@
     api_user: "{{ pve.proxmox_api_user }}"
     api_password: "{{ pve.proxmox_api_pass }}"
     api_host: "{{ pve.proxmox_host }}"
-    name: "{{ template_vm_ubuntu_defaults.name }}"
-    vmid: "{{ template_vm_ubuntu.id }}"    # Specifying a high value for my template
+    name: "{{ template_vm_debian_defaults.name }}"
+    vmid: "{{ template_vm_debian.id }}"    # Specifying a high value for my template
     state: absent
   when: force_template_rebuild
 
@@ -23,10 +23,10 @@
     path: "{{ img_dir }}"
     state: directory
 
-- name: Download ubuntu cloud image
+- name: Download debian cloud image
   get_url:
-    url: "{{ ubuntu_img_template_url }}"
-    dest: "{{ img_dir }}/{{ ubuntu_img_template_url | basename }}"
+    url: "{{ debian_img_template_url }}"
+    dest: "{{ img_dir }}/{{ debian_img_template_url | basename }}"
 
 # We attach the scsi and cloudinit disks afterwards (manual qm commands) because the ansible module doesn't allow us to update them with `update: yes`
 - name: Create new Template VM
@@ -35,45 +35,45 @@
     api_user: "{{ pve.proxmox_api_user }}"
     api_password: "{{ pve.proxmox_api_pass }}"
     api_host: "{{ pve.proxmox_host }}"
-    name: "{{ template_vm_ubuntu_defaults.name }}"
-    vmid: "{{ template_vm_ubuntu.id }}"    # Specifying a high value for my template
-    storage: "{{ template_vm_ubuntu_defaults.storage }}"
+    name: "{{ template_vm_debian_defaults.name }}"
+    vmid: "{{ template_vm_debian.id }}"    # Specifying a high value for my template
+    storage: "{{ template_vm_debian_defaults.storage }}"
     net:
-      net0: "{{ template_vm_ubuntu_defaults.network_device }}"
+      net0: "{{ template_vm_debian_defaults.network_device }}"
 
 - name: Check if the vm disk has already been created. If so, Skip creating another
   shell:
-    cmd: lvs | grep {{ template_vm_ubuntu.id }}-disk | wc -l
+    cmd: lvs | grep {{ template_vm_debian.id }}-disk | wc -l
   register: vm_disk_done
 
 # Add disks after creating vm because `qm importdisk` is not supported in the proxmox ansible module, so can only attach it afterwards
 - name: Import cloud image disk into VM
   shell:
-    cmd: qm importdisk {{ template_vm_ubuntu.id }} {{ ubuntu_img_template_url | basename }} {{ template_vm_ubuntu_defaults.storage }}
+    cmd: qm importdisk {{ template_vm_debian.id }} {{ debian_img_template_url | basename }} {{ template_vm_debian_defaults.storage }}
     chdir: "{{ img_dir }}"
   when: vm_disk_done.stdout | int < 1
 
 - name: Set SCSI controller and add SCSI drive attaching disk
   shell:
-    cmd: qm set {{ template_vm_ubuntu.id }} --scsihw {{ template_vm_ubuntu_defaults.scsihw }} --scsi0 {{ template_vm_ubuntu_defaults.storage }}:vm-{{ template_vm_ubuntu.id }}-disk-0
+    cmd: qm set {{ template_vm_debian.id }} --scsihw {{ template_vm_debian_defaults.scsihw }} --scsi0 {{ template_vm_debian_defaults.storage }}:vm-{{ template_vm_debian.id }}-disk-0
   when: vm_disk_done.stdout | int < 1
 
 - name: Check if cloudinit drive has already been created. If so, Skip creating another
   shell:
-    cmd: lvs | grep {{ template_vm_ubuntu.id }}-cloudinit | wc -l
+    cmd: lvs | grep {{ template_vm_debian.id }}-cloudinit | wc -l
   register: vm_cloudinit_done
 
 - name: Add Cloudinit disk
   shell:
-    cmd: qm set {{ template_vm_ubuntu.id }} --ide2 {{ template_vm_ubuntu_defaults.storage }}:cloudinit
+    cmd: qm set {{ template_vm_debian.id }} --ide2 {{ template_vm_debian_defaults.storage }}:cloudinit
   when: vm_cloudinit_done.stdout != '1'
 
 - name: Set serial console if defined in vars
   shell:
-    cmd: qm set {{ template_vm_ubuntu.id }} --serial0 {{ template_vm_ubuntu_defaults.serial }} --vga {{ template_vm_ubuntu_defaults.vga }}
+    cmd: qm set {{ template_vm_debian.id }} --serial0 {{ template_vm_debian_defaults.serial }} --vga {{ template_vm_debian_defaults.vga }}
   when:
-    - template_vm_ubuntu_defaults.serial is defined
-    - template_vm_ubuntu_defaults.vga is defined
+    - template_vm_debian_defaults.serial is defined
+    - template_vm_debian_defaults.vga is defined
 
 # When cloning the VM, we add all the other hardware, perform updates, etc.
 # Leave this template minimal, what is below should suffice. No warranties provided.
@@ -83,19 +83,19 @@
     api_user: "{{ pve.proxmox_api_user }}"
     api_password: "{{ pve.proxmox_api_pass }}"
     api_host: "{{ pve.proxmox_host }}"
-    vmid: "{{ template_vm_ubuntu.id }}"
+    vmid: "{{ template_vm_debian.id }}"
     ipconfig: "{{ template_ipconfig }}"
-    ciuser: "{{ template_vm_ubuntu_defaults.user }}"
-    cipassword: "{{ template_vm_ubuntu_defaults.password | default(omit) }}" # OPTIONAL
-    sshkeys: "{{ template_vm_ubuntu_defaults.ssh_key }}"
-    boot: "{{ template_vm_ubuntu_defaults.boot_order }}"
-    bootdisk: "{{ template_vm_ubuntu_defaults.boot_disk }}"
-    nameservers: "{{ template_vm_ubuntu_defaults.nameservers }}"
-    cores: "{{ template_vm_ubuntu_defaults.cores }}"
-    memory: "{{ template_vm_ubuntu_defaults.memory }}"
+    ciuser: "{{ template_vm_debian_defaults.user }}"
+    cipassword: "{{ template_vm_debian_defaults.password | default(omit) }}" # OPTIONAL
+    sshkeys: "{{ template_vm_debian_defaults.ssh_key }}"
+    boot: "{{ template_vm_debian_defaults.boot_order }}"
+    bootdisk: "{{ template_vm_debian_defaults.boot_disk }}"
+    nameservers: "{{ template_vm_debian_defaults.nameservers }}"
+    cores: "{{ template_vm_debian_defaults.cores }}"
+    memory: "{{ template_vm_debian_defaults.memory }}"
     update: yes
 
 - name: Make this VM a template
   shell:
-    cmd: qm template {{ template_vm_ubuntu.id }}
+    cmd: qm template {{ template_vm_debian.id }}
   ignore_errors: true   # If it's already a template it complains, it's also the last task so..

@@ -15,6 +15,7 @@
 
 - name: Configure minikube cluster
   hosts: minikube
+  remote_user: "{{ vm.user | default(main_user) }}"  # Login as user and become root
   become: true
 
   pre_tasks:  &pre_tasks   # Anchors to re-use the code later. No point duplicating code.
@@ -26,40 +27,36 @@
 
   roles:
 
-    - role: geerlingguy.docker
-    - role: gantsign.minikube
-    - role: geerlingguy.helm  # Install helm on minikube nodes to deploy charts in ansible
-
-- name: Install/configure Helm/kubectl on control node (i.e. the host you are running this playbook on, soz <3)
-  hosts: wsl  # Run on wsl as that is what I use
-  become: yes
-
-  pre_tasks: *pre_tasks
-
-  roles:
-
+    - geerlingguy.docker
+    - gantsign.minikube
+    - geerlingguy.helm  # Install helm on minikube nodes to deploy charts in ansible
     - andrewrothstein.kubectl
-    - geerlingguy.helm
 
   tasks:
 
-    - name: Copy kube config
-      import_tasks: tasks/lxc/minikube/kubectl_helm_config.yml
+    - name: Setup user to run docker commands
+      import_tasks: tasks/minikube/user.yml
+
+    - name: Install package dependencies
+      import_tasks: tasks/minikube/apt.yml
 
 - name: Deploy Helm Charts
   hosts: minikube
+  remote_user: "{{ vm.user | default(main_user) }}"  # Login as user and become root
   become: false
 
   pre_tasks: *pre_tasks
 
   tasks:
 
-    - name: Setup aliases and functions in bash environment
-      import_tasks: tasks/k3s/bashrc.yml
+    - name: Install pip dependencies
+      import_tasks: tasks/minikube/pip.yml
 
-    - name: Setup dependencies
-      import_tasks: tasks/k3s/dependencies.yml
-      become: true
+    - name: Setup aliases and functions in bash environment
+      import_tasks: tasks/minikube/bashrc.yml
+
+    - name: Start minikube
+      shell: minikube start
 
     - name: deploy k8s manifests
       import_role:

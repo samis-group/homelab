@@ -25,4 +25,4 @@ http:
     proxmox-svc:
       loadBalancer:
         servers:
-          - url: "https://{{ proxmox_ip }}:{{ proxmox_port }}"  # or whatever your external host's IP:port is
+          - url: "https://{{ pve.proxmox_host }}:{{ proxmox_port }}"  # or whatever your external host's IP:port is
