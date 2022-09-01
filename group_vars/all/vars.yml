@@ -220,6 +220,7 @@ radarr_api_key: "{{ vault_radarr_api_key }}"  # Radarr API Key taken from the UI
 sonarr_api_key: "{{ vault_sonarr_api_key }}"  # Sonarr API Key taken from the UI once logged in
 bazarr_api_key: "{{ vault_bazarr_api_key }}"  # Bazarr API Key taken from the UI once logged in
 prowlarr_api_key: "{{ vault_prowlarr_api_key }}"  # Prowlarr API Key taken from the UI once logged in
+tautulli_api_key: "{{ vault_tautulli_api_key }}"  # Tautulli API Key taken from the UI once logged in
 plex_claim: "{{ vault_plex_claim }}"              # Grab claim from -> https://www.plex.tv/claim/
 plex_token: "{{ vault_plex_token }}"                    # Find yours -> https://support.plex.tv/articles/204059436-finding-an-authentication-token-x-plex-token/
 traefik_pilot_token: "{{ vault_traefik_pilot_token }}"  # traefik pilot token to connect to traefik pilot
