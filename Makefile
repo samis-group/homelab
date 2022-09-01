@@ -74,7 +74,7 @@ docker_run_cmd = \
 	--user=$(USERID)
 
 # Dotfiles volume bind mount var
-docker_dotfiles = --volume "${HOME}/dotfiles:/home/ubuntu/dotfiles"
+docker_dotfiles = --volume "${HOME}/.dotfiles:/home/ubuntu/.dotfiles"
 
 run-docker-registry:	## 🐳 Run the docker container from the public registry
 	@${docker_run_cmd} \
@@ -94,18 +94,43 @@ run-docker-local-dotfiles: build-docker	## 🐳 Run the docker container from th
 	${docker_dotfiles} \
 	${local_container_name}
 
-reqs-docker:	## 🐳🚧 Install ansible galaxy requirements
-	@ansible-galaxy install -r requirements.yml -p /ansible/collections/ansible_collections
-	@ansible-galaxy install -r roles/requirements.yml
-
 #-------------#
 # Setup Tasks #
 #-------------#
 
-.PHONY: setup apt pip reqs store-password githook
+# TERRAFORM INSTALL
+terraform-version  ?= "0.14.11"
+terraform-os       ?= $(shell uname|tr A-Z a-z)
+ifeq ($(shell uname -m),x86_64)
+  terraform-arch   ?= "amd64"
+endif
+ifeq ($(shell uname -m),i686)
+  terraform-arch   ?= "386"
+endif
+ifeq ($(shell uname -m),aarch64)
+  terraform-arch   ?= "arm"
+endif
+
+install-terraform:	## 🚧 Installs Terraform on your current host
+	@${DO_SUDO} wget -O /usr/bin/terraform.zip https://releases.hashicorp.com/terraform/$(terraform-version)/terraform_$(terraform-version)_$(terraform-os)_$(terraform-arch).zip
+	@${DO_SUDO} unzip -d /usr/bin /usr/bin/terraform.zip
+# Cleanup
+	@${DO_SUDO} rm /usr/bin/terraform.zip
+
+# DOCKER SETUP TASKS
+.PHONY: setup-docker reqs-docker
+
+# Targets for container setup
+setup-docker: reqs-docker install-terraform	# Mainly used for my dockerfile
+
+reqs-docker:	## 🐳🚧 Install ansible galaxy requirements
+	@ansible-galaxy install -r requirements.yml -p /ansible/collections/ansible_collections
+	@ansible-galaxy install -r roles/requirements.yml
 
 # Setup entire environment
-setup: apt pip reqs store-password githook	## 🚧 Run setup tasks like apt, pip requirements, store-password and githook (below)
+.PHONY: setup apt pip reqs store-password githook install-terraform
+
+setup: apt pip reqs store-password githook install-terraform	## 🚧 Run setup tasks like apt, pip requirements, store-password and githook (below)
 
 apt:	## 🚧 install apt requirements on the local system
 	${DO_SUDO} apt install -y python3-pip python3-testresources unzip sshpass

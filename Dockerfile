@@ -15,7 +15,7 @@ ARG UNAME=ubuntu
 
 # Ubuntu OS dependencies
 RUN apt-get update \
-  && apt-get install -y tzdata make vim openssh-server bash-completion sudo sshpass \
+  && apt-get install -y wget unzip tzdata make vim openssh-server bash-completion sudo sshpass \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 
@@ -38,7 +38,7 @@ RUN pip3 install --upgrade pip && pip3 install --no-cache-dir -r requirements.tx
 COPY --chown=$UNAME:root Makefile ./
 COPY --chown=$UNAME:root makefiles/ makefiles/
 COPY --chown=$UNAME:root roles/requirements* roles/
-RUN make reqs-docker
+RUN make setup-docker
 # Copy bin files (mainly for docker-entrypoint.sh)
 COPY --chown=$UNAME:root bin/ bin/
 

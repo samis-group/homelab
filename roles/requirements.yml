@@ -1,12 +1,5 @@
 ---
 # Proxmox #
-## Personal Roles
-### This is now just in the same repo.
-# - name: vm-template-from-ubuntu-cloud-image
-#   src: https://gitlab.com/sami-group/ansible-roles/vm-template-from-ubuntu-cloud-image.git
-#   scm: git
-
-## Others
 - src: lae.proxmox  # Setup pve cluster on debian - # Currently Unused
 - src: udelarinterior.proxmox_create_lxc   # LXC containers provision - # Currently Unused
 - src: ironicbadger.proxmox_nag_removal
@@ -33,3 +26,5 @@
   scm: git
 - src: https://github.com/c0sco/ansible-modules-bitwarden # Allows bitwarden lookups
   scm: git
+
+# Others - Third party etc.
