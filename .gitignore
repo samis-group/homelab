@@ -2,3 +2,4 @@
 # Ignore all vagrant files except the main 'Vagrantfile'
 vagrant/*
 !vagrant/Vagrantfile
+terraform/.terraform*
