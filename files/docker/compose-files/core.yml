@@ -54,6 +54,15 @@ networks:
       config:
         - subnet: 192.168.91.0/24
 
+########################### VOLUMES
+
+volumes:
+  tv:
+    driver_opts:
+      type: "nfs"
+      o: "addr=${NAS_IP},wsize=65536,rsize=65536,timeo=60,nolock,soft,rw"
+      device: ":${NAS_TV_PATH}"
+
 ########################### SECRETS
 
 secrets:
