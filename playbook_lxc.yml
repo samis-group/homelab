@@ -25,6 +25,12 @@
       import_tasks: tasks/linux/pre_tasks.yml
       tags: ["always"]
 
+    - name: Apt Upgrade
+      apt:
+        name: '*'
+        state: latest
+        update_cache: true
+
   roles:
     - andrewrothstein.kubectl
     - gantsign.minikube
@@ -60,29 +66,14 @@
   tags: [ "lxc-gitlab_runner" ]
   become: true
 
-  pre_tasks:
-
-      # This is to get the PUID and PGID variables to use later in multiple areas
-    - name: Get user info or create a user if one doesn't exist
-      import_tasks: tasks/linux/pre_tasks.yml
-      tags: [ "always" ]
+  pre_tasks:  *pre_tasks
 
   roles:
 
     - riemers.gitlab-runner
     - geerlingguy.docker
     - geerlingguy.ntp
-
-  tasks:
-
-    - name: Add 'gitlab-runner' user to docker group
-      user:
-        name: gitlab-runner
-        groups: docker
-        append: yes
-
-    - name: Setup Crons
-      import_tasks: tasks/lxc/gitlab-runner/setup_crons.yml
+    - lxc/gitlab-runner
 
 ### LDAP turnkey is a WIP
 

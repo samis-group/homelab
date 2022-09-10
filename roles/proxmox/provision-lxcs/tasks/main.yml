@@ -1,7 +1,4 @@
 ---
-# TODO: Provision LXC containers, to install standalone apps on
-# (like gitlab runner moving away from docker and being to completely rebuild it)
-
 - name: Setup cloudflare DNS for LXC's
   community.general.cloudflare_dns:
     zone: "{{ domain_name }}"
@@ -18,7 +15,7 @@
     api_user: "{{ pve.proxmox_api_user }}"
     api_password: "{{ pve.proxmox_api_pass }}"
     api_host: "localhost"
-    storage: "{{ lxc_template.storage }}"
+    storage: "{{ lxc_container.storage | default(lxc_template.storage) }}"
     template: "{{ lxc_container.image | default(lxc_template.image) }}"
     timeout: 120  # Turnkey images take time to download
 
@@ -45,7 +42,7 @@
     disk: "{{ lxc_container.disk | default(lxc_defaults.disk) }}"
     mounts: "{{ lxc_container.mounts | default(omit) }}"
     netif: "{{ lxc_container.netif | default(omit) }}"
-    storage: "{{ lxc_container.container_storage | default(lxc_defaults.container_storage) }}"  # target storage
+    storage: "{{ lxc_container.storage | default(lxc_defaults.storage) }}"  # target storage
     onboot: "{{ lxc_container.onboot | default(lxc_defaults.onboot) }}"
     nameserver: "{{ lxc_container.nameserver | default(lxc_defaults.nameserver) }}"
     features: "{{ lxc_container.features | default(omit) }}"

@@ -87,12 +87,12 @@ vm_defaults:
   agent: true   # Enable QEMU guest agent
 
 lxc_template:
-  storage: local # Location where the template image will download to (not the container storage)
+  storage: SSD # Location where the template image will download to (not the container storage)
   image: ubuntu-22.04-standard_22.04-1_amd64.tar.zst # run `pveam available` to list available images to download.
 
 lxc_defaults:
   template: "{{ lxc_template.storage }}:vztmpl/{{ lxc_template.image }}"
-  container_storage: local-lvm # Location where the container storage will be set to (not the imaage template storage)
+  storage: local-lvm # Location where the container storage will be set to (not the imaage template storage)
   ssh_key: "{{ vm_defaults.ssh_key }}"
   password: "{{ ansible_become_password }}"
   cores: "2"
