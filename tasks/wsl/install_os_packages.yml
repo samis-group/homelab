@@ -44,6 +44,7 @@
       - stow
       - python3
       - python3-pip
+      - python-is-python3
       - cifs-utils
       - nfs-common
       - bash-completion
