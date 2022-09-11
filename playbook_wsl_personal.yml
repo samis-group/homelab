@@ -28,6 +28,7 @@
 
     - andrewrothstein.kubectl
     - geerlingguy.helm
+    - hedii.youtube-dl
 
   tasks:
 

@@ -6,6 +6,9 @@
 - src: rossmcdonald.telegraf  # Currently Unused -> https://github.com/rossmcdonald/telegraf
 - src: riemers.gitlab-runner  # Install gitlab runner on an LXC
 
+# Linux #
+- src: hedii.youtube-dl
+
 # k3s #
 - src: geerlingguy.k8s_manifests
 
