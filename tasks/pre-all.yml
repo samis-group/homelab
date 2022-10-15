@@ -1,8 +1,8 @@
 ---
-#---------------------------------------------#
+# ------------------------------------------- #
 # Run this in every playbook before anything! #
 # Therefore, keep this task list VERY simple! #
-#---------------------------------------------#
+# ------------------------------------------- #
 
 # Include var overrides
 - name: Include playbook configuration.
@@ -11,8 +11,8 @@
     - "{{ playbook_dir }}/vars/config.yml"
 
 # Import bitwarden role - For obtaining passwords from bitwarden
-- import_role:
-    name: ansible-modules-bitwarden
+# - import_role:
+#     name: ansible-modules-bitwarden
 
 ### Work in progress - May migrate my vault to bitwarden..
 # # Get all available fields for an entry

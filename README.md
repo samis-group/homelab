@@ -154,6 +154,39 @@ If you are **NOT** the owner of this repo, **copy the [host_vars_example](host_v
 cp host_vars_example host_vars
 ```
 
+### Setup Windows Host for running ansible from WSL
+
+- Install Chocolatey
+
+  ```powershell
+  Set-ExecutionPolicy Bypass -Scope Process -Force; Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+  ```
+
+- Install OpenSSH Server
+
+  ```powershell
+  $openSSHpackages = Get-WindowsCapability -Online | Where-Object Name -like 'OpenSSH.Server*' | Select-Object -ExpandProperty Name
+
+  foreach ($package in $openSSHpackages) {
+    Add-WindowsCapability -Online -Name $package
+  }
+
+  # Start the sshd service
+  Start-Service sshd
+  Set-Service -Name sshd -StartupType 'Automatic'
+
+  # Confirm the Firewall rule is configured. It should be created automatically by setup. Run the following to verify
+  if (!(Get-NetFirewallRule -Name "OpenSSH-Server-In-TCP" -ErrorAction SilentlyContinue | Select-Object Name, Enabled)) {
+    Write-Output "Firewall Rule 'OpenSSH-Server-In-TCP' does not exist, creating it..."
+    New-NetFirewallRule -Name 'OpenSSH-Server-In-TCP' -DisplayName 'OpenSSH Server (sshd)' -Enabled True -Direction Inbound -Protocol TCP -Action Allow -LocalPort 22
+  }
+  else {
+    Write-Output "Firewall rule 'OpenSSH-Server-In-TCP' has been created and exists."
+  }
+  ```
+
+**Note:** Password will be your microsoft account password, if that's how you created your user.
+
 ### Setup Proxmox Host
 
 **Automation is TBD Mostly... Manual steps below after you install proxmox on the bare metal host.**

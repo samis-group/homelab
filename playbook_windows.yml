@@ -1,23 +1,23 @@
 ---
-#-------------------------------------#
+# ----------------------------------- #
 # Pre-tasks run before anything else! #
-#-------------------------------------#
+# ----------------------------------- #
 - hosts: windows
   # Special tag "always" -> https://docs.ansible.com/ansible/latest/user_guide/playbooks_tags.html#special-tags-always-and-never
-  tags: [ "always" ]
+  tags: ["always"]
   gather_facts: false
   tasks:
     - import_tasks: tasks/pre-all.yml
 
-#---------#
+# ------- #
 # Windows #
-#---------#
+# ------- #
 
 - name: Setup Windows PC
   hosts: windows
   become: true
   become_method: runas
-  become_user: "{{ main_user }}"
+  become_user: "{{ microsoft_account_user }}"
 
   handlers:
 

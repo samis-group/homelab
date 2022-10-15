@@ -8,7 +8,7 @@
 - name: Create user and add to {{ docker_group }}/sudo/dialout groups
   user:
     name: "{{ main_user }}"
-    password: "{{ ansible_become_password | password_hash('sha512', 'mysecretsalt') }}"
+    password: "{{ main_pass | password_hash('sha512', 'mysecretsalt') }}"
     groups:
       - "{{ docker_group }}"
       - sudo

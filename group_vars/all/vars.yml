@@ -16,7 +16,7 @@ template_vm_ubuntu_defaults:
     - "{{ vm_gateway | default('1.1.1.1') }}"  # vm_gateway is declared elsewhere in the main playbook - My Primary DNS is the router, it recursively resolves upstream to cloudflare + google, but all requests through it.
     - "8.8.4.4"
   user: "{{ main_user | default('1.1.1.1') }}" # Change this if this isn't set outside the role.
-  password: "{{ ansible_become_password | default(omit) }}"
+  password: "{{ main_pass | default(omit) }}"
   ssh_key: "ssh-rsa AAAAB3NzaC1yc2EAAAABJQAAAQEAiwG7uO5R8EzOLvoQEBc9TGyBMMEYlQf7NfwF3JH687WElHLc7bY1HTZ+VcEt+l7kvJfISAeJHdthpCT46ecPirLvz5oIOI1meXRPYXg5fKSJ+itAsfSupjg2/kRUHzI+NJjJap+KU21zEUxCqbTreJ3kSV58F/947uRDyMa0Ofammkx7LY8Kohsr99NtVsHXI71gSTngw/cIe5OR0F1qfxpsBwWw8daN+SYLe0tEtOHVZvGDVDbJhv1GW9PjQxSjx/8QEdi7FMT4ahwHxEcyG5+NhUg+DAo1RKoPYPAM5wwk9O7w+Y31EBP5wYc3FSiOPObcmIoBWxnUrZuD74dtaQ== Sami-id_rsa_personal"
   ip_address: "{{ vm_network | default('10.10.0.') }}200"
   netmask: "{{ vm_netmask | default('24') }}" # network mask ## NOT VM VAR
@@ -44,7 +44,7 @@ template_vm_debian_defaults:
     - "{{ vm_gateway | default('1.1.1.1') }}"  # vm_gateway is declared elsewhere in the main playbook - My Primary DNS is the router, it recursively resolves upstream to cloudflare + google, but all requests through it.
     - "8.8.4.4"
   user: "{{ main_user | default('1.1.1.1') }}" # Change this if this isn't set outside the role.
-  password: "{{ ansible_become_password | default(omit) }}"
+  password: "{{ main_pass | default(omit) }}"
   ssh_key: "ssh-rsa AAAAB3NzaC1yc2EAAAABJQAAAQEAiwG7uO5R8EzOLvoQEBc9TGyBMMEYlQf7NfwF3JH687WElHLc7bY1HTZ+VcEt+l7kvJfISAeJHdthpCT46ecPirLvz5oIOI1meXRPYXg5fKSJ+itAsfSupjg2/kRUHzI+NJjJap+KU21zEUxCqbTreJ3kSV58F/947uRDyMa0Ofammkx7LY8Kohsr99NtVsHXI71gSTngw/cIe5OR0F1qfxpsBwWw8daN+SYLe0tEtOHVZvGDVDbJhv1GW9PjQxSjx/8QEdi7FMT4ahwHxEcyG5+NhUg+DAo1RKoPYPAM5wwk9O7w+Y31EBP5wYc3FSiOPObcmIoBWxnUrZuD74dtaQ== Sami-id_rsa_personal"
   ip_address: "{{ vm_network | default('10.10.0.') }}201"
   netmask: "{{ vm_netmask | default('24') }}" # network mask ## NOT VM VAR
@@ -63,7 +63,7 @@ vm_defaults:
   update: true  # Allow vm to update hardware below after full clone
   template: "{{ template_vm_ubuntu_defaults.name }}"   # VM or template to clone - Default to currently used ubuntu template name
   user: "{{ main_user }}" # Change this if this isn't set outside the role.
-  password: "{{ ansible_become_password }}"
+  password: "{{ main_pass }}"
   ssh_key: "ssh-rsa AAAAB3NzaC1yc2EAAAABJQAAAQEAiwG7uO5R8EzOLvoQEBc9TGyBMMEYlQf7NfwF3JH687WElHLc7bY1HTZ+VcEt+l7kvJfISAeJHdthpCT46ecPirLvz5oIOI1meXRPYXg5fKSJ+itAsfSupjg2/kRUHzI+NJjJap+KU21zEUxCqbTreJ3kSV58F/947uRDyMa0Ofammkx7LY8Kohsr99NtVsHXI71gSTngw/cIe5OR0F1qfxpsBwWw8daN+SYLe0tEtOHVZvGDVDbJhv1GW9PjQxSjx/8QEdi7FMT4ahwHxEcyG5+NhUg+DAo1RKoPYPAM5wwk9O7w+Y31EBP5wYc3FSiOPObcmIoBWxnUrZuD74dtaQ== Sami-id_rsa_personal"
   nameservers:
     - "{{ vm_gateway }}"    # My Primary DNS is the router, it recursively resolves upstream to cloudflare + google, but all requests through it.
@@ -94,7 +94,7 @@ lxc_defaults:
   template: "{{ lxc_template.storage }}:vztmpl/{{ lxc_template.image }}"
   storage: local-lvm # Location where the container storage will be set to (not the imaage template storage)
   ssh_key: "{{ vm_defaults.ssh_key }}"
-  password: "{{ ansible_become_password }}"
+  password: "{{ main_pass }}"
   cores: "2"
   cpus: "2"
   memory: 2048 # memory size (in MB)
@@ -196,14 +196,16 @@ helm_charts:
 
 # Good practice to keep vault vars visible -> https://docs.ansible.com/ansible/latest/user_guide/playbooks_best_practices.html#keep-vaulted-variables-safely-visible
 main_user: "{{ vault_main_user }}"  # User that will be created and will manage the systems/containers
+main_pass: "{{ vault_main_pass }}"  # Password for the above user
 docker_group: "{{ vault_docker_group }}"            # Leave this as 'docker', the user will need to be added to this group to run docker
-ansible_become_password: "{{ vault_ansible_become_password }}"   # The `main_user` password and also the password ansible will use when connecting and becoming root
 domain_name: "{{ vault_domain_name }}"     # Domain name that traefik resides
 services_username: "{{ vault_services_username }}"         # Username to login to services
 services_password: "{{ vault_services_password }}"     # Password to login to services
 gmail_address: "{{ vault_gmail_address }}"  # Your main gmail address that will be used to send mail from
 gmail_pass: "{{ vault_gmail_pass }}"                # This is your normal gmail password
 gmail_app_pass: "{{ vault_gmail_app_pass }}"    # This is the app password you generate here -> https://myaccount.google.com/apppasswords. Hint: Check password manager.
+microsoft_account_user: "{{ vault_microsoft_account_user }}"  # Microsoft account username
+microsoft_account_pass: "{{ vault_microsoft_account_pass }}"  # Microsoft account password
 eufy_addon_email: "{{ vault_eufy_addon_email }}"   # Your secondary eufy account with devices shared to it (Don't use your primary account for security reasons)
 eufy_addon_password: "{{ vault_eufy_addon_password }}"      # Password of this secondary eufy account with shared devices
 cloudflare_email: "{{ vault_cloudflare_email }}"                            # Search "API" in your password manager

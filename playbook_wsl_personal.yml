@@ -1,10 +1,10 @@
 ---
-#-------------------------------------#
+# ----------------------------------- #
 # Pre-tasks run before anything else! #
-#-------------------------------------#
+# ----------------------------------- #
 - hosts: wsl
   # Special tag "always" -> https://docs.ansible.com/ansible/latest/user_guide/playbooks_tags.html#special-tags-always-and-never
-  tags: [ "always" ]
+  tags: ["always"]
   gather_facts: false
   tasks:
     - import_tasks: tasks/pre-all.yml

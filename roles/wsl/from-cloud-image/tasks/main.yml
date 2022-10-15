@@ -20,7 +20,7 @@
   when: wsl_set_default
 
 - name: Setup non-root user
-  ansible.windows.win_command: wsl -d {{ wsl_instance_name }} sh -c "addgroup '{{ main_user }}' && adduser --uid '1000' --ingroup '{{ main_user }}' '{{ main_user }}' && usermod --append --groups 'admin' '{{ main_user }}' && echo '{{ main_user }}:{{ ansible_become_password }}' | chpasswd"
+  ansible.windows.win_command: wsl -d {{ wsl_instance_name }} sh -c "addgroup '{{ main_user }}' && adduser --uid '1000' --ingroup '{{ main_user }}' '{{ main_user }}' && usermod --append --groups 'admin' '{{ main_user }}' && echo '{{ main_user }}:{{ main_pass }}' | chpasswd"
   when: wsl_set_default
 
 - name: set default WSL 2 user
