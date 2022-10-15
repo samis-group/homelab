@@ -39,6 +39,7 @@ choco_installed_packages:
   - microsoft-windows-terminal
   - slack
   - powertoys
+  - taskbarx
   - discord.install
   - hwinfo.install
   - sharex
