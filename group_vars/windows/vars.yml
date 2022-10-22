@@ -25,7 +25,7 @@ install_wsl2: true
 # If you want to disable any features, ensure "install_windows_features" is 'true', then set the feature itself to 'false'.
 install_windows_features: true
 windows_features:
-  Microsoft-Hyper-V: true
+  VirtualMachinePlatform: true
 
 choco_installed_packages:
   - googlechrome
@@ -39,7 +39,6 @@ choco_installed_packages:
   - microsoft-windows-terminal
   - slack
   - powertoys
-  - taskbarx
   - discord.install
   - hwinfo.install
   - sharex
@@ -60,8 +59,10 @@ choco_installed_packages:
   - postman
   - choco-cleaner
   - choco-upgrade-all-at-startup
-  - obsidian
   - docker-desktop
+  - libreoffice-fresh
+  # - taskbarx
+  # - obsidian
   # - lghub   # Fails (checksum wrong because it's not being maintained)
   # - spotify             # Installing spotify stalls because windows installs it by default now
   # - amd-ryzen-chipset   # fails
