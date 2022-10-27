@@ -98,25 +98,6 @@ run-docker-local-dotfiles: build-docker	## 🐳 Run the docker container from th
 # Setup Tasks #
 #-------------#
 
-# TERRAFORM INSTALL
-terraform-version  ?= "0.14.11"
-terraform-os       ?= $(shell uname|tr A-Z a-z)
-ifeq ($(shell uname -m),x86_64)
-  terraform-arch   ?= "amd64"
-endif
-ifeq ($(shell uname -m),i686)
-  terraform-arch   ?= "386"
-endif
-ifeq ($(shell uname -m),aarch64)
-  terraform-arch   ?= "arm"
-endif
-
-install-terraform:	## 🚧 Installs Terraform on your current host
-	@${DO_SUDO} wget -O /usr/bin/terraform.zip https://releases.hashicorp.com/terraform/$(terraform-version)/terraform_$(terraform-version)_$(terraform-os)_$(terraform-arch).zip
-	@${DO_SUDO} unzip -d /usr/bin /usr/bin/terraform.zip
-# Cleanup
-	@${DO_SUDO} rm /usr/bin/terraform.zip
-
 # DOCKER SETUP TASKS
 .PHONY: setup-docker reqs-docker
 
@@ -130,11 +111,11 @@ reqs-docker:	## 🐳🚧 Install ansible galaxy requirements
 # Setup entire environment
 .PHONY: setup apt pip reqs store-password githook install-terraform
 
-setup: apt pip reqs store-password githook install-terraform	## 🚧 Run setup tasks like apt, pip requirements, store-password and githook (below)
+setup: apt pip reqs store-password githook	## 🚧 Run setup tasks like apt, pip requirements, store-password and githook (below)
 
 apt:	## 🚧 install apt requirements on the local system
 	${DO_SUDO} apt update
-	${DO_SUDO} apt install -y python3-pip python3-testresources unzip sshpass
+	${DO_SUDO} apt install -y python3-pip python3-testresources unzip sshpass wget
 
 pip:	## 🚧 Install python module requirements via requirements.txt file
 	${DO_SUDO} pip3 install --upgrade pip
@@ -158,6 +139,25 @@ githook:	## 🚧 Creates a pre-commit webhook so that you don't accidentally com
 	@cp bin/git-vault-check.sh .git/hooks/pre-commit
 	@chmod +x .git/hooks/pre-commit
 	@echo "$$(tput setaf 2)Githook Deployed!$$(tput sgr0)"
+
+# TERRAFORM INSTALL
+terraform-version  ?= "0.14.11"
+terraform-os       ?= $(shell uname|tr A-Z a-z)
+ifeq ($(shell uname -m),x86_64)
+  terraform-arch   ?= "amd64"
+endif
+ifeq ($(shell uname -m),i686)
+  terraform-arch   ?= "386"
+endif
+ifeq ($(shell uname -m),aarch64)
+  terraform-arch   ?= "arm"
+endif
+
+install-terraform:	## 🚧 Installs Terraform on your current host
+	@${DO_SUDO} wget -O /usr/bin/terraform.zip https://releases.hashicorp.com/terraform/$(terraform-version)/terraform_$(terraform-version)_$(terraform-os)_$(terraform-arch).zip
+	@${DO_SUDO} unzip -d /usr/bin /usr/bin/terraform.zip
+# Cleanup
+	@${DO_SUDO} rm /usr/bin/terraform.zip
 
 bitwarden:	## 🚧 Copy bitwarden binary and login
 	@sudo unzip -n bin/bw-linux-1.22.1.zip -d /usr/bin/ && sudo chmod 755 /usr/bin/bw

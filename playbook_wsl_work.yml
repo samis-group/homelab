@@ -1,19 +1,19 @@
 ---
-#-------------------------------------#
+# ----------------------------------- #
 # Pre-tasks run before anything else! #
-#-------------------------------------#
+# ----------------------------------- #
 - hosts: wsl
   # Special tag "always" -> https://docs.ansible.com/ansible/latest/user_guide/playbooks_tags.html#special-tags-always-and-never
-  tags: [ "always" ]
+  tags: ["always"]
   gather_facts: false
   tasks:
     - import_tasks: tasks/pre-all.yml
 
-###################
-### WSL Versent ###
-###################
+################
+### WSL Work ###
+################
 
-- name: Setup Versent WSL
+- name: Setup Work WSL
   hosts: wsl
   become: true
 

@@ -38,6 +38,7 @@
   shell:
     cmd: make setup
     chdir: "{{ user_dir }}/git/personal/homelab"
+  remote_user: "{{ main_user }}"  # Run as user, not root. Ideally I should change the whole playbook to run as user and only escalate privileges where required, but that will take work. Let this comment serve as a reminder for how lazy you are Sami, you piece of shit. Hurry up and implement this change! What does gitlens say is the age of the commit of this line, huh? HOW HIGH IS THE NUMBER!!!! Months? YEARS??? GAH!
   register: make_setup
   when: # Only setup if the repos were cloned
     - git_checkout_code_homelab is changed
