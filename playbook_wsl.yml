@@ -39,6 +39,8 @@
 
   tasks:
 
+    # TODO: systemd for wsl -> https://devblogs.microsoft.com/commandline/systemd-support-is-now-available-in-wsl/#set-the-systemd-flag-set-in-your-wsl-distro-settings
+
     - name: Install OS updates and required packages
       import_tasks: tasks/wsl/install_os_packages.yml
       when: install_os_packages

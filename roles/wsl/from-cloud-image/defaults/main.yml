@@ -4,7 +4,7 @@ ubuntu_img:
   cpu_arch: amd64
   release: current
 
-ubuntu_img_url: https://cloud-images.ubuntu.com/releases/{{ ubuntu_img.version_number }}/release/ubuntu-{{ ubuntu_img.version_number }}-server-cloudimg-{{ ubuntu_img.cpu_arch }}-wsl.rootfs.tar.gz
+ubuntu_img_url: https://cloud-images.ubuntu.com/releases/{{ ubuntu_img.version_number }}/release/ubuntu-{{ ubuntu_img.version_number }}-server-cloudimg-{{ ubuntu_img.cpu_arch }}-root.tar.xz
 
 wsl_instance_name: "Ubuntu-{{ ubuntu_img.version_number }}"
 img_dir: "{{ ansible_env.TEMP }}\\wsl"
