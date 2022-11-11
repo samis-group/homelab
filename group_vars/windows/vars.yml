@@ -28,6 +28,8 @@ windows_features:
   VirtualMachinePlatform: true
 
 choco_installed_packages:
+  - git
+  - vagrant
   - googlechrome
   - firefox
   - 7zip.install

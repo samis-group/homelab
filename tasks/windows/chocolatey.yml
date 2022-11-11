@@ -5,20 +5,20 @@
     state: disabled
   ignore_errors: true  # Choco isn't behaving as expected...
 
+- name: Install virtualbox via choco
+  win_chocolatey:
+    name: virtualbox
+    state: present
+    package_params: "/ExtensionPack"
+
 # Install Chocolatey packages
-- name: Ensure configured Chocolatey packages are installed
+- name: Ensure configured list of Chocolatey packages in group_vars/windows are installed
   win_chocolatey:
     name: "{{ item.name | default(item) }}"  # Installing sequentially so we know which fails
     state: present
     ignore_checksums: true
   ignore_errors: true  # Some packages fail to install, but we don't want the whole playbook to not run because of it.
   loop: "{{ choco_installed_packages }}"
-
-# - name: Install virtualbox via choco
-#   win_chocolatey:
-#     name: virtualbox
-#     state: present
-#     package_params: "/ExtensionPack"
 
 # This is breaking and is redundant anyway because there is an app installed via chocolatey that checks and updates daily.
 # # Upgrade all chocolatey packages
