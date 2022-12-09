@@ -6,7 +6,7 @@ BOX_REPO = (ENV['BOX_REPO'] || "generic")
 HOME = ENV['PWD']
 PROJ_HOME = File.dirname(__FILE__)
 PROJECT = File.basename(PROJ_HOME)
-NUM_NODES = (ENV['NUM_NODES'] || 0).to_i
+NUM_NODES = (ENV['NUM_NODES'] || 0).to_i  # to_i = return an integer value
 NODE_CPUS = (ENV['NODE_CPUS'] || 4).to_i
 NODE_MEMORY = (ENV['NODE_MEMORY'] || 8192).to_i
 NETWORK_PREFIX = ENV['NETWORK_PREFIX'] || "10.135.135"

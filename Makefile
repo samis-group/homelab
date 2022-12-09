@@ -104,7 +104,7 @@ run-docker-local-dotfiles: build-docker	## 🐳 Run the docker container from th
 # Targets for container setup
 setup-docker: reqs-docker install-terraform	# Mainly used for my dockerfile
 
-reqs-docker:	## 🐳🚧 Install ansible galaxy requirements
+reqs-docker:	# 🐳🚧 Install ansible galaxy requirements
 	@ansible-galaxy install -r requirements.yml -p /ansible/collections/ansible_collections
 	@ansible-galaxy install -r roles/requirements.yml
 
@@ -113,23 +113,23 @@ reqs-docker:	## 🐳🚧 Install ansible galaxy requirements
 
 setup: apt pip reqs store-password githook	## 🚧 Run setup tasks like apt, pip requirements, store-password and githook (below)
 
-apt:	## 🚧 install apt requirements on the local system
+apt:	# 🚧 install apt requirements on the local system
 	${DO_SUDO} apt update
 	${DO_SUDO} apt install -y python3-pip python3-testresources unzip sshpass wget
 
-pip:	## 🚧 Install python module requirements via requirements.txt file
+pip:	# 🚧 Install python module requirements via requirements.txt file
 	${DO_SUDO} pip3 install --upgrade pip
 	${DO_SUDO} pip3 install --ignore-installed -r requirements.txt
 
-reqs:	## 🚧 sinstall requirements.yml and roles/requirements.yml files
+reqs:	# 🚧 sinstall requirements.yml and roles/requirements.yml files
 	@ansible-galaxy install -r requirements.yml
 	@ansible-galaxy install -r roles/requirements.yml
 
 # Python is just 1000% better at parsing raw data than bash/GNU Make. /rant
-store-password:	## 🚧 Store your password if the vault is encrypted
+store-password:	# 🚧 Store your password if the vault is encrypted
 	@./bin/parse_pass.py
 
-githook:	## 🚧 Creates a pre-commit webhook so that you don't accidentally commit decrypted vault upstream
+githook:	# 🚧 Creates a pre-commit webhook so that you don't accidentally commit decrypted vault upstream
 	@if [ -d .git/ ]; then\
 		if [ -e .git/hooks/pre-commit ]; then\
 			echo "$$(tput setaf 2)Removing Existing pre-commit hook...$$(tput sgr0)";\
@@ -159,7 +159,7 @@ install-terraform:	## 🚧 Installs Terraform on your current host
 # Cleanup
 	@${DO_SUDO} rm /usr/bin/terraform.zip
 
-bitwarden:	## 🚧 Copy bitwarden binary and login
+bitwarden:	# 🚧 Copy bitwarden binary and login
 	@sudo unzip -n bin/bw-linux-1.22.1.zip -d /usr/bin/ && sudo chmod 755 /usr/bin/bw
 
 bitwarden-login:
@@ -201,7 +201,7 @@ list-tags:	## 🔒 List the available tags that you can run standalone from the 
 # Linters #
 #---------#
 
-check lint: _start-check yamllint	## 🔎 Run all tests, Linters & formatters (currently will not fix but sets exit code on error)
+check lint: _start-check yamllint	# 🔎 Run all tests, Linters & formatters (currently will not fix but sets exit code on error)
 	@echo '**** LGTM! ****'
 
 _start-check:	# Diagnostic output; useful when run in a git hook
