@@ -9,12 +9,12 @@
   tasks:
     - import_tasks: tasks/pre-all.yml
 
-###################
-### k3s cluster ###
-###################
+#-------------#
+# k3s cluster #
+#-------------#
 
-- name: Configure k3s cluster
-  hosts: k3s
+- name: Configure k3s cluster extras (assuming already deployed via techno-tim build)
+  hosts: k3s_main
   become: true
 
   pre_tasks:  &pre_tasks   # Anchors to re-use the code later. No point duplicating code.
@@ -24,39 +24,12 @@
       import_tasks: tasks/linux/pre_tasks.yml
       tags: ["always"]
 
-  handlers:
-
-    - import_tasks: handlers/k3s.yml
-
   roles:
 
-    - role: k3s/prereq
-    - role: k3s/download
-    - role: k3s/raspberrypi
-
-- name: Configure k3s - Main VM's
-  hosts: k3s_main
-  become: yes
-
-  pre_tasks: *pre_tasks
-
-  roles:
-
-    - role: k3s/master
     - geerlingguy.helm  # Install helm on k3sm nodes to deploy charts in ansible
 
-- name: Configure k3s - Node VM's
-  hosts: k3s_node
-  become: yes
-
-  pre_tasks: *pre_tasks
-
-  roles:
-
-    - role: k3s/node
-
 - name: Install/configure Helm/kubectl on control node (i.e. the host you are running this playbook on, soz <3)
-  hosts: wsl  # Run on wsl as that is what I use
+  hosts: localhost  # Run on wsl as that is what I use
   become: yes
 
   pre_tasks: *pre_tasks
@@ -68,7 +41,7 @@
 
   tasks:
 
-    - name: Copy kube config
+    - name: Copy kube config from first main node to local machine
       import_tasks: tasks/k3s/kubectl_helm_config.yml
 
 - name: Deploy Helm Charts
