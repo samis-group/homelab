@@ -30,14 +30,14 @@
     - geerlingguy.helm
     - hedii.youtube-dl
 
-  tasks:
+  # tasks:
 
-    # - name: deploy k8s manifests
-    #   import_role:
-    #     name: geerlingguy.k8s_manifests # Deploys everything inside file - `group_vars/k3s/vars.yml` lines - `43-46` variables - `k8s_*`
-    #   tags: ['nfs', 'k8s_manifests']
-    #   become: false
+  #   - name: deploy k8s manifests
+  #     import_role:
+  #       name: geerlingguy.k8s_manifests # Deploys everything inside file - `group_vars/k3s/vars.yml` lines - `43-46` variables - `k8s_*`
+  #     tags: ['nfs', 'k8s_manifests']
+  #     become: false
 
-    # - name: Deploy Helm Charts
-    #   import_tasks: tasks/k3s/deploy_helm_charts.yml
-    #   become: false
+  #   - name: Deploy Helm Charts
+  #     import_tasks: tasks/k3s/deploy_helm_charts.yml
+  #     become: false
