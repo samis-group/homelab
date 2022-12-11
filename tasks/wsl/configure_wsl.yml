@@ -35,4 +35,4 @@
       * 2001::/64
 
 - name: Install vagrant plugins
-  ansible.builtin.shell: vagrant plugin install virtualbox_WSL2 vagrant-hosts
+  ansible.builtin.shell: vagrant plugin install virtualbox_WSL2 vagrant-vbguest vagrant-hosts
