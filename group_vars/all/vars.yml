@@ -115,6 +115,7 @@ provision_vms: true   # Provision VM's
 provision_lxcs: true  # Provision LXC's
 copy_ssh_configs: true  # Copy SSH configs to localhost (usually WSL for me) for provisioned LXCs/VMs
 tz: 'Australia/Sydney'          # Timezone setting
+configure_hostname: false
 
 nas:
   user: "{{ main_user }}"
@@ -149,6 +150,9 @@ nas:
     family_pictures:
       local_mapping: "{{ user_dir }}/mount/photos/family"
       remote_mapping: "/volume1/Photos"
+    nfs_dev:
+      local_mapping: "{{ user_dir }}/mount/nfs_dev"
+      remote_mapping: "/volume1/nfs_dev"
 
 ###########################################
 ### geerlingguy.k8s_manifests variables ###

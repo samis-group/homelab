@@ -1,62 +1,92 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-DISTRO = (ENV['DISTRO'] || "alpine312")
-BOX_REPO = (ENV['BOX_REPO'] || "generic")
-HOME = ENV['PWD']
-PROJ_HOME = File.dirname(__FILE__)
-PROJECT = File.basename(PROJ_HOME)
-NUM_NODES = (ENV['NUM_NODES'] || 0).to_i  # to_i = return an integer value
-NODE_CPUS = (ENV['NODE_CPUS'] || 4).to_i
-NODE_MEMORY = (ENV['NODE_MEMORY'] || 8192).to_i
-NETWORK_PREFIX = ENV['NETWORK_PREFIX'] || "10.135.135"
-VAGRANT_PROVISION = ENV['VAGRANT_PROVISION'] || "./prov/vagrant"
-MOUNT_TYPE = ENV['MOUNT_TYPE'] || "virtualbox"
-
-# --- Rules for /etc/sudoers to avoid password entry configuring NFS:
-# %admin	ALL = (root) NOPASSWD: /usr/bin/sed -E -e * -ibak /etc/exports
-# %admin	ALL = (root) NOPASSWD: /usr/bin/tee -a /etc/exports
-# %admin	ALL = (root) NOPASSWD: /sbin/nfsd restart
-# --- May need to add terminal to System Preferences -> Security & Privacy -> Privacy -> Full Disk Access
-
-def provision(vm, node_num)
-  node_os = (ENV["DISTRO_#{node_num}"] || DISTRO)
-  vm.box = (ENV["BOX_#{node_num}"] || ENV["BOX"] || "#{BOX_REPO}/#{node_os}")
-  vm.hostname = "#{PROJECT}-#{node_num}-#{vm.box.gsub(/^.*\//,"")}"
-  vm.network "private_network", ip: "#{NETWORK_PREFIX}.#{100+node_num}"
-  vm.provision "shell",
-      path: VAGRANT_PROVISION,
-      env: { 'HOME' => PROJ_HOME, 'GOPATH' => ENV['GOPATH'], 'BOX' => vm.box }
-end
-
 Vagrant.configure("2") do |config|
+  # The most common configuration options are documented and commented below.
+  # For a complete reference, please see the online documentation at
+  # https://docs.vagrantup.com.
 
-  config.vm.provider "virtualbox" do |v|
-    v.cpus = NODE_CPUS
-    v.memory = NODE_MEMORY
-    v.customize ["modifyvm", :id, "--audio", "none"]
-  end
-  config.vm.provider "libvirt" do |v|
-    v.cpus = NODE_CPUS
-    v.memory = NODE_MEMORY
-  end
-  if Vagrant.has_plugin?("vagrant-timezone")
-    config.timezone.value = :host
-  end
-  if "#{MOUNT_TYPE}" == "nfs"
-    config.vm.synced_folder HOME, HOME, type: "nfs", mount_options: ["vers=3,tcp"]
-  else
-    config.vm.synced_folder HOME, HOME, type: MOUNT_TYPE
+  # Every Vagrant development environment requires a box. You can search for
+  # boxes at https://vagrantcloud.com/search.
+  config.vm.box = "generic/ubuntu2204"
+
+  # Disable automatic box update checking. If you disable this, then
+  # boxes will only be checked for updates when the user runs
+  # `vagrant box outdated`. This is not recommended.
+  # config.vm.box_check_update = false
+
+  # Create a forwarded port mapping which allows access to a specific port
+  # within the machine from a port on the host machine. In the example below,
+  # accessing "localhost:8080" will access port 80 on the guest machine.
+  # NOTE: This will enable public access to the opened port
+  # config.vm.network "forwarded_port", guest: 80, host: 8080
+
+  # Create a forwarded port mapping which allows access to a specific port
+  # within the machine from a port on the host machine and only allow access
+  # via 127.0.0.1 to disable public access
+  # config.vm.network "forwarded_port", guest: 80, host: 8080, host_ip: "127.0.0.1"
+
+  # Create a private network, which allows host-only access to the machine using a specific IP.
+  config.vm.network "private_network", ip: "192.168.33.10"
+
+  # Create a public network, which generally matched to bridged network.
+  # Bridged networks make the machine appear as another physical device on your network.
+  # config.vm.network "public_network"
+
+  # Share an additional folder to the guest VM.
+  # The first argument is the path on the host to the actual folder.
+  # The second argument is the path on the guest to mount the folder
+  # The optional third argument is a set of non-required options.
+  # config.vm.synced_folder "C:\\VBoxSharedFolder", "/home/vagrant/VBoxSharedFolder", automount: true
+  config.vm.synced_folder "/mnt/c/VBoxSharedFolder/", "/home/vagrant/VBoxSharedFolder", automount: true
+  # Share project files with vm to run ansible provisioner
+  config.vm.synced_folder "/mnt/c/git/homelab", "/vagrant", create: true
+
+  # VirtualBox Provider-specific configuration options
+  config.vm.provider "virtualbox" do |vb|
+    # Display the VirtualBox GUI when booting the machine
+    vb.gui = true
+
+    # Clipboard & Drag+Drop
+    vb.customize ["modifyvm", :id, "--clipboard-mode", "bidirectional"]
+    vb.customize ["modifyvm", :id, "--draganddrop", "bidirectional"]
   end
 
-  if NUM_NODES==0
-    provision(config.vm, 0)
-  else
-    (1..NUM_NODES).each do |i|
-      config.vm.define ".#{i}" do |node|
-        provision(node.vm, i)
-      end
+  # VM Specific definitions
+  config.vm.define "docker" do |docker|
+
+    # VirtualBox Provider-specific configuration options
+    docker.vm.provider "virtualbox" do |vb|
+      vb.name = "docker-dev"
+
+      # Customize CPU's
+      vb.cpus = "2"
+
+      # Customize the amount of memory on the VM:
+      vb.memory = "8192"
+
+      # Graphics controller docs here -> https://docs.oracle.com/en/virtualization/virtualbox/6.0/user/settings-display.html
+      # vb.customize ['modifyvm', :id, '--graphicscontroller', 'vmsvga']
+
+      # Allow nested virtualization
+      vb.customize ['modifyvm', :id, '--nested-hw-virt', 'on']
+
+      # Vram if required
+      # vb.customize ['modifyvm', :id, '--vram', '16']
     end
+  end
+
+  # Deploy ansible files to VM - MUST HAVE HOMELAB REPO CLONED IN SAME PARENT DIR
+  # config.vm.provision "file", source: "../../homelab/", destination: "/home/vagrant/homelab"
+
+  # Provision with shell script
+  # args = []
+  # config.vm.provision "prov shell script", type: "shell", reboot: true, path: "prov.sh", args: args
+  # config.vm.provision "shell", path: "../bin/provisionscript.sh", env: {"MYVAR" => "value"}
+  # Provision with Ansible inside a shell script above because windows host and ansible, no bueno!
+  config.vm.provision "ansible" do |ansible|
+    ansible.playbook = "../playbook_docker.yml"
+    ansible.ask_vault_pass = true
   end
 
 end

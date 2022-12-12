@@ -9,6 +9,13 @@
   tasks:
     - import_tasks: tasks/pre-all.yml
 
+# Deploy ssh keys not as root user
+- hosts: docker
+  # Special tag "always" -> https://docs.ansible.com/ansible/latest/user_guide/playbooks_tags.html#special-tags-always-and-never
+  tags: [ "always" ]
+  roles:
+    - role: sami_shakir.ansible_collection.deploy_sami_key
+
 ###########################
 ### Configure Docker VM ###
 ###########################

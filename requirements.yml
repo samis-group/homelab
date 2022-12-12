@@ -4,6 +4,9 @@ collections:
   - name: chocolatey.chocolatey
   - name: kubernetes.core
   - name: community.windows
+  - name: sami_shakir.ansible_collection
+    source: https://gitlab.com/sami-group/ansible-collection.git
+    type: git
 
 # # Ansible galaxy is slow and at times, can timeout. You can use git repos directly:
 # collections:

@@ -2,6 +2,6 @@
 # Ignore all vagrant files except the main 'Vagrantfile'
 vagrant/*
 !vagrant/Vagrantfile
-!vagrant/Vagrantfile.bak
 # Ignore tf files
 terraform/.terraform*
+.env

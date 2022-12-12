@@ -1,0 +1,64 @@
+---
+
+dependency:
+  name: galaxy
+  # options:
+  #   # ignore-errors: True
+  #   role-file: ${MOLECULE_PROJECT_DIRECTORY}/roles/requirements.yml
+  #   requirements-file: ${MOLECULE_PROJECT_DIRECTORY}/requirements.yml
+
+driver:
+  name: vagrant
+
+platforms:
+  - name: docker-vag
+    box: generic/ubuntu2204
+    memory: 2048
+    cpus: 2
+    groups:
+      - docker
+    interfaces:
+      - network_name: private_network
+        ip: 192.168.33.10
+    config_options:
+      ssh.keep_alive: yes
+      synced_folder: true
+    instance_raw_config_args:
+      - 'vm.synced_folder ".", "/vagrant", type: "rsync"'
+    provider_raw_config_args:
+      - 'customize ["modifyvm", :id, "--clipboard-mode", "bidirectional"]'
+      - 'customize ["modifyvm", :id, "--draganddrop", "bidirectional"]'
+      # Graphics controller docs here -> https://docs.oracle.com/en/virtualization/virtualbox/6.0/user/settings-display.html
+      # - 'customize ["modifyvm", :id, "--graphicscontroller", "vmsvga"]'
+      # Allow nested virtualization
+      # - 'customize ["modifyvm", :id, "--nested-hw-virt", "on"]'
+
+provisioner:
+  name: ansible
+  # options:
+  #   vvv: True
+  env:
+    ANSIBLE_CONFIG: ${MOLECULE_PROJECT_DIRECTORY}/ansible.cfg
+  playbooks:
+    converge: ../../playbook_docker.yml
+  # inventory:
+  #   links:
+  #     hosts: ../../inventory/hosts.ini
+  # config_options:
+  #   defaults:
+  #     vault_password_file: ${MOLECULE_PROJECT_DIRECTORY}/.vault-password
+
+scenario:
+  test_sequence:
+    - dependency
+    - lint
+    - cleanup
+    - destroy
+    - syntax
+    - create
+    - prepare
+    - converge
+    - verify
+    - side_effect
+    - cleanup
+    - destroy
