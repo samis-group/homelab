@@ -106,9 +106,6 @@ Vagrant.configure("2") do |config|
     ansible.host_vars = {
       "docker1" => {"ansible_become_password" => 'vagrant'}
     }
-    ansible.host_vars = {
-      "localhost" => {"ansible_become_password" => 'Sayajines1'}
-    }
   end
 
 end
