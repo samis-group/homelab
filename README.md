@@ -88,9 +88,113 @@ It's literally as easy as that.
 
 ## Setup
 
-### Setup repo inside a docker container
+### Setup Windows Host for running ansible from WSL
 
-:exclamation: **In Beta!**
+- Install Chocolatey
+
+  ```powershell
+  Set-ExecutionPolicy Bypass -Scope Process -Force; Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+  ```
+
+- Install Docker-Desktop
+
+  ```powershell
+  choco install docker-desktop
+  ```
+
+- install WSL
+
+  ```powershell
+  wsl.exe --install
+  ```
+
+- Open docker-desktop > settings > Resources > WSL Integration > Enable Ubuntu
+
+- Reboot
+
+- Install OpenSSH Server
+
+  ```powershell
+  $openSSHpackages = Get-WindowsCapability -Online | Where-Object Name -like 'OpenSSH.Server*' | Select-Object -ExpandProperty Name
+
+  foreach ($package in $openSSHpackages) {
+    Add-WindowsCapability -Online -Name $package
+  }
+
+  # Start the sshd service
+  Start-Service sshd
+  Set-Service -Name sshd -StartupType 'Automatic'
+
+  # Confirm the Firewall rule is configured. It should be created automatically by setup. Run the following to verify
+  if (!(Get-NetFirewallRule -Name "OpenSSH-Server-In-TCP" -ErrorAction SilentlyContinue | Select-Object Name, Enabled)) {
+    Write-Output "Firewall Rule 'OpenSSH-Server-In-TCP' does not exist, creating it..."
+    New-NetFirewallRule -Name 'OpenSSH-Server-In-TCP' -DisplayName 'OpenSSH Server (sshd)' -Enabled True -Direction Inbound -Protocol TCP -Action Allow -LocalPort 22
+  }
+  else {
+    Write-Output "Firewall rule 'OpenSSH-Server-In-TCP' has been created and exists."
+  }
+  ```
+
+- In wsl, go through initial user setup and install the following packages
+
+  ```bash
+  sudo apt update
+  sudp apt upgrade
+  sudo apt install make git
+  ```
+
+- Setup git dir structure
+
+  ```bash
+  mkdir -p ~/git/personal
+  cd ~/git/personal
+  ```
+
+- Clone this dir (removing/substituting `glpat`)
+
+  ```bash
+  git clone https://username:glpat-xxxxxxxxxx@gitlab.com/sami-group/homelab.git
+  ```
+
+- Start the docker container
+
+  ```bash
+  cd homelab
+  make run-docker-registry-dotfiles
+  ```
+
+- Check if vault password deployed, do that if not done so
+
+  ```bash
+  [ -f .vault-password ] || make store-password
+  ```
+
+- Run your desired target(s):
+
+  ```bash
+  make windows
+  make wsl-personal
+  make docker
+  # etc.
+  ```
+
+- Upgrade vagrant version in windows to match apt's relatively "Bleeding edge"
+
+  ```powershell
+  $vag_ver = wsl.exe -e sh -c "vagrant -v | cut -d\  -f 2"
+  Invoke-WebRequest -Uri "https://releases.hashicorp.com/vagrant/${vag_ver}/vagrant_${vag_ver}_windows_amd64.msi" -OutFile "$HOME\Downloads\vagrant_${vag_ver}_windows_amd64.msi"
+  ```
+
+  - Your browser is going to be faster than cli, so just put this link in your browser to download it there if you prefer
+
+    ```powershell
+    $vag_ver = wsl.exe -e sh -c "vagrant -v | cut -d\  -f 2"
+    echo "https://releases.hashicorp.com/vagrant/${vag_ver}/vagrant_${vag_ver}_windows_amd64.msi"
+    ```
+
+**Note:** Password will be your microsoft account password, if that's how you created your user.
+
+### Run playbooks from inside a docker container
 
 Yeah, you can now build this repo inside a docker container and deploy it from there, so it doesn't mess with your environment. I love ephemeral workspaces:
 
@@ -153,39 +257,6 @@ If you are **NOT** the owner of this repo, **copy the [host_vars_example](host_v
 ```bash
 cp host_vars_example host_vars
 ```
-
-### Setup Windows Host for running ansible from WSL
-
-- Install Chocolatey
-
-  ```powershell
-  Set-ExecutionPolicy Bypass -Scope Process -Force; Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
-  ```
-
-- Install OpenSSH Server
-
-  ```powershell
-  $openSSHpackages = Get-WindowsCapability -Online | Where-Object Name -like 'OpenSSH.Server*' | Select-Object -ExpandProperty Name
-
-  foreach ($package in $openSSHpackages) {
-    Add-WindowsCapability -Online -Name $package
-  }
-
-  # Start the sshd service
-  Start-Service sshd
-  Set-Service -Name sshd -StartupType 'Automatic'
-
-  # Confirm the Firewall rule is configured. It should be created automatically by setup. Run the following to verify
-  if (!(Get-NetFirewallRule -Name "OpenSSH-Server-In-TCP" -ErrorAction SilentlyContinue | Select-Object Name, Enabled)) {
-    Write-Output "Firewall Rule 'OpenSSH-Server-In-TCP' does not exist, creating it..."
-    New-NetFirewallRule -Name 'OpenSSH-Server-In-TCP' -DisplayName 'OpenSSH Server (sshd)' -Enabled True -Direction Inbound -Protocol TCP -Action Allow -LocalPort 22
-  }
-  else {
-    Write-Output "Firewall rule 'OpenSSH-Server-In-TCP' has been created and exists."
-  }
-  ```
-
-**Note:** Password will be your microsoft account password, if that's how you created your user.
 
 ### Setup Proxmox Host
 

@@ -1,0 +1,21 @@
+---
+- name: Ensure virtualbox config dir exists
+  file:
+    path: /etc/vbox
+    state: directory
+    mode: '0755'
+
+- name: Ensure virtualbox network config file exists
+  file:
+    path: /etc/vbox/networks.conf
+    state: touch
+
+- name: ensure virtualbox network config file updated
+  blockinfile:
+    path: /etc/vbox/networks.conf
+    block: |
+      * 10.0.0.0/8 192.168.0.0/16 172.16.0.0/12
+      * 2001::/64
+
+- name: Install vagrant plugins
+  ansible.builtin.shell: vagrant plugin install virtualbox_WSL2 vagrant-vbguest vagrant-hosts

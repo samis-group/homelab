@@ -35,7 +35,7 @@ elif len(sys.argv) > 1:
   # in case there are spaces, no quotes or whatever the user does
   password = ''.join(sys.argv[1::])
 else:
-  print(f"{bcolors.WARNING}No password defined in env or passed as arg. Please type it below...{bcolors.ENDC}")
+  print(f"{bcolors.WARNING}No Ansible Vault password defined in env or passed as arg. Please type it below...{bcolors.ENDC}")
   password = getpass()
 
 # Write the password
