@@ -33,30 +33,11 @@ Vagrant.configure("2") do |config|
   # Bridged networks make the machine appear as another physical device on your network.
   # config.vm.network "public_network"
 
-  # Share an additional folder to the guest VM.
-  # The first argument is the path on the host to the actual folder.
-  # The second argument is the path on the guest to mount the folder
-  # The optional third argument is a set of non-required options.
-  # config.vm.synced_folder "C:\\VBoxSharedFolder", "/home/vagrant/VBoxSharedFolder", automount: true
-  config.vm.synced_folder "/mnt/c/VBoxSharedFolder/", "/home/vagrant/VBoxSharedFolder", automount: true
-  # Share project files with vm to run ansible provisioner
-  config.vm.synced_folder "/mnt/c/git/homelab", "/vagrant", create: true
-
-  # VirtualBox Provider-specific configuration options
-  config.vm.provider "virtualbox" do |vb|
-    # Display the VirtualBox GUI when booting the machine
-    vb.gui = true
-
-    # Clipboard & Drag+Drop
-    vb.customize ["modifyvm", :id, "--clipboard-mode", "bidirectional"]
-    vb.customize ["modifyvm", :id, "--draganddrop", "bidirectional"]
-  end
-
   # VM Specific definitions
-  config.vm.define "docker" do |docker|
+  config.vm.define "docker1" do |docker1|
 
     # VirtualBox Provider-specific configuration options
-    docker.vm.provider "virtualbox" do |vb|
+    docker1.vm.provider "virtualbox" do |vb|
       vb.name = "docker-dev"
 
       # Customize CPU's
@@ -71,22 +52,63 @@ Vagrant.configure("2") do |config|
       # Allow nested virtualization
       vb.customize ['modifyvm', :id, '--nested-hw-virt', 'on']
 
+      # https://stackoverflow.com/questions/51060639/virtualbox-what-is-the-difference-of-natdnsproxy1-and-natdnshostresolver1
+      # The natdnshostresolver option will cause the NAT gateway to accept DNS traffic too
+      # but the gateway will read (i.e. parse) the query and use the host's operating system APIs to resolve it.
+      # The number (1) refers to the network adapter and is interchangable
+      vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+
+      # I/O APIC - x86 hardware feature that have replaced Programmable Interrupt Controllers (PICs).
+      # For any OS built in this millenium, this should be on
+      vb.customize ["modifyvm", :id, "--ioapic", "on"]
+
       # Vram if required
       # vb.customize ['modifyvm', :id, '--vram', '16']
+
+      # Display the VirtualBox GUI when booting the machine (doesn't let you close it without breaking the build)
+      # vb.gui = true
+
+      # Clipboard & Drag+Drop
+      vb.customize ["modifyvm", :id, "--clipboard-mode", "bidirectional"]
+      vb.customize ["modifyvm", :id, "--draganddrop", "bidirectional"]
     end
   end
 
+  # Share an additional folder to the guest VM.
+  # The first argument is the path on the host to the actual folder.
+  # The second argument is the path on the guest to mount the folder
+  # The optional third argument is a set of non-required options.
+  # config.vm.synced_folder "C:\\VBoxSharedFolder", "/home/vagrant/VBoxSharedFolder", automount: true
+  # config.vm.synced_folder "/mnt/c/VBoxSharedFolder/", "/home/vagrant/VBoxSharedFolder", automount: true
+  # Share project files with vm to run ansible provisioner
+  # Ensure these files exist on the windows host, as we're unable to mount WSL FS
+  # ALSO store the ansible vault password with `make store-password`
+  # config.vm.synced_folder "/mnt/c/git/homelab", "/vagrant", create: true, id: "ansible", owner: "vagrant", group: "vagrant", mount_options: ["dmode=775,fmode=664"]
+
   # Deploy ansible files to VM - MUST HAVE HOMELAB REPO CLONED IN SAME PARENT DIR
-  # config.vm.provision "file", source: "../../homelab/", destination: "/home/vagrant/homelab"
+  # config.vm.provision "file", source: "../.vault-password", destination: "/tmp/.vault-password"
 
   # Provision with shell script
   # args = []
   # config.vm.provision "prov shell script", type: "shell", reboot: true, path: "prov.sh", args: args
   # config.vm.provision "shell", path: "../bin/provisionscript.sh", env: {"MYVAR" => "value"}
-  # Provision with Ansible inside a shell script above because windows host and ansible, no bueno!
+  
+  # Provision with Ansible
   config.vm.provision "ansible" do |ansible|
     ansible.playbook = "../playbook_docker.yml"
+    # ansible.verbose = "vvvv"
     ansible.ask_vault_pass = true
+    # ansible.vault_password_file = "/tmp/.vault-password"  # Not working - bug?
+    # Add this vm to the docker group, so the playbook runs against it
+    ansible.groups = {
+      "docker" => ["docker1"],
+    }
+    ansible.host_vars = {
+      "docker1" => {"ansible_become_password" => 'vagrant'}
+    }
+    ansible.host_vars = {
+      "localhost" => {"ansible_become_password" => 'Sayajines1'}
+    }
   end
 
 end
