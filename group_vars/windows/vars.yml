@@ -29,7 +29,7 @@ windows_features:
 
 choco_installed_packages:
   - git
-  - gitkraken
+  - vcredist-all
   - vagrant
   - googlechrome
   - firefox
@@ -39,7 +39,6 @@ choco_installed_packages:
   - vscode
   - nvidia-display-driver
   - geforce-experience
-  - microsoft-windows-terminal
   - slack
   - powertoys
   - discord.install
@@ -52,17 +51,16 @@ choco_installed_packages:
   - steelseries-engine
   - soundswitch
   - winbox
-  - telegraf
   - openhardwaremonitor
   - nordvpn
   - plex
-  - kodi
+  # - kodi
   - tor-browser
   - signal
   - postman
   - choco-cleaner
   - choco-upgrade-all-at-startup
-  - docker-desktop
+  #  - docker-desktop
   - libreoffice-fresh
   # - taskbarx
   # - obsidian
