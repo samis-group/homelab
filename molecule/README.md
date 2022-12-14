@@ -4,10 +4,10 @@ This folder contains the [molecule](https://molecule.rtfd.io/)-based test setup 
 
 ## Scenarios
 
-- **docker**:
+- **default**:
   A docker VM.
 - **k3s**:
-  A 3 control + 2 worker node cluster.
+  A 3 control + 2 worker node k3s cluster.
 
 ## How to execute
 
@@ -20,14 +20,6 @@ Make sure that the following software packages are available on your system:
 - [Python 3](https://www.python.org/downloads)
 - [Vagrant](https://www.vagrantup.com/downloads)
 - [VirtualBox](https://www.virtualbox.org/wiki/Downloads)
-
-#### Windows + WSL2
-
-Ensure that you install this vagrant plugin so that vagrant can communication with virtualbox via wsl:
-
-```cmd
-vagrant plugin install virtualbox_WSL2
-```
 
 ### Set up VirtualBox networking on Linux and macOS
 
@@ -43,11 +35,17 @@ To set the subnet up for use with VirtualBox, please make sure that `/etc/vbox/n
 
 ### Install Python dependencies
 
+If you don't have virtualenv installed:
+
+```bash
+python3 -m pip install virtualenv
+```
+
 You will get [Molecule, Ansible and a few extra dependencies](../requirements.txt) via [pip](https://pip.pypa.io/).
 Usually, it is advisable to work in a [virtual environment](https://docs.python.org/3/tutorial/venv.html) for this:
 
 ```bash
-cd /path/to/k3s-ansible
+cd ~/git/personal/homelab/
 
 # Create a virtualenv at ".env". You only need to do this once.
 python3 -m venv .env

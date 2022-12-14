@@ -55,7 +55,6 @@ docker_build_cmd = \
 build-docker:	## 🏗️🐳 Builds the docker image locally. If `.vault-password` file exists, source the password from it (helps with local build tests), else see if `VAULT_PASS` env var exists.
 	@${docker_build_cmd} .
 
-# If `.vault-password` file exists, source the password from it (helps with local build tests), else see if `VAULT_PASS` env var exists.
 build-docker-no-cache:	## 🏗️🐳 Same as above but without cache
 	@${docker_build_cmd} --no-cache .
 

@@ -23,6 +23,8 @@ platforms:
     config_options:
       ssh.keep_alive: yes
       synced_folder: true
+      ssh.username: "vagrant"
+      ssh.password: "vagrant"
     instance_raw_config_args:
       - 'vm.synced_folder ".", "/vagrant", type: "rsync"'
     provider_raw_config_args:
