@@ -261,8 +261,6 @@ make run-docker-registry-dotfiles
   ansible-playbook --vault-password-file ~/.ansible/password playbook_docker.yml
   ```
 
-- Some common Make targets are:
-
 > Configure Windows host
 
   ```bash
