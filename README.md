@@ -236,10 +236,17 @@ You can build this repo inside a docker container and deploy any playbook from t
 ```bash
 git clone https://username:glpat-xxxxxxxxxx@gitlab.com/sami-group/homelab.git ~/git/personal/homelab
 cd ~/git/personal/homelab
+```
 
-# Build and run the public registry image (this also mounts the cloned dir and local ssh folder)
+> Build and run the public registry image (this also mounts the cloned dir and local ssh folder)
+
+```bash
 make run-docker-registry
-# OR to add your dotfiles in
+```
+
+> OR to add your dotfiles in
+
+```bash
 make run-docker-registry-dotfiles
 ```
 
@@ -279,7 +286,11 @@ make run-docker-registry-dotfiles
 
   ```bash
   make docker-restore-containers docker2
-  # Then bring the stack up with - You won't have this if you aren't me.
+  ```
+
+  > Then bring the stack up with - You won't have this if you aren't me.
+  
+  ```bash
   dcup all
   ```
 
@@ -400,7 +411,7 @@ git pull --recurse-submodules
 
 ## Tasks to perform after playbook is complete
 
-1. Setup [PlexKodiConnect](https://github.com/croneter/PlexKodiConnect/wiki/Installation#automatic-installation-highly-recommended)
+- Setup [PlexKodiConnect](https://github.com/croneter/PlexKodiConnect/wiki/Installation#automatic-installation-highly-recommended)
 
 ## Author
 
