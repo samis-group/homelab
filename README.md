@@ -25,13 +25,11 @@ There is so much it can do, but some key things you can achieve, from just a deb
 - This repo can even setup my windows/linux desktop PC's and bootstrap my WSL instance(s).
 - *Heaps of other stuff...*
 
-❗ **This playbook was tested on Ubuntu 22.04 and 20.04. Other versions may work but have not been tested.**
-
 ❗ **DNS is managed manually for the docker containers, but any VM's will have DNS created for them. There are no current plans for me to automate creating container records, i know there is a container that will do this for you but I haven't looked into it. Soz..**
 
-❗ **My Host inventories are managed in a private submodule. I've provided examples for you based off them to use.**
+❗ **My Host inventories are managed in a private submodule. I've provided examples for you based off them to use. Head over to #if-you-are-not-me heading below for steps on what you need to do to setup this repo to run the bits yourself.**
 
-❗ **NOTE:** The Playbook is fully configurable. You can skip or reconfigure any task by [Overriding Defaults](#overriding-defaults).
+❗ **This Playbook is fully configurable. You can skip or reconfigure any task by [Overriding Defaults](#overriding-defaults).**
 
 ## Contents
 
@@ -219,7 +217,7 @@ There is a ***very small*** chance that your password will not have exported int
 
 - overwrite [my own vaulted variables](group_vars/all/vars) with your vaulted items.
 
-- **copy the [host_vars_example](host_vars_example/) folder as well** (I use a private submodule).
+- **copy the [host_vars_example](host_vars_example/) folder as well**.
 
   ```bash
   cp host_vars_example host_vars
