@@ -1,0 +1,155 @@
+---
+##############
+### bashrc ###
+##############
+- name: Copy bashrc_contents to hosts .bashrc file
+  blockinfile:
+    path: "{{ ansible_env.HOME }}/.bashrc"
+    block: |
+      # DOCKER ALIASES
+      alias d="docker"
+      alias dc="docker compose"
+      # For backwards compatibility as I've switched to using docker v2 cli
+      alias docker-compose="docker compose"
+      alias upgitdocker='cd ~/git/personal/docker-playbook && git pull; cd ${OLDPWD}'
+      # dstopcont <CONTAINER> - stop container
+      alias dstopcont='sudo docker stop $(docker ps -a -q)'
+      # dstopall - stop all running containers
+      alias dstopall='sudo docker stop $(sudo docker ps -aq)'
+      alias drmcont='sudo docker rm $(sudo docker ps -aq)'
+      alias dvolprune='sudo docker volume prune'
+      alias dsysprune='sudo docker system prune -a'
+      alias ddelimages='sudo docker rmi $(docker images -q)'
+      alias docerase='dstopcont ; drmcont ; ddelimages ; dvolprune ; dsysprune'
+      alias docprune='ddelimages ; dvolprune ; dsysprune'
+      alias dexec='sudo docker exec -ti'
+      # List of all containers
+      alias dps='sudo docker ps -a --no-trunc --format "table {{ '{{' }}.Names}}\t{{ '{{' }}.RunningFor}}\t{{ '{{' }}.Status}}"'
+      # Storage used by docker
+      alias ddf='sudo docker system df'
+      # dclogs <CONTAINER>
+      alias dclogs='sudo docker logs -tf --tail="50" '
+      alias fixsecrets='sudo chown -R root:root ~/docker/secrets ; sudo chmod -R 600 ~/docker/secrets'
+
+      # Extras
+      alias dcgitlabregister='cd ~/docker/compose-files && docker compose -f unused/gitlab-register.yml --env-file ~/docker/.env up -d && dclogs gitlab-register'
+
+      ##################
+      ### OLD METHOD ###
+      ##################
+      # Here for reference
+
+      # DOCKER STACK SETUP COMMANDS
+      alias dcrundev='cd ~/docker && sudo docker-compose -f ~/docker/docker-compose-dev.yml '
+      alias dclogsdev='cd ~/docker && sudo docker-compose -f ~/docker/docker-compose-dev.yml logs -tf --tail="50" '
+      alias dcrunprod='cd ~/docker && sudo docker-compose -f ~/docker/docker-compose.yml '
+      alias dclogsprod='cd ~/docker && sudo docker-compose -f ~/docker/docker-compose.yml logs -tf --tail="50" '
+
+      # DEV
+      alias dcupdev='dcrundev up -d'
+      alias dcdowndev='dcrundev down'
+      alias dcrecdev='dcrundev up -d --force-recreate'
+      alias dcstopdev='dcrundev stop'
+      alias dcrestartdev='dcrundev restart '
+
+      # PROD
+      alias dcupprod='dcrunprod up -d'
+      alias dcdownprod='dcrunprod down'
+      alias dcrecprod='dcrunprod up -d --force-recreate'
+      alias dcstopprod='dcrunprod stop'
+      alias dcrestartprod='dcrunprod restart '
+
+      ################################################
+      ###                NEW METHOD                ###
+      ### Main docker compose up and down commands ###
+      ################################################
+
+      # How to use:
+      ## Pass the name of the stack (folder), file, or 'all' to deploy everything except for `./unused` folder.
+
+      # Setup:
+      ## Assumes the user id for the main user is 1000.
+      MAIN_USER_ID=1000
+      ENV_FILE=/home/$(id -un ${MAIN_USER_ID})/docker/.env
+      MAIN_DOCKER_FILE_NAME="portainer.yml"
+
+      function readycommand() {
+        # If user wants to deploy everything
+        if [[ ${1} == "all" ]]; then
+          FILES=$(find ${DOCKERDIR}/compose-files/ -type f -not -path "*/unused/*" -not -name "*.env*" -not -name "Makefile")
+        # Else, process stacks
+        else
+          FILES="$(find ${DOCKERDIR}/compose-files/ -type f -name "*${1}*" -not -path "*/unused/*" -not -name "*.env*" -not -name "Makefile")"
+          # If files > 2 break this, output results and ask user to be more specific
+          if [[ $(echo $FILES | wc -l) -gt 1  ]]; then
+            echo -en "Captured more than one file, please be more specific:\n${FILES}\nBailing..."
+            FILES=''
+          fi
+        fi
+        # If files is not empty, proceed.
+        if ! [[ -z ${FILES} ]]; then
+          # Let's setup our command
+          READY_COMMAND="docker compose --env-file ${ENV_FILE}"
+          for FILE in ${FILES}; do
+            READY_COMMAND+=" -f $FILE"
+          done
+        fi
+        echo $READY_COMMAND
+      }
+
+      # Executions:
+      # Main dcup command - straight forward
+      function dcup() {
+        source $ENV_FILE
+        READY_COMMAND=$(readycommand ${1})
+        READY_COMMAND+=" up -d"
+        echo $READY_COMMAND
+        # Execute
+        $READY_COMMAND
+      }
+
+      # Up but also remove orphans
+      function dcuprem() {
+        source $ENV_FILE
+        READY_COMMAND=$(readycommand ${1})
+        READY_COMMAND+=" up -d --remove-orphans"
+        echo $READY_COMMAND
+        # Execute
+        $READY_COMMAND
+      }
+
+      function dcdown() {
+        source $ENV_FILE
+        READY_COMMAND=$(readycommand ${1})
+        READY_COMMAND+=" down"
+        echo $READY_COMMAND
+        # Execute
+        $READY_COMMAND
+      }
+
+      function dcpull() {
+        source $ENV_FILE
+        READY_COMMAND=$(readycommand ${1})
+        READY_COMMAND+=" pull"
+        echo $READY_COMMAND
+        # Execute
+        $READY_COMMAND
+      }
+
+      function dcrec() {
+        source $ENV_FILE
+        READY_COMMAND=$(readycommand ${1})
+        READY_COMMAND+=" up -d --force-recreate"
+        echo $READY_COMMAND
+        # Execute
+        $READY_COMMAND
+      }
+
+      function dcreb() {
+        source $ENV_FILE
+        READY_COMMAND=$(readycommand ${1})
+        READY_COMMAND+=" up -d --build"
+        echo $READY_COMMAND
+        # Execute
+        $READY_COMMAND
+      }

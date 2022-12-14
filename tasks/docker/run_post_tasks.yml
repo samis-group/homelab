@@ -28,11 +28,13 @@
 # Grab filenames from compose-files not in unused to create dirs for
 - name: Read docker-compose filenames into variables
   delegate_to: localhost
+  become: false
   command: "find {{ playbook_dir }}/files/docker/compose-files -type f -not -path '*/unused/*' -not -name '*.env*' -not -name 'Makefile'"
   register: dc_files
 
 - name: Read yaml file into variable for parsing service names
   delegate_to: localhost
+  become: false
   command: "cat {{ item }}"
   register: dc_obj
   with_items: "{{ dc_files.stdout_lines }}"

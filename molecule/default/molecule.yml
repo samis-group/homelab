@@ -43,7 +43,13 @@ provisioner:
     ANSIBLE_CONFIG: ${MOLECULE_PROJECT_DIRECTORY}/ansible.cfg
   playbooks:
     converge: ../../playbook_docker.yml
-  # inventory:
+  inventory:
+    host_vars:
+      docker-vag:
+        copy_bashrc: true
+        main_user: vagrant
+        main_pass: vagrant
+
   #   links:
   #     hosts: ../../inventory/hosts.ini
   # config_options:

@@ -6,7 +6,7 @@ setup_nas_mounts: true
 setup_crons: true
 run_post_tasks: true
 hass_config: true
-copy_bashrc: true
+copy_bashrc: false
 restore_docker_data: false  # WARNING - Setting this to true will override your current docker data as it restores the tarballs from the NAS. There will be a make to run this on a host you specify.
 logrotate: true
 

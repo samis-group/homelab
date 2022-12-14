@@ -19,10 +19,11 @@
 # Ensure the path to the templates files exist as they would in the docker directory
 # i.e. this task is going to just copy them in a templated way from src to dest
 - name: find docker templates
+  delegate_to: localhost
+  become: false
   find:
     paths: "{{ playbook_dir }}/templates/docker"
     recurse: true
-  delegate_to: localhost
   register: full_path_docker_templates
 
 - name: set relative paths variable for docker templates
