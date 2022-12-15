@@ -1,5 +1,6 @@
 stages:
   - build
+  - deploy
 
 build image:
   stage: build
@@ -27,3 +28,18 @@ build image:
 
   after_script:
     - docker logout
+
+deploy_prod:
+  stage: deploy
+
+  script:
+    - echo "Deploy to production server"
+    - env
+
+  environment:
+    name: production
+    url: https://$DOMAIN_NAME
+
+  # rules:
+  #   - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  #     when: manual
