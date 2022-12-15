@@ -29,6 +29,7 @@ windows_features:
 
 choco_installed_packages:
   - git
+  - lens
   - vcredist-all
   - vagrant
   - googlechrome
