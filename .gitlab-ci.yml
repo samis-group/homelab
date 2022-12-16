@@ -44,6 +44,9 @@ print env vars:
     name: production
     url: https://$DOMAIN_NAME
 
-  # rules:
-  #   - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-  #     when: manual
+  rules:
+    # Rule if commit branch is main (no others)
+    # - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    #   when: manual
+    # Rule if scheduled
+    - if: $CI_PIPELINE_SOURCE == "schedule"
