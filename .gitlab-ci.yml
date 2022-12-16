@@ -2,7 +2,7 @@ stages:
   - build
   - deploy
 
-build image:
+build docker image:
   stage: build
 
   image:
@@ -29,11 +29,15 @@ build image:
   after_script:
     - docker logout
 
-deploy_prod:
+  # Only run build if Dockerfile changes
+  rules:
+    - changes:
+      - Dockerfile
+
+print env vars:
   stage: deploy
 
   script:
-    - echo "Deploy to production server"
     - env
 
   environment:
