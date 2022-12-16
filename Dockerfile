@@ -7,7 +7,6 @@ FROM python:3
 # Ensure apt runs non-interactively due to tzdata package asking for location, argh..
 ARG DEBIAN_FRONTEND=noninteractive
 # Set TZ
-ENV TESTING_VAR=TEST
 ENV TZ=Australia/Sydney
 ENV ANSIBLE_ROLES_PATH=/ansible/roles
 # Run as 1000 by default unless passed in
