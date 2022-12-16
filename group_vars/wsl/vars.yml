@@ -1,4 +1,0 @@
----
-hostname: "wsl.{{ domain_name }}"
-ansible_ssh_user: "{{ main_user }}"
-ansible_sudo_pass: "{{ main_pass }}"

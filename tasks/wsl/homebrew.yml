@@ -1,0 +1,33 @@
+---
+- name: Checking homebrew installation status
+  ansible.builtin.shell:
+    cmd: brew --version
+  register: homebrew_check
+  check_mode: false
+  changed_when: false
+  failed_when: homebrew_check.rc != 0 and homebrew_check.rc != 127  # 127 for command not found, we will install later
+
+- name: Installing Homebrew
+  ansible.builtin.shell:
+    cmd: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  when:
+    - homebrew_check.rc != 0
+
+- name: Updating Homebrew
+  community.general.homebrew:
+    update_homebrew: true
+  when: homebrew_check.rc == 0
+
+# - name: Installing Homebrew Cask Packages
+#   community.general.homebrew_cask:
+#     name: "{{ brew_cask_packages }}"
+#     state: present
+#   register: result
+#   until: result is successful
+
+- name: Installing Homebrew Packages
+  community.general.homebrew:
+    name: "{{ brew_packages }}"
+    state: present
+  register: result
+  until: result is successful
