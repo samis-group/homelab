@@ -1,13 +1,31 @@
 ---
 ##############
-### bashrc ###
+# kubeconfig #
 ##############
+
+- name: Make .kube dir on localhost if it does not exist
+  delegate_to: localhost
+  ansible.builtin.file:
+    path: "{{ lookup('env','HOME') }}/.kube"
+    state: directory
+    mode: '0755'
+
+- name: Copy kube config from first main node to local machine
+  ansible.builtin.fetch:
+    src: "{{ ansible_env.HOME }}/.kube/config"
+    dest: "{{ lookup('env','HOME') }}/.kube/config"
+    flat: true
+
+##########
+# bashrc #
+##########
+
 - name: Copy bashrc_contents to hosts .bashrc file
   blockinfile:
-    path: .bashrc
+    path: "{{ ansible_env.HOME }}/.bashrc"
     block: |
       # Set kube config that user has access to.
-      export KUBECONFIG={{ user_dir }}/.kube/config
+      export KUBECONFIG={{ ansible_env.HOME }}/.kube/config
       alias kc='kubectl'
       alias kclf='kubectl logs --tail=200  -f'
       alias kcgs='kubectl get service -o wide'

@@ -4,10 +4,36 @@ This folder contains the [molecule](https://molecule.rtfd.io/)-based test setup 
 
 ## Scenarios
 
+I have these scenarios:
+
 - **default**:
-  A docker VM.
-- **k3s**:
+  A docker VM that runs my docker containers
+- **k3s_cluster**:
   A 3 control + 2 worker node k3s cluster.
+- **k3s_single**:
+  Very similar to the default scenario, but uses only a single node for all cluster functionality. Quik-Kubes-Brah!
+
+Run them like so:
+
+- k3s_cluster:
+
+  ```bash
+  molecule create -s k3s_cluster
+  ```
+
+  ```bash
+  molecule converge -s k3s_cluster
+  ```
+
+- k3s_single:
+
+  ```bash
+  molecule create -s k3s_single
+  ```
+
+  ```bash
+  molecule converge -s k3s_single
+  ```
 
 ## How to execute
 
@@ -28,18 +54,12 @@ _You can safely skip this if you are working on Windows._
 Furthermore, the test cluster uses the `192.168.30.0/24` subnet which is [not set up by VirtualBox automatically](https://www.virtualbox.org/manual/ch06.html#network_hostonly).
 To set the subnet up for use with VirtualBox, please make sure that `/etc/vbox/networks.conf` exists and that it contains this line:
 
-```
+```bash
 * 192.168.30.0/24
 * fdad:bad:ba55::/64
 ```
 
 ### Install Python dependencies
-
-If you don't have virtualenv installed:
-
-```bash
-python3 -m pip install virtualenv
-```
 
 You will get [Molecule, Ansible and a few extra dependencies](../requirements.txt) via [pip](https://pip.pypa.io/).
 Usually, it is advisable to work in a [virtual environment](https://docs.python.org/3/tutorial/venv.html) for this:

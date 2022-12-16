@@ -1,69 +1,67 @@
 ---
-#-------------------------------------#
-# Pre-tasks run before anything else! #
-#-------------------------------------#
-- hosts: k3s
-  # Special tag "always" -> https://docs.ansible.com/ansible/latest/user_guide/playbooks_tags.html#special-tags-always-and-never
-  tags: [ "always" ]
-  gather_facts: false
-  tasks:
-    - import_tasks: tasks/pre-all.yml
-
-#-------------#
-# k3s cluster #
-#-------------#
-
-- name: Configure k3s cluster extras (assuming already deployed via techno-tim build)
-  hosts: k3s_main
+- hosts: k3s_cluster
+  name: Entire k3s_cluster
+  gather_facts: true
   become: true
-
-  pre_tasks:  &pre_tasks   # Anchors to re-use the code later. No point duplicating code.
-
-    # This is to get the PUID and PGID variables to use later in multiple areas
-    - name: Get user info or create a user if one doesn't exist
-      import_tasks: tasks/linux/pre_tasks.yml
-      tags: ["always"]
-
   roles:
+    - role: k3s/prereq
+    - role: k3s/download
+    - role: k3s/raspberrypi
 
-    - geerlingguy.helm  # Install helm on k3sm nodes to deploy charts in ansible
+- hosts: k3s_master
+  name: K3s/master
+  become: true
+  roles:
+    - role: k3s/master
 
-- name: Install/configure Helm/kubectl on control node (i.e. the host you are running this playbook on, soz <3)
-  hosts: localhost  # Run on wsl as that is what I use
-  become: yes
+- hosts: k3s_node
+  name: K3s/node
+  become: true
+  roles:
+    - role: k3s/node
 
-  pre_tasks: *pre_tasks
+- hosts: k3s_master
+  name: K3s/post
+  become: true
+  roles:
+    - role: k3s/post
+
+# -------------- #
+# Custom entries #
+# -------------- #
+
+- name: Install/configure Helm/kubectl on main node
+  hosts: k3sm1
+  become: true
 
   roles:
 
     - andrewrothstein.kubectl
-    - geerlingguy.helm
+    - geerlingguy.helm  # Install helm on k3sm nodes to deploy charts in ansible
 
-  tasks:
-
-    - name: Copy kube config from first main node to local machine
-      import_tasks: tasks/k3s/kubectl_helm_config.yml
-
-- name: Deploy Helm Charts
+- name: Custom plays on main..main node
   hosts: k3sm1
   become: false
 
-  pre_tasks: *pre_tasks
-
   tasks:
 
-    - name: Setup aliases and functions in bash environment
-      import_tasks: tasks/k3s/bashrc.yml
-
-    - name: Setup dependencies
-      import_tasks: tasks/k3s/dependencies.yml
+    - name: Setup system dependencies
+      ansible.builtin.import_tasks: tasks/k3s/system_dependencies.yml
       become: true
 
-    - name: deploy k8s manifests
-      import_role:
-        name: geerlingguy.k8s_manifests # Deploys everything inside file - `group_vars/k3s/vars.yml` lines - `43-46` variables - `k8s_*`
-      tags: ['nfs', 'k8s_manifests']
+    - name: Setup user dependencies
+      ansible.builtin.import_tasks: tasks/k3s/user_dependencies.yml
 
-    - name: Deploy Helm Charts
-      import_tasks: tasks/k3s/deploy_helm_charts.yml
-      when: ansible_host == hostvars[groups['k3s_main'][0]]['ansible_host'] | default(groups['k3s_main'][0])  # We only want to deploy the chart to the k3sm1 (k3s-main-1) node.
+    # - name: deploy k8s manifests
+    #   import_role:
+    #     name: geerlingguy.k8s_manifests # Deploys everything inside file - `group_vars/all.yml` lines starting - `k8s_*`
+    #   tags: ['nfs', 'k8s_manifests']
+
+    # - name: Deploy Helm Charts
+    #   import_tasks: tasks/k3s/deploy_helm_charts.yml
+
+# End of configuration
+
+    - name: End of config, run `make setup-pb` to setup local machine for connecting to kubernetes environment (run `make reqs` to install reqs if not done)
+      ansible.builtin.debug:
+        msg: "End of config, run `make setup-pb` to setup local machine for connecting to kubernetes environment (run `make reqs` to install reqs if not done)"

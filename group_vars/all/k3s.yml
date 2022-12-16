@@ -1,0 +1,98 @@
+---
+###########################
+### k3s roles variables ###
+###########################
+
+k3s_version: v1.24.8+k3s1
+# this is the user that has ssh access to these machines
+ansible_user: "{{ main_user }}"
+systemd_dir: /etc/systemd/system
+
+# Set your timezone
+system_timezone: "Australia/Sydney"
+
+# interface which will be used for flannel
+flannel_iface: "eth0"
+
+# apiserver_endpoint is virtual ip-address which will be configured on each master
+# apiserver_endpoint: "10.10.0.40"
+apiserver_endpoint: "192.168.30.222"
+
+# k3s_token is required  masters can talk together securely
+# this token should be alpha numeric only
+### Storing this in vault
+# k3s_token: "some-SUPER-DEDEUPER-secret-password"
+
+# The IP on which the node is reachable in the cluster.
+# Here, a sensible default is provided, you can still override
+# it for each of your hosts, though.
+k3s_node_ip: '{{ ansible_facts[flannel_iface]["ipv4"]["address"] }}'
+
+# Disable the taint manually by setting: k3s_master_taint = false
+k3s_master_taint: "{{ true if groups['node'] | default([]) | length >= 1 else false }}"
+
+# these arguments are recommended for servers as well as agents:
+extra_args: >-
+  --flannel-iface={{ flannel_iface }}
+  --node-ip={{ k3s_node_ip }}
+
+# change these to your liking, the only required are: --disable servicelb, --tls-san {{ apiserver_endpoint }}
+extra_server_args: >-
+  {{ extra_args }}
+  {{ '--node-taint node-role.kubernetes.io/master=true:NoSchedule' if k3s_master_taint else '' }}
+  --tls-san {{ apiserver_endpoint }}
+  --disable servicelb
+  --disable traefik
+extra_agent_args: >-
+  {{ extra_args }}
+
+# image tag for kube-vip
+kube_vip_tag_version: "v0.5.7"
+
+# image tag for metal lb
+metal_lb_speaker_tag_version: "v0.13.7"
+metal_lb_controller_tag_version: "v0.13.7"
+
+# metallb ip range for load balancer
+# metal_lb_ip_range: "10.10.0.41-10.10.0.49"
+metal_lb_ip_range: "192.168.30.80-192.168.30.90"
+
+###########################################
+### geerlingguy.k8s_manifests variables ###
+###########################################
+
+k8s_kubeconfig: ~/.kube/config
+k8s_manifests_base_dir: templates/manifests/
+k8s_resource_namespace: 'default'
+k8s_manifests:  # Maybe just do a jinja lookup for filenames and create a list from that? make it dynamic
+  - nfs
+
+#######################
+### Helm Chart Data ###
+#######################
+
+helm_charts:
+  - name: nginx
+    chart_ref: bitnami/nginx
+    release_namespace: default
+    release_values:
+      service:
+        type: LoadBalancer
+        ports:
+          http: 80
+          https: 443
+        targetPort:
+          http: http
+          https: https
+  - name: grafana
+    chart_ref: bitnami/grafana
+    release_namespace: default
+    release_values:
+      replicas: 2
+      service:
+        type: LoadBalancer
+        ports:
+          grafana: 3000
+  - name: grafana-loki
+    chart_ref: bitnami/grafana-loki
+    release_namespace: default

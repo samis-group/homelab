@@ -5,3 +5,4 @@ vagrant/*
 # Ignore tf files
 terraform/.terraform*
 .env
+*.log

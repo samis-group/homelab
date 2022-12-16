@@ -1,0 +1,70 @@
+---
+
+dependency:
+  name: galaxy
+  options:
+    role-file: ../../roles/requirements.yml
+
+driver:
+  name: vagrant
+
+platforms:
+  - name: control1
+    box: generic/ubuntu2204
+    memory: 4096
+    cpus: 4
+    interfaces:
+      - network_name: private_network
+        ip: 192.168.30.50
+    groups:
+      - k3sm1
+      - k3s_cluster
+      - k3s_master
+    config_options:
+      # We currently can not use public-key based authentication on Ubuntu 22.04,
+      # see: https://github.com/chef/bento/issues/1405
+      ssh.username: "vagrant"
+      ssh.password: "vagrant"
+      ssh.keep_alive: yes
+      synced_folder: true
+    instance_raw_config_args:
+      - 'vm.synced_folder ".", "/vagrant", type: "rsync"'
+    provider_raw_config_args:
+      - 'customize ["modifyvm", :id, "--clipboard-mode", "bidirectional"]'
+      - 'customize ["modifyvm", :id, "--draganddrop", "bidirectional"]'
+      # Graphics controller docs here -> https://docs.oracle.com/en/virtualization/virtualbox/6.0/user/settings-display.html
+      # - 'customize ["modifyvm", :id, "--graphicscontroller", "vmsvga"]'
+      # Allow nested virtualization
+      # - 'customize ["modifyvm", :id, "--nested-hw-virt", "on"]'
+
+provisioner:
+  name: ansible
+  playbooks:
+    converge: ../resources/converge.yml
+    side_effect: ../resources/reset.yml
+    verify: ../resources/verify.yml
+  # inventory:
+  #   links:
+  #     group_vars: ../../group_vars/k3s
+  config_options:
+    defaults:
+      vault_password_file: "${MOLECULE_PROJECT_DIRECTORY}/.vault-password"
+
+scenario:
+  test_sequence:
+    - dependency
+    - lint
+    - cleanup
+    - destroy
+    - syntax
+    - create
+    - prepare
+    - converge
+    # idempotence is not possible with the playbook in its current form.
+    - verify
+    # We are repurposing side_effect here to test the reset playbook.
+    # This is why we do not run it before verify (which tests the cluster),
+    # but after the verify step.
+    - side_effect
+    - cleanup
+    - destroy

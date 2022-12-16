@@ -1,0 +1,29 @@
+---
+- name: Apt Upgrade
+  apt:
+    name: '*'
+    state: latest
+    update_cache: true
+
+- name: Install required packages
+  apt:
+    state: present
+    pkg:
+      - python3-pip
+
+- name: pip self-update
+  pip:
+    name: pip
+    state: latest
+
+# - name: Install required python modules
+#   pip:
+#     name:
+#       - openshift
+
+- name: Deploy SSH Public Key from github
+  ansible.posix.authorized_key:
+    user: "vagrant"
+    state: present
+    # key: "{{ lookup('file', '/home/vagrant/.ssh/id_rsa.pub') }}"
+    key: https://github.com/sami-shakir.keys
