@@ -45,9 +45,6 @@ COPY --chown=$UNAME:root bin/ bin/
 USER $UNAME
 WORKDIR /ansible/repo
 
-# Allow certain bind mounts from outside container
-VOLUME [ "/home/$UNAME/.ssh", "/ansible/repo" ]
-
 # Some plays delegate to localhost, requires access to itself on ssh
 EXPOSE 22
 

@@ -252,7 +252,7 @@ make run-docker-registry-dotfiles
 ### Common makes with examples
 
 - Most common actions can be performed by issuing the associated `make` command. Go to the [Makefile](Makefile) and associated [makefiles](makefiles/) to see what it can do.
-  - Most of these make commands that run plays where you need verbose output (-vvv), simply pass the ` -v` argument to the make target and it will run it verbosely, e.g. `make k3s ' -v'`.
+  - Most of these make commands that run plays where you need verbose output (-vvv), simply pass the ' -v' argument to the make target and it will run it verbosely, e.g. `make k3s ' -v'`.
     - **yes with the leading space, because there's no way that I've been able to figure out, how to pass '-v' to make without it thinking it's for Make.. Probably use stdin? needs testing..**
 - *Alternatively*, you can run these playbooks the long hand way:
 
