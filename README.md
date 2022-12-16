@@ -17,10 +17,9 @@ There is so much it can do, but some key things you can achieve, from just a deb
 
 - Spin up and configure proxmox (not yet tested)
 - Download and build an ubuntu template from the Ubuntu public cloud image
-- Clones the template to a docker vm and deploys my entire docker stack all setup and configured (There is even a make target to restore the data from backups)
-  - There's currently a kubernetes migration taking place - I've automated + built the vm's and HA k3s stack.
-  - I've started migrating to helm charts. I have 2 up, but I need to figure out how to architect deployments + services + ip allocation from my docker-compose stack. It's all TBD right now.
-- Sets up reverse proxy
+- Clones the template to a docker vm and deploys my entire docker stack, all setup and configured (There is even a make target to restore the data from backups)
+- Setup a single node or cluster (with HA) k3s deployment (you can even spin this up on VM's on your PC - Tested Windows + WSL + Virtualbox setup). Check the [Molecule Readme](molecule/README.md) for more info. **Note:** Ensure that you have installed the vagrant plugins for WSL2. I do it In my playbook. [Just run this command manually to install them.](https://gitlab.com/sami-group/homelab/-/blob/main/tasks/wsl/virtualbox.yml#L21).
+- Sets up reverse proxy (treafik) [k3s traefik is WIP]
 - Cloudflare DNS
 - This repo can even setup my windows/linux desktop PC's and bootstrap my WSL instance(s).
 - *Heaps of other stuff...*
@@ -56,7 +55,7 @@ There is so much it can do, but some key things you can achieve, from just a deb
 
 ## TL;DR
 
-❗ **Ensure you already have docker installed and working locally**. This pulls an image, sets it up and drops you in shell to run any make target you want.
+❗ **Ensure you already have docker installed and working on your local PC**. This pulls an image, sets it up and drops you in shell to run any make target you want.
 
 Run the following commands to bring this entire project up from nothing but proxmox (nothing but debian soon to come once I have new hardware to test it all as I need a spare bare metal host):
 
