@@ -67,6 +67,7 @@
     - "{{ user_dir }}/.ssh/"
     - "{{ user_dir }}/git/personal"
     - "{{ user_dir }}/git/work"
+    - "{{ user_dir }}/.config"
   become: false
 
 - name: Create ssh key files if they don't already exist
