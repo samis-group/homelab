@@ -15,7 +15,7 @@ template_vm_ubuntu_defaults:
   nameservers:  # I use local DNS resolver, so I specify these on all vm's
     - "{{ vm_gateway | default('1.1.1.1') }}"  # vm_gateway is declared elsewhere in the main playbook - My Primary DNS is the router, it recursively resolves upstream to cloudflare + google, but all requests through it.
     - "8.8.4.4"
-  user: "{{ main_user | default('1.1.1.1') }}" # Change this if this isn't set outside the role.
+  user: "{{ main_user | default('root') }}" # Change this if this isn't set outside the role.
   password: "{{ main_pass | default(omit) }}"
   ssh_key: "ssh-rsa AAAAB3NzaC1yc2EAAAABJQAAAQEAiwG7uO5R8EzOLvoQEBc9TGyBMMEYlQf7NfwF3JH687WElHLc7bY1HTZ+VcEt+l7kvJfISAeJHdthpCT46ecPirLvz5oIOI1meXRPYXg5fKSJ+itAsfSupjg2/kRUHzI+NJjJap+KU21zEUxCqbTreJ3kSV58F/947uRDyMa0Ofammkx7LY8Kohsr99NtVsHXI71gSTngw/cIe5OR0F1qfxpsBwWw8daN+SYLe0tEtOHVZvGDVDbJhv1GW9PjQxSjx/8QEdi7FMT4ahwHxEcyG5+NhUg+DAo1RKoPYPAM5wwk9O7w+Y31EBP5wYc3FSiOPObcmIoBWxnUrZuD74dtaQ== Sami-id_rsa_personal"
   ip_address: "{{ vm_network | default('10.10.0.') }}200"
@@ -43,7 +43,7 @@ template_vm_debian_defaults:
   nameservers:  # I use local DNS resolver, so I specify these on all vm's
     - "{{ vm_gateway | default('1.1.1.1') }}"  # vm_gateway is declared elsewhere in the main playbook - My Primary DNS is the router, it recursively resolves upstream to cloudflare + google, but all requests through it.
     - "8.8.4.4"
-  user: "{{ main_user | default('1.1.1.1') }}" # Change this if this isn't set outside the role.
+  user: "{{ main_user | default('root') }}" # Change this if this isn't set outside the role.
   password: "{{ main_pass | default(omit) }}"
   ssh_key: "ssh-rsa AAAAB3NzaC1yc2EAAAABJQAAAQEAiwG7uO5R8EzOLvoQEBc9TGyBMMEYlQf7NfwF3JH687WElHLc7bY1HTZ+VcEt+l7kvJfISAeJHdthpCT46ecPirLvz5oIOI1meXRPYXg5fKSJ+itAsfSupjg2/kRUHzI+NJjJap+KU21zEUxCqbTreJ3kSV58F/947uRDyMa0Ofammkx7LY8Kohsr99NtVsHXI71gSTngw/cIe5OR0F1qfxpsBwWw8daN+SYLe0tEtOHVZvGDVDbJhv1GW9PjQxSjx/8QEdi7FMT4ahwHxEcyG5+NhUg+DAo1RKoPYPAM5wwk9O7w+Y31EBP5wYc3FSiOPObcmIoBWxnUrZuD74dtaQ== Sami-id_rsa_personal"
   ip_address: "{{ vm_network | default('10.10.0.') }}201"

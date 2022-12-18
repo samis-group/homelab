@@ -65,7 +65,6 @@
   hosts: lxc
   tags: ["proxmox-provision-lxc"]
   gather_facts: false   # Because they don't exist yet
-  become: true
 
   roles:
 

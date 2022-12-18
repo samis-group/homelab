@@ -1,32 +1,32 @@
 ---
-#-------------------------------------#
+# ----------------------------------- #
 # Pre-tasks run before anything else! #
-#-------------------------------------#
+# ----------------------------------- #
 - hosts: lxc
   # Special tag "always" -> https://docs.ansible.com/ansible/latest/user_guide/playbooks_tags.html#special-tags-always-and-never
-  tags: [ "always" ]
+  tags: ["always"]
   gather_facts: false
   tasks:
-    - import_tasks: tasks/pre-all.yml
+    - ansible.builtin.import_tasks: tasks/pre-all.yml
 
-#-----#
+# --- #
 # LXC #
-#-----#
+# --- #
 
 - name: Setup and configure dev01 Container
   hosts: dev_lxc
-  tags: [ "lxc-dev_lxc" ]
+  tags: ["lxc-dev_lxc"]
   become: true
 
-  pre_tasks:  &pre_tasks
+  pre_tasks: &pre_tasks
 
     # This is to get the PUID and PGID variables to use later in multiple areas
     - name: Get user info or create a user if one doesn't exist
-      import_tasks: tasks/linux/pre_tasks.yml
+      ansible.builtin.import_tasks: tasks/linux/pre_tasks.yml
       tags: ["always"]
 
     - name: Apt Upgrade
-      apt:
+      ansible.builtin.apt:
         name: '*'
         state: latest
         update_cache: true
@@ -42,15 +42,15 @@
   tasks:
 
     - name: Copy git repos
-      import_tasks: tasks/wsl/git.yml
+      ansible.builtin.import_tasks: tasks/wsl/git.yml
       when: git
-      tags: [ "git" ]
+      tags: ["git"]
 
     - name: Setup aliases and functions in bash environment
-      import_tasks: tasks/k3s/bashrc.yml
+      ansible.builtin.import_tasks: tasks/k3s/user_dependencies.yml
 
     - name: Setup dependencies
-      import_tasks: tasks/k3s/dependencies.yml
+      ansible.builtin.import_tasks: tasks/k3s/system_dependencies.yml
       become: true
 
     # - name: deploy k8s manifests
@@ -59,14 +59,14 @@
     #   tags: ['nfs', 'k8s_manifests']
 
     # - name: Deploy Helm Charts
-    #   import_tasks: tasks/k3s/deploy_helm_charts.yml
+    #   ansible.builtin.import_tasks: tasks/k3s/deploy_helm_charts.yml
 
 - name: Setup Gitlab Runner LXC(s)
   hosts: gitlab_runner
-  tags: [ "lxc-gitlab_runner" ]
+  tags: ["lxc-gitlab_runner"]
   become: true
 
-  pre_tasks:  *pre_tasks
+  pre_tasks: *pre_tasks
 
   roles:
 
@@ -79,7 +79,7 @@
 
 # - name: Setup and configure ldap Container
 #   hosts: ldap
-#   tags: [ "never", "lxc-ldap" ]
+#   tags: ["never", "lxc-ldap"]
 #   become: true
 
 #   pre_tasks: *pre_tasks
@@ -91,11 +91,11 @@
 #   tasks:
 
 #     - name: Install OS updates and required packages
-#       import_tasks: tasks/wsl/install_os_packages.yml
+#       ansible.builtin.import_tasks: tasks/wsl/install_os_packages.yml
 #       when: install_os_packages
-#       tags: [ "install_os_packages" ]
+#       tags: ["install_os_packages"]
 
 #     - name: Copy git repos
-#       import_tasks: tasks/wsl/git.yml
+#       ansible.builtin.import_tasks: tasks/wsl/git.yml
 #       when: git
-#       tags: [ "git" ]
+#       tags: ["git"]
