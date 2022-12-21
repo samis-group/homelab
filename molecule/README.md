@@ -11,9 +11,19 @@ I have these scenarios:
 - **k3s_cluster**:
   A 3 control + 2 worker node k3s cluster.
 - **k3s_single**:
-  Very similar to the default scenario, but uses only a single node for all cluster functionality. Quik-Kubes-Brah!
+  Very similar to the `k3s_cluster` scenario, but uses only a single node for all cluster functionality. Quik-Kubes-Brah!
 
-Run them like so:
+### tl;dr
+
+- default:
+
+  ```bash
+  molecule create
+  ```
+
+  ```bash
+  molecule converge
+  ```
 
 - k3s_cluster:
 
@@ -47,9 +57,9 @@ Make sure that the following software packages are available on your system:
 - [Vagrant](https://www.vagrantup.com/downloads)
 - [VirtualBox](https://www.virtualbox.org/wiki/Downloads)
 
-### Set up VirtualBox networking on Linux and macOS
+### Set up VirtualBox networking on Linux, macOS and WSL
 
-_You can safely skip this if you are working on Windows._
+*You can safely skip this if you are working on Windows without WSL.*
 
 Furthermore, the test cluster uses the `192.168.30.0/24` subnet which is [not set up by VirtualBox automatically](https://www.virtualbox.org/manual/ch06.html#network_hostonly).
 To set the subnet up for use with VirtualBox, please make sure that `/etc/vbox/networks.conf` exists and that it contains this line:
@@ -86,16 +96,16 @@ Interesting commands are:
 
 - `molecule create`: Create virtual machines for the test cluster nodes.
 - `molecule destroy`: Delete the virtual machines for the test cluster nodes.
-- `molecule converge`: Run the `site` playbook on the nodes of the test cluster.
-- `molecule side_effect`: Run the `reset` playbook on the nodes of the test cluster.
-- `molecule verify`: Verify that the cluster works correctly.
-- `molecule test`: The "all-in-one" sequence of steps that is executed in CI.
+- `molecule converge`: Run the relevant ansible playbook on the nodes of the virtual machine(s) created.
+- `molecule side_effect`: *k3s only*. Run the `reset` playbook on the nodes of the test cluster.
+- `molecule verify`: *k3s only*. Verify that the cluster works correctly.
+- `molecule test`: *k3s only*. The "all-in-one" sequence of steps that is executed in CI.
   This includes the `create`, `converge`, `verify`, `side_effect` and `destroy` steps.
   See [`molecule.yml`](default/molecule.yml) for more details.
 
 ### Copy kube config
 
-This is done in make, run `make setup-pb`.
+This is done in make, run `make setup-pb`. Manual steps below:
 
 ```bash
 mkdir ~/.kube
