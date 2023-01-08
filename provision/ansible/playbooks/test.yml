@@ -1,0 +1,80 @@
+---
+# ----------------------------------- #
+# Pre-tasks run before anything else! #
+# ----------------------------------- #
+- name: Test pre-all
+  hosts: all
+  # Special tag "always" -> https://docs.ansible.com/ansible/latest/user_guide/playbooks_tags.html#special-tags-always-and-never
+  tags: ["always"]
+  gather_facts: false
+  tasks:
+    - name: Pre-all test
+      ansible.builtin.import_tasks: ../tasks/pre-all.yml
+
+- name: Test Playbook
+
+# ----------------- #
+# Hosts Declaration #
+# ----------------- #
+
+  # ### Docker
+  # hosts: docker
+  # become: true
+  # handlers:
+  #   - ansible.builtin.import_tasks: handlers/docker.yml
+  #   - ansible.builtin.import_tasks: handlers/proxmox.yml
+  # pre_tasks:
+  #   # This is to get the PUID and PGID variables to use later in multiple areas
+  #   - name: Get user info or create a user if one doesn't exist
+  #     ansible.builtin.import_tasks: tasks/linux/pre_tasks.yml
+  #     tags: ["always"]
+
+
+  ### Windows
+  # hosts: windows
+
+  # ### lxc
+  # hosts: lxc
+  # become: true
+  # pre_tasks:
+  #   # This is to get the PUID and PGID variables to use later in multiple areas
+  #   - name: Get user info or create a user if one doesn't exist
+  #     ansible.builtin.import_tasks: tasks/linux/pre_tasks.yml
+  #     tags: ["always"]
+
+  # ### wsl
+  hosts: wsl
+  become: true
+  pre_tasks:
+    # This is to get the PUID and PGID variables to use later in multiple areas
+    - name: Get user info or create a user if one doesn't exist
+      ansible.builtin.import_tasks: ../tasks/linux/pre_tasks.yml
+      tags: ["always"]
+
+# ----------------- #
+# Roles Declaration #
+# ----------------- #
+
+  # roles:
+  #   - role: role-here
+
+# ----------------- #
+# Tasks Declaration #
+# ----------------- #
+
+  tasks:
+    - name: Print all available facts
+      ansible.builtin.debug:
+        var: ansible_facts
+
+    # - debug: var=hostvars['localhost']['ansible_facts']['env']
+
+    - name: Count number of vagrant plugins installed
+      ansible.builtin.command:
+        cmd: vagrant plugin list
+      register: count_vagrant_plugins
+      changed_when: false
+
+    - name: Install vagrant plugins
+      ansible.builtin.command: vagrant plugin install virtualbox_WSL2 vagrant-vbguest vagrant-hosts
+      changed_when: count_vagrant_plugins.stdout_lines | length < 3

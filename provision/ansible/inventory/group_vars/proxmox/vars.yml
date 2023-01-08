@@ -1,0 +1,7 @@
+---
+influxdb_setup: true
+create_ubuntu_vm_template: true
+create_debian_vm_template: true
+
+# for role -
+proxmox_haos_install: true

@@ -1,0 +1,28 @@
+#######################################
+### THIS FILE IS MANAGED BY ANSIBLE ###
+###    PLEASE MAKE CHANGES THERE    ###
+#######################################
+
+# This works if you use serversTransport.insecureSkipVerify=true in the docker compose because it's a self-signed cert in proxmox
+http:
+  routers:
+    proxmox-rtr:
+      rule: "Host(`proxmox.{{ domain_name }}`, `pve.{{ domain_name }}`)"  # CHANGE DOMAIN TO YOURS #
+      entryPoints:
+        - https
+      middlewares:
+        - chain-oauth
+        # - proxmox-add-admin  # Uncomment if you need the path prefix addition below
+      service: proxmox-svc
+      tls:
+        certResolver: dns-cloudflare
+  # Add this section if you need a prefix (remember to uncomment the middleware in the router above as well)
+  # middlewares:
+  #   proxmox-add-admin:
+  #     addPrefix:
+  #       prefix: "/index.php"
+  services:
+    proxmox-svc:
+      loadBalancer:
+        servers:
+          - url: "https://{{ pve.proxmox_host }}:{{ proxmox_port }}"  # or whatever your external host's IP:port is

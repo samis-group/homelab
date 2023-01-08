@@ -1,0 +1,98 @@
+---
+### This may not be required now that I set `become: false` on checkout of source code. Needs testing..
+- name: mark git dirs as safe in git config
+  community.general.git_config:
+    name: safe.directory
+    scope: global
+    value: "{{ docker_dir }}/appdata/{{ item.key }}"
+  with_dict: "{{ gitlab_clone_container_repos }}"
+
+# Let's assert that the last command is a success when certain things exist - Needs work
+# There is no success_when variable that I can use the loop above so I have to assert something after the fact.
+- name: debugging git_checkout_code
+  debug:
+    var: git_checkout_code
+- name: Is it an error we can disregard?
+  assert:
+    that:
+      - "'unsafe repository' in item['msg']"
+      - "'is owned by someone else' in item['msg']"
+      - "'Local modifications exist' in item['msg']"
+    fail_msg: "The last task failed, please review."
+    success_msg: "The last task failures were expected. Continuing..."
+  with_items: git_checkout_code.results
+
+# Might be redundant due to become:false above
+- name: Fix repo ownership to user
+  file:
+    path: "{{ docker_dir }}/appdata/{{ item.key }}"
+    state: directory
+    owner: "{{ main_user }}"
+    group: "{{ docker_group }}"
+    mode: '0755'
+    recurse: true
+  with_dict: "{{ gitlab_clone_container_repos }}"
+
+#####################################################################
+###          Old way was to push ssh keys, now I'm using          ###
+###  a personal access token and storing credentials in each repo ###
+#####################################################################
+# Resource -> https://codereview.stackexchange.com/questions/175616/clone-a-gitlab-private-repo-with-ansible
+- name: Make sure {{ main_user }} has ssh key
+  user:
+    name: "{{ main_user }}"
+    generate_ssh_key: yes
+    ssh_key_file: "{{ user_dir }}/.ssh/{{ main_user_ssh_key_prefix ~ inventory_hostname_short }}"
+
+- name: Check if GitLab has this user's SSH key
+  uri:
+    url: "{{ gitlab.api_url }}/user/keys"
+    method: GET
+    status_code: [200]
+    headers:
+      private-token: "{{ gitlab.personal_access_token }}"
+      Content-Type: "application/json"
+  register: user_ssh_keys
+
+- name: Assign ssh key to a variable
+  shell:
+    cat {{ user_dir }}/.ssh/{{ main_user_ssh_key_prefix ~ inventory_hostname_short }}.pub
+  register: deployer_user_public_key
+  when: not user_ssh_keys.json | selectattr('title', 'equalto', main_user_ssh_key_prefix ~ inventory_hostname_short) | list | length > 0
+
+- name: Push the generated ssh key to the GitLab instance
+  uri:
+    url: "{{ gitlab.api_url }}/user/keys"
+    method: POST
+    status_code: [201, 400]
+    headers:
+      private-token: "{{ gitlab.personal_access_token }}"
+      Content-Type: "application/json"
+    body: >
+      {
+        "title": "{{ main_user_ssh_key_prefix ~ inventory_hostname_short }}",
+        "key": "{{ deployer_user_public_key.stdout_lines.0 }}"
+      }
+    body_format: json
+  when: not user_ssh_keys.json | selectattr('title', 'equalto', main_user_ssh_key_prefix ~ inventory_hostname_short) | list | length > 0
+
+- name: Ensure .ssh/config file exists
+  file:
+    state: touch
+    path: "{{ user_dir }}/.ssh/config"
+  when: not user_ssh_keys.json | selectattr('title', 'equalto', main_user_ssh_key_prefix ~ inventory_hostname_short) | list | length > 0
+
+- name: Disable host key checking
+  lineinfile:
+    path: "{{ user_dir }}/.ssh/config"
+    line: "Host *\n \tStrictHostKeyChecking no\n\tUserKnownHostsFile=/dev/null"
+    regexp: '^Host \*$'
+  when: not user_ssh_keys.json | selectattr('title', 'equalto', main_user_ssh_key_prefix ~ inventory_hostname_short) | list | length > 0
+
+- name: Add deploy group to sudoers file and validate
+  lineinfile:
+    path: /etc/sudoers
+    state: present
+    regexp: '^%{{ docker_group }}'
+    line: '%{{ docker_group }} ALL=(ALL) NOPASSWD:ALL'
+    validate: "visudo -cf %s"

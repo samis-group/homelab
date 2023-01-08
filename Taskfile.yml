@@ -1,0 +1,186 @@
+---
+# https://taskfile.dev/usage/
+# https://github.com/go-task/task
+
+version: "3"
+
+vars:
+  PROJECT_DIR:
+    sh: git rev-parse --show-toplevel
+  GIT_COMMIT:
+    sh: git log -n 1 --format=%h
+  USER_HOME_DIR:
+    sh: echo $HOME
+  USERID:
+    sh: id -u
+  # Check if running as root, omit `sudo` from make targets if that is the case.
+  DO_SUDO:
+    sh: if [ "$EUID" -ne 0 ]; then echo "sudo"; fi
+  CLUSTER_DIR: "{{.PROJECT_DIR}}/cluster"
+  ANSIBLE_DIR: "{{.PROJECT_DIR}}/provision/ansible"
+  TERRAFORM_DIR: "{{.PROJECT_DIR}}/provision/terraform"
+  DOCKER_BUILD_CMD: docker build -t ${local_container_name} \
+    --build-arg UID={{.USERID}}
+  DOCKER_RUN_CMD: docker run --rm -it $(DO_VAULT_PASS) \
+    --volume "${PWD}:/ansible/repo" \
+    --volume "${HOME}/.ssh/:/home/ubuntu/.ssh" \
+    --user={{.USERID}}
+  # Dotfiles volume bind mount var
+  DOCKER_DOTFILES: --volume "${HOME}/.dotfiles:/home/ubuntu/.dotfiles"
+  LOCAL_CONTAINER_NAME: homelab
+  REGISTRY_CONTAINER_NAME: registry.gitlab.com/sami-group/homelab
+  # Check if VAULT_PASS is set, and pass through to container, otherwise don't and let stdin in the parse_pass python script, ask for it.
+  DO_VAULT_PASS:
+    sh: if ! [ -z $VAULT_PASS ]; then echo '--env VAULT_PASS=${VAULT_PASS}'; fi
+  ANSIBLE_PLAYBOOK_DIR: "{{.ANSIBLE_DIR}}/playbooks"
+  ANSIBLE_INVENTORY_DIR: "{{.ANSIBLE_DIR}}/inventory"
+
+dotenv: [".config.env"]
+
+env:
+  KUBECONFIG: "{{.USER_HOME_DIR}}/.kube/config"
+  PATH: "{{.PATH}}:{{.PROJECT_DIR}}/bin"  # add project bin to path
+  ANSIBLE_CONFIG: "{{.ANSIBLE_DIR}}/ansible.cfg"
+
+includes:
+  setup: .taskfiles/Setup.yml
+  ansible: .taskfiles/AnsibleTasks.yml
+  proxmox: .taskfiles/Proxmox.yml
+  docker: .taskfiles/Docker.yml
+  cluster: .taskfiles/ClusterTasks.yml
+  precommit: .taskfiles/PrecommitTasks.yml
+  terraform: .taskfiles/TerraformTasks.yml
+  sops: .taskfiles/SopsTasks.yml
+  molecule: .taskfiles/Molecule.yml
+  k3s: .taskfiles/K3s.yml
+  lxc: .taskfiles/Lxc.yml
+  minikube: .taskfiles/Minikube.yml
+  windows: .taskfiles/Windows.yml
+  wsl: .taskfiles/Wsl.yml
+
+tasks:
+
+  verify:
+    desc: Verify env settings
+    cmds:
+      - ./configure --verify
+
+  configure:
+    desc: Configure repository from env settings
+    cmds:
+      - ./configure
+
+#------------------------------------------------------------------------#
+# This will make everything from absolutely nothing but debian machines. #
+#        You must have setup authorized keys and can ssh to them         #
+#------------------------------------------------------------------------#
+  # everything:
+  #   desc: 🔨 Make everything...
+  #   cmds:
+  #     - ansible-playbook -i inventory/hosts.ini main.yml
+
+#----------------------------#
+# Docker build and run tasks #
+#----------------------------#
+
+  build-docker:
+    desc: 🏗️🐳 Builds the docker image locally. If `.vault-password` file exists, source the password from it (helps with local build tests), else see if `VAULT_PASS` env var exists.
+    cmds:
+      - ${DOCKER_BUILD_CMD} .
+
+  build-docker-no-cache:
+    desc: 🏗️🐳 Same as above but without cache
+    cmds:
+      - ${DOCKER_BUILD_CMD} --no-cache .
+
+  run-docker-registry:
+    desc: 🐳 Run the docker container from the public registry
+    cmds:
+      - ${DOCKER_RUN_CMD} ${REGISTRY_CONTAINER_NAME}
+
+  run-docker-registry-dotfiles:
+    desc: 🐳 Run the docker container from the public registry with dotfiles volume mount (mainly personal)
+    cmds:
+      - ${DOCKER_RUN_CMD} ${DOCKER_DOTFILES} ${REGISTRY_CONTAINER_NAME}
+
+  run-docker-local:
+    desc: 🐳 Run the docker container from the locally built image (also builds the image)
+    cmds:
+      - ${DOCKER_RUN_CMD} ${LOCAL_CONTAINER_NAME}
+
+  run-docker-local-dotfiles:
+    desc: 🐳 Run the docker container from the locally built image (also builds the image) with dotfiles volume mount (mainly personal)
+    cmds:
+      - ${DOCKER_RUN_CMD} ${DOCKER_DOTFILES} ${LOCAL_CONTAINER_NAME}
+
+  reqs-docker:
+    desc: 🐳🚧 Install ansible galaxy requirements
+    cmds:
+      - ansible-galaxy install -r requirements.yml -p /ansible/collections/ansible_collections
+      - ansible-galaxy install -r roles/requirements.yml
+
+#---------------------------#
+# Vault and Variables Tasks #
+#---------------------------#
+
+# Let's allow the user to edit ansible vaults in-place instead of flat out decrypting it to reduce risk of pushing it in cleartext to remote repo.
+# Even though I've got the git commit hook in place, when the repo name changes for example, and repo is cloned fresh, this poses a problem when forgetting to run `make setup` first and deploying the hook.
+# This approach is just far safer than decrypting and encrypting the files themselves below.
+
+  edit-vault:
+    desc: 🔒 Edit ansible vaults in-place instead of flat out decrypting it to reduce risk of pushing it in cleartext to remote repo.
+    dir: provision/ansible/inventory/group_vars/all
+    cmds:
+      - ansible-vault edit vault.yml
+
+  edit-inventory:
+    desc: 🔒 Edit ansible inventory in-place instead of flat out decrypting it to reduce risk of pushing it in cleartext to remote repo.
+    dir: provision/ansible/inventory
+    cmds:
+      - ansible-vault edit hosts.ini
+
+  decrypt:
+    desc: 🔒 Decrypt vaulted items (requires stored password)
+    dir: provision/ansible/inventory
+    cmds:
+      - ansible-vault decrypt vault.yml hosts.ini
+
+  encrypt:
+    desc: 🔒 Encrypt vaulted items (requires stored password)
+    dir: provision/ansible/inventory
+    cmds:
+      - ansible-vault encrypt vault.yml hosts.ini
+
+  list-vars:
+    desc: 🔒 List variables
+    cmds:
+      - $(CURDIR)/bin/vars_list.py vars/config.yml vault.yml {{.CLI_ARGS}}
+
+  list-tags:
+    desc: 🔒 List the available tags that you can run standalone from the playbook
+    cmds:
+      - grep 'tags:' playbook_*.yml | grep -v always | awk -F\" '{print $$2}'
+
+#---------#
+# Linters #
+#---------#
+
+  check lint:
+    desc: 🔎 Run all tests, Linters & formatters (currently will not fix but sets exit code on error)
+    cmds:
+      - echo '**** LGTM! ****'
+
+  _start-check:
+    desc: Diagnostic output; useful when run in a git hook
+    cmds:
+      - echo 'Running "make check / make lint"'
+
+  yamllint:
+    desc: Currently the only one.. will add more targets in the future.
+    cmds:
+      - yamllint -f parsable .
+
+  test:
+    desc: 🧪 Run the test playbook
+    cmds:
+      - ansible-playbook -i inventory/hosts.ini playbook_test.yml {{.CLI_ARGS}}

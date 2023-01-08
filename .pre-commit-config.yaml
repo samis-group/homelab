@@ -1,10 +1,12 @@
 ---
+fail_fast: false
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: 3298ddab3c13dd77d6ce1fc0baf97691430d84b0  # v4.3.0
+    rev: v4.4.0
     hooks:
       - id: requirements-txt-fixer
       - id: sort-simple-yaml
+        args: [--markdown-linebreak-ext=md]
       - id: detect-private-key
       - id: check-merge-conflict
       - id: end-of-file-fixer
@@ -12,24 +14,39 @@ repos:
       - id: trailing-whitespace
         args: [--markdown-linebreak-ext=md]
   - repo: https://github.com/adrienverge/yamllint.git
-    rev: 9cce2940414e9560ae4c8518ddaee2ac1863a4d2  # v1.28.0
+    rev: v1.28.0
     hooks:
       - id: yamllint
-        args: [-c=.yamllint]
-  - repo: https://github.com/ansible-community/ansible-lint.git
-    rev: a058554b9bcf88f12ad09ab9fb93b267a214368f  # v6.8.6
-    hooks:
-      - id: ansible-lint
-  - repo: https://github.com/shellcheck-py/shellcheck-py
-    rev: 4c7c3dd7161ef39e984cb295e93a968236dc8e8a  # v0.8.0.4
-    hooks:
-      - id: shellcheck
+        args: [-c=linters/.yamllint.yaml]
   - repo: https://github.com/Lucas-C/pre-commit-hooks
-    rev: 04618e68aa2380828a36a23ff5f65a06ae8f59b9  # v1.3.1
+    rev: v1.3.1
     hooks:
       - id: remove-crlf
       - id: remove-tabs
   - repo: https://github.com/sirosen/texthooks
-    rev: 30d9af95631de0d7cff4e282bde9160d38bb0359  # 0.4.0
+    rev: 0.4.0
     hooks:
       - id: fix-smartquotes
+  - repo: https://github.com/onedr0p/sops-pre-commit
+    rev: v2.1.1
+    hooks:
+      - id: forbid-secrets
+        exclude: |
+          (?x)^(
+            cluster\/apps\/kube-system\/kube-vip\/rbac.yaml|
+            tmpl\/.*.sops\.ya?ml
+            )$
+  # - repo: https://github.com/ansible/ansible-lint.git
+  #   rev: v6.10.0  # Put latest release tag from https://github.com/ansible/ansible-lint/releases/
+  #   hooks:
+  #     - id: ansible-lint
+  # - repo: https://github.com/shellcheck-py/shellcheck-py
+  #   rev: 4c7c3dd7161ef39e984cb295e93a968236dc8e8a  # v0.8.0.4
+  #   hooks:
+  #     - id: shellcheck
+  # - repo: https://github.com/gruntwork-io/pre-commit
+  #   rev: v0.1.17
+  #   hooks:
+  #     - id: terraform-fmt
+  #     - id: terraform-validate
+  #     - id: tflint

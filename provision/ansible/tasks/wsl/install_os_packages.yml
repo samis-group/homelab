@@ -1,0 +1,85 @@
+---
+- name: Update apt cache, upgrade packages, remove useless packages from cache, remove dependencies that are no longer required
+  apt:
+    update_cache: true
+    upgrade: dist
+    autoclean: true
+    autoremove: true
+
+- name: Get distribution short name
+  shell:
+    cmd: "lsb_release -cs"
+  register: wsl_distro_short_name
+  changed_when: false
+
+- name: Add apt signing keys
+  apt_key:
+    url: "{{ item }}"
+    state: present
+  with_items:
+    - https://apt.releases.hashicorp.com/gpg
+
+- name: Add apt repo's
+  ansible.builtin.apt_repository:
+    repo: "{{ item }}"
+    state: present
+  with_items:
+    - ppa:yktooo/ppa
+    - deb [arch=amd64] https://apt.releases.hashicorp.com {{ wsl_distro_short_name.stdout }} main
+
+- name: Install required packages
+  apt:
+    state: present
+    pkg:
+      - git
+      - wget
+      - curl              # Docker
+      - telnet
+      - net-tools
+      - logrotate
+      # - ca-certificates   # Docker
+      # - gnupg             # Docker
+      # - lsb-release       # Docker
+      - vagrant
+      - htop
+      - make
+      - vim
+      - stow
+      - bash-completion
+      - python3
+      - python3-pip
+      - python3-jmespath
+      - python-is-python3
+      - cifs-utils
+      - nfs-common
+      - apt-transport-https
+      - software-properties-common
+      - jq
+      - unzip
+      - pwgen
+
+- name: pip self-update
+  pip:
+    name: pip
+    state: latest
+
+- name: Install required python modules
+  pip:
+    name:
+      - passlib
+      - pyyaml
+
+- name: mark vundle dir as safe in git config
+  community.general.git_config:
+    name: safe.directory
+    scope: global
+    value: "{{ user_dir }}/.vim/bundle/Vundle.vim"
+
+# Vundle install
+- name: Clone Vundle
+  git:
+    repo: https://github.com/VundleVim/Vundle.vim.git
+    dest: "{{ user_dir }}/.vim/bundle/Vundle.vim"
+    clone: true
+    update: true
+  become_user: "{{ user_info.name }}"  # We want ownership of the repo to be the user that we're cloning to

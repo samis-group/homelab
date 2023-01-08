@@ -1,0 +1,27 @@
+#######################################
+### THIS FILE IS MANAGED BY ANSIBLE ###
+###    PLEASE MAKE CHANGES THERE    ###
+#######################################
+
+http:
+  routers:
+    pfsense-rtr:
+      rule: "Host(`pfsense.{{ domain_name }}`)"
+      entryPoints:
+        - https
+      middlewares:
+        - chain-oauth
+        # - pfsense-add-admin  # Uncomment if you need the path prefix addition below
+      service: pfsense-svc
+      tls:
+        certResolver: dns-cloudflare
+  # Add this section if you need a prefix (remember to uncomment the middleware in the router above as well)
+  # middlewares:
+  #   pfsense-add-admin:
+  #     addPrefix:
+  #       prefix: "/index.php"
+  services:
+    pfsense-svc:
+      loadBalancer:
+        servers:
+          - url: "http://{{ pfsense_ip }}:{{ pfsense_port }}"  # or whatever your external host's IP:port is

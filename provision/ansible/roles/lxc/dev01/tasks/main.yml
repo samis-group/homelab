@@ -1,0 +1,5 @@
+---
+- name: Install OS updates and required packages
+  import_tasks: install_os_packages.yml
+  when: install_os_packages
+  tags: ["install_os_packages"]

@@ -1,0 +1,362 @@
+---
+- name: Create docker group if non existent
+  group:
+    name: "{{ docker_group }}"
+    state: present
+
+# Create user based on username
+- name: Create user and add to {{ docker_group }}/sudo/dialout groups
+  user:
+    name: "{{ main_user }}"
+    password: "{{ main_pass | password_hash('sha512', 'mysecretsalt') }}"
+    groups:
+      - "{{ docker_group }}"
+      - sudo
+      - dialout
+    append: true
+    state: present
+    shell: /bin/bash
+    createhome: true
+    home: "{{ user_dir }}"
+  register: user_created
+
+- name: Set regex glob var for reading compose files
+  set_fact:
+    file_regex: >-
+      ^([^\.]*).*
+
+# Grab filenames from compose-files not in unused to create dirs for
+- name: Read docker-compose filenames into variables
+  delegate_to: localhost
+  become: false
+  command: "find {{ playbook_dir }}/../files/docker/compose-files -type f -not -path '*/unused/*' -not -name '*.env*' -not -name 'Makefile'"
+  register: dc_files
+
+- name: Read yaml file into variable for parsing service names
+  delegate_to: localhost
+  become: false
+  command: "cat {{ item }}"
+  register: dc_obj
+  with_items: "{{ dc_files.stdout_lines }}"
+
+- name: Create dict dc_yaml_object from docker-compose file
+  set_fact:
+    # Set dict inside jinja, iterate through all services appending to that jinja dict, end loop and return that list
+    dc_yaml_objs: >-
+      {%- set yaml_objs = [] -%}
+      {%- for item in dc_obj.results -%}
+      {%- set obj = item.stdout | from_yaml -%}
+      {%- do yaml_objs.append(obj) -%}
+      {%- endfor -%}
+      {{ yaml_objs }}
+
+- name: Create docker-compose services list fact
+  set_fact:
+    # Set dict inside jinja, iterate through all services appending to that jinja dict, end loop and return that list to ansible list
+    services: >-
+      {%- set services = [] -%}
+      {%- for obj in dc_yaml_objs -%}
+      {%- for key, value in obj.services.items() -%}
+      {%- do services.append(key) -%}
+      {%- endfor -%}
+      {%- endfor -%}
+      {{ services }}
+
+- name: Create directories for services
+  file:
+    path: "{{ docker_dir }}/appdata/{{ item }}"
+    state: directory
+    owner: "{{ main_user }}"
+    group: "{{ docker_group }}"
+    mode: '0755'
+  with_items: "{{ services }}"
+
+- name: Create required directories recursively
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ main_user }}"
+    group: "{{ docker_group }}"
+    mode: '0755'
+    recurse: true
+  with_items: "{{ required_items.folders }}"
+
+# Optimize the playbook by non-recursively creating dirs (these are big)
+- name: Create required directories non-recursively
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ main_user }}"
+    group: "{{ docker_group }}"
+    mode: '0755'
+    recurse: false
+  with_items: "{{ required_items.no_recurse_folders }}"
+
+- name: Touch required files to ensure they exists
+  file:
+    path: "{{ item }}"
+    state: touch
+    owner: "{{ main_user }}"
+    group: "{{ docker_group }}"
+    mode: '0644'
+  with_items: "{{ required_items.files }}"
+
+- name: Install Loki docker plugin for logging driver
+  community.docker.docker_plugin:
+    plugin_name: grafana/loki-docker-driver:latest
+    state: present
+    alias: loki
+  notify: restart docker
+
+- name: Enable Loki docker plugin
+  community.docker.docker_plugin:
+    plugin_name: grafana/loki-docker-driver:latest
+    state: enable
+    alias: loki
+
+- name: Copy docker daemon.json
+  template:
+    src: "{{ playbook_dir }}/../templates/docker/daemon.json"
+    dest: "/etc/docker/daemon.json"
+    # owner: "{{ main_user }}"
+    # group: "{{ docker_group }}"
+    mode: '0644'
+
+# This is for me to obtain my personal docker images.
+- name: Log into gitlab container registry.
+  community.docker.docker_login:
+    registry_url: https://registry.gitlab.com
+    username: "{{ gitlab.username }}"
+    password: "{{ gitlab.personal_access_token }}"
+    debug: true
+    config_path: "{{ user_dir }}/.docker/config.json"   # Ansible logs in as root, so need to manually configure this.
+
+##############
+### bashrc ###
+##############
+
+# - name: Copy bashrc_contents to hosts .bashrc file
+#   blockinfile:
+#     path: .bashrc
+#     block: |
+#       # Colour Prompt
+#       function color_my_prompt {
+#           local __user_and_host="\[\033[38;5;203m\]\u\[$(tput sgr0)\]@\[\033[38;5;119m\]\h\[$(tput sgr0)\]"
+#           local __cur_location="\[\033[38;5;6m\]\W\[$(tput sgr0)\]"
+#           local __git_branch_color="\[\033[38;5;170m\]"
+#           #local __git_branch="\`ruby -e \"print (%x{git branch 2> /dev/null}.grep(/^\*/).first || '').gsub(/^\* (.+)$/, '(\1) ')\"\`"
+#           local __git_branch='`git branch 2> /dev/null | grep -e ^* | sed -E  s/^\\\\\*\ \(.+\)$/\(\\\\\1\)\ /`'
+#           local __prompt_tail="\[$(tput sgr0)\]\\$"
+#           # local __last_color="\[\033[00m\]"
+#           export PS1="$__user_and_host $__cur_location $__git_branch_color$__git_branch$__prompt_tail "
+#       }
+#       color_my_prompt
+
+#       # Basic aliases
+#       alias ll='ls -alh --color=auto'
+#       alias la='ls -A --color=auto'
+#       alias l='ls -CF'
+#       alias ls='ls --color=auto'
+#       alias lt='ls --human-readable --size -1 -S --classify'
+#       alias mv="mv -v"
+#       alias cp="cp -v"
+#       alias grep='grep --color=auto'
+#       alias fgrep='fgrep --color=auto'
+#       alias egrep='egrep --color=auto'
+
+#       # DOCKER ALIASES
+#       alias d="docker"
+#       alias dc="docker compose"
+#       # For backwards compatibility as I've switched to using docker v2 cli
+#       alias docker-compose="docker compose"
+#       alias upgitdocker='cd ~/git/personal/docker-playbook && git pull; cd ${OLDPWD}'
+#       # dstopcont <CONTAINER> - stop container
+#       alias dstopcont='sudo docker stop $(docker ps -a -q)'
+#       # dstopall - stop all running containers
+#       alias dstopall='sudo docker stop $(sudo docker ps -aq)'
+#       alias drmcont='sudo docker rm $(sudo docker ps -aq)'
+#       alias dvolprune='sudo docker volume prune'
+#       alias dsysprune='sudo docker system prune -a'
+#       alias ddelimages='sudo docker rmi $(docker images -q)'
+#       alias docerase='dstopcont ; drmcont ; ddelimages ; dvolprune ; dsysprune'
+#       alias docprune='ddelimages ; dvolprune ; dsysprune'
+#       alias dexec='sudo docker exec -ti'
+#       # docps - list of all containers
+#       alias dps='sudo docker ps -a --no-trunc --format "table {{.Names}}\t{{.RunningFor}}\t{{.Status}}"'
+#       # docdf - storage used by docker
+#       alias ddf='sudo docker system df'
+#       # dclogs <CONTAINER>
+#       alias dclogs='sudo docker logs -tf --tail="50" '
+#       alias fixsecrets='sudo chown -R root:root ~/docker/secrets ; sudo chmod -R 600 ~/docker/secrets'
+#       # Register gitlab runner with token in '.env' file
+#       alias dcgitlabregister='cd ~/docker/compose-files && docker compose -f unused/gitlab-register.yml --env-file ~/docker/.env up -d && dclogs gitlab-register'
+
+#       # Systemctl
+#       alias systemctl='sudo systemctl'
+#       alias sysstart="sudo systemctl start"
+#       alias sysstop="sudo systemctl stop"
+#       alias sysrestart="sudo systemctl restart"
+#       alias sysstatus="sudo systemctl status"
+#       alias sysenable="sudo systemctl enable"
+#       alias sysdisable="sudo systemctl disable"
+
+#       # Others
+#       alias gh='history | grep'
+#       alias cpv='rsync -ah --info=progress2'
+#       alias hosts='sudo vim /etc/hosts'
+#       alias gitpullall='echo -e "\n$PWD\n------------------------\n" && git status && git pull'
+#       alias ss='sudo ss'
+#       alias python='python3'
+#       alias config='/usr/bin/git --git-dir=/root/.cfg/ --work-tree=/root'
+#       alias updotfiles="cd ~/.dotfiles && git status && git pull"
+#       alias shutdown='sudo shutdown -h now'
+#       alias reboot='sudo reboot'
+#       alias portsused='sudo ss -tulnp | grep LISTEN'
+#       alias dirsize='sudo du -hx --max-depth=1'
+#       alias sshi="ssh -o ControlMaster=no -o UserKnownHostsFile=/dev/null -o PasswordAuthentication=yes -o StrictHostKeyChecking=no $@"
+
+#       # Ansible
+#       alias ansvault='ansible --vault-password-file ~/.ansible/password'
+#       alias anseditvault='ansible-vault edit --vault-password-file ~/.ansible/password'
+#       alias anspbvault='ansible-playbook --vault-password-file ~/.ansible/password'
+
+#       #Youtube DL MP4
+#       alias ydl=youtube-dl
+#       alias youtube-dl-mp4='youtube-dl -f "bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4"'
+#       alias ydl-mp4=youtube-dl-mp4
+#       # Youtube DL MP3
+#       alias youtube-dl-mp3='youtube-dl --extract-audio --audio-format mp3'
+#       alias ydl-mp3=youtube-dl-mp3
+
+#       # Functions begin
+
+#       function ssa() {
+#           eval $(ssh-agent -s)
+#           ssh-add ~/.ssh/*id_*
+#       }
+
+#       function gitpushall() {
+#           read -p "Commit Message: " MESSAGE
+#           echo -e "\n$PWD\n------------------------\n"
+#           git status
+#           git add .
+#           git commit -m "auto commit from $(hostname) - ${MESSAGE}"
+#           git push origin
+#       }
+
+#       # Change dir and ls
+#       function cl() {
+#           DIR="$*";
+#           # if no DIR given, go home
+#           if [ $# -lt 1 ]; then
+#               DIR=$HOME;
+#           fi;
+#           builtin cd "${DIR}" && \
+#           # use your preferred ls command
+#           ls -F --color=auto
+#       }
+
+#       # Find git dir based on search term and cd into it (only usable with my dir structure i.e. ~/git/(personal|work)/repos etc.)
+#       function gotogit() {
+#           SEARCHTERM=${1}
+#           FOUNDDIR=$(find ~/git -maxdepth 2 -mindepth 2 -type d -name "*${SEARCHTERM}*")
+#           if [[ $(echo "${FOUNDDIR}" | wc -l) -eq 1 ]]; then
+#               cd ${FOUNDDIR}
+#           elif [[ $(echo "${FOUNDDIR}" | wc -l) -gt 1 ]]; then
+#               echo -e "\nPlease be more specific from the below repos that I found:\n\n$(echo ${FOUNDDIR} | tr ' ' '\n')\n"
+#           fi
+#       }
+
+#       ################################################
+#       ### Main docker compose up and down commands ###
+#       ################################################
+
+#       # How to use:
+#       ## Pass the name of the stack (folder), file, or 'all' to deploy everything except for `./unused` folder.
+
+#       # Setup:
+#       ## Assumes the user id for the main user is 1000.
+#       MAIN_USER_ID=1000
+#       ENV_FILE=/home/$(id -un ${MAIN_USER_ID})/docker/.env
+#       MAIN_DOCKER_FILE_NAME="portainer.yml"
+
+#       function readycommand() {
+#         # If user wants to deploy everything
+#         if [[ ${1} == "all" ]]; then
+#           FILES=$(find ${DOCKERDIR}/compose-files/ -type f -not -path "*/unused/*" -not -name "*.env*" -not -name "Makefile")
+#         # Else, process stacks
+#         else
+#           FILES="$(find ${DOCKERDIR}/compose-files/ -type f -name "*${1}*" -not -path "*/unused/*" -not -name "*.env*" -not -name "Makefile")"
+#           # If files > 2 break this, output results and ask user to be more specific
+#           if [[ $(echo $FILES | wc -l) -gt 1  ]]; then
+#             echo -en "Captured more than one file, please be more specific:\n${FILES}\nBailing..."
+#             FILES=''
+#           fi
+#         fi
+#         # If files is not empty, proceed.
+#         if ! [[ -z ${FILES} ]]; then
+#           # Let's setup our command
+#           READY_COMMAND="docker compose --env-file ${ENV_FILE}"
+#           for FILE in ${FILES}; do
+#             READY_COMMAND+=" -f $FILE"
+#           done
+#         fi
+#         echo $READY_COMMAND
+#       }
+
+#       # Executions:
+#       # Main dcup command - straight forward
+#       function dcup() {
+#         source $ENV_FILE
+#         READY_COMMAND=$(readycommand ${1})
+#         READY_COMMAND+=" up -d"
+#         echo $READY_COMMAND
+#         # Execute
+#         $READY_COMMAND
+#       }
+
+#       # Up but also remove orphans
+#       function dcuprem() {
+#         source $ENV_FILE
+#         READY_COMMAND=$(readycommand ${1})
+#         READY_COMMAND+=" up -d --remove-orphans"
+#         echo $READY_COMMAND
+#         # Execute
+#         $READY_COMMAND
+#       }
+
+#       function dcdown() {
+#         source $ENV_FILE
+#         READY_COMMAND=$(readycommand ${1})
+#         READY_COMMAND+=" down"
+#         echo $READY_COMMAND
+#         # Execute
+#         $READY_COMMAND
+#       }
+
+#       function dcpull() {
+#         source $ENV_FILE
+#         READY_COMMAND=$(readycommand ${1})
+#         READY_COMMAND+=" pull"
+#         echo $READY_COMMAND
+#         # Execute
+#         $READY_COMMAND
+#       }
+
+#       function dcrec() {
+#         source $ENV_FILE
+#         READY_COMMAND=$(readycommand ${1})
+#         READY_COMMAND+=" up -d --force-recreate"
+#         echo $READY_COMMAND
+#         # Execute
+#         $READY_COMMAND
+#       }
+
+#       function dcreb() {
+#         source $ENV_FILE
+#         READY_COMMAND=$(readycommand ${1})
+#         READY_COMMAND+=" up -d --build"
+#         echo $READY_COMMAND
+#         # Execute
+#         $READY_COMMAND
+#       }

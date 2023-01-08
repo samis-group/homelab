@@ -1,0 +1,13 @@
+---
+lxc_ip_address: "{{ vm_network }}70"  # Required
+ansible_host: "{{ lxc_ip_address }}"
+lxc_container:
+  # image: "ubuntu-22.04-standard_22.04-1_amd64.tar.zst"
+  id: 170 # Required
+  description: "Machine to do development on."
+  storage: "SSD"
+  netif: '{"net0":"name=eth0,gw={{ vm_gateway }},ip={{ lxc_ip_address }}/{{ vm_netmask }},bridge={{ lxc_defaults.network_device }}"}'
+  unprivileged: true
+  features:
+    - nesting=1
+    - mount=nfs

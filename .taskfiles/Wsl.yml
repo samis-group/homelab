@@ -1,0 +1,22 @@
+---
+version: "3"
+
+tasks:
+
+  personal:
+    desc: 🐧 Make Base + Personal WSL instance (Assumes you're running from it, so go setup and clone this repo there)
+    dir: provision/ansible
+    cmds:
+      - ansible-playbook -i inventory/hosts.ini playbooks/wsl.yml playbooks/wsl_personal.yml {{.CLI_ARGS}}
+
+  work:
+    desc: 🐧 Make Base + Work WSL instance (Assumes you're running from it, so go setup and clone this repo there)
+    dir: provision/ansible
+    cmds:
+      - ansible-playbook -i inventory/hosts.ini playbooks/wsl.yml playbooks/wsl_work.yml {{.CLI_ARGS}}
+
+  run-tags:
+    desc: 🐧 Run WSL play tags
+    dir: provision/ansible
+    cmds:
+      - ansible-playbook -i inventory/hosts.ini --tags "{{.CLI_ARGS}}" -e "{{.CLI_ARGS}}=true" playbooks/wsl.yml playbooks/wsl_personal.yml

@@ -1,3 +1,6 @@
+# Install wsl
+wsl --install
+
 # Ensure chocolatey installed
 if ([bool](Get-Command -Name 'choco' -ErrorAction SilentlyContinue)) {
     Write-Verbose "Chocolatey is already installed, skip installation." -Verbose

@@ -16,7 +16,7 @@ class bcolors:
     UNDERLINE = '\033[4m'
 
 # Perform some checks
-folderpath = f'{os.getcwd()}/'
+folderpath = f'{os.getcwd()}/provision/ansible/'
 filename = '.vault-password'
 filepath = folderpath + filename
 

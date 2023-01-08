@@ -55,6 +55,12 @@ There is so much it can do, but some key things you can achieve, from just a deb
 
 ## TL;DR
 
+Install `task`:
+
+```bash
+brew install go-task  # https://formulae.brew.sh/formula/go-task
+```
+
 ❗ **Ensure you already have docker installed and working on your local PC**. This pulls an image, sets it up and drops you in shell to run any make target you want.
 
 Run the following commands to bring this entire project up from nothing but proxmox (nothing but debian soon to come once I have new hardware to test it all as I need a spare bare metal host):
@@ -286,7 +292,7 @@ make run-docker-registry-dotfiles
   ```
 
   > Then bring the stack up with - You won't have this if you aren't me.
-  
+
   ```bash
   dcup all
   ```

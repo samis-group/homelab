@@ -1,0 +1,64 @@
+---
+#######################################
+### THIS FILE IS MANAGED BY ANSIBLE ###
+###    PLEASE MAKE CHANGES THERE    ###
+#######################################
+
+version: "3.7"
+
+########################### EXTENSION FIELDS
+# Re-usable code so we're not duplicating these everywhere
+
+# To use this put this block in the root of your service: "<<: *logging"
+x-logging: &logging
+  logging:
+    driver: loki
+    options:
+      loki-url: "http://localhost:${LOKI_PORT}/loki/api/v1/push"
+
+########################### NETWORKS
+
+networks:
+  defaulty:
+    name: defaulty
+    external: true
+  traefik_proxy:
+    name: traefik_proxy
+    external: true
+
+########################### SERVICES
+
+services:
+
+  # Provides a filesystem-browser and text-editor to modify files on the machine the configurator is running on
+  # https://hub.docker.com/r/causticlab/hass-configurator-docker/
+  hass-configurator:
+    image: "causticlab/hass-configurator-docker:latest"
+    init: true
+    container_name: hass-configurator
+    restart: always
+    user: "${PUID}:${PGID}"
+    ports:
+      - "${HASS_CONFIGURATOR_PORT}:3218/tcp"
+    networks:
+      - traefik_proxy
+    depends_on:
+      - hass
+    volumes:
+      - "${DOCKERDIR}/appdata/hass-configurator:/config"
+      - "${DOCKERDIR}/appdata/hass:/hass-config"
+      # For git Integration
+      - "${SSH_KEY_PERSONAL}:/root/.ssh/id_rsa:ro"
+      - "${SSH_KEY_PERSONAL_PUBLIC}:/root/.ssh/id_rsa.pub:ro"
+      - "${USERDIR}/.ssh/known_hosts:/root/.ssh/known_hosts:rw"
+    labels:
+      - "traefik.enable=true"
+      ## HTTP Routers
+      - "traefik.http.routers.hassconfigurator-rtr.entrypoints=https"
+      - "traefik.http.routers.hassconfigurator-rtr.rule=Host(`hass-config.${DOMAINNAME}`)"
+      ## Middlewares
+      - "traefik.http.routers.hassconfigurator-rtr.middlewares=chain-oauth@file"
+      ## HTTP Services
+      - "traefik.http.routers.hassconfigurator-rtr.service=hassconfigurator-svc"
+      - "traefik.http.services.hassconfigurator-svc.loadbalancer.server.port=3218"
+    <<: *logging

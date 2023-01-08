@@ -1,0 +1,20 @@
+---
+- name: Copy main telegraf config files to PC
+  win_copy:
+    src: files/windows/C/Program Files/telegraf
+    dest: C:\Program Files
+  notify: restart telegraf
+
+- name: Copy telegraf influxdb configuration template to PC
+  win_template:
+    src: windows/influxdb.conf.j2
+    dest: C:\Program Files\telegraf\telegraf.d\influxdb.conf
+  notify: restart telegraf
+
+
+# Ensure that the telegraf service exists before doing the below. Commenting for now to see where that happens... maybe even make this a handler at the end...
+# - name: Ensure telegraf is running at boot and current runtime
+#  win_service:
+#    name: telegraf
+#    start_mode: auto
+#    state: started

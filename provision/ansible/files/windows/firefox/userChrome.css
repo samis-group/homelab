@@ -1,0 +1,31 @@
+/*
+Windows Specific
+THIS FILE IS MANAGED BY ANSIBLE
+*/
+
+#main-window[tabsintitlebar="true"]:not([extradragspace="true"]) #TabsToolbar > .toolbar-items {
+  opacity: 0;
+  pointer-events: none;
+}
+#main-window:not([tabsintitlebar="true"]) #TabsToolbar {
+    visibility: collapse !important;
+}
+#sidebar-box[sidebarcommand="treestyletab_piro_sakura_ne_jp-sidebar-action"] #sidebar-header {
+  display: none;
+}
+/* Move minimize/restore/close buttons to empty space */
+#TabsToolbar > .titlebar-buttonbox-container {
+    display: block;
+    position: absolute;
+    top: 5px;
+    right: 1px;
+}
+/* 15px for dragging whole window by mouse*/
+#titlebar {
+    appearance: none !important;
+    height: 1px;
+}
+/* Adding empty space for buttons */
+#nav-bar {
+    margin-right:140px;
+}

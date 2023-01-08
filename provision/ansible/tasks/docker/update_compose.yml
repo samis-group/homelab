@@ -1,0 +1,16 @@
+---
+- name: Copy .env template
+  template:
+    src: "{{ playbook_dir }}/../templates/docker/.env.j2"
+    dest: '{{ docker_dir }}/.env'
+    owner: "{{ main_user }}"
+    group: "{{ docker_group }}"
+    mode: '0755'
+
+- name: Copy docker compose files to docker host
+  copy:
+    src: "{{ playbook_dir }}/../files/docker/compose-files"
+    dest: "{{ docker_dir }}"
+    owner: "{{ main_user }}"
+    group: "{{ docker_group }}"
+    mode: '0644'

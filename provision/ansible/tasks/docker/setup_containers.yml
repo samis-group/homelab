@@ -1,0 +1,232 @@
+---
+################
+### Authelia ###
+################
+
+- name: Hash Authelia passwords
+  shell:   # can't user docker resource because it uses the loki logging driver, so no output in ansible return
+    cmd: "docker run --rm authelia/authelia:latest authelia hash-password {{ item.value.password }} | cut -d\\  -f 3"
+  register: authelia_hashed_passwords_result
+  with_dict: "{{ authelia.users }}"
+  # no_log: true
+
+- name: debug authelia
+  debug: var=authelia_hashed_passwords_result
+
+- name: Set hashed Authelia passwords fact
+  set_fact:
+    authelia_hashed_passwords: "{{ authelia_hashed_passwords | default({}) | combine( {'users': {item.item.key: item.stdout}}, recursive=True) }}"
+  with_items:
+    - "{{ authelia_hashed_passwords_result.results }}"
+  # no_log: true
+
+- name: debug authelia
+  debug: var=authelia_hashed_passwords
+
+- name: Touch authelia users_database file to ensure it exists
+  file:
+    path: "{{ docker_dir }}/appdata/authelia/users_database.yml"
+    state: touch
+    owner: "{{ main_user }}"
+    group: "{{ docker_group }}"
+    mode: '0644'
+
+- name: Check if authelia users need to be updated in users_database file
+  lineinfile:
+    path: "{{ docker_dir }}/appdata/authelia/users_database.yml"
+    regexp: "{{ item.key }}:"
+    line: "dummy"
+    state: absent
+  check_mode: true
+  with_dict: "{{ authelia_hashed_passwords.users }}"
+  changed_when: false
+  register: authelia_exists
+  no_log: true
+
+- name: Calculate authelia users_database return result
+  set_fact:
+    authelia_found: >-
+      {% set count = [] %}
+      {%- for result in authelia_exists.results -%}
+      {%- if result.found == 1 -%}
+      {%- set __ = count.append(1) -%}
+      {%- endif -%}
+      {%- endfor -%}
+      {{ count|length }}
+
+- name: Copy authelia users_database template if any user not in authelia users_database
+  template:
+    src: "authelia/users_database.yml"
+    dest: "{{ docker_dir }}/appdata/authelia/users_database.yml"
+    owner: "{{ main_user }}"
+    group: "{{ docker_group }}"
+    mode: '0644'
+  when: authelia_found|int < authelia_hashed_passwords.users | list | count
+
+# This won't exist on initial run, so let's check the containers existence first and restart conditionally if it exists
+- name: Check if Authelia is running
+  docker_container_info:
+    name: authelia
+  register: authelia_running
+
+- name: Restart Authelia
+  docker_container:
+    name: authelia
+    state: started
+    restart: yes
+  # When you have multiple conditions that all need to be true (that is, a logical and), you can specify them as a list
+  when:
+    - authelia_found|int < authelia_hashed_passwords.users | list | count
+    - authelia_running.exists
+
+############
+### MQTT ###
+############
+
+- name: Check if user is in mqtt passwd file
+  lineinfile:
+    path: "{{ docker_dir }}/appdata/mqtt/config/passwd"
+    regexp: "^{{ item.key }}.*"
+    line: "dummy"
+    state: absent
+  check_mode: true
+  with_dict: "{{ mqtt_logins }}"
+  changed_when: false
+  register: mqtt_passwd_output
+  no_log: true
+
+- name: Calculate mqtt passwd return result count
+  set_fact:
+    mqtt_found: >-
+      {% set count = [] %}
+      {%- for result in mqtt_passwd_output.results -%}
+      {%- if result.found == 1 -%}
+      {%- set __ = count.append(1) -%}
+      {%- endif -%}
+      {%- endfor -%}
+      {{ count|length }}
+
+# Check if mqtt is running, if not, we create one adhoc and destroy it afterwards
+- name: Check if MQTT is running
+  docker_container_info:
+    name: mqtt
+  register: mqtt_running
+
+- name: Start mqtt container with volume mounted to store htpasswd items in
+  community.docker.docker_container:
+    name: mqtt
+    image: eclipse-mosquitto:latest
+    user: "{{ puid }}:{{ pgid }}"
+    auto_remove: yes
+    volumes:
+      - "{{ docker_dir }}/appdata/mqtt/config:/mosquitto/config"
+    env_file: "{{ docker_dir }}/.env"
+    # command: ["sleep", "infinity"]
+  when: not mqtt_running.exists
+
+- name: Regenerate file if any user not in mqtt passwd
+  community.docker.docker_container_exec:
+    container: mqtt
+    command: "mosquitto_passwd -b /mosquitto/config/passwd {{ item.key }} {{ item.value }}"
+  with_dict: "{{ mqtt_logins }}"
+  when: mqtt_found|int < mqtt_logins|list|count
+  # no_log: true
+
+- name: Remove mqtt container if it was created by ansible
+  community.docker.docker_container:
+    name: mqtt
+    image: eclipse-mosquitto:latest
+    state: absent
+  when: not mqtt_running.exists
+
+################
+### htpasswd ###
+################
+
+- name: Touch htpasswd docker secret file to ensure it exists
+  file:
+    path: "{{ docker_dir }}/secrets/htpasswd"
+    state: touch
+    owner: "{{ main_user }}"
+    group: "{{ docker_group }}"
+    mode: '0644'
+
+- name: Check if htpasswd users need to be updated in htpasswd file
+  lineinfile:
+    path: "{{ docker_dir }}/secrets/htpasswd"
+    regexp: "^{{ item.key }}.*"
+    line: "dummy"
+    state: absent
+  check_mode: true
+  with_dict: "{{ htpasswd_logins }}"
+  changed_when: false
+  register: htpasswd_output
+  no_log: true
+
+- name: Calculate htpasswd return result
+  set_fact:
+    htpasswd_found: >-
+      {%- for result in htpasswd_output.results -%}
+      {{ result.found }}
+      {%- endfor -%}
+
+- name: Regenerate file if any user not in htpasswd
+  htpasswd:
+    path: "{{ docker_dir }}/secrets/htpasswd"
+    name: "{{ item.key }}"
+    password: "{{ item.value }}"
+    owner: "{{ main_user }}"
+    group: "{{ docker_group }}"
+    mode: 0640
+  with_dict: "{{ htpasswd_logins }}"
+  when: htpasswd_found|int < 1
+  no_log: true
+
+###################
+### zigbee2mqtt ###
+###################
+
+# - name: Setup zigbee2mqtt configuration file
+#   blockinfile:
+#     path: "{{ docker_dir }}/appdata/zigbee2mqtt/configuration.yaml"
+#     create: true
+#     owner: "{{ main_user }}"
+#     group: "{{ docker_group }}"
+#     block: |
+#       homeassistant: true
+#       permit_join: false
+#       mqtt:
+#         base_topic: zigbee2mqtt
+#         server: mqtt://localhost
+#         user: {{ zigbe2mqtt_user }}
+#         password: {{ mqtt_logins[zigbe2mqtt_user] }}
+#       serial:
+#         port: {{ hass.zigbee_adapter_tty }}
+#       frontend:
+#         port: {{ zigbee2mqtt_port }}
+
+# Required?
+# - name: Importing update-compose task
+#   import_tasks: update_compose.yml
+#   when: update_compose
+
+# This gets overwritten whenever the container reboots, so leave it out.
+# - name: Setup gitlab-runner config
+#   blockinfile:
+#     path: "{{ docker_dir }}/appdata/gitlab-runner/config.toml"
+#     create: true
+#     owner: "{{ main_user }}"
+#     group: "{{ docker_group }}"
+#     block: |
+#       # Resource -> https://docs.gitlab.com/runner/configuration/advanced-configuration.html
+
+#       concurrent = 1
+#       check_interval = 5
+#       log_level = "info"   # Options are: debug, info, warn, error, fatal, and panic
+#       log_format = "json"  # Options are: runner, text, and json
+
+#       [session_server]
+#         session_timeout = 1800
+
+# TODO: Setup git clone of submodules instead of doing them in ansible. This is better for automation in ci/cd pipelines later. Trust brah.
+# Also setup deploy key (ssh key) if not created `id_rsa_docker`. Then provide instructions on adding the public key to gitlab.

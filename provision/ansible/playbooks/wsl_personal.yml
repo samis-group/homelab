@@ -1,0 +1,47 @@
+---
+# ----------------------------------- #
+# Pre-tasks run before anything else! #
+# ----------------------------------- #
+- name: Pre-all
+  hosts: wsl
+  # Special tag "always" -> https://docs.ansible.com/ansible/latest/user_guide/playbooks_tags.html#special-tags-always-and-never
+  tags: ["always"]
+  gather_facts: false
+  tasks:
+    - name: Pre-all
+      ansible.builtin.import_tasks: ../tasks/pre-all.yml
+
+####################
+### WSL Personal ###
+####################
+
+- name: Setup Personal WSL - Root tasks
+  hosts: wsl
+  become: true
+
+  pre_tasks:
+
+    # This is to get the PUID and PGID variables to use later in multiple areas
+    - name: Get user info or create a user if one doesn't exist
+      ansible.builtin.import_tasks: ../tasks/linux/pre_tasks.yml
+      tags: ["always"]
+
+  roles:
+
+    - andrewrothstein.kubectl
+    - geerlingguy.helm
+    - hedii.youtube-dl
+
+  tasks:
+
+    - name: Setup virtualbox and vagrant to work in WSL
+      ansible.builtin.import_tasks: ../tasks/wsl/virtualbox.yml
+
+- name: Setup Personal WSL Non-Root Tasks
+  hosts: wsl
+  # become: false
+
+  tasks:
+
+    - name: Setup virtualbox and vagrant to work in WSL
+      ansible.builtin.import_tasks: ../tasks/wsl/homebrew.yml

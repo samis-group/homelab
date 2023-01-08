@@ -1,0 +1,12 @@
+---
+vm_ip_address: "{{ vm_network }}20"  # Required
+
+vm:
+  # name: docker   # Default is ansible magic var `inventory_hostname_short` if omitted
+  ipconfig:
+    ipconfig0: "ip={{ vm_ip_address }}/{{ vm_netmask }},gw={{ vm_gateway }}"
+  id: 101   # Required
+  hdd_size: "100G"
+  cores: 4
+  memory: 12000
+  # template: "UbuntuCloud-jammy"   # Specify a template

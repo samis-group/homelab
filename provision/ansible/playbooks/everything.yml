@@ -1,0 +1,39 @@
+---
+- name: Setup and configure proxmox hosts
+  import_playbook: proxmox.yml
+  tags: ["playbook_proxmox"]
+
+- name: Setup and configure Docker VM's
+  import_playbook: docker.yml
+  tags: ["playbook_docker"]
+
+- name: Setup and configure LXC's
+  import_playbook: lxc.yml
+  tags: ["never", "playbook_lxc"]
+
+- name: Configure Windows
+  import_playbook: windows.yml
+  tags: ["playbook_windows"]
+
+- name: Configure WSL
+  import_playbook: wsl.yml
+  tags: ["playbook_wsl"]
+
+- name: Configure Personal WSL
+  import_playbook: wsl_personal.yml
+  tags: ["never", "playbook_wsl_personal"]  # never run unless tag is passed in explicitly (i.e. make target)
+
+- name: Configure Work WSL
+  import_playbook: wsl_work.yml
+  tags: ["never", "playbook_wsl_work"]  # never run unless tag is passed in explicitly (i.e. make target)
+
+- name: Playbook to run on all linux machines
+  import_playbook: all_linux.yml
+  tags: ["playbook_all_linux"]
+
+### My nuc is not powerful enough to continue building and tearing it down.
+### This k3s playbook is currently in a working state and is able to deploy helm charts.
+### I just don't use this stack yet, when I build the new server, I will.
+- name: Setup and configure k3s VM's
+  import_playbook: k3s.yml
+  tags: ["never", "playbook_k3s"]   # Not live yet, so never run it unless explicitly running make target

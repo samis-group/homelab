@@ -1,0 +1,25 @@
+# See https://toolkit.fluxcd.io/components/source/gitrepositories/#excluding-files
+.github/
+.taskfiles/
+.vscode/
+bin/
+docs/
+makefiles/
+provision/
+tmpl/
+.config.sample.env
+.dockerignore
+.envrc
+.gitattributes
+.gitignore
+.pre-commit-config.yaml
+.sops.yaml
+.vault-password
+ansible.cfg
+configure
+Dockerfile
+LICENSE
+Makefile
+README.md
+Taskfile.yml
+requirements.txt

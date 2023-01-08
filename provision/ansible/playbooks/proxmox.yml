@@ -1,0 +1,164 @@
+---
+# ----------------------------------- #
+# Pre-tasks run before anything else! #
+# ----------------------------------- #
+- name: Pre-all / Proxmox
+  hosts: proxmox lxc docker_dev
+  # Special tag "always" -> https://docs.ansible.com/ansible/latest/user_guide/playbooks_tags.html#special-tags-always-and-never
+  tags: ["always"]
+  gather_facts: false
+  tasks:
+    - name: Pre-all / Proxmox
+      ansible.builtin.import_tasks: ../tasks/pre-all.yml
+
+### WARNING - Needs testing on a throwaway machine first -> https://github.com/lae/ansible-role-proxmox
+# - name: Setup proxmox on bare metal debian machine
+#   hosts: proxmox_nodes
+#   become: True
+
+#   roles:
+
+#     - role: lae.proxmox
+#         - pve_group: all
+#         - pve_reboot_on_kernel_update: true
+
+- name: Configure Proxmox
+  hosts: proxmox
+
+  pre_tasks: &pre_tasks   # Anchors to re-use the code later. No point duplicating code.
+
+    # This is to get the PUID and PGID variables to use later in multiple areas
+    - name: Get user info or create a user if one doesn't exist
+      ansible.builtin.import_tasks: ../tasks/linux/pre_tasks.yml
+      tags: ["always"]
+
+  handlers:
+
+    - name: Include proxmox handlers
+      ansible.builtin.import_tasks: ../handlers/proxmox.yml
+
+  roles:
+
+    - role: ironicbadger.proxmox_nag_removal
+    # Run pre-tasks on Proxmox host (Mainly just check connectivity)
+    - role: ../roles/proxmox/pre-tasks
+      tags: ["pre-tasks"]
+    - role: ../roles/proxmox/install-os-packages
+      when: install_os_packages
+      tags: ["install_os_packages"]
+    - role: ../roles/proxmox/copy-files
+      when: copy_files
+      tags: ["copy_files"]
+    - role: nununo.proxmox_haos_install
+      when: proxmox_haos_install
+      tags: ["proxmox_haos_install"]
+      vars:
+        haos_proxmox_api_user: "{{ pve.proxmox_api_user }}"
+        haos_proxmox_api_password: "{{ pve.proxmox_api_pass }}"
+        haos_proxmox_description: "Home Assistant"
+        # haos_proxmox_mac_address: 'AB:CD:EF:12:34:56'
+        haos_proxmox_name: HomeAssistsant
+        haos_proxmox_node: "{{ pve.proxmox_node }}"
+        haos_proxmox_storage: local
+
+- name: Download and provision LXC templates/containers
+  hosts: lxc
+  tags: ["proxmox-provision-lxc"]
+  gather_facts: false   # Because they don't exist yet
+
+  roles:
+
+    # Download and configure LXC containers
+    - role: ../roles/proxmox/provision-lxcs
+      when: provision_lxcs
+      tags: ["provision_lxcs"]
+      delegate_to: proxmox1  # The hosts aren't provisioned yet, so no tasks should run on them. Delegate everything to proxmox but use lxc inventory.
+
+- name: Download and configure base OS templates from cloud images
+  hosts: proxmox1
+
+  pre_tasks: *pre_tasks
+
+  roles:
+
+    # Create Ubuntu VM Template from public cloud image
+    - role: ../roles/proxmox/vm-template-from-ubuntu-cloud-image
+      when: create_ubuntu_vm_template
+      tags: ["create_ubuntu_vm_template"]
+    # Create Debian VM Template from public cloud image
+    - role: ../roles/proxmox/vm-template-from-debian-cloud-image
+      when: create_debian_vm_template
+      tags: ["create_debian_vm_template"]
+
+# Run this play with the docker host inventory, (load vm definition vars defined in each host_vars/host item), but delegate the tasks to proxmox
+- name: Provision Docker VM on Proxmox Host
+  tags: ["proxmox-provision-docker"]
+  # Currently only want to ensure docker_dev is created, not messing with legacy docker inventory group
+  hosts: docker_dev
+  # hosts: docker
+  gather_facts: false   # Because they don't exist yet
+  become: true
+
+  roles:
+
+    - role: ../roles/proxmox/provision-vms
+      when: provision_vms
+      tags: ["provision_vms"]
+      delegate_to: proxmox1  # The hosts aren't provisioned yet, so no tasks should run on them. Delegate everything to proxmox but use docker inventory.
+    - role: ../roles/proxmox/vm-post-tasks
+      when: provision_vms
+      tags: ["provision_vms"]
+
+- name: Provision Minikube VM on Proxmox Host
+  tags: ["proxmox-provision-minikube"]  # Run `make proxmox-provision-minikube` to make this vm
+  # Currently only want to ensure docker_dev is created, not messing with legacy docker inventory group
+  hosts: minikube
+  # hosts: docker
+  gather_facts: false   # Because they don't exist yet
+  become: true
+
+  roles:
+
+    - role: ../roles/proxmox/provision-vms
+      when: provision_vms
+      tags: ["provision_vms"]
+      delegate_to: proxmox1  # The hosts aren't provisioned yet, so no tasks should run on them. Delegate everything to proxmox but use docker inventory.
+    - role: ../roles/proxmox/vm-post-tasks
+      when: provision_vms
+      tags: ["provision_vms"]
+
+# load vm definition vars defined in each host_vars/host item, but delegate the tasks to proxmox
+- name: Provision k3s VM's on Proxmox Host
+  # Currently don't have a server powerful enough to continue building this, hence never tag unless specified with other tag specifically
+  tags: ["never", "proxmox-provision-k3s"]
+  hosts: k3s
+  gather_facts: false   # Because they don't exist yet
+  become: true
+
+  roles:
+
+    - role: ../roles/proxmox/provision-vms
+      when: provision_vms
+      tags: ["provision_vms"]
+      delegate_to: proxmox1  # The hosts aren't provisioned yet, so no tasks should run on them. Delegate everything to proxmox but use docker inventory.
+    - role: ../roles/proxmox/vm-post-tasks
+      when: provision_vms
+      tags: ["provision_vms"]
+
+- name: Gather localhost facts for next play
+  hosts: localhost
+
+- name: Setup ssh configs to localhost
+  tags: ["copy_ssh_configs"]
+  hosts: proxmox docker lxc
+  # hosts: proxmox docker k3s lxc   # Put this back if provisioning k3s as well
+  become: true
+
+  pre_tasks: *pre_tasks
+
+  tasks:
+
+    - name: Copy ssh configs
+      ansible.builtin.import_tasks: ../tasks/linux/copy_ssh_configs_d.yml
+      when: copy_ssh_configs
+      delegate_to: localhost

@@ -1,0 +1,22 @@
+---
+version: "3"
+
+tasks:
+
+  main:
+    desc: 🖥 Main Windows play
+    dir: provision/ansible
+    cmds:
+      - ansible-playbook -i inventory/hosts.ini playbooks/windows.yml {{.CLI_ARGS}}
+
+  runtags:
+    desc: 🖥 Run windows play tags
+    dir: provision/ansible
+    cmds:
+      - ansible-playbook -i inventory/hosts.ini --tags "{{.CLI_ARGS}}" -e "{{.CLI_ARGS}}=true" playbooks/windows.yml
+
+  chocolatey:
+    desc: 🖥 Run chocolatey tasks
+    dir: provision/ansible
+    cmds:
+      - ansible-playbook -i inventory/hosts.ini --tags "chocolatey" -e "chocolatey=true" playbooks/windows.yml

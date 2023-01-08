@@ -1,0 +1,118 @@
+---
+version: "3"
+
+vars:
+  PROJECT_DIR:
+    sh: git rev-parse --show-toplevel
+  GIT_COMMIT:
+    sh: git log -n 1 --format=%h
+  USER_HOME_DIR:
+    sh: echo $HOME
+  USERID:
+    sh: id -u
+  # Check if running as root, omit `sudo` from make targets if that is the case.
+  DO_SUDO:
+    sh: if [ "$UID" -ne 0 ]; then echo "sudo"; fi
+
+tasks:
+
+  all:
+    desc: Run all setup tasks.
+    # deps: [apt, brew, brew-packages, galaxy-reqs, pip, reqs, store-password, githook]
+    cmds:
+      - task: apt
+      - task: brew
+      - task: brew-packages
+      - task: galaxy-reqs
+      - task: pip
+      - task: reqs
+      - task: store-password
+      - task: githook
+
+  apt:
+    desc: Apt stuff
+    preconditions:
+      - sh: \[ $(uname -s) != "Darwin" \]
+        msg: "this is a mac, dont run apt tasks"
+    cmds:
+      - echo {{.DO_SUDO}}
+      - "{{.DO_SUDO}} apt update"
+      - "{{.DO_SUDO}} apt install -y python3-pip python3-testresources unzip sshpass wget"
+
+  brew:
+    desc: Install brew
+    cmds:
+      - /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    preconditions:
+      - sh: ! \[ $(command -v brew) \]
+
+  brew-packages:
+    desc: Initialize workstation dependencies with Brew
+    cmds:
+      - brew install {{.DEPS}} {{.CLI_ARGS}}
+    preconditions:
+      - sh: command -v brew
+        msg: |
+          Homebrew is not installed. Using MacOS, Linux or WSL?
+          Run setup tasks or Head over to https://brew.sh:
+          task setup
+    vars:
+      DEPS: >-
+        age
+        direnv
+        fluxcd/tap/flux
+        go-task/tap/go-task
+        dopplerhq/cli/doppler
+        helm
+        ipcalc
+        jq
+        kubernetes-cli
+        kustomize
+        pre-commit
+        prettier
+        sops
+        stern
+        terraform
+        tflint
+        yamllint
+        yq
+
+  galaxy-reqs:
+    desc: Install / Upgrade Ansible galaxy deps
+    dir: provision/ansible
+    cmds:
+      - ansible-galaxy install -r roles/requirements.yml --roles-path ~/.ansible/roles
+      - ansible-galaxy collection install -r requirements.yml --collections-path ~/.ansible/collections
+
+  pip:
+    desc: 🚧 Install python module requirements via requirements.txt file
+    cmds:
+      # - "{{.DO_SUDO}} pip3 install --upgrade pip"
+      # - "{{.DO_SUDO}} pip3 install --ignore-installed -r requirements.txt"
+      - "pip3 install --upgrade pip"
+      - "pip3 install --ignore-installed -r requirements.txt"
+
+  reqs:
+    desc: 🚧 sinstall requirements.yml and roles/requirements.yml files
+    cmds:
+      - ansible-galaxy install -r requirements.yml
+      - ansible-galaxy install -r roles/requirements.yml
+
+  # Python is just 1000% better at parsing raw data than bash/GNU Make. /rant
+  store-password:
+    desc: 🚧 Store your password if the vault is encrypted
+    cmds:
+      - ./bin/parse_pass.py
+
+  githook:
+    desc: 🚧 Creates a pre-commit webhook so that you don't accidentally commit decrypted vault upstream
+    cmds:
+      - if [ -d .git/ ]; then\
+          if [ -e .git/hooks/pre-commit ]; then\
+            echo "$$(tput setaf 2)Removing Existing pre-commit hook...$$(tput sgr0)";\
+            rm -f .git/hooks/pre-commit;\
+          fi;\
+        fi
+      - cp bin/git-vault-check.sh .git/hooks/pre-commit
+      - chmod +x .git/hooks/pre-commit
+      - echo "$$(tput setaf 2)Githook Deployed!$$(tput sgr0)"

@@ -1,9 +1,0 @@
----
-- name: restart docker
-  service:
-    name: docker
-    state: restarted
-    enabled: true
-
-- name: restart hass container
-  command: "docker restart hass"

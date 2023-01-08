@@ -1,8 +1,25 @@
-.vault-password
-# Ignore all vagrant files except the main 'Vagrantfile'
-vagrant/*
-!vagrant/Vagrantfile
-# Ignore tf files
-terraform/.terraform*
+# Trash
+.DS_Store
+Thumbs.db
+# k8s
+kubeconfig
+# vscode-sops
+.decrypted~*.yaml
+.config.env
+*.agekey
+*.pub
+*.key
+github-deploy-key*
+# Ansible
+xanmanning.k3s*
+**.vault-password
+# Terraform
+.terraform
+.terraform.tfstate*
+terraform.tfstate*
+provision/terraform/**.terraform*
+
+# Others
+megalinter-reports
 .env
 *.log

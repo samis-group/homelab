@@ -1,0 +1,48 @@
+---
+### Ensure you have gitlab repos to clone! If you aren't me, do you want to run this?
+- name: Copy git credentials in credentials store file from template
+  template:
+    src: ../templates/wsl/.git-credentials.j2
+    dest: "{{ user_dir }}/.git-credentials"
+
+- name: Checkout containers source code
+  git:
+    repo: "{{ item.value }}"
+    dest: "{{ user_dir }}/git/personal/containers/{{ item.key }}"
+  with_dict: "{{ gitlab_clone_container_repos }}"
+  # register: git_checkout_code_containers
+  ignore_errors: true   # Because Home assistant gets changed to, and realistically, this only needs to be run initially anyway.
+  become: false
+  no_log: true  # Don't spew out my token
+
+# - name: Checkout homelab repo
+#   git:
+#     repo: "{{ gitlab_clone_repos.homelab }}"
+#     dest: "{{ user_dir }}/git/personal/homelab"
+#     recursive: false
+#   register: git_checkout_code_homelab
+#   ignore_errors: true   # Because Home assistant gets changed to, and realistically, this only needs to be run initially anyway.
+#   become: false
+#   no_log: true  # Don't spew out my token pls
+
+# - name: Checkout host-vars repo
+#   git:
+#     repo: "{{ gitlab_clone_repos.homelab_host_vars }}"
+#     dest: "{{ user_dir }}/git/personal/homelab/host_vars"
+#   register: git_checkout_code_homelab_host_vars
+#   ignore_errors: true   # Because Home assistant gets changed to, and realistically, this only needs to be run initially anyway.
+#   become: false
+#   no_log: true  # Don't spew out my token pls
+
+# - name: Running `make setup` in homelab so your githooks are deployed - If prompted for "Password", this is the ansible vault password.
+#   shell:
+#     cmd: make setup
+#     chdir: "{{ user_dir }}/git/personal/homelab"
+#   remote_user: "{{ main_user }}"  # Run as user, not root. Ideally I should change the whole playbook to run as user and only escalate privileges where required, but that will take work. Let this comment serve as a reminder for how lazy you are Sami, you piece of shit. Hurry up and implement this change! What does gitlens say is the age of the commit of this line, huh? HOW HIGH IS THE NUMBER!!!! Months? YEARS??? GAH!
+#   register: make_setup
+#   when: # Only setup if the repos were cloned
+#     - git_checkout_code_homelab is changed
+#     - git_checkout_code_homelab_host_vars is changed
+
+# # Output make setup for debugging
+# - debug: var=make_setup.stdout_lines

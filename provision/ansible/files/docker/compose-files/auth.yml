@@ -1,0 +1,116 @@
+---
+#######################################
+### THIS FILE IS MANAGED BY ANSIBLE ###
+###    PLEASE MAKE CHANGES THERE    ###
+#######################################
+
+version: "3.7"
+
+########################### EXTENSION FIELDS
+
+# Default TZ, uid and pid
+# To use this put this block in your service: "<<: *default-tz-uid-gid"
+x-environment: &default-tz-uid-gid
+  TZ: $TZ
+  PUID: $PUID
+  PGID: $PGID
+
+# To use this put this block in your service: "<<: *logging"
+x-logging: &logging
+  logging:
+    driver: loki
+    options:
+      loki-url: "http://${SERVER_IP}:${LOKI_PORT}/loki/api/v1/push"
+
+########################### NETWORKS
+
+networks:
+  defaulty:
+    name: defaulty
+    external: true
+  traefik_proxy:
+    name: traefik_proxy
+    external: true
+
+########################### SERVICES
+
+services:
+  # Authelia - Self-Hosted Single Sign-On and Two-Factor Authentication
+  # https://hub.docker.com/r/authelia/authelia
+  authelia:
+    container_name: authelia
+    image: authelia/authelia
+    init: true
+    restart: always
+    networks:
+      - traefik_proxy
+      - defaulty
+    # depends_on:
+    #   mariadb:
+    #     condition: service_healthy
+    #   redis:
+    #     condition: service_healthy
+    ports:
+      - "${AUTHELIA_PORT}:9091"
+    volumes:
+      - ${DOCKERDIR}/appdata/authelia:/config
+    environment:
+      <<: *default-tz-uid-gid
+      AUTHELIA_JWT_SECRET: ${AUTHELIA_JWT_SECRET}
+      AUTHELIA_SESSION_SECRET: ${AUTHELIA_SESSION_SECRET}
+      AUTHELIA_SESSION_REDIS_PASSWORD: ${REDIS_PASSWORD}
+      AUTHELIA_STORAGE_MYSQL_PASSWORD: ${AUTHELIA_STORAGE_MYSQL_PASSWORD}
+      AUTHELIA_NOTIFIER_SMTP_PASSWORD: ${GMAIL_APP_PASS}
+    labels:
+      - "traefik.enable=true"
+      ## HTTP Routers
+      - "traefik.http.routers.authelia-rtr.entrypoints=https"
+      - "traefik.http.routers.authelia-rtr.rule=Host(`auth.$DOMAINNAME`, `authelia.$DOMAINNAME`)"
+      # - "traefik.http.routers.authelia-rtr.tls=true"
+      ## Middlewares
+      - "traefik.http.routers.authelia-rtr.middlewares=chain-no-auth@file"
+      ## HTTP Services
+      - "traefik.http.routers.authelia-rtr.service=authelia-svc"
+      - "traefik.http.services.authelia-svc.loadbalancer.server.port=9091"
+    <<: *logging
+
+  # Google OAuth - Single Sign On using OAuth 2.0
+  # https://hub.docker.com/r/thomseddon/traefik-forward-auth
+  oauth:
+    container_name: oauth
+    image: thomseddon/traefik-forward-auth:latest
+    init: true
+    restart: always
+    networks:
+      - traefik_proxy
+    security_opt:
+      - no-new-privileges:true
+    # Allow apps to bypass OAuth. Radarr example below will bypass OAuth if API key is present in the request (eg. from NZB360 mobile app).
+    # While this is one way, the recommended way is to bypass authentication using Traefik labels shown in some of the apps later (particularly the no-auth chain).
+    # command: --rule.radarr.action=allow --rule.radarr.rule="Headers(`X-Api-Key`, `$RADARR_API_KEY`)"
+    # command: --rule.sabnzbd.action=allow --rule.sabnzbd.rule="HeadersRegexp(`X-Forwarded-Uri`, `$SABNZBD_API_KEY`)"
+    environment:
+      - PROVIDERS_GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID
+      - PROVIDERS_GOOGLE_CLIENT_SECRET=$GOOGLE_CLIENT_SECRET
+      - SECRET=$OAUTH_SECRET
+      - COOKIE_DOMAIN=$DOMAINNAME
+      - INSECURE_COOKIE=false
+      - AUTH_HOST=oauth.$DOMAINNAME
+      - URL_PATH=/_oauth
+      - WHITELIST=$GMAIL_ADDRESS # Add more emails like: WHITELIST=$GMAIL_ADDRESS_1,$GMAIL_ADDRESS_2,$GMAIL_ADDRESS_3
+      - LOG_LEVEL=info # (warn|info)
+      - LOG_FORMAT=text
+      - LIFETIME=86400 # 1 day
+      - DEFAULT_ACTION=auth
+      - DEFAULT_PROVIDER=google
+    labels:
+      - "traefik.enable=true"
+      ## HTTP Routers
+      - "traefik.http.routers.oauth-rtr.entrypoints=https"
+      - "traefik.http.routers.oauth-rtr.rule=Host(`oauth.$DOMAINNAME`)"
+      - "traefik.http.routers.oauth-rtr.tls=true"
+      ## Middlewares
+      - "traefik.http.routers.oauth-rtr.middlewares=chain-oauth@file"
+      ## HTTP Services
+      - "traefik.http.routers.oauth-rtr.service=oauth-svc"
+      - "traefik.http.services.oauth-svc.loadbalancer.server.port=4181"

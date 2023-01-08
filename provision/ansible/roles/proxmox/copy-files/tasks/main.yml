@@ -1,0 +1,35 @@
+---
+# No files currently.
+# - name: Copy proxmox configurations and script files maintaining perms from repo
+#   copy:
+#     src: files/proxmox
+#     dest: "{{ user_dir }}"
+#     owner: root
+#     group: root
+
+# Ensure the path to the templates files exist as they would in the docker directory
+# i.e. this task is going to just copy them in a templated way from src to dest
+- name: find proxmox templates
+  find:
+    paths: "{{ playbook_dir }}/../templates/proxmox"
+    recurse: true
+  delegate_to: localhost
+  register: full_path_proxmox_templates
+
+- name: set relative paths variable for proxmox templates
+  set_fact:
+    proxmox_templates: >-
+      [
+        {%- for item in full_path_proxmox_templates.files | map(attribute='path') -%}
+        '{{ item.split("templates/proxmox/")[1] }}',
+        {%- endfor -%}
+      ]
+
+- name: Copy proxmox templates
+  template:
+    src: "proxmox/{{ item }}"
+    dest: "/{{ item }}"
+    # owner: root
+    # group: root
+    # mode: '0644'
+  with_items: "{{ proxmox_templates }}"

@@ -1,0 +1,10 @@
+---
+version: "3"
+
+tasks:
+
+  main:
+    desc: Main minikube play
+    dir: provision/ansible
+    cmds:
+      - ansible-playbook -i inventory/hosts.ini playbooks/minikube.yml {{.CLI_ARGS}}

@@ -1,0 +1,30 @@
+---
+collections:
+  - name: ansible.utils
+    # version: 2.8.0
+  - name: ansible.posix
+    # version: 1.4.0
+  - name: community.general
+    # version: 6.1.0
+  - name: community.windows
+  - name: community.docker
+  - name: community.sops
+    # version: 1.5.0
+  - name: kubernetes.core
+    # version: 2.3.2
+  - name: chocolatey.chocolatey
+  - name: sami_shakir.ansible_collection
+    source: https://gitlab.com/sami-group/ansible-collection.git
+    type: git
+  # - name: pfsensible.core   # Unused - https://github.com/opoplawski/ansible-pfsense
+
+# # Ansible galaxy is slow and at times, can timeout. You can use git repos directly:
+# collections:
+#   - name: https://github.com/ansible-collections/community.general
+#     type: git
+#   - name: https://github.com/chocolatey/chocolatey-ansible
+#     type: git
+#   - name: https://github.com/ansible-collections/kubernetes.core
+#     type: git
+#   - name: https://github.com/ansible-collections/community.windows
+#     type: git

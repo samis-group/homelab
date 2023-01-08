@@ -1,0 +1,62 @@
+---
+# ----------------------------------- #
+# Pre-tasks run before anything else! #
+# ----------------------------------- #
+- name: Wsl pre-all
+  hosts: wsl
+  # Special tag "always" -> https://docs.ansible.com/ansible/latest/user_guide/playbooks_tags.html#special-tags-always-and-never
+  tags: ["always"]
+  gather_facts: false
+  tasks:
+    - name: Wsl pre-all
+      ansible.builtin.import_tasks: ../tasks/pre-all.yml
+
+################
+### WSL Base ###
+################
+
+- name: Setup Base WSL (Every WSL instance)
+  hosts: wsl
+  become: true
+
+  pre_tasks:
+
+    # This is to get the PUID and PGID variables to use later in multiple areas
+    - name: Get user info or create a user if one doesn't exist
+      ansible.builtin.import_tasks: ../tasks/linux/pre_tasks.yml
+      tags: ["always"]
+
+  # roles:
+
+  #   - role: markosamuli.pyenv
+  #     vars:   # More info -> https://github.com/markosamuli/ansible-pyenv#role-variables
+  #       pyenv_init_shell: false   # https://github.com/markosamuli/ansible-pyenv#changes-to-shell-config-files
+  #       pyenv_python_versions:
+  #         - "{{ pyenv_python310_version }}"
+  #         - "{{ pyenv_python39_version }}"
+  #         - "{{ pyenv_python38_version }}"
+  #         - "{{ pyenv_python37_version }}"
+  #   - geerlingguy.docker    # geerlingguy roles don't work in WSL - Use docker desktop WSL integration instead.
+  #   - geerlingguy.ntp       # geerlingguy roles don't work in WSL.
+
+  tasks:
+
+    # TODO: systemd for wsl -> https://devblogs.microsoft.com/commandline/systemd-support-is-now-available-in-wsl/#set-the-systemd-flag-set-in-your-wsl-distro-settings
+
+    - name: Install OS updates and required packages
+      ansible.builtin.import_tasks: ../tasks/wsl/install_os_packages.yml
+      when: install_os_packages
+      tags: ["install_os_packages"]
+
+    - name: Copy Files
+      ansible.builtin.import_tasks: ../tasks/wsl/configure_wsl.yml
+
+    - name: Copy git repos
+      ansible.builtin.import_tasks: ../tasks/wsl/git.yml
+      when: git
+      tags: ["git"]
+
+    - name: Clone dotfiles and stow them
+      ansible.builtin.import_tasks: ../tasks/wsl/stow_dotfiles.yml
+      when: stow_dotfiles
+      tags: ["stow_dotfiles"]

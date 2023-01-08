@@ -1,0 +1,28 @@
+---
+- name: Update apt cache, upgrade packages, remove useless packages from cache, remove dependencies that are no longer required
+  apt:
+    update_cache: true
+    upgrade: dist
+    autoclean: true
+    autoremove: true
+
+- name: Install required packages on proxmox hosts
+  apt:
+    state: latest
+    pkg:
+      - watch
+      - sudo
+      - python3-pip
+      - parted
+      # - lm-sensors
+      # - nvme-cli
+      # - telegraf
+  # notify: restart pvestatd
+
+- name: Install required pip modules on proxmox host(s)
+  pip:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - proxmoxer
+    - requests

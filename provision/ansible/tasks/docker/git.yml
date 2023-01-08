@@ -1,0 +1,24 @@
+---
+##############
+### Gitlab ###
+##############
+
+- name: Checkout docker containers source code
+  git:
+    repo: "{{ item.value }}"
+    dest: "{{ docker_dir }}/appdata/{{ item.key }}"
+    key_file: "{{ user_dir }}/.ssh/{{ main_user_ssh_key_prefix ~ inventory_hostname_short }}"
+    accept_hostkey: true
+  with_dict: "{{ gitlab_clone_container_repos }}"
+  register: git_checkout_code
+  ignore_errors: true   # Because Home assistant gets changed to, and realistically, this only needs to be run initially anyway.
+  become: false
+  no_log: true  # Don't spew out gitlab tokens
+
+- name: Touch home-assistant.log for hacs to install as it's install script requires this file to exist
+  file:
+    path: "{{ docker_dir }}/appdata/hass/home-assistant.log"
+    state: touch
+    owner: "{{ main_user }}"
+    group: "{{ docker_group }}"
+    mode: '0644'

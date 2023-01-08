@@ -1,0 +1,14 @@
+---
+####################################
+### Run tasks on all linux hosts ###
+####################################
+
+- name: Run tasks on all linux hosts
+  hosts: docker wsl proxmox
+  become: true
+
+  tasks:
+
+    - name: Set timezone
+      community.general.timezone:
+        name: "{{ tz }}"

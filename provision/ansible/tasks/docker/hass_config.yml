@@ -1,0 +1,132 @@
+---
+# Update Home Assisant addons
+- name: Get payload of URL's to download custom_components
+  uri:
+    url: "https://api.github.com/repos/{{ item.value.github_repo }}/releases/latest"
+    return_content: true
+  register: gh_hass_custom_components
+  failed_when: gh_hass_custom_components.status != 200
+  with_dict: "{{ hass.custom_components }}"
+
+- name: Set zip url's for custom_components
+  set_fact:
+    custom_components_urls: "{{ custom_components_urls | default({}) | combine( {item.item.key: {'zip_url': item.json.zipball_url}}, recursive=True) }}"
+  with_items:
+    - "{{ gh_hass_custom_components.results }}"
+
+# - name: combine custom_components vars - Neat way to combine two dicts in one line using jinja
+#   set_fact:
+#     custom_components_updated: "{{ hass.custom_components | default({}) | combine( custom_components_urls, recursive=True) }}"
+
+# - name: Calculate total number of custom_components to be installed
+#   set_fact:
+#     custom_components_to_install: >-
+#       {% set count = [] %}
+#       {%- for result in gh_hass_custom_components.results -%}
+#       {%- if result.status == 200 -%}
+#       {%- set __ = count.append(1) -%}
+#       {%- endif -%}
+#       {%- endfor -%}
+#       {{ count|length }}
+
+- name: Ensure the custom_components dir exists on new installs
+  file:
+    path: "{{ docker_dir }}/appdata/hass/custom_components"
+    state: directory
+    mode: '0755'
+
+- name: Calculate number of existing custom_components
+  find:
+    paths: "{{ docker_dir }}/appdata/hass/custom_components"
+    file_type: directory
+  register: custom_components_found
+
+- name: debugging custom_components_found
+  debug:
+    var: custom_components_found
+
+- name: Subtract 1 from custom_components_found because hacs gets installed later separately so let's make up for it here
+  set_fact:
+    custom_components_count: "{{ custom_components_found.examined - 1 }}"
+
+- name: Download latest release
+  get_url:
+    url: "{{ item.value.zip_url }}"
+    dest: "/tmp/{{ item.key }}.zip"
+    force: true
+  with_dict: "{{ custom_components_urls }}"
+  when: custom_components_count | int < hass.custom_components | list | count
+
+- name: extract custom_components to docker machine
+  unarchive:
+    remote_src: true
+    src: "/tmp/{{ item.key }}.zip"
+    dest: "/tmp/"
+    owner: "{{ main_user }}"
+    group: "{{ docker_group }}"
+  with_dict: "{{ custom_components_urls }}"
+  # Only do this if there are missing custom_components
+  when: custom_components_count | int < hass.custom_components | list | count
+
+- name: Find component files
+  find:
+    paths: "/tmp/"
+    depth: 4
+    recurse: true
+    file_type: directory
+    patterns: "{{ item.value.custom_component_name }}"
+  register: find_components_folders
+  with_dict: "{{ hass.custom_components }}"
+  when: custom_components_count | int < hass.custom_components | list | count
+
+- name: copy components to home assistant container
+  copy:
+    src: "{{ item.files[0].path }}"
+    dest: "{{ docker_dir }}/appdata/hass/custom_components/"
+    remote_src: true
+    owner: "{{ main_user }}"
+    group: "{{ docker_group }}"
+  with_items: "{{ find_components_folders.results }}"
+  when: custom_components_count | int < hass.custom_components | list | count
+  # notify: restart hass container
+
+# HACS is special:
+- name: Install HACS custom component
+  shell:
+    cmd: wget -O - https://get.hacs.xyz | bash -
+    chdir: "{{ docker_dir }}/appdata/hass"
+
+- name: Fixing HACS perms
+  file:
+    dest: "{{ docker_dir }}/appdata/hass/custom_components"
+    owner: "{{ main_user }}"
+    group: "{{ docker_group }}"
+    recurse: true
+    # supposed to set directories to 755 and files to 644
+    mode: u=rwX,g=rX,o=rX
+
+# Unsure if still required?
+
+# - name: Make Zigbee device permissions accessible to containers
+#   file:
+#     path: "{{ hass.zigbee_adapter_tty }}"
+#     owner: "{{ main_user }}"
+#   when: hass.zigbee_adapter_tty is defined
+
+# - name: obtain zigbee device serial
+#   shell:
+#     # This command is specific to my zigbee conbee II device
+#     cmd: udevadm info -a -n /dev/ttyACM0 | grep 'serial' | grep DE | cut -d\" -f 2
+#   register: zigbee_device_serial
+
+# - name: debug zigbee serial
+#   debug:
+#     var: zigbee_device_serial.stdout
+
+# - name: add udev rule for tty ownership on reboot to user
+#   lineinfile:
+#     path: "/etc/udev/rules.d/99-zigbee_usb.rules"
+#     search_string: SUBSYSTEM
+#     # This line is to get conbee II working -> https://www.zigbee2mqtt.io/guide/installation/20_zigbee2mqtt-fails-to-start.html
+#     line: SUBSYSTEM=="tty", ATTRS{idVendor}=="0451", ATTRS{idProduct}=="16a8", ATTRS{serial}=="{{ zigbee_device_serial.stdout }}", SYMLINK="ttyUSB.CC2531-01", OWNER="{{ main_user }}"
+#     create: true  # Create file if it doesn't exist

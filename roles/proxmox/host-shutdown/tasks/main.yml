@@ -1,3 +1,0 @@
----
-- name: shutdown host  
-  community.general.shutdown:

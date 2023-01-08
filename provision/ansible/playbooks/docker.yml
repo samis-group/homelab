@@ -1,0 +1,108 @@
+---
+# ----------------------------------- #
+# Pre-tasks run before anything else! #
+# ----------------------------------- #
+- name: Pre-all
+  hosts: docker
+  # Special tag "always" -> https://docs.ansible.com/ansible/latest/user_guide/playbooks_tags.html#special-tags-always-and-never
+  tags: ["always"]
+  gather_facts: false
+  tasks:
+    - name: Pre-all
+      ansible.builtin.import_tasks: ../tasks/pre-all.yml
+
+- name: Play not as root user
+  hosts: docker
+  # Special tag "always" -> https://docs.ansible.com/ansible/latest/user_guide/playbooks_tags.html#special-tags-always-and-never
+  tags: ["always"]
+  roles:
+    - role: sami_shakir.ansible_collection.deploy_sami_key
+  tasks:
+    - name: Copy bashrc contents
+      ansible.builtin.import_tasks: ../tasks/docker/bashrc.yml
+      when: copy_bashrc
+
+###########################
+### Configure Docker VM ###
+###########################
+
+- name: Configure Docker VM
+  hosts: docker
+  remote_user: "{{ vm.user | default(main_user) }}"  # Login as user and become root
+  become: true
+
+  pre_tasks:
+
+    # This is to get the PUID and PGID variables to use later in multiple areas
+    - name: Get user info or create a user if one doesn't exist
+      ansible.builtin.import_tasks: ../tasks/linux/pre_tasks.yml
+      tags: ["always"]
+
+  handlers:
+
+    - name: Import handlers
+      ansible.builtin.import_tasks: ../handlers/docker.yml
+
+  roles:
+
+    - role: geerlingguy.docker
+      vars:
+        # I prefer to install the docker plugin version from apt repo (check install_os_packages task), until this role supports the plugin install -> https://github.com/geerlingguy/ansible-role-docker/issues/355
+        docker_install_compose: "false"
+        # docker_compose_version: "v2.5.0"
+        docker_users: ["{{ vm.user | default(vm_defaults.user) }}"]    # list of users who will be added to the docker group
+      when: install_docker
+
+  tasks:
+
+    - name: Install OS updates and required packages
+      ansible.builtin.import_tasks: ../tasks/docker/install_os_packages.yml
+      when: install_os_packages
+
+    - name: Configuring Hostname
+      ansible.builtin.import_tasks: ../tasks/linux/configure_hostname.yml
+      when: configure_hostname
+
+    - name: Configure gitlab registry and clone git repos
+      ansible.builtin.import_tasks: ../tasks/docker/git.yml
+      when: git
+
+    - name: Run Post docker install tasks
+      ansible.builtin.import_tasks: ../tasks/docker/run_post_tasks.yml
+      when: run_post_tasks
+
+    - name: Updating docker-compose and related files
+      ansible.builtin.import_tasks: ../tasks/docker/copy_files.yml
+      when: copy_files
+      tags: ["copy_files"]
+
+    - name: Updating docker-compose and related files
+      ansible.builtin.import_tasks: ../tasks/docker/update_compose.yml
+      when: update_compose
+      tags: ["update_compose"]
+
+    - name: Setup container directories and copy files
+      ansible.builtin.import_tasks: ../tasks/docker/setup_containers.yml
+      when: setup_containers
+      tags: ["setup_containers"]
+
+    - name: Write logrotate files to host
+      ansible.builtin.import_tasks: ../tasks/docker/logrotate.yml
+      when: logrotate
+
+    - name: Setup NAS mounts
+      ansible.builtin.import_tasks: ../tasks/docker/setup_nas_mounts.yml
+      when: setup_nas_mounts
+
+    - name: Setup Crons
+      ansible.builtin.import_tasks: ../tasks/docker/setup_crons.yml
+      when: setup_crons
+
+    - name: Configure Home Assistant
+      ansible.builtin.import_tasks: ../tasks/docker/hass_config.yml
+      when: hass_config
+
+    - name: Restore docker data from NFS mount on NAS? (optional)
+      ansible.builtin.import_tasks: ../tasks/docker/restore_docker_data.yml
+      when: restore_docker_data
+      tags: ["restore_docker_data"]
