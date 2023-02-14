@@ -219,101 +219,101 @@ services:
       - "traefik.http.services.overseerr-svc.loadbalancer.server.port=5055"
     <<: *logging
 
-  # Radarr - Movie management
-  # https://hub.docker.com/r/linuxserver/radarr
-  # Set url_base in radarr settings if using PathPrefix
-  radarr:
-    container_name: radarr
-    image: linuxserver/radarr
-    # init: true
-    restart: always
-    healthcheck:
-      test: curl -sI http://localhost:7878
-      interval: 60s
-      timeout: 3s
-      retries: 3
-    networks:
-      traefik_proxy:
-        ipv4_address: 192.168.90.167 # You can specify a static IP - I also created a non-proxied DNS record like 'radarr-dc.domain.com' pointing to this IP so i don't need to reference this all the time.
-    security_opt:
-      - no-new-privileges:true
-    ports:
-      - ${RADARR_PORT}:7878
-    volumes:
-      # Media cover is a separate volume as it's where I'll be storing metadata to severely reduce the space required when I backup these containers
-      - ${DOCKERDIR}/appdata/shared/radarr/MediaCover:/config/MediaCover
-      - ${DOCKERDIR}/appdata/radarr:/config
-      - downloads:/downloads
-      - movies:/movies
-      - "/etc/localtime:/etc/localtime:ro"
-    environment:
-      <<: *default-tz-uid-gid
-    labels:
-      - "traefik.enable=true"
-      ## HTTP Routers Auth Bypass
-      - "traefik.http.routers.radarr-rtr-bypass.entrypoints=https"
-      - "traefik.http.routers.radarr-rtr-bypass.rule=Host(`radarr.$DOMAINNAME`) && (Headers(`X-Api-Key`, `$RADARR_API_KEY`) || Query(`apikey`, `$RADARR_API_KEY`))"
-      - "traefik.http.routers.radarr-rtr-bypass.priority=100"
-      ## HTTP Routers Auth
-      - "traefik.http.routers.radarr-rtr.entrypoints=https"
-      - "traefik.http.routers.radarr-rtr.rule=Host(`radarr.$DOMAINNAME`)"
-      - "traefik.http.routers.radarr-rtr.priority=99"
-      ## Middlewares
-      - "traefik.http.routers.radarr-rtr-bypass.middlewares=chain-no-auth@file"
-      - "traefik.http.routers.radarr-rtr.middlewares=chain-oauth@file"
-      ## HTTP Services
-      - "traefik.http.routers.radarr-rtr.service=radarr-svc"
-      - "traefik.http.routers.radarr-rtr-bypass.service=radarr-svc"
-      - "traefik.http.services.radarr-svc.loadbalancer.server.port=7878"
-    <<: *logging
+  # # Radarr - Movie management
+  # # https://hub.docker.com/r/linuxserver/radarr
+  # # Set url_base in radarr settings if using PathPrefix
+  # radarr:
+  #   container_name: radarr
+  #   image: linuxserver/radarr
+  #   # init: true
+  #   restart: always
+  #   healthcheck:
+  #     test: curl -sI http://localhost:7878
+  #     interval: 60s
+  #     timeout: 3s
+  #     retries: 3
+  #   networks:
+  #     traefik_proxy:
+  #       ipv4_address: 192.168.90.167 # You can specify a static IP - I also created a non-proxied DNS record like 'radarr-dc.domain.com' pointing to this IP so i don't need to reference this all the time.
+  #   security_opt:
+  #     - no-new-privileges:true
+  #   ports:
+  #     - ${RADARR_PORT}:7878
+  #   volumes:
+  #     # Media cover is a separate volume as it's where I'll be storing metadata to severely reduce the space required when I backup these containers
+  #     - ${DOCKERDIR}/appdata/shared/radarr/MediaCover:/config/MediaCover
+  #     - ${DOCKERDIR}/appdata/radarr:/config
+  #     - downloads:/downloads
+  #     - movies:/movies
+  #     - "/etc/localtime:/etc/localtime:ro"
+  #   environment:
+  #     <<: *default-tz-uid-gid
+  #   labels:
+  #     - "traefik.enable=true"
+  #     ## HTTP Routers Auth Bypass
+  #     - "traefik.http.routers.radarr-rtr-bypass.entrypoints=https"
+  #     - "traefik.http.routers.radarr-rtr-bypass.rule=Host(`radarr.$DOMAINNAME`) && (Headers(`X-Api-Key`, `$RADARR_API_KEY`) || Query(`apikey`, `$RADARR_API_KEY`))"
+  #     - "traefik.http.routers.radarr-rtr-bypass.priority=100"
+  #     ## HTTP Routers Auth
+  #     - "traefik.http.routers.radarr-rtr.entrypoints=https"
+  #     - "traefik.http.routers.radarr-rtr.rule=Host(`radarr.$DOMAINNAME`)"
+  #     - "traefik.http.routers.radarr-rtr.priority=99"
+  #     ## Middlewares
+  #     - "traefik.http.routers.radarr-rtr-bypass.middlewares=chain-no-auth@file"
+  #     - "traefik.http.routers.radarr-rtr.middlewares=chain-oauth@file"
+  #     ## HTTP Services
+  #     - "traefik.http.routers.radarr-rtr.service=radarr-svc"
+  #     - "traefik.http.routers.radarr-rtr-bypass.service=radarr-svc"
+  #     - "traefik.http.services.radarr-svc.loadbalancer.server.port=7878"
+  #   <<: *logging
 
-  # Sonarr - TV Shows management
-  # https://hub.docker.com/r/linuxserver/sonarr
-  # Set url_base in sonarr settings if using PathPrefix
-  sonarr:
-    container_name: sonarr
-    image: linuxserver/sonarr
-    # init: true
-    restart: always
-    healthcheck:
-      test: curl -sI http://localhost:8989
-      interval: 60s
-      timeout: 3s
-      retries: 3
-    networks:
-      traefik_proxy:
-        ipv4_address: 192.168.90.164 # You can specify a static IP - I also created a non-proxied DNS record like 'sonarr-dc.domain.com' pointing to this IP so i don't need to reference this all the time.
-    security_opt:
-      - no-new-privileges:true
-    ports:
-      - ${SONARR_PORT}:8989
-    volumes:
-      # Media cover is a separate volume as it's where I'll be storing metadata to severely reduce the space required when I backup these containers
-      - ${DOCKERDIR}/appdata/shared/sonarr/MediaCover:/config/MediaCover
-      - ${DOCKERDIR}/appdata/sonarr:/config
-      - downloads:/downloads
-      - tv:/tv
-      - "/etc/localtime:/etc/localtime:ro"
-    environment:
-      <<: *default-tz-uid-gid
-    labels:
-      - "traefik.enable=true"
-      ## HTTP Routers Auth Bypass
-      - "traefik.http.routers.sonarr-rtr-bypass.entrypoints=https"
-      - "traefik.http.routers.sonarr-rtr-bypass.rule=Host(`sonarr.$DOMAINNAME`) && (Headers(`X-Api-Key`, `$SONARR_API_KEY`) || Query(`apikey`, `$SONARR_API_KEY`))"
-      - "traefik.http.routers.sonarr-rtr-bypass.priority=100"
-      ## HTTP Routers Auth
-      - "traefik.http.routers.sonarr-rtr.entrypoints=https"
-      - "traefik.http.routers.sonarr-rtr.rule=Host(`sonarr.$DOMAINNAME`)"
-      - "traefik.http.routers.sonarr-rtr.priority=99"
-      ## Middlewares
-      - "traefik.http.routers.sonarr-rtr-bypass.middlewares=chain-no-auth@file"
-      - "traefik.http.routers.sonarr-rtr.middlewares=chain-oauth@file"
-      ## HTTP Services
-      - "traefik.http.routers.sonarr-rtr.service=sonarr-svc"
-      - "traefik.http.routers.sonarr-rtr-bypass.service=sonarr-svc"
-      - "traefik.http.services.sonarr-svc.loadbalancer.server.port=8989"
-    <<: *logging
+  # # Sonarr - TV Shows management
+  # # https://hub.docker.com/r/linuxserver/sonarr
+  # # Set url_base in sonarr settings if using PathPrefix
+  # sonarr:
+  #   container_name: sonarr
+  #   image: linuxserver/sonarr
+  #   # init: true
+  #   restart: always
+  #   healthcheck:
+  #     test: curl -sI http://localhost:8989
+  #     interval: 60s
+  #     timeout: 3s
+  #     retries: 3
+  #   networks:
+  #     traefik_proxy:
+  #       ipv4_address: 192.168.90.164 # You can specify a static IP - I also created a non-proxied DNS record like 'sonarr-dc.domain.com' pointing to this IP so i don't need to reference this all the time.
+  #   security_opt:
+  #     - no-new-privileges:true
+  #   ports:
+  #     - ${SONARR_PORT}:8989
+  #   volumes:
+  #     # Media cover is a separate volume as it's where I'll be storing metadata to severely reduce the space required when I backup these containers
+  #     - ${DOCKERDIR}/appdata/shared/sonarr/MediaCover:/config/MediaCover
+  #     - ${DOCKERDIR}/appdata/sonarr:/config
+  #     - downloads:/downloads
+  #     - tv:/tv
+  #     - "/etc/localtime:/etc/localtime:ro"
+  #   environment:
+  #     <<: *default-tz-uid-gid
+  #   labels:
+  #     - "traefik.enable=true"
+  #     ## HTTP Routers Auth Bypass
+  #     - "traefik.http.routers.sonarr-rtr-bypass.entrypoints=https"
+  #     - "traefik.http.routers.sonarr-rtr-bypass.rule=Host(`sonarr.$DOMAINNAME`) && (Headers(`X-Api-Key`, `$SONARR_API_KEY`) || Query(`apikey`, `$SONARR_API_KEY`))"
+  #     - "traefik.http.routers.sonarr-rtr-bypass.priority=100"
+  #     ## HTTP Routers Auth
+  #     - "traefik.http.routers.sonarr-rtr.entrypoints=https"
+  #     - "traefik.http.routers.sonarr-rtr.rule=Host(`sonarr.$DOMAINNAME`)"
+  #     - "traefik.http.routers.sonarr-rtr.priority=99"
+  #     ## Middlewares
+  #     - "traefik.http.routers.sonarr-rtr-bypass.middlewares=chain-no-auth@file"
+  #     - "traefik.http.routers.sonarr-rtr.middlewares=chain-oauth@file"
+  #     ## HTTP Services
+  #     - "traefik.http.routers.sonarr-rtr.service=sonarr-svc"
+  #     - "traefik.http.routers.sonarr-rtr-bypass.service=sonarr-svc"
+  #     - "traefik.http.services.sonarr-svc.loadbalancer.server.port=8989"
+  #   <<: *logging
 
   # Prowlarr - Torrent proxy
   # https://hub.docker.com/r/linuxserver/prowlarr
