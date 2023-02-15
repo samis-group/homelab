@@ -60,16 +60,6 @@ includes:
 
 tasks:
 
-  verify:
-    desc: Verify env settings
-    cmds:
-      - ./configure --verify
-
-  configure:
-    desc: Configure repository from env settings
-    cmds:
-      - ./configure
-
 #------------------------------------------------------------------------#
 # This will make everything from absolutely nothing but debian machines. #
 #        You must have setup authorized keys and can ssh to them         #

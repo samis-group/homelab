@@ -77,31 +77,6 @@ volumes:
       type: "nfs"
       o: "addr=${NAS_IP},wsize=65536,rsize=65536,timeo=60,nolock,soft,rw"
       device: ":${NAS_SYNCTHING_PATH}"
-  nfs-dev:
-    driver_opts:
-      type: "nfs"
-      o: "addr=${NAS_IP},wsize=65536,rsize=65536,timeo=60,nolock,soft,rw"
-      device: ":${NAS_NFS_DEV_PATH}"
-  grafana-appdata:
-    driver_opts:
-      type: "nfs"
-      o: "addr=${NAS_IP},wsize=65536,rsize=65536,timeo=60,nolock,soft,rw"
-      device: ":${NAS_NFS_DEV_PATH}/container-appdata/grafana"
-  portainer-appdata:
-    driver_opts:
-      type: "nfs"
-      o: "addr=${NAS_IP},wsize=65536,rsize=65536,timeo=60,nolock,soft,rw"
-      device: ":${NAS_NFS_DEV_PATH}/container-appdata/portainer"
-  mariadb-appdata:
-    driver_opts:
-      type: "nfs"
-      o: "addr=${NAS_IP},wsize=65536,rsize=65536,timeo=60,nolock,soft,rw"
-      device: ":${NAS_NFS_DEV_PATH}/container-appdata/mariadb"
-  unifi-appdata:
-    driver_opts:
-      type: "nfs"
-      o: "addr=${NAS_IP},wsize=65536,rsize=65536,timeo=60,nolock,soft,rw"
-      device: ":${NAS_NFS_DEV_PATH}/container-appdata/unifi"
 
 ########################### SECRETS
 
