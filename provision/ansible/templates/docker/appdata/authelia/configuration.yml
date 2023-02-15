@@ -166,7 +166,7 @@ notifier:
   smtp:   # Maybe checkout mailgun.com in the future.
     username: "{{ gmail_address }}"
     # This secret can also be set using the env variables AUTHELIA_NOTIFIER_SMTP_PASSWORD_FILE
-    password: "{{ gmail_pass }}"    # The gmail password you use to login with, NOT the gmail_app_pass
+    password: "{{ gmail_app_pass }}"    # The gmail password you use to login with, NOT the gmail_app_pass
     host: "{{ authelia.smtp.host }}"
     port: "{{ authelia.smtp.port }}"  # 465 for SSL
     sender: "{{ authelia.smtp.sender }}"
