@@ -63,10 +63,15 @@ services:
     labels:
       - "traefik.enable=true"
       ## HTTP Routers
-      - "traefik.http.routers.website-rtr.entrypoints=https"
-      - "traefik.http.routers.website-rtr.rule=Host(`$DOMAINNAME`, `www.$DOMAINNAME`, `docs.$DOMAINNAME`, `home.$DOMAINNAME`, `homer.$DOMAINNAME`)"
+      - "traefik.http.routers.website-rtr-authelia.entrypoints=https"
+      - "traefik.http.routers.website-rtr-authelia.rule=Host(`$DOMAINNAME`, `www.$DOMAINNAME`, `docs.$DOMAINNAME`, `home.$DOMAINNAME`, `homer.$DOMAINNAME`)"
       ## Middlewares
-      - "traefik.http.routers.website-rtr.middlewares=chain-authelia@file"
+      - "traefik.http.routers.website-rtr-authelia.middlewares=chain-authelia@file"
+      ## HTTP Routers
+      - "traefik.http.routers.website-rtr-oauth.entrypoints=https"
+      - "traefik.http.routers.website-rtr-oauth.rule=Host(`personal-docs.$DOMAINNAME`)"
+      ## Middlewares
+      - "traefik.http.routers.website-rtr-oauth.middlewares=chain-oauth@file"
     environment:
       TZ: ${TZ}
       NGINX_HOST: ${DOMAINNAME}

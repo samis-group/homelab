@@ -60,6 +60,7 @@ access_control:
       - "auth.{{ domain_name }}"
       - "authelia.{{ domain_name }}"
       - "api.{{ domain_name }}"
+      - "docs.{{ domain_name }}"
       policy: bypass
     # Bypass local subnets for hass.
     - domain:
@@ -75,7 +76,6 @@ access_control:
     - domain:
       - "tv.{{ domain_name }}"
       - "overseerr.{{ domain_name }}"
-      - "docs.{{ domain_name }}"
       - "home.{{ domain_name }}"
       - "homer.{{ domain_name }}"
       networks:
@@ -83,18 +83,6 @@ access_control:
         - homelab
         - docker
       policy: bypass
-    # Bypass internet access to Technical Docs, homepage and required assets
-    - domain: "docs.{{ domain_name }}"
-      resources:
-      - '^/Technical.*'
-      - '^(\/?$|.*\.css$|.*\.js$|.*\.png$|.*\.bmp$|.*\.jpg$|.*\.jpeg$|.*\.svg$|.*\.pdf$|.*\.json$)'
-      policy: bypass
-    # Anyone not a family member is not allowed access to my private stash of docs, soz <3
-    - domain: "docs.{{ domain_name }}"
-      subject: "group:not-family"
-      resources:
-      - '/[sS][aA][mM][iI]/.*'
-      policy: deny
     # Users accessing overseerr
     - domain:
       - "tv.{{ domain_name }}"

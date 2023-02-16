@@ -48,6 +48,8 @@
               - /var/log/nginx/{{ domain_name }}.error.log
               - /var/log/nginx/docs.{{ domain_name }}.access.log
               - /var/log/nginx/docs.{{ domain_name }}.error.log
+              - /var/log/nginx/personal-docs.{{ domain_name }}.access.log
+              - /var/log/nginx/personal-docs.{{ domain_name }}.error.log
               - /var/log/nginx/home.{{ domain_name }}.access.log
               - /var/log/nginx/home.{{ domain_name }}.error.log
               - /var/log/nginx/nginx-error.log
