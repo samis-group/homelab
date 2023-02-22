@@ -36,7 +36,7 @@ services:
   # Nginx for my website and builds the docs from mkdocs
   nginx:
     # This is a private repo with a custom nginx image, ci/cd checks and container build pipelines.
-    image: registry.gitlab.com/sami-group/docker/nginx:latest
+    image: registry.gitlab.com/sami-group/docker/containers/nginx:latest
     init: true
     # Alternate to image - pull the repo down (or setup a webhook to pull this on releases to automate it) and build it locally with:
     # build:
@@ -80,7 +80,7 @@ services:
 
   # Most of the stuff is done in the custom dockerfile, check it out and add/customize the container however you want there.
   api:
-    image: registry.gitlab.com/sami-group/docker/api:latest
+    image: registry.gitlab.com/sami-group/docker/containers/api:latest
     init: true
     # build:
     #   context: ${DOCKERDIR}/api
