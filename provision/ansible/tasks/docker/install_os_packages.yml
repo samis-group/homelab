@@ -46,9 +46,9 @@
       - pyyaml
 
 # Vundle install
-- name: Clone Vundle
-  git:
-    repo: https://github.com/VundleVim/Vundle.vim.git
-    dest: "{{ user_dir }}/.vim/bundle/Vundle.vim"
-    clone: true
-    update: true
+# - name: Clone Vundle
+#   git:
+#     repo: https://github.com/VundleVim/Vundle.vim.git
+#     dest: "{{ user_dir }}/.vim/bundle/Vundle.vim"
+#     clone: true
+#     update: true

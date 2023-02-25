@@ -17,7 +17,7 @@ There is so much it can do, but some key things you can achieve, from just a deb
 
 - Spin up and configure proxmox (not yet tested)
 - Download and build an ubuntu template from the Ubuntu public cloud image
-- Clones the template to a docker vm and deploys my entire docker stack, all setup and configured (There is even a make target to restore the data from backups)
+- Clones the template to a docker vm and deploys my entire docker stack, all setup and configured (There is even a task to restore the data from backups)
 - Setup a single node or cluster (with HA) k3s deployment (you can even spin this up on VM's on your PC - Tested Windows + WSL + Virtualbox setup). Check the [Molecule Readme](molecule/README.md) for more info. **Note:** Ensure that you have installed the vagrant plugins for WSL2. I do it In my playbook. [Just run this command manually to install them.](https://gitlab.com/sami-group/homelab/-/blob/main/tasks/wsl/virtualbox.yml#L21).
 - Sets up reverse proxy (treafik) [k3s traefik is WIP]
 - Cloudflare DNS
@@ -41,7 +41,7 @@ There is so much it can do, but some key things you can achieve, from just a deb
 - [Deploying Automation(s)](#deploying-automations)
   - [Docker Image](#docker-image)
   - [Common makes with examples](#common-makes-with-examples)
-  - [Lesser Used Make Targets](#lesser-used-make-targets)
+  - [Lesser Used tasks](#lesser-used-tasks)
   - [Running a specific set of tagged tasks](#running-a-specific-set-of-tagged-tasks)
 - [Troubleshooting](#troubleshooting)
 - [Overriding Defaults](#overriding-defaults)
@@ -61,7 +61,7 @@ Install `task`:
 brew install go-task  # https://formulae.brew.sh/formula/go-task
 ```
 
-❗ **Ensure you already have docker installed and working on your local PC**. This pulls an image, sets it up and drops you in shell to run any make target you want.
+❗ **Ensure you already have docker installed and working on your local PC**. This pulls an image, sets it up and drops you in shell to run any task you want.
 
 Run the following commands to bring this entire project up from nothing but proxmox (nothing but debian soon to come once I have new hardware to test it all as I need a spare bare metal host):
 
@@ -76,25 +76,25 @@ cd homelab
 > Go through setting up password. This also drops you in a container shell already setup to go.
 
 ```bash
-make run-docker-registry-dotfiles
+task run-docker-registry-dotfiles
 ```
 
 > Build my current stack
 
 ```bash
-make execute
+task execute
 ```
 
 > Setup k3s HA vm's
 
 ```bash
-make k3s
+task k3s
 ```
 
 > Setup docker vm
 
 ```bash
-make docker
+task docker
 ```
 
 - Optionally, run this to not spin up a container and ephemeral workspace and setup localhost wsl instance
@@ -103,13 +103,13 @@ make docker
 
 ```shell
 export VAULT_PASS='ansible_vault_password'
-make setup
+task setup
 ```
 
-> Make wsl, because default instance of WSL doesn't start SSH, so configure it first.
+> Configure wsl, because default instance of WSL doesn't start SSH, so configure it first.
 
 ```bash
-make wsl
+task wsl
 ```
 
 ## Initial Setup Tasks
@@ -177,7 +177,7 @@ apt install python3-pip && pip3 install proxmoxer requests
   ```bash
   sudo apt update
   sudp apt upgrade
-  sudo apt install make git
+  sudo apt install git
   ```
 
 - Setup git dir structure
@@ -198,7 +198,7 @@ apt install python3-pip && pip3 install proxmoxer requests
   ```bash
   # Use single quotes only!
   export VAULT_PASS='ansible_vault_password'
-  make setup
+  task setup
   ```
 
 | :exclamation:  IMPORTANT!  |
@@ -246,20 +246,20 @@ cd ~/git/personal/homelab
 > Build and run the public registry image (this also mounts the cloned dir and local ssh folder)
 
 ```bash
-make run-docker-registry
+task run-docker-registry
 ```
 
 > OR to add your dotfiles in
 
 ```bash
-make run-docker-registry-dotfiles
+task run-docker-registry-dotfiles
 ```
 
 ### Common makes with examples
 
 - Most common actions can be performed by issuing the associated `make` command. Go to the [Makefile](Makefile) and associated [makefiles](makefiles/) to see what it can do.
-  - Most of these make commands that run plays where you need verbose output (-vvv), simply pass the ' -v' argument to the make target and it will run it verbosely, e.g. `make k3s ' -v'`.
-    - **yes with the leading space, because there's no way that I've been able to figure out, how to pass '-v' to make without it thinking it's for Make.. Probably use stdin? needs testing..**
+  - Most of these task commands that run plays where you need verbose output (-vvv), simply pass the ' -v' argument to the task and it will run it verbosely, e.g. `task k3s ' -v'`.
+    - **yes with the leading space, because there's no way that I've been able to figure out, how to pass '-v' to task without it thinking it's for Make.. Probably use stdin? needs testing..**
 - *Alternatively*, you can run these playbooks the long hand way:
 
   ```bash
@@ -269,26 +269,26 @@ make run-docker-registry-dotfiles
 > Configure Windows host
 
   ```bash
-  make windows
+  task windows
   ```
 
 > Configure WSL-Personal instance
 
   ```bash
-  make wsl-personal
+  task wsl-personal
   ```
 
 > Configure docker VM in Proxmox
 
   ```bash
-  make docker
+  task docker
   ```
 
 > Restore docker container data from the NFS mount on docker2 (once configured) to docker2 VM's appdata.
 > WARNING - This will potentially overwrite the current data
 
   ```bash
-  make docker-restore-containers docker2
+  task docker-restore-containers docker2
   ```
 
   > Then bring the stack up with - You won't have this if you aren't me.
@@ -297,39 +297,39 @@ make run-docker-registry-dotfiles
   dcup all
   ```
 
-> configure specific LXC host group. Get this from the inventory with `make edit-inventory`
+> configure specific LXC host group. Get this from the inventory with `task edit-inventory`
 > Check playbook_lxc.yml
 
   ```bash
-  make lxc-LXC_HOST_GROUP_FROM_INVENTORY
+  task lxc-LXC_HOST_GROUP_FROM_INVENTORY
   ```
 
 > Configure gitlab runner LXC
 
   ```bash
-  make lxc-gitlab_runner
+  task lxc-gitlab_runner
   ```
 
 > Create new default WSL Instance
 
 ```bash
-make windows-runtags download_wsl_instance
+task windows-runtags download_wsl_instance
 ```
 
-### Lesser Used Make Targets
+### Lesser Used tasks
 
 :information_source: If you want to encrypt/decrypt your files, just issue these commands:
 
 > Decrypt vault
 
 ```bash
-make decrypt
+task decrypt
 ```
 
 > Encrypt vault
 
 ```bash
-make encrypt
+task encrypt
 ```
 
 ### Running a specific set of tagged tasks
@@ -337,7 +337,7 @@ make encrypt
 You can also filter which part of the provisioning process to run by specifying a set of tags like so:
 
 ```bash
-make run-tags logrotate,install_docker
+task run-tags logrotate,install_docker
 ```
 
 Have a read through the playbooks to see which task you want to perform, and if it exists (There are tasks I just always want running).
@@ -351,7 +351,7 @@ ansible-playbook --vault-password-file ~/.ansible/password main.yml --tags "logr
 ❗ The tags available can be listed by running this command:
 
 ```bash
-make list-tags
+task list-tags
 ```
 
 ## Troubleshooting
@@ -376,7 +376,7 @@ custom_hostname: myhostname
 For a full list of variables, run this:
 
 ```bash
-make list-vars
+task list-vars
 ```
 
 Check the following files for these configurable items:
