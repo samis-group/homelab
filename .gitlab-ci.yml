@@ -5,21 +5,21 @@ stages:
 
 print env vars:
   stage: debug
-
   environment:
     name: production
     url: https://$DOMAIN_NAME
-
-  # Run this only when setting `DEBUG_PIPELINE` env var
+  # Run this only when setting `DEBUG_PIPELINE` evaluates true
   rules:
-    - if: $DEBUG_PIPELINE
-
+    - if: '$DEBUG_PIPELINE =~ /^(y|yes|true|1)$/i'
   script:
     - env
     - echo $DEBUG_PIPELINE
 
 doppler test:
   stage: debug
+  # Run this only when setting `DEBUG_PIPELINE` evaluates true
+  rules:
+    - if: '$DEBUG_PIPELINE =~ /^(y|yes|true|1)$/i'
   script:
     - echo "DEBUG_PIPELINE is $DEBUG_PIPELINE"
     - |
@@ -28,9 +28,6 @@ doppler test:
       else
         echo "Skipping doppler test job"
       fi
-  # Run this only when setting `DEBUG_PIPELINE` env var
-  rules:
-    - if: $DEBUG_PIPELINE
 
 build docker image:
   stage: build
@@ -40,6 +37,14 @@ build docker image:
 
   services:
     - docker:dind
+
+  # Only run build if Dockerfile changes
+  rules:
+    - changes:
+      - Dockerfile
+      - provision/ansible/requirements.yml
+      - provision/ansible/roles/requirements.yml
+      - requirements.txt
 
   before_script:
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
@@ -58,11 +63,3 @@ build docker image:
 
   after_script:
     - docker logout
-
-  # Only run build if Dockerfile changes
-  rules:
-    - changes:
-      - Dockerfile
-      - provision/ansible/requirements.yml
-      - provision/ansible/roles/requirements.yml
-      - requirements.txt
