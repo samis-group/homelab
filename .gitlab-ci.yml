@@ -1,6 +1,33 @@
 stages:
+  - debug
   - build
   - deploy
+
+print env vars:
+  stage: debug
+
+  environment:
+    name: production
+    url: https://$DOMAIN_NAME
+
+  rules:
+    # Rule if commit branch is main (no others) and run manually
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: manual
+    # Rule if scheduled
+    # - if: $CI_PIPELINE_SOURCE == "schedule"
+
+  script:
+    - env
+
+doppler test:
+  stage: debug
+  script:
+    - doppler run -- ./bin/doppler-test
+  rules:
+    # Rule if commit branch is main (no others) and run manually
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: manual
 
 build docker image:
   stage: build
@@ -36,29 +63,3 @@ build docker image:
       - provision/ansible/requirements.yml
       - provision/ansible/roles/requirements.yml
       - requirements.txt
-
-print env vars:
-  stage: deploy
-
-  environment:
-    name: production
-    url: https://$DOMAIN_NAME
-
-  rules:
-    # Rule if commit branch is main (no others) and run manually
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-      when: manual
-    # Rule if scheduled
-    # - if: $CI_PIPELINE_SOURCE == "schedule"
-
-  script:
-    - env
-
-doppler test:
-  stage: build
-  script:
-    - doppler run -- ./bin/doppler-test
-  rules:
-    # Rule if commit branch is main (no others) and run manually
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-      when: manual
