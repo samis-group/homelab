@@ -21,8 +21,13 @@ print env vars:
 doppler test:
   stage: debug
   script:
-    - doppler run -- ./bin/doppler-test
-    - echo $DEBUG_PIPELINE
+    - echo "DEBUG_PIPELINE is $DEBUG_PIPELINE"
+    - |
+      if [[ "$DEBUG_PIPELINE" == "True" ]]; then
+        doppler run -- ./bin/doppler-test
+      else
+        echo "Skipping doppler test job"
+      fi
   # Run this only when setting `DEBUG_PIPELINE` env var
   rules:
     - if: $DEBUG_PIPELINE
