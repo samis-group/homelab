@@ -3,31 +3,16 @@ stages:
   - build
   - deploy
 
-print env vars:
+debug vars:
   stage: debug
-  environment:
-    name: production
-    url: https://$DOMAIN_NAME
   # Run this only when setting `DEBUG_PIPELINE` evaluates true
   rules:
     - if: '$DEBUG_PIPELINE =~ /^(y|yes|true|1)$/i'
   script:
+    - echo "Doppler test:"
+    - doppler run -- ./bin/doppler-test
+    - echo "ENV is:"
     - env
-    - echo $DEBUG_PIPELINE
-
-doppler test:
-  stage: debug
-  # Run this only when setting `DEBUG_PIPELINE` evaluates true
-  rules:
-    - if: '$DEBUG_PIPELINE =~ /^(y|yes|true|1)$/i'
-  script:
-    - echo "DEBUG_PIPELINE is $DEBUG_PIPELINE"
-    - |
-      if [[ "$DEBUG_PIPELINE" == "True" ]]; then
-        doppler run -- ./bin/doppler-test
-      else
-        echo "Skipping doppler test job"
-      fi
 
 build docker image:
   stage: build
