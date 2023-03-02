@@ -16,11 +16,13 @@ print env vars:
 
   script:
     - env
+    - echo $DEBUG_PIPELINE
 
 doppler test:
   stage: debug
   script:
     - doppler run -- ./bin/doppler-test
+    - echo $DEBUG_PIPELINE
   # Run this only when setting `DEBUG_PIPELINE` env var
   rules:
     - if: $DEBUG_PIPELINE
