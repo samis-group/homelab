@@ -9,9 +9,7 @@ debug vars:
   rules:
     - if: '$DEBUG_PIPELINE =~ /^(y|yes|true|1)$/i'
   script:
-    - echo "Doppler test:"
     - doppler run -- ./bin/doppler-test
-    - echo "ENV is:"
     - env
 
 build docker image:
