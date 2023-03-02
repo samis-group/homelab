@@ -5,6 +5,9 @@ stages:
 
 debug vars:
   stage: debug
+  # Set to true when you want to debug the pipeline (or add this var when manually triggering)
+  # variables:
+  #   DEBUG_PIPELINE: "true"
   # Run this only when setting `DEBUG_PIPELINE` evaluates true
   rules:
     - if: '$DEBUG_PIPELINE =~ /^(y|yes|true|1)$/i'
