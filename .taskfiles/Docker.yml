@@ -39,9 +39,9 @@ tasks:
     cmds:
       - ansible-playbook -i inventory/hosts.ini -vvv --tags {{.CLI_ARGS}} playbooks/docker.yml
 
-  restore-containers:
-    desc: 🐳 Restore docker container data from backups on NFS share - Pass the inventory_hostname/group_names of the item you want to run this on
-    dir: provision/ansible
-    cmds:
-      - echo "WARNING - This is going to restore the containers in place of whatever is there currently. Press any key to continue..."; read break;
-      - ansible-playbook -i inventory/hosts.ini --tags "restore_docker_data" -e "restore_docker_data=true" playbooks/docker.yml --limit {{.CLI_ARGS}}
+  # restore-containers:
+  #   desc: 🐳 Restore docker container data from backups on NFS share - Pass the inventory_hostname/group_names of the item you want to run this on
+  #   dir: provision/ansible
+  #   cmds:
+  #     - echo "WARNING - This is going to restore the containers in place of whatever is there currently. Press any key to continue..."; read break;
+  #     - ansible-playbook -i inventory/hosts.ini --tags "restore_docker_data" -e "restore_docker_data=true" playbooks/docker.yml --limit {{.CLI_ARGS}}

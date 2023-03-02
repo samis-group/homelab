@@ -12,9 +12,11 @@ if ! [ -s .vault-password ]; then
 fi
 
 # Start SSH inside entrypoint for ansible tasks delegated to localhost (container)
+echo "Starting sshd..."
 sudo service ssh start > /dev/null
 
+echo "Setting git safe dir..."
 git config --global --add safe.directory /
 
-# Give shell
-/bin/bash
+# Keep container up
+tail -f /dev/null

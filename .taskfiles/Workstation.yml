@@ -1,0 +1,96 @@
+---
+version: "3"
+
+vars:
+  LOCAL_IMAGE_NAME: homelab_workstation
+  REGISTRY_IMAGE_NAME: registry.gitlab.com/sami-group/homelab
+  DO_VAULT_PASS:
+    sh: if ! [ -z $VAULT_PASS ]; then echo '--env VAULT_PASS=${VAULT_PASS}'; fi
+  DOCKER_RUN_CMD: docker container inspect {{.LOCAL_IMAGE_NAME}} > /dev/null 2>&1 || 
+    docker run -d --rm -it {{.DO_VAULT_PASS}}
+    --volume "{{.PROJECT_DIR}}/provision:/provision"
+    --volume "{{.PROJECT_DIR}}/.git:/.git"
+    --volume "${HOME}/.ssh/:/home/ubuntu/.ssh"
+    --user={{.USERID}}:{{.USERID}}
+  DOCKER_BUILD_CMD: docker build -t {{.LOCAL_IMAGE_NAME}} --build-arg UID={{.USERID}}
+  DOCKER_EXEC_CMD: docker exec -u {{.USERID}} -it {{.LOCAL_IMAGE_NAME}}
+  DOCKER_VOLUME_DOTFILES: --volume "${HOME}/.dotfiles:/home/ubuntu/.dotfiles"
+  DOCKER_VOLUME_DOPPLER: --volume "{{.PROJECT_DIR}}/.doppler:/home/ubuntu/.doppler"
+
+tasks:
+
+  #----------------------------#
+  # Docker build and run tasks #
+  #----------------------------#
+
+  # I can totally do this by passing var to task... i need to figure that out.
+  # I can also collapse all of these to like, 2 workflows, 1: local, 2: registry.
+  # Too late now.
+  local-shell:
+    desc: 🔨🐳 Build the Homelab Workstation container locally and jump into shell in order to run your automation stuff
+    cmds:
+      - task: run-docker-local-dotfiles
+      - "{{.DOCKER_EXEC_CMD}} bash"
+
+  registry-shell:
+    desc: 🔨🐳 Download the registry Homelab Workstation image and jump into shell in order to run your automation stuff
+    cmds:
+      - task: run-docker-registry-dotfiles
+      - "{{.DOCKER_EXEC_CMD}} bash"
+
+  # Figure out how to execute this task when dir doesn't exist..
+  doppler-login:
+    desc: Creates doppler dir if it doesn't exist and Login to Doppler from inside the container. The volume is mounted in the docker run cmd so it persists upon re-creation unless re-cloning the repo.
+    preconditions:
+      - test ! -d ${DOPPLER_CONFIG}
+    env:
+      DOPPLER_CONFIG: "{{.PROJECT_DIR}}/.doppler"
+    cmds:
+      - "mkdir ${DOPPLER_CONFIG}"
+      - task: run-docker-local-dotfiles
+      - "{{.DOCKER_EXEC_CMD}} doppler login"
+      - "{{.DOCKER_EXEC_CMD}} doppler setup"
+
+  run-docker-local:
+    desc: Run the docker container from the locally built image (also builds the image)
+    internal: true
+    deps: [build-docker]
+    cmds:
+      - "{{.DOCKER_RUN_CMD}} {{.DOCKER_VOLUME_DOPPLER}} --name {{.LOCAL_IMAGE_NAME}} {{.LOCAL_IMAGE_NAME}}"
+
+  run-docker-registry:
+    desc: Run the docker container from the public registry
+    internal: true
+    cmds:
+      - "{{.DOCKER_RUN_CMD}} {{.DOCKER_VOLUME_DOPPLER}} --name {{.LOCAL_IMAGE_NAME}} {{.REGISTRY_IMAGE_NAME}}"
+
+  run-docker-local-dotfiles:
+    desc: Run the docker container from the locally built image (also builds the image) with dotfiles volume mount (mainly personal)
+    internal: true
+    deps: [build-docker]
+    cmds:
+      - "{{.DOCKER_RUN_CMD}} {{.DOCKER_VOLUME_DOPPLER}} {{.DOCKER_VOLUME_DOTFILES}} --name {{.LOCAL_IMAGE_NAME}} {{.LOCAL_IMAGE_NAME}}"
+
+  run-docker-registry-dotfiles:
+    desc: Run the docker container from the public registry
+    internal: true
+    cmds:
+      - "{{.DOCKER_RUN_CMD}} {{.DOCKER_VOLUME_DOPPLER}} {{.DOCKER_VOLUME_DOTFILES}} --name {{.LOCAL_IMAGE_NAME}} {{.REGISTRY_IMAGE_NAME}}"
+
+  run-docker-local-dotfiles-no-doppler:
+    desc: Run the docker container from the locally built image (also builds the image) with dotfiles volume mount (mainly personal) WITHOUT doppler mounts
+    internal: true
+    deps: [build-docker]
+    cmds:
+      - "{{.DOCKER_RUN_CMD}} {{.DOCKER_VOLUME_DOTFILES}} --name {{.LOCAL_IMAGE_NAME}} {{.LOCAL_IMAGE_NAME}}"
+
+  build-docker:
+    desc: Builds the docker image locally. If `.vault-password` file exists, source the password from it (helps with local build tests), else see if `VAULT_PASS` env var exists.
+    internal: true
+    cmds:
+      - "{{.DOCKER_BUILD_CMD}} ."
+
+  build-docker-no-cache:
+    desc: Rebuild the image without using cache
+    cmds:
+      - "{{.DOCKER_BUILD_CMD}} --no-cache ."

@@ -9,8 +9,8 @@ ARG DEBIAN_FRONTEND=noninteractive
 # Set TZ
 ENV TZ=Australia/Sydney
 # Run as 1000 by default unless passed in
-ARG UID=1000
-ARG UNAME=ubuntu
+ARG USERID=1000
+ARG USERNAME=ubuntu
 
 # Ubuntu OS dependencies
 RUN apt-get update \
@@ -29,32 +29,38 @@ RUN curl -LO https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terra
     mv terraform /usr/local/bin && \
     rm terraform_${TERRAFORM_VERSION}_linux_amd64.zip
 
+# Install Doppler CLI tools
+RUN curl -Ls https://cli.doppler.com/install.sh | sh
+
 # Setup container to run as user specified in build args with same password
-RUN useradd -rm -d /home/$UNAME -s /bin/bash -g root -G sudo -u $UID $UNAME \
-  && echo "$UNAME:$UNAME" | chpasswd
+RUN useradd -m -d /home/$USERNAME -s /bin/bash -G sudo -u $USERID $USERNAME \
+  && echo "$USERNAME:$USERNAME" | chpasswd \
+  && usermod -aG root $USERNAME
 
 # Make required directories and chown them
-RUN mkdir -p /home/$UNAME/.ssh /root/.ssh ./roles \
-  && chown -R $UNAME:root /home/$UNAME/.ssh \
+RUN mkdir -p /home/$USERNAME/.ssh /root/.ssh ./roles \
+  && chown -R $USERNAME:$USERNAME /home/$USERNAME/.ssh \
 # Also ensure sudo group users are not asked for a password when using sudo command
   && echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
 # Installs Ansible, pre-commit-hooks, molecule, along with other pip dependencies.
-COPY --chown=$UNAME:root requirements.txt ./
+COPY --chown=$USERNAME:$USERNAME requirements.txt ./
 RUN pip3 install --upgrade pip && pip3 install --no-cache-dir -r ./requirements.txt
 
 # Copy ansible requirements and install them
-COPY --chown=$UNAME:root provision/ansible/requirements.yml ./
-COPY --chown=$UNAME:root provision/ansible/roles/requirements.yml ./roles/
+COPY --chown=$USERNAME:$USERNAME provision/ansible/requirements.yml ./
+COPY --chown=$USERNAME:$USERNAME provision/ansible/roles/requirements.yml ./roles/
 
-USER $UNAME
-
+# Switch to user in order to install reqs
+USER $USERNAME
 RUN ansible-galaxy install -r ./requirements.yml \
   && ansible-galaxy install -r ./roles/requirements.yml
 
+USER root
+
 # Copy taskfiles
-COPY --chown=$UNAME:root Taskfile.yml ./
-COPY --chown=$UNAME:root .taskfiles ./.taskfiles/
+COPY --chown=$USERNAME:$USERNAME Taskfile.yml ./
+COPY --chown=$USERNAME:$USERNAME .taskfiles ./.taskfiles/
 
 # Copy bin files (mainly for docker-entrypoint.sh)
 COPY bin/ /usr/local/bin
@@ -63,4 +69,4 @@ COPY bin/ /usr/local/bin
 EXPOSE 22
 
 # Parse the password from ENV and give us shell as default so we can do whatever
-ENTRYPOINT [ "/usr/local/bin/docker-entrypoint.sh" ]
+ENTRYPOINT [ "docker-entrypoint.sh" ]

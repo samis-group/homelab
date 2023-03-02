@@ -73,10 +73,22 @@ git clone git@gitlab.com:sami-group/homelab.git
 cd homelab
 ```
 
-> Go through setting up password. This also drops you in a container shell already setup to go.
+> Go through setting up password.
 
 ```bash
-task run-docker-registry-dotfiles
+task workstation:doppler-login
+```
+
+> Now start the container and drop you in a shell already setup to go.
+
+```bash
+task workstation:local-shell
+```
+
+OR if you want to download the image from the gitlab container registry that is built via ci/cd:
+
+```bash
+task workstation:registry-shell
 ```
 
 > Build my current stack

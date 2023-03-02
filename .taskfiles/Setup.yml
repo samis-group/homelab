@@ -1,19 +1,6 @@
 ---
 version: "3"
 
-vars:
-  PROJECT_DIR:
-    sh: git rev-parse --show-toplevel
-  GIT_COMMIT:
-    sh: git log -n 1 --format=%h
-  USER_HOME_DIR:
-    sh: echo $HOME
-  USERID:
-    sh: id -u
-  # Check if running as root, omit `sudo` from make targets if that is the case.
-  DO_SUDO:
-    sh: if [ "$UID" -ne 0 ]; then echo "sudo"; fi
-
 tasks:
 
   all:
@@ -102,7 +89,7 @@ tasks:
   store-password:
     desc: 🚧 Store your password if the vault is encrypted
     cmds:
-      - ./bin/parse_pass.py
+      - parse_pass.py
 
   githook:
     desc: 🚧 Creates a pre-commit webhook so that you don't accidentally commit decrypted vault upstream

@@ -16,94 +16,45 @@ vars:
     sh: id -u
   # Check if running as root, omit `sudo` from make targets if that is the case.
   DO_SUDO:
-    sh: if [ "$EUID" -ne 0 ]; then echo "sudo"; fi
-  LOCAL_CONTAINER_NAME: homelab
-  REGISTRY_CONTAINER_NAME: registry.gitlab.com/sami-group/homelab
-  CLUSTER_DIR: "{{.PROJECT_DIR}}/cluster"
+    sh: if [ "$UID" -ne 0 ]; then echo "sudo"; fi
   ANSIBLE_DIR: "{{.PROJECT_DIR}}/provision/ansible"
   TERRAFORM_DIR: "{{.PROJECT_DIR}}/provision/terraform"
-  DOCKER_BUILD_CMD: docker build -t {{.LOCAL_CONTAINER_NAME}}
-    --build-arg UID={{.USERID}}
-  DO_VAULT_PASS:
-    sh: if ! [ -z $VAULT_PASS ]; then echo '--env VAULT_PASS=${VAULT_PASS}'; fi
-  DOCKER_RUN_CMD: docker run --rm -it {{.DO_VAULT_PASS}}
-    --volume "{{.PROJECT_DIR}}/provision:/provision"
-    --volume "{{.PROJECT_DIR}}/.git:/.git"
-    --volume "${HOME}/.ssh/:/home/ubuntu/.ssh"
-    --user={{.USERID}}
-  # Dotfiles volume bind mount var
-  DOCKER_DOTFILES: --volume "${HOME}/.dotfiles:/home/ubuntu/.dotfiles"
   # Check if VAULT_PASS is set, and pass through to container, otherwise don't and let stdin in the parse_pass python script, ask for it.
   ANSIBLE_PLAYBOOK_DIR: "{{.ANSIBLE_DIR}}/playbooks"
   ANSIBLE_INVENTORY_DIR: "{{.ANSIBLE_DIR}}/inventory"
-
-dotenv: [".config.env"]
 
 env:
   KUBECONFIG: "{{.USER_HOME_DIR}}/.kube/config"
   PATH: "{{.PATH}}:{{.PROJECT_DIR}}/bin"  # add project bin to path
   ANSIBLE_CONFIG: "{{.ANSIBLE_DIR}}/ansible.cfg"
+  PROJECT_DIR: "{{.PROJECT_DIR}}"
 
 includes:
-  setup: .taskfiles/Setup.yml
   ansible: .taskfiles/AnsibleTasks.yml
-  proxmox: .taskfiles/Proxmox.yml
+  # cluster: .taskfiles/ClusterTasks.yml
   docker: .taskfiles/Docker.yml
-  cluster: .taskfiles/ClusterTasks.yml
-  precommit: .taskfiles/PrecommitTasks.yml
-  terraform: .taskfiles/TerraformTasks.yml
-  sops: .taskfiles/SopsTasks.yml
-  molecule: .taskfiles/Molecule.yml
-  k3s: .taskfiles/K3s.yml
+  # k3s: .taskfiles/K3s.yml
   lxc: .taskfiles/Lxc.yml
-  minikube: .taskfiles/Minikube.yml
+  # minikube: .taskfiles/Minikube.yml
+  molecule: .taskfiles/Molecule.yml
+  precommit: .taskfiles/PrecommitTasks.yml
+  proxmox: .taskfiles/Proxmox.yml
+  setup: .taskfiles/Setup.yml
+  sops: .taskfiles/SopsTasks.yml
+  terraform: .taskfiles/TerraformTasks.yml
   windows: .taskfiles/Windows.yml
+  workstation: .taskfiles/Workstation.yml
   wsl: .taskfiles/Wsl.yml
 
 tasks:
 
-#------------------------------------------------------------------------#
-# This will make everything from absolutely nothing but debian machines. #
-#        You must have setup authorized keys and can ssh to them         #
-#------------------------------------------------------------------------#
-  # everything:
-  #   desc: 🔨 Make everything...
+#-------------------#
+# Set default tasks #
+#-------------------#
+
+  # default:
   #   cmds:
-  #     - ansible-playbook -i inventory/hosts.ini main.yml
-
-#----------------------------#
-# Docker build and run tasks #
-#----------------------------#
-
-  build-docker:
-    desc: 🏗️🐳 Builds the docker image locally. If `.vault-password` file exists, source the password from it (helps with local build tests), else see if `VAULT_PASS` env var exists.
-    cmds:
-      - "{{.DOCKER_BUILD_CMD}} ."
-
-  build-docker-no-cache:
-    desc: 🏗️🐳 Same as above but without cache
-    cmds:
-      - "{{.DOCKER_BUILD_CMD}} --no-cache ."
-
-  run-docker-registry:
-    desc: 🐳 Run the docker container from the public registry
-    cmds:
-      - "{{.DOCKER_RUN_CMD}} {{.REGISTRY_CONTAINER_NAME}}"
-
-  run-docker-registry-dotfiles:
-    desc: 🐳 Run the docker container from the public registry with dotfiles volume mount (mainly personal)
-    cmds:
-      - "{{.DOCKER_RUN_CMD}} {{.DOCKER_DOTFILES}} {{.REGISTRY_CONTAINER_NAME}}"
-
-  run-docker-local:
-    desc: 🐳 Run the docker container from the locally built image (also builds the image)
-    cmds:
-      - "{{.DOCKER_RUN_CMD}} {{.LOCAL_CONTAINER_NAME}}"
-
-  run-docker-local-dotfiles:
-    desc: 🐳 Run the docker container from the locally built image (also builds the image) with dotfiles volume mount (mainly personal)
-    cmds:
-      - "{{.DOCKER_RUN_CMD}} {{.DOCKER_DOTFILES}} {{.LOCAL_CONTAINER_NAME}}"
+  #     - task: workstation-registry-shell
 
 #---------------------------#
 # Vault and Variables Tasks #
@@ -127,18 +78,21 @@ tasks:
 
   decrypt:
     desc: 🔒 Decrypt vaulted items (requires stored password)
+    internal: true
     dir: provision/ansible/inventory
     cmds:
       - ansible-vault decrypt vault.yml hosts.ini
 
   encrypt:
     desc: 🔒 Encrypt vaulted items (requires stored password)
+    internal: true
     dir: provision/ansible/inventory
     cmds:
       - ansible-vault encrypt vault.yml hosts.ini
 
   list-vars:
     desc: 🔒 List variables
+    internal: true
     cmds:
       - $(CURDIR)/bin/vars_list.py vars/config.yml vault.yml {{.CLI_ARGS}}
 
@@ -151,20 +105,20 @@ tasks:
 # Linters #
 #---------#
 
-  check lint:
-    desc: 🔎 Run all tests, Linters & formatters (currently will not fix but sets exit code on error)
-    cmds:
-      - echo '**** LGTM! ****'
+  # check lint:
+  #   desc: 🔎 Run all tests, Linters & formatters (currently will not fix but sets exit code on error)
+  #   cmds:
+  #     - echo '**** LGTM! ****'
 
-  _start-check:
-    desc: Diagnostic output; useful when run in a git hook
-    cmds:
-      - echo 'Running "make check / make lint"'
+  # _start-check:
+  #   desc: Diagnostic output; useful when run in a git hook
+  #   cmds:
+  #     - echo 'Running "make check / make lint"'
 
-  yamllint:
-    desc: Currently the only one.. will add more targets in the future.
-    cmds:
-      - yamllint -f parsable .
+  # yamllint:
+  #   desc: Currently the only one.. will add more targets in the future.
+  #   cmds:
+  #     - yamllint -f parsable .
 
   test:
     desc: 🧪 Run the test playbook
