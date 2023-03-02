@@ -15,10 +15,19 @@ class bcolors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
-# Perform some checks
-folderpath = f'{os.getcwd()}/provision/ansible/'
+# Set some vars
 filename = '.vault-password'
-filepath = folderpath + filename
+
+print(os.path.basename(os.getcwd()))
+
+# If running in docker (i.e. if workdir set to /provision or /), set full path
+if os.getcwd() == "/provision" or os.path.basename(os.getcwd()) == "":
+    folderpath = "/provision/ansible"
+# Else it is likely a git repo cloned locally, let's resolve the folder path
+else:
+    folderpath = os.path.join(os.getcwd(), "provision", "ansible")
+
+filepath = os.path.join(folderpath, filename)
 
 # If file exists and isn't empty, let's break out early, otherwise ensure dir exists
 if os.path.exists(filepath) and not os.stat(filepath).st_size == 0:

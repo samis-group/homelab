@@ -6,6 +6,7 @@ version: "3"
 
 vars:
   PROJECT_DIR:
+    # Check if git dir, get full path, otherwise assume running from container
     sh: git rev-parse --show-toplevel
   GIT_COMMIT:
     sh: git log -n 1 --format=%h
@@ -16,22 +17,23 @@ vars:
   # Check if running as root, omit `sudo` from make targets if that is the case.
   DO_SUDO:
     sh: if [ "$EUID" -ne 0 ]; then echo "sudo"; fi
+  LOCAL_CONTAINER_NAME: homelab
+  REGISTRY_CONTAINER_NAME: registry.gitlab.com/sami-group/homelab
   CLUSTER_DIR: "{{.PROJECT_DIR}}/cluster"
   ANSIBLE_DIR: "{{.PROJECT_DIR}}/provision/ansible"
   TERRAFORM_DIR: "{{.PROJECT_DIR}}/provision/terraform"
-  DOCKER_BUILD_CMD: docker build -t ${local_container_name} \
+  DOCKER_BUILD_CMD: docker build -t {{.LOCAL_CONTAINER_NAME}}
     --build-arg UID={{.USERID}}
-  DOCKER_RUN_CMD: docker run --rm -it $(DO_VAULT_PASS) \
-    --volume "${PWD}:/ansible/repo" \
-    --volume "${HOME}/.ssh/:/home/ubuntu/.ssh" \
+  DO_VAULT_PASS:
+    sh: if ! [ -z $VAULT_PASS ]; then echo '--env VAULT_PASS=${VAULT_PASS}'; fi
+  DOCKER_RUN_CMD: docker run --rm -it {{.DO_VAULT_PASS}}
+    --volume "{{.PROJECT_DIR}}/provision:/provision"
+    --volume "{{.PROJECT_DIR}}/.git:/.git"
+    --volume "${HOME}/.ssh/:/home/ubuntu/.ssh"
     --user={{.USERID}}
   # Dotfiles volume bind mount var
   DOCKER_DOTFILES: --volume "${HOME}/.dotfiles:/home/ubuntu/.dotfiles"
-  LOCAL_CONTAINER_NAME: homelab
-  REGISTRY_CONTAINER_NAME: registry.gitlab.com/sami-group/homelab
   # Check if VAULT_PASS is set, and pass through to container, otherwise don't and let stdin in the parse_pass python script, ask for it.
-  DO_VAULT_PASS:
-    sh: if ! [ -z $VAULT_PASS ]; then echo '--env VAULT_PASS=${VAULT_PASS}'; fi
   ANSIBLE_PLAYBOOK_DIR: "{{.ANSIBLE_DIR}}/playbooks"
   ANSIBLE_INVENTORY_DIR: "{{.ANSIBLE_DIR}}/inventory"
 
@@ -76,38 +78,32 @@ tasks:
   build-docker:
     desc: 🏗️🐳 Builds the docker image locally. If `.vault-password` file exists, source the password from it (helps with local build tests), else see if `VAULT_PASS` env var exists.
     cmds:
-      - ${DOCKER_BUILD_CMD} .
+      - "{{.DOCKER_BUILD_CMD}} ."
 
   build-docker-no-cache:
     desc: 🏗️🐳 Same as above but without cache
     cmds:
-      - ${DOCKER_BUILD_CMD} --no-cache .
+      - "{{.DOCKER_BUILD_CMD}} --no-cache ."
 
   run-docker-registry:
     desc: 🐳 Run the docker container from the public registry
     cmds:
-      - ${DOCKER_RUN_CMD} ${REGISTRY_CONTAINER_NAME}
+      - "{{.DOCKER_RUN_CMD}} {{.REGISTRY_CONTAINER_NAME}}"
 
   run-docker-registry-dotfiles:
     desc: 🐳 Run the docker container from the public registry with dotfiles volume mount (mainly personal)
     cmds:
-      - ${DOCKER_RUN_CMD} ${DOCKER_DOTFILES} ${REGISTRY_CONTAINER_NAME}
+      - "{{.DOCKER_RUN_CMD}} {{.DOCKER_DOTFILES}} {{.REGISTRY_CONTAINER_NAME}}"
 
   run-docker-local:
     desc: 🐳 Run the docker container from the locally built image (also builds the image)
     cmds:
-      - ${DOCKER_RUN_CMD} ${LOCAL_CONTAINER_NAME}
+      - "{{.DOCKER_RUN_CMD}} {{.LOCAL_CONTAINER_NAME}}"
 
   run-docker-local-dotfiles:
     desc: 🐳 Run the docker container from the locally built image (also builds the image) with dotfiles volume mount (mainly personal)
     cmds:
-      - ${DOCKER_RUN_CMD} ${DOCKER_DOTFILES} ${LOCAL_CONTAINER_NAME}
-
-  reqs-docker:
-    desc: 🐳🚧 Install ansible galaxy requirements
-    cmds:
-      - ansible-galaxy install -r requirements.yml -p /ansible/collections/ansible_collections
-      - ansible-galaxy install -r roles/requirements.yml
+      - "{{.DOCKER_RUN_CMD}} {{.DOCKER_DOTFILES}} {{.LOCAL_CONTAINER_NAME}}"
 
 #---------------------------#
 # Vault and Variables Tasks #

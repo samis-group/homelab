@@ -33,6 +33,9 @@ build docker image:
   rules:
     - changes:
       - Dockerfile
+      - provision/ansible/requirements.yml
+      - provision/ansible/roles/requirements.yml
+      - requirements.txt
 
 print env vars:
   stage: deploy
