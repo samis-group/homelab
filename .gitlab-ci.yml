@@ -10,12 +10,9 @@ print env vars:
     name: production
     url: https://$DOMAIN_NAME
 
+  # Run this only when setting `DEBUG_PIPELINE` env var
   rules:
-    # Rule if commit branch is main (no others) and run manually
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-      when: manual
-    # Rule if scheduled
-    # - if: $CI_PIPELINE_SOURCE == "schedule"
+    - if: $DEBUG_PIPELINE
 
   script:
     - env
@@ -24,10 +21,9 @@ doppler test:
   stage: debug
   script:
     - doppler run -- ./bin/doppler-test
+  # Run this only when setting `DEBUG_PIPELINE` env var
   rules:
-    # Rule if commit branch is main (no others) and run manually
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-      when: manual
+    - if: $DEBUG_PIPELINE
 
 build docker image:
   stage: build
