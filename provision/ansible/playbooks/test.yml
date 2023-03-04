@@ -74,4 +74,4 @@
 
     - name: Debug imported vars from doppler vault
       debug:
-        var: nordvpn_private_key
+        var: pve.proxmox_host

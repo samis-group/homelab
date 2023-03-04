@@ -14,6 +14,8 @@ vars:
     sh: echo $HOME
   USERID:
     sh: id -u
+  GROUPID:
+    sh: id -g
   # Check if running as root, omit `sudo` from make targets if that is the case.
   DO_SUDO:
     sh: if [ "$UID" -ne 0 ]; then echo "sudo"; fi

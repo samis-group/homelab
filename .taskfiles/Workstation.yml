@@ -7,12 +7,14 @@ vars:
   DO_VAULT_PASS:
     sh: if ! [ -z $VAULT_PASS ]; then echo '--env VAULT_PASS=${VAULT_PASS}'; fi
   DOCKER_RUN_CMD: docker container inspect {{.LOCAL_IMAGE_NAME}} > /dev/null 2>&1 || 
-    docker run -d --rm -it {{.DO_VAULT_PASS}}
+    docker run -d -it {{.DO_VAULT_PASS}}
     --volume "{{.PROJECT_DIR}}/provision:/provision"
     --volume "{{.PROJECT_DIR}}/.git:/.git"
     --volume "${HOME}/.ssh/:/home/ubuntu/.ssh"
-    --user={{.USERID}}:{{.USERID}}
-  DOCKER_BUILD_CMD: docker build -t {{.LOCAL_IMAGE_NAME}} --build-arg UID={{.USERID}}
+    --env USER_ID={{.USERID}}
+    # --env GROUP_ID={{.GROUPID}}
+    # --user={{.USERID}}:{{.USERID}}
+  DOCKER_BUILD_CMD: docker build -t {{.LOCAL_IMAGE_NAME}}
   DOCKER_EXEC_CMD: docker exec -u {{.USERID}} -it {{.LOCAL_IMAGE_NAME}}
   DOCKER_VOLUME_DOTFILES: --volume "${HOME}/.dotfiles:/home/ubuntu/.dotfiles"
   DOCKER_VOLUME_DOPPLER: --volume "{{.PROJECT_DIR}}/.doppler:/home/ubuntu/.doppler"
@@ -65,7 +67,7 @@ tasks:
   cleanup:
     desc: Stop and remove the homelab workstation container
     cmds:
-      - "docker stop {{.LOCAL_IMAGE_NAME}}"
+      - "docker stop {{.LOCAL_IMAGE_NAME}} && docker rm {{.LOCAL_IMAGE_NAME}}"
 
   run-docker-local:
     desc: Run the docker container from the locally built image (also builds the image)
