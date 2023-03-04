@@ -31,25 +31,33 @@ tasks:
     cmds:
       - task: run-docker-local-dotfiles
       - "{{.DOCKER_EXEC_CMD}} bash"
+      - task: cleanup
 
   registry-shell:
     desc: 🔨🐳 Download the registry Homelab Workstation image and jump into shell in order to run your automation stuff
     cmds:
       - task: run-docker-registry-dotfiles
       - "{{.DOCKER_EXEC_CMD}} bash"
+      - task: cleanup
 
   # Figure out how to execute this task when dir doesn't exist..
   doppler-login:
     desc: Creates doppler dir if it doesn't exist and Login to Doppler from inside the container. The volume is mounted in the docker run cmd so it persists upon re-creation unless re-cloning the repo.
     preconditions:
-      - test ! -d ${DOPPLER_CONFIG}
+      - test ! -f ${DOPPLER_CONFIG}/.doppler.yaml
     env:
       DOPPLER_CONFIG: "{{.PROJECT_DIR}}/.doppler"
     cmds:
-      - "mkdir ${DOPPLER_CONFIG}"
-      - task: run-docker-local-dotfiles
+      - "test -d ${DOPPLER_CONFIG} || mkdir ${DOPPLER_CONFIG}"
+      - task: run-docker-registry-dotfiles
       - "{{.DOCKER_EXEC_CMD}} doppler login"
       - "{{.DOCKER_EXEC_CMD}} doppler setup"
+      - task: cleanup
+
+  cleanup:
+    desc: Stop and remove the homelab workstation container
+    cmds:
+      - "docker stop {{.LOCAL_IMAGE_NAME}}"
 
   run-docker-local:
     desc: Run the docker container from the locally built image (also builds the image)
