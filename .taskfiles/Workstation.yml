@@ -8,8 +8,10 @@ vars:
     sh: if ! [ -z $VAULT_PASS ]; then echo '--env VAULT_PASS=${VAULT_PASS}'; fi
   DOCKER_RUN_CMD: docker container inspect {{.LOCAL_IMAGE_NAME}} > /dev/null 2>&1 || 
     docker run -d -it {{.DO_VAULT_PASS}}
-    --volume "{{.PROJECT_DIR}}/provision:/provision"
-    --volume "{{.PROJECT_DIR}}/.git:/.git"
+    --volume "{{.PROJECT_DIR}}/provision:/home/ubuntu/provision"
+    --volume "{{.PROJECT_DIR}}/.git:/home/ubuntu/.git"
+    --volume "{{.PROJECT_DIR}}/Taskfile.yml:/home/ubuntu/Taskfile.yml"
+    --volume "{{.PROJECT_DIR}}/.taskfiles:/home/ubuntu/.taskfiles"
     --volume "${HOME}/.ssh/:/home/ubuntu/.ssh"
     --env USER_ID={{.USERID}}
     # --env GROUP_ID={{.GROUPID}}

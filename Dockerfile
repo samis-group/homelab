@@ -8,11 +8,6 @@ FROM python:3
 ARG DEBIAN_FRONTEND=noninteractive
 # Set TZ
 ENV TZ=Australia/Sydney
-# Run as 1000 by default unless passed in
-ENV USER_NAME=ubuntu
-ENV GROUP_NAME=ubuntu
-ENV USER_ID=1000
-ENV GROUP_ID=1000
 
 # Ubuntu OS dependencies
 RUN apt-get update \
@@ -34,18 +29,24 @@ RUN curl -LO https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terra
 # Install Doppler CLI tools
 RUN curl -Ls https://cli.doppler.com/install.sh | sh
 
-# Setup user specified in build args allowing us to change this in the entrypoint at runtime for mounting our volumes
+# Setup user inside container, allowing us to change this UID in the entrypoint at container runtime
+# for mounting our volumes to match the host filesystem with correct UID/GID permissions
+ENV USER_NAME=ubuntu
+ENV GROUP_NAME=ubuntu
+# Run as 1000 by default unless passed in
+ENV USER_ID=1000
+ENV GROUP_ID=1000
 RUN groupadd -g ${GROUP_ID} ${GROUP_NAME} && \
   useradd -u ${USER_ID} -g ${GROUP_ID} -G sudo -s /bin/bash -m ${USER_NAME} && \
   echo "${USER_NAME}:${USER_NAME}" | chpasswd
 
-# Make required directories and chown them
-RUN mkdir -p /home/${USER_NAME}/.ssh /root/.ssh ./roles \
-  && chown -R ${USER_NAME}:${USER_NAME} /home/${USER_NAME}/.ssh \
-# Also ensure sudo group users are not asked for a password when using sudo command
-  && echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
-
 WORKDIR /home/${USER_NAME}
+
+# Make required directories and chown them
+RUN mkdir /root/.ssh ./roles ./.ssh && \
+  # && chown -R ${USER_NAME}:${USER_NAME} /home/${USER_NAME}/.ssh \
+# Also ensure sudo group users are not asked for a password when using sudo command
+  echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
 # Installs Ansible, pre-commit-hooks, molecule, along with other pip dependencies.
 COPY --chown=${USER_NAME}:${GROUP_NAME} requirements.txt ./
@@ -60,11 +61,11 @@ RUN mkdir -p /usr/share/ansible/collections && \
   ansible-galaxy collection install -r ./requirements.yml --collections-path /usr/share/ansible/collections && \
   ansible-galaxy role install -r ./roles/requirements.yml --roles-path /usr/share/ansible/roles
 
-# Copy bin files (mainly for docker-entrypoint.sh)
+# Copy bin files and docker-entrypoint.sh
 COPY bin/ /usr/local/bin
 
 # Some plays delegate to localhost, requires access to itself on ssh
 EXPOSE 22
 
 # Parse the password from ENV and give us shell as default so we can do whatever
-ENTRYPOINT [ "/usr/local/bin/docker-entrypoint.sh" ]
+ENTRYPOINT [ "docker-entrypoint.sh" ]
