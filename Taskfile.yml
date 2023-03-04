@@ -78,17 +78,19 @@ tasks:
 
   decrypt:
     desc: 🔒 Decrypt vaulted items (requires stored password)
-    internal: true
+    # internal: true
     dir: provision/ansible/inventory
     cmds:
-      - ansible-vault decrypt vault.yml hosts.ini
+      - ansible-vault decrypt hosts.ini
+      - ansible-vault decrypt group_vars/all/vault.yml
 
   encrypt:
     desc: 🔒 Encrypt vaulted items (requires stored password)
-    internal: true
+    # internal: true
     dir: provision/ansible/inventory
     cmds:
-      - ansible-vault encrypt vault.yml hosts.ini
+      - ansible-vault encrypt hosts.ini
+      - ansible-vault encrypt group_vars/all/vault.yml
 
   list-vars:
     desc: 🔒 List variables
@@ -119,8 +121,3 @@ tasks:
   #   desc: Currently the only one.. will add more targets in the future.
   #   cmds:
   #     - yamllint -f parsable .
-
-  test:
-    desc: 🧪 Run the test playbook
-    cmds:
-      - ansible-playbook -i inventory/hosts.ini playbook_test.yml {{.CLI_ARGS}}

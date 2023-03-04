@@ -66,11 +66,11 @@ tasks:
     cmds:
       - ansible-lint --config-file {{.PROJECT_DIR}}/.ansible-lint --project-dir {{.PROJECT_DIR}}/provision/ansible/ --exclude="molecule/"
 
-  test-playbook:
-    desc: Run the test playbook
+  test:
+    desc: 🧪 Run the test playbook
     dir: provision/ansible
     cmds:
-      - ansible-playbook -i {{.ANSIBLE_INVENTORY_DIR}}/hosts.ini {{.ANSIBLE_PLAYBOOK_DIR}}/test.yml
+      - ansible-playbook -i {{.ANSIBLE_INVENTORY_DIR}}/hosts.ini {{.ANSIBLE_PLAYBOOK_DIR}}/test.yml {{.CLI_ARGS}}
 
   wsl-personal:
     desc: Setup/Configure WSL

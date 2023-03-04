@@ -199,61 +199,60 @@ helm_charts:
 ##################
 
 # Good practice to keep vault vars visible -> https://docs.ansible.com/ansible/latest/user_guide/playbooks_best_practices.html#keep-vaulted-variables-safely-visible
-main_user: "{{ vault_main_user }}"  # User that will be created and will manage the systems/containers
-main_pass: "{{ vault_main_pass }}"  # Password for the above user
-docker_group: "{{ vault_docker_group }}"            # Leave this as 'docker', the user will need to be added to this group to run docker
-domain_name: "{{ vault_domain_name }}"     # Domain name that traefik resides
-services_username: "{{ vault_services_username }}"         # Username to login to services
-services_password: "{{ vault_services_password }}"     # Password to login to services
-gmail_address: "{{ vault_gmail_address }}"  # Your main gmail address that will be used to send mail from
-gmail_pass: "{{ vault_gmail_pass }}"                # This is your normal gmail password
-gmail_app_pass: "{{ vault_gmail_app_pass }}"    # This is the app password you generate here -> https://myaccount.google.com/apppasswords. Hint: Check password manager.
-microsoft_account_user: "{{ vault_microsoft_account_user }}"  # Microsoft account username
-microsoft_account_pass: "{{ vault_microsoft_account_pass }}"  # Microsoft account password
-eufy_addon_email: "{{ vault_eufy_addon_email }}"   # Your secondary eufy account with devices shared to it (Don't use your primary account for security reasons)
-eufy_addon_password: "{{ vault_eufy_addon_password }}"      # Password of this secondary eufy account with shared devices
-cloudflare_email: "{{ vault_cloudflare_email }}"                            # Search "API" in your password manager
-cloudflare_api_token: "{{ vault_cloudflare_api_token }}"   # Search "Cloudflare API key - cf-ddns" in your password manager
-cloudflare_api_key: "{{ vault_cloudflare_api_key }}"        # This is the "Global API Key" (same entry as above in your password manager)
-vpn_user: "{{ vault_vpn_user }}"   # VPN Provider username
-vpn_pass: "{{ vault_vpn_pass }}"       # VPN Provider password
+main_user: "{{ doppler_vault_data.main_user }}"  # User that will be created and will manage the systems/containers
+main_pass: "{{ doppler_vault_data.main_pass }}"  # Password for the above user
+docker_group: "{{ doppler_vault_data.docker_group }}"            # Leave this as 'docker', the user will need to be added to this group to run docker
+domain_name: "{{ doppler_vault_data.domain_name }}"     # Domain name that traefik resides
+services_username: "{{ doppler_vault_data.services_username }}"         # Username to login to services
+services_password: "{{ doppler_vault_data.services_password }}"     # Password to login to services
+gmail_address: "{{ doppler_vault_data.gmail_address }}"  # Your main gmail address that will be used to send mail from
+gmail_pass: "{{ doppler_vault_data.gmail_pass }}"                # This is your normal gmail password
+gmail_app_pass: "{{ doppler_vault_data.gmail_app_pass }}"    # This is the app password you generate here -> https://myaccount.google.com/apppasswords. Hint: Check password manager.
+microsoft_account_user: "{{ doppler_vault_data.microsoft_account_user }}"  # Microsoft account username
+microsoft_account_pass: "{{ doppler_vault_data.microsoft_account_pass }}"  # Microsoft account password
+eufy_addon_email: "{{ doppler_vault_data.eufy_addon_email }}"   # Your secondary eufy account with devices shared to it (Don't use your primary account for security reasons)
+eufy_addon_password: "{{ doppler_vault_data.eufy_addon_password }}"      # Password of this secondary eufy account with shared devices
+cloudflare_email: "{{ doppler_vault_data.cloudflare_email }}"                            # Search "API" in your password manager
+cloudflare_api_token: "{{ doppler_vault_data.cloudflare_api_token }}"   # Search "Cloudflare API key - cf-ddns" in your password manager
+cloudflare_api_key: "{{ doppler_vault_data.cloudflare_api_key }}"        # This is the "Global API Key" (same entry as above in your password manager)
+vpn_user: "{{ doppler_vault_data.vpn_user }}"   # VPN Provider username
+vpn_pass: "{{ doppler_vault_data.vpn_pass }}"       # VPN Provider password
 # The nordvpn_private_key can be obtained using `docker run --rm --cap-add=NET_ADMIN -e USER=${VPN_USER} -e PASS=${VPN_PASS} bubuntux/nordvpn nord_private_key`
-nordvpn_private_key: "{{ vault_nordvpn_private_key }}"   # For nordlynx
-google_client_id: "{{ vault_google_client_id }}"  # For oauth container
-google_client_secret: "{{ vault_google_client_secret }}"    # For oauth container
-oauth_secret: "{{ vault_oauth_secret }}"    # This is randomly generated with `openssl rand -hex 16`
-radarr_api_key: "{{ vault_radarr_api_key }}"  # Radarr API Key taken from the UI once logged in
-sonarr_api_key: "{{ vault_sonarr_api_key }}"  # Sonarr API Key taken from the UI once logged in
-bazarr_api_key: "{{ vault_bazarr_api_key }}"  # Bazarr API Key taken from the UI once logged in
-prowlarr_api_key: "{{ vault_prowlarr_api_key }}"  # Prowlarr API Key taken from the UI once logged in
-tautulli_api_key: "{{ vault_tautulli_api_key }}"  # Tautulli API Key taken from the UI once logged in
-plex_claim: "{{ vault_plex_claim }}"              # Grab claim from -> https://www.plex.tv/claim/
-plex_token: "{{ vault_plex_token }}"                    # Find yours -> https://support.plex.tv/articles/204059436-finding-an-authentication-token-x-plex-token/
-traefik_pilot_token: "{{ vault_traefik_pilot_token }}"  # traefik pilot token to connect to traefik pilot
-k3s_token: "{{ vault_k3s_token }}"   # Generate one randomly
-name_servers: "{{ vault_name_servers }}"
-watchtower_interval: "{{ vault_watchtower_interval }}"
-docker_ip: "{{ vault_docker_ip }}"   # This is a default, each host should override this in host_vars
-pfsense_ip: "{{ vault_pfsense_ip }}"  # pfsense router IP
-proxmox_port: "{{ vault_proxmox_port }}"
-influxdb_port: "{{ vault_influxdb_port }}"
-
-ssh: "{{ vault_ssh }}"  # SSH keys
+nordvpn_private_key: "{{ doppler_vault_data.nordvpn_private_key }}"   # For nordlynx
+google_client_id: "{{ doppler_vault_data.google_client_id }}"  # For oauth container
+google_client_secret: "{{ doppler_vault_data.google_client_secret }}"    # For oauth container
+oauth_secret: "{{ doppler_vault_data.oauth_secret }}"    # This is randomly generated with `openssl rand -hex 16`
+radarr_api_key: "{{ doppler_vault_data.radarr_api_key }}"  # Radarr API Key taken from the UI once logged in
+sonarr_api_key: "{{ doppler_vault_data.sonarr_api_key }}"  # Sonarr API Key taken from the UI once logged in
+bazarr_api_key: "{{ doppler_vault_data.bazarr_api_key }}"  # Bazarr API Key taken from the UI once logged in
+prowlarr_api_key: "{{ doppler_vault_data.prowlarr_api_key }}"  # Prowlarr API Key taken from the UI once logged in
+tautulli_api_key: "{{ doppler_vault_data.tautulli_api_key }}"  # Tautulli API Key taken from the UI once logged in
+plex_claim: "{{ doppler_vault_data.plex_claim }}"              # Grab claim from -> https://www.plex.tv/claim/
+plex_token: "{{ doppler_vault_data.plex_token }}"                    # Find yours -> https://support.plex.tv/articles/204059436-finding-an-authentication-token-x-plex-token/
+traefik_pilot_token: "{{ doppler_vault_data.traefik_pilot_token }}"  # traefik pilot token to connect to traefik pilot
+k3s_token: "{{ doppler_vault_data.k3s_token }}"   # Generate one randomly
+name_servers: "{{ doppler_vault_data.name_servers }}"
+watchtower_interval: "{{ doppler_vault_data.watchtower_interval }}"
+docker_ip: "{{ doppler_vault_data.docker_ip }}"   # This is a default, each host should override this in host_vars
+pfsense_ip: "{{ doppler_vault_data.pfsense_ip }}"  # pfsense router IP
+proxmox_port: "{{ doppler_vault_data.proxmox_port }}"
+influxdb_port: "{{ doppler_vault_data.influxdb_port }}"
+ssh: "{{ doppler_vault_data.ssh }}"  # SSH keys
   # key_prefix: id_rsa_
   # key_personal: id_rsa_personal
   # key_personal_public: id_rsa_personal.pub
   # key_git: id_rsa_git
   # key_git_public: id_rsa_git.pub
-main_user_ssh_key_prefix: "{{ vault_main_user_ssh_key_prefix }}"
-vm_network: "{{ vault_vm_network }}" # Network WITHOUT the last digit ## NOT VM VAR
-vm_netmask: "{{ vault_vm_netmask }}" # network mask ## NOT VM VAR
-vm_gateway: "{{ vault_vm_gateway }}" # gateway ### NOT VM var
-local_network_lan: "{{ vault_local_network_lan }}"      # Your local LAN subnet that will be used to whitelist certain aceess to resources
-local_network_iot: "{{ vault_local_network_iot }}"      # Your local IOT subnet that will be used to whitelist certain aceess to resources
-local_network_homelab: "{{ vault_local_network_homelab }}"   # Your local homelab subnet that will be used to whitelist certain aceess to resources
+main_user_ssh_key_prefix: "{{ main_user }}-{{ ssh.key_prefix }}"
+vm_network: "{{ doppler_vault_data.vm_network }}" # Network WITHOUT the last digit ## NOT VM VAR
+vm_netmask: "{{ doppler_vault_data.vm_netmask }}" # network mask ## NOT VM VAR
+vm_gateway: "{{ doppler_vault_data.vm_gateway }}" # gateway ### NOT VM var
+local_network_lan: "{{ doppler_vault_data.local_network_lan }}"      # Your local LAN subnet that will be used to whitelist certain aceess to resources
+local_network_iot: "{{ doppler_vault_data.local_network_iot }}"      # Your local IOT subnet that will be used to whitelist certain aceess to resources
+local_network_homelab: "{{ vm_network }}0/{{ vm_netmask }}"   # Your local homelab subnet that will be used to whitelist certain aceess to resources
 
 # Proxmox bits for one host in cluster where tasks will be run
-pve: "{{ vault_pve }}"
+pve: "{{ doppler_vault_data.pve }}"
   # proxmox_api_user: root@pam
   # proxmox_api_pass: XXXXXXXXXXXXX
   # proxmox_node: pve
@@ -262,25 +261,25 @@ pve: "{{ vault_pve }}"
   # mac: xx:xx:xx:xx:xx:xx  # MAC address of the proxmox server for WOL
   # broadcast: '255.255.255.255' # broadcast network parameter for WOL
 
-github: "{{ vault_github }}"
+github: "{{ doppler_vault_data.github }}"
   # username: username
   # token: ghp_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
-gitlab: "{{ vault_gitlab }}"
+gitlab: "{{ doppler_vault_data.gitlab }}"
   # username: XXXXXXXXX
   # personal_access_token: glpat-XXXXXXXXXXXXX   # API token for docker vm to login and access gitlab registry and api and clone repos
   # runner_token: XXXXXXXXXXXXXXXXXXXXX         # From your GROUP runner page -> https://gitlab.com/groups/sami-shakir/-/runners
   # git_dir: "{{ user_dir }}/git/personal"
   # api_url: https://gitlab.com/api/v4
 
-gitlab_clone_container_repos: "{{ vault_gitlab_clone_container_repos }}"
+gitlab_clone_container_repos: "{{ doppler_vault_data.gitlab_clone_container_repos }}"
   # Format - Dockerdir: Repo URL
   # hass: "https://{{ gitlab.username }}:{{ gitlab.personal_access_token }}@gitlab.com/XXXXXXXXXXXXXXX.git"
   # nginx: "https://{{ gitlab.username }}:{{ gitlab.personal_access_token }}@gitlab.com/XXXXXXXXXXXXXXX.git"
   # docs: "https://{{ gitlab.username }}:{{ gitlab.personal_access_token }}@gitlab.com/XXXXXXXXXXXXXXX.git"
   # api: "https://{{ gitlab.username }}:{{ gitlab.personal_access_token }}@gitlab.com/XXXXXXXXXXXXXXX.git"
 
-gitlab_clone_repos: "{{ vault_gitlab_clone_repos }}"
+gitlab_clone_repos: "{{ doppler_vault_data.gitlab_clone_repos }}"
   # dotfiles:
   #   base: "https://{{ gitlab.username }}:{{ gitlab.personal_access_token }}@gitlab.com/XXXXXXXXXXXXXXX.git"
   #   base_branch: main
@@ -288,18 +287,18 @@ gitlab_clone_repos: "{{ vault_gitlab_clone_repos }}"
   #   extra_branch: main
   # homelab: "https://{{ gitlab.username }}:{{ gitlab.personal_access_token }}@gitlab.com/XXXXXXXXXXXXXXX.git"
 
-mariadb: "{{ vault_mariadb }}"
+mariadb: "{{ doppler_vault_data.mariadb }}"
   # hostname: XXXXXXXX   # Mariadb hostname (usually the container name, it's on the default network so any containers on this network can use this hostname to communicate with it)
   # root_password: XXXXXXXXXXX  # optional - Initial mysql root user password
   # database: XXXXXX  # Specify the name of a database to be created on image startup. Home-assistant for my case
   # user: XXXXX                        # optional - Initial mysql username with below password
   # password: XXXXXXXXXXX   # optional - Initial mysql user password with above user
 
-redis: "{{ vault_redis }}"
+redis: "{{ doppler_vault_data.redis }}"
   # host: redis   # Hostname of the redis container
   # password: XXXXXXXXXXX   # Password to use redis
 
-authelia: "{{ vault_authelia }}"
+authelia: "{{ doppler_vault_data.authelia }}"
   # jwt_secret: XXXXXXXXXXX    # Randomly generated string
   # session_secret: 'XXXXXXXXXXX'         # Randomly generated string - The secret key used to encrypt session data in Redis - https://www.authelia.com/docs/configuration/session/#secret
   # storage_encryption_key: 'XXXXXXXXXXX' # Randomly generated string - used to encrypt data in the database - https://www.authelia.com/docs/configuration/storage/#encryption_key
@@ -334,19 +333,19 @@ authelia: "{{ vault_authelia }}"
   #       - users
   #       - not-family
 
-mqtt_logins: "{{ vault_mqtt_logins }}"          # mqtt users that can authenticate and pub/sub to mqtt - key,val = user,pass
+mqtt_logins: "{{ doppler_vault_data.mqtt_logins }}"          # mqtt users that can authenticate and pub/sub to mqtt - key,val = user,pass
   # mqtt-user: XXXXXXXXXXXXXX
   # user-pc: XXXXXXXXXXXXXX
   # hass: XXXXXXXXXXXXXX
   # zigbee: XXXXXXXXXXXXXX
 
-zigbe2mqtt_user: "{{ vault_zigbe2mqtt_user }}"   # MQTT user for zigbee2mqtt container - Must match one of the mqtt users above
+zigbe2mqtt_user: "{{ doppler_vault_data.zigbe2mqtt_user }}"   # MQTT user for zigbee2mqtt container - Must match one of the mqtt users above
 
-htpasswd_logins: "{{ vault_htpasswd_logins }}"      # htpasswd file generation - key,val = user,pass
+htpasswd_logins: "{{ doppler_vault_data.htpasswd_logins }}"      # htpasswd file generation - key,val = user,pass
   # user: "{{ services_password }}"
   # # user2: test
 
-hass: "{{ vault_hass }}"
+hass: "{{ doppler_vault_data.hass }}"
   # port: XXXX
   # # To find this zigbee_adapter_tty, on the docker host type `ls -l /dev/serial/by-id`
   # # Resource -> https://www.zigbee2mqtt.io/guide/installation/20_zigbee2mqtt-fails-to-start.html#which-port-should-i-use-for-texas-instruments-launchxl-cc26x2r1-cc1352p-2-dev-ttyacm0-or-dev-ttyacm1
@@ -385,7 +384,7 @@ hass: "{{ vault_hass }}"
   # mqtt_username: "XXXXXXX"     # MQTT logins must exist in mqtt_logins var above
   # mqtt_password: "XXXXXXX"     # MQTT logins must exist in mqtt_logins var above
 
-influxdb: "{{ vault_influxdb }}"
+influxdb: "{{ doppler_vault_data.influxdb }}"
   # org_name: XXXXXXX
   # org_id: "XXXXXXX"  # This is in the URL after /orgs
   # hass_bucket_name: XXXXXXX
@@ -395,11 +394,11 @@ influxdb: "{{ vault_influxdb }}"
   # proxmox_bucket_name: XXXXXXX
   # proxmox_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX==
 
-ozbargain: "{{ vault_ozbargain }}"
+ozbargain: "{{ doppler_vault_data.ozbargain }}"
   # slack_webhook: https://hooks.slack.com/services/XXXXXXXXXXXXXXX/XXXXXXXXXXXXXXX/XXXXXXXXXXXXXXX
   # slack_webhook_frontpage: https://hooks.slack.com/services/XXXXXXXXXXXXXXX/XXXXXXXXXXXXXXX/XXXXXXXXXXXXXXX
 
-photoprism: "{{ vault_photoprism }}"
+photoprism: "{{ doppler_vault_data.photoprism }}"
   # admin_password: "{{ services_password }}"
   # # MariaDB details - Please create this DB/user/pass manually
   # # CREATE DATABASE '{{ photoprism.database_name }}';

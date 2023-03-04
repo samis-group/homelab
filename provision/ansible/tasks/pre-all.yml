@@ -5,10 +5,10 @@
 # ------------------------------------------- #
 
 # Include var overrides
-- name: Include playbook configuration.
+- name: Include playbook configuration variables as overrides.
   include_vars: "{{ item }}"
   with_fileglob:
-    - "{{ playbook_dir }}/../vars/config.yml"
+    - "{{ playbook_dir }}/../vars.yml"
 
 # Import bitwarden role - For obtaining passwords from bitwarden
 # - import_role:

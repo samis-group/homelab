@@ -3,6 +3,8 @@
 # Pre-tasks run before anything else! #
 # ----------------------------------- #
 - name: Pre-all
+  vars: &doppler_vault_data
+    doppler_vault_data: "{{ lookup('pipe', 'doppler secrets get -c ans --plain ANSIBLE_VAULT_RAW') | string | from_yaml }}"
   hosts: docker
   # Special tag "always" -> https://docs.ansible.com/ansible/latest/user_guide/playbooks_tags.html#special-tags-always-and-never
   tags: ["always"]
@@ -12,6 +14,7 @@
       ansible.builtin.import_tasks: ../tasks/pre-all.yml
 
 - name: Play not as root user
+  vars: *doppler_vault_data
   hosts: docker
   # Special tag "always" -> https://docs.ansible.com/ansible/latest/user_guide/playbooks_tags.html#special-tags-always-and-never
   tags: ["always"]
@@ -27,8 +30,9 @@
 ###########################
 
 - name: Configure Docker VM
+  vars: *doppler_vault_data
   hosts: docker
-  remote_user: "{{ vm.user | default(main_user) }}"  # Login as user and become root
+  # remote_user: "{{ vm.user | default(main_user) }}"  # Login as user and become root
   become: true
 
   pre_tasks:

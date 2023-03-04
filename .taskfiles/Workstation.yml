@@ -54,6 +54,14 @@ tasks:
       - "{{.DOCKER_EXEC_CMD}} doppler setup"
       - task: cleanup
 
+  # Figure out how to execute this task when dir doesn't exist..
+  doppler-test:
+    desc: test doppler
+    cmds:
+      - task: run-docker-registry-dotfiles
+      - "{{.DOCKER_EXEC_CMD}} doppler run -- doppler-test"
+      - task: cleanup
+
   cleanup:
     desc: Stop and remove the homelab workstation container
     cmds:

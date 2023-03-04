@@ -69,4 +69,4 @@ COPY bin/ /usr/local/bin
 EXPOSE 22
 
 # Parse the password from ENV and give us shell as default so we can do whatever
-ENTRYPOINT [ "docker-entrypoint.sh" ]
+ENTRYPOINT [ "/usr/local/bin/docker-entrypoint.sh" ]
