@@ -42,7 +42,7 @@ includes:
   precommit: .taskfiles/PrecommitTasks.yml
   proxmox: .taskfiles/Proxmox.yml
   setup: .taskfiles/Setup.yml
-  sops: .taskfiles/SopsTasks.yml
+  # sops: .taskfiles/SopsTasks.yml
   terraform: .taskfiles/TerraformTasks.yml
   windows: .taskfiles/Windows.yml
   workstation: .taskfiles/Workstation.yml

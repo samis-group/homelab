@@ -2,17 +2,6 @@
 .DS_Store
 Thumbs.db
 
-# k8s
-kubeconfig
-
-# vscode-sops
-.decrypted~*.yaml
-.config.env
-*.agekey
-*.pub
-*.key
-github-deploy-key*
-
 # Ansible
 **.vault-password
 
@@ -23,7 +12,4 @@ terraform.tfstate*
 provision/terraform/**.terraform*
 
 # Others
-megalinter-reports
-.env
-*.log
 .doppler*

@@ -4,7 +4,7 @@ version: "3"
 tasks:
 
   main:
-    desc: 📦 Main LXC configuration playbooks to deploy all LXC's in playbook
+    desc: 📦 Main LXC configuration playbooks to deploy all LXC's
     dir: provision/ansible
     cmds:
       - ansible-playbook -i inventory/hosts.ini playbooks/lxc.yml {{.CLI_ARGS}}
