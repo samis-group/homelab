@@ -63,10 +63,10 @@
       ansible.builtin.import_tasks: ../tasks/windows/copy_files.yml
       tags: ["copy_files"]
 
-    - name: Install hass-workstation-service
-      ansible.builtin.import_tasks: ../tasks/windows/hass.yml
-      when: hass
-      tags: ["hass"]
+    # - name: Install hass-workstation-service
+    #   ansible.builtin.import_tasks: ../tasks/windows/hass.yml
+    #   when: hass
+    #   tags: ["hass"]
 
     # - name: Configure Windows Credentials Store entries
     #   ansible.builtin.import_tasks: ../tasks/windows/credentials.yml
@@ -117,9 +117,9 @@
       when: remote_desktop_enabled
       tags: ["remote_desktop_enabled"]
 
-    - ansible.builtin.import_tasks: ../tasks/windows/desktop.yml
-      when: remove_desktop_icons
-      tags: ["remove_desktop_icons"]
+    # - ansible.builtin.import_tasks: ../tasks/windows/desktop.yml
+    #   when: remove_desktop_icons
+    #   tags: ["remove_desktop_icons"]
 
     - ansible.builtin.import_tasks: ../tasks/windows/hostname.yml
       when: configure_hostname

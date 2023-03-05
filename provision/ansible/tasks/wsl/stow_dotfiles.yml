@@ -5,9 +5,9 @@
 
 - name: Get dotfiles repo
   git:
-    repo: "{{ gitlab_clone_repos.dotfiles.base }}"
+    repo: "{{ gitlab_repos_dotfiles_base_url }}"
     dest: "{{ user_dir }}/.dotfiles"
-    version: "{{ gitlab_clone_repos.dotfiles.base_branch | default('main') }}"
+    version: "{{ gitlab_repos_dotfiles_base_branch | default('main') }}"
   register: git_checkout_dotfiles
   ignore_errors: true
   become: false
@@ -15,9 +15,9 @@
 
 - name: Checkout to user specified branch in dotfiles-extras repo
   git:
-    repo: "{{ gitlab_clone_repos.dotfiles.extras }}"
+    repo: "{{ gitlab_repos_dotfiles_extras_url }}"
     dest: "{{ user_dir }}/.dotfiles/dotfiles-extra"
-    version: "{{ gitlab_clone_repos.dotfiles.extra_branch }}"
+    version: "{{ gitlab_repos_dotfiles_extra_branch }}"
   ignore_errors: true
   become: false
   when: git_checkout_dotfiles is changed
@@ -77,8 +77,8 @@
     state: touch
     mode: '0600'
   with_items:
-    - "{{ ssh.key_personal }}"
-    - "{{ ssh.key_git }}"
+    - "{{ ssh_key_file_personal }}"
+    - "{{ ssh_key_file_git }}"
   become: false
 
 - name: Deploy dotfiles with stow

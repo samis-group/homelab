@@ -25,10 +25,10 @@
 - name: Update VM agent option to enable qemu-guest-agent
   proxmox_kvm:
     update: true
-    node: "{{ pve.proxmox_node }}"
-    api_user: "{{ pve.proxmox_api_user }}"
-    api_password: "{{ pve.proxmox_api_pass }}"
-    api_host: "{{ pve.proxmox_host }}"
+    node: "{{ proxmox_node }}"
+    api_user: "{{ proxmox_api_user }}"
+    api_password: "{{ proxmox_api_pass }}"
+    api_host: "{{ proxmox_host }}"
     name: "{{ vm.name | default(inventory_hostname_short) }}"
     vmid: "{{ vm.id | default(omit) }}"
     timeout: "{{ vm_defaults.timeout | default(omit) }}"
@@ -42,10 +42,10 @@
 
 - name: Reboot VMs
   proxmox_kvm:
-    node: "{{ pve.proxmox_node }}"
-    api_user: "{{ pve.proxmox_api_user }}"
-    api_password: "{{ pve.proxmox_api_pass }}"
-    api_host: "{{ pve.proxmox_host }}"
+    node: "{{ proxmox_node }}"
+    api_user: "{{ proxmox_api_user }}"
+    api_password: "{{ proxmox_api_pass }}"
+    api_host: "{{ proxmox_host }}"
     name: "{{ vm.name | default(inventory_hostname_short) }}"
     state: restarted
   delegate_to: proxmox

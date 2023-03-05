@@ -126,8 +126,8 @@
 - name: Log into gitlab container registry.
   community.docker.docker_login:
     registry_url: https://registry.gitlab.com
-    username: "{{ gitlab.username }}"
-    password: "{{ gitlab.personal_access_token }}"
+    username: "{{ gitlab_username }}"
+    password: "{{ gitlab_personal_access_token }}"
     debug: true
     config_path: "{{ user_dir }}/.docker/config.json"   # Ansible logs in as root, so need to manually configure this.
 

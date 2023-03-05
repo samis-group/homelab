@@ -9,9 +9,9 @@
 
 - name: Clone template to new VM's
   proxmox_kvm:
-    node: "{{ pve.proxmox_node }}"
-    api_user: "{{ pve.proxmox_api_user }}"
-    api_password: "{{ pve.proxmox_api_pass }}"
+    node: "{{ proxmox_node }}"
+    api_user: "{{ proxmox_api_user }}"
+    api_password: "{{ proxmox_api_pass }}"
     api_host: "localhost"
     proxmox_default_behavior: "{{ vm_defaults.default_behavior | default('compatibility') }}"
     validate_certs: "{{ vm_defaults.validate_certs | default(omit) }}"
@@ -27,9 +27,9 @@
 - name: Post-clone configuration - update virtual machine resources
   proxmox_kvm:
     update: true
-    node: "{{ pve.proxmox_node }}"
-    api_user: "{{ pve.proxmox_api_user }}"
-    api_password: "{{ pve.proxmox_api_pass }}"
+    node: "{{ proxmox_node }}"
+    api_user: "{{ proxmox_api_user }}"
+    api_password: "{{ proxmox_api_pass }}"
     api_host: "localhost"
     proxmox_default_behavior: "{{ vm_defaults.default_behavior | default('compatibility') }}"
     validate_certs: "{{ vm_defaults.validate_certs | default(omit) }}"
@@ -110,9 +110,9 @@
 
 - name: 'Start VM'
   proxmox_kvm:
-    node: "{{ pve.proxmox_node }}"
-    api_user: "{{ pve.proxmox_api_user }}"
-    api_password: "{{ pve.proxmox_api_pass }}"
+    node: "{{ proxmox_node }}"
+    api_user: "{{ proxmox_api_user }}"
+    api_password: "{{ proxmox_api_pass }}"
     api_host: "localhost"
     name: "{{ vm.name | default(inventory_hostname_short) }}"
     state: started

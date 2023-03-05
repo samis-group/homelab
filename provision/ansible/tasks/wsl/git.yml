@@ -7,7 +7,7 @@
 
 - name: Checkout containers source code
   git:
-    repo: "https://{{ gitlab.username }}:{{ gitlab.personal_access_token }}@{{ item.value }}"
+    repo: "https://{{ gitlab_username }}:{{ gitlab_personal_access_token }}@{{ item.value }}"
     dest: "{{ user_dir }}/git/personal/containers/{{ item.key }}"
   with_dict: "{{ gitlab_clone_container_repos }}"
   # register: git_checkout_code_containers
@@ -17,7 +17,7 @@
 
 # - name: Checkout homelab repo
 #   git:
-#     repo: "{{ gitlab_clone_repos.homelab }}"
+#     repo: "{{ gitlab_repos_homelab_url }}"
 #     dest: "{{ user_dir }}/git/personal/homelab"
 #     recursive: false
 #   register: git_checkout_code_homelab
@@ -27,7 +27,7 @@
 
 # - name: Checkout host-vars repo
 #   git:
-#     repo: "{{ gitlab_clone_repos.homelab_host_vars }}"
+#     repo: "{{ gitlab_repos_homelab_host_vars_url }}"
 #     dest: "{{ user_dir }}/git/personal/homelab/host_vars"
 #   register: git_checkout_code_homelab_host_vars
 #   ignore_errors: true   # Because Home assistant gets changed to, and realistically, this only needs to be run initially anyway.

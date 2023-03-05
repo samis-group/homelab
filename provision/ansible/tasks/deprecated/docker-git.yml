@@ -46,11 +46,11 @@
 
 - name: Check if GitLab has this user's SSH key
   uri:
-    url: "{{ gitlab.api_url }}/user/keys"
+    url: "{{ gitlab_api_url }}/user/keys"
     method: GET
     status_code: [200]
     headers:
-      private-token: "{{ gitlab.personal_access_token }}"
+      private-token: "{{ gitlab_personal_access_token }}"
       Content-Type: "application/json"
   register: user_ssh_keys
 
@@ -62,11 +62,11 @@
 
 - name: Push the generated ssh key to the GitLab instance
   uri:
-    url: "{{ gitlab.api_url }}/user/keys"
+    url: "{{ gitlab_api_url }}/user/keys"
     method: POST
     status_code: [201, 400]
     headers:
-      private-token: "{{ gitlab.personal_access_token }}"
+      private-token: "{{ gitlab_personal_access_token }}"
       Content-Type: "application/json"
     body: >
       {

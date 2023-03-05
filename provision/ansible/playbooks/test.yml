@@ -2,10 +2,7 @@
 # ----------------------------------- #
 # Pre-tasks run before anything else! #
 # ----------------------------------- #
-- name: Test Playbook
-  vars: &doppler_vault_data
-    doppler_vault_data: "{{ lookup('pipe', 'doppler secrets get -c ans --plain ANSIBLE_VAULT_RAW') | string | from_yaml }}"
-  # Special tag "always" -> https://docs.ansible.com/ansible/latest/user_guide/playbooks_tags.html#special-tags-always-and-never
+- name: Test Playbook  # Special tag "always" -> https://docs.ansible.com/ansible/latest/user_guide/playbooks_tags.html#special-tags-always-and-never
   tags: ["always"]
   gather_facts: false
 
@@ -74,4 +71,4 @@
 
     - name: Debug imported vars from doppler vault
       debug:
-        var: pve.proxmox_host
+        var: authelia_jwt_secret

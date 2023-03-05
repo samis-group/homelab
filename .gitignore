@@ -4,6 +4,7 @@ Thumbs.db
 
 # Ansible
 **.vault-password
+provision/ansible/inventory/generated.*
 
 # Terraform
 .terraform

@@ -11,9 +11,9 @@
 # pveam download local <image_name>
 - name: Ensure LXC Template exists
   community.general.proxmox_template:
-    node: "{{ pve.proxmox_node }}"
-    api_user: "{{ pve.proxmox_api_user }}"
-    api_password: "{{ pve.proxmox_api_pass }}"
+    node: "{{ proxmox_node }}"
+    api_user: "{{ proxmox_api_user }}"
+    api_password: "{{ proxmox_api_pass }}"
     api_host: "localhost"
     storage: "{{ lxc_container.storage | default(lxc_template.storage) }}"
     template: "{{ lxc_container.image | default(lxc_template.image) }}"
@@ -23,9 +23,9 @@
 # I believe it is to do with it parsing IP address. I tried with a domain but no luck either. Worked when delegated the task and specifying localhost.
 - name: create LXC containers
   community.general.proxmox:
-    node: "{{ pve.proxmox_node }}"
-    api_user: "{{ pve.proxmox_api_user }}"
-    api_password: "{{ pve.proxmox_api_pass }}"
+    node: "{{ proxmox_node }}"
+    api_user: "{{ proxmox_api_user }}"
+    api_password: "{{ proxmox_api_pass }}"
     api_host: "localhost"
     proxmox_default_behavior: "{{ lxc_container.default_behavior | default(lxc_defaults.default_behavior) }}"
     state: "present"
@@ -57,9 +57,9 @@
 - name: Start containers
   community.general.proxmox:
     vmid: "{{ lxc_container.id }}"
-    node: "{{ pve.proxmox_node }}"
-    api_user: "{{ pve.proxmox_api_user }}"
-    api_password: "{{ pve.proxmox_api_pass }}"
+    node: "{{ proxmox_node }}"
+    api_user: "{{ proxmox_api_user }}"
+    api_password: "{{ proxmox_api_pass }}"
     api_host: "localhost"
     state: started
 

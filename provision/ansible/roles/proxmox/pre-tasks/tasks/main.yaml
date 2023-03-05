@@ -3,21 +3,19 @@
   block:
     - name: 'Check conectivity with hypervisor'
       wait_for:
-        host: "{{ pve.proxmox_host }}"
+        host: "{{ proxmox_host }}"
         port: "{{ proxmox_port }}"
         delay: 0
         timeout: 10
   rescue:
     - name: WOL to hypervisor
       wakeonlan:
-        mac: "{{ pve.mac }}"
-        broadcast: "{{ pve.broadcast }}"
+        mac: "{{ proxmox_mac }}"
+        broadcast: "{{ proxmox_broadcast }}"
     - name: 'Check conectivity with hypervisor'
       wait_for:
-        host: "{{ pve.proxmox_host }}"
+        host: "{{ proxmox_host }}"
         port: "{{ proxmox_port }}"
-        delay: "{{ pve.test_delay }}"
-        timeout: "{{ pve.test_timeout }}"
     - name: 'Sleep a bit more'
       wait_for:
         delay: 15

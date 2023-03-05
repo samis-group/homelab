@@ -6,7 +6,7 @@
     return_content: true
   register: gh_hass_custom_components
   failed_when: gh_hass_custom_components.status != 200
-  with_dict: "{{ hass.custom_components }}"
+  with_dict: "{{ hass_custom_components }}"
 
 - name: Set zip url's for custom_components
   set_fact:
@@ -16,7 +16,7 @@
 
 # - name: combine custom_components vars - Neat way to combine two dicts in one line using jinja
 #   set_fact:
-#     custom_components_updated: "{{ hass.custom_components | default({}) | combine( custom_components_urls, recursive=True) }}"
+#     custom_components_updated: "{{ hass_custom_components | default({}) | combine( custom_components_urls, recursive=True) }}"
 
 # - name: Calculate total number of custom_components to be installed
 #   set_fact:
@@ -55,7 +55,7 @@
     dest: "/tmp/{{ item.key }}.zip"
     force: true
   with_dict: "{{ custom_components_urls }}"
-  when: custom_components_count | int < hass.custom_components | list | count
+  when: custom_components_count | int < hass_custom_components | list | count
 
 - name: extract custom_components to docker machine
   unarchive:
@@ -66,7 +66,7 @@
     group: "{{ docker_group }}"
   with_dict: "{{ custom_components_urls }}"
   # Only do this if there are missing custom_components
-  when: custom_components_count | int < hass.custom_components | list | count
+  when: custom_components_count | int < hass_custom_components | list | count
 
 - name: Find component files
   find:
@@ -76,8 +76,8 @@
     file_type: directory
     patterns: "{{ item.value.custom_component_name }}"
   register: find_components_folders
-  with_dict: "{{ hass.custom_components }}"
-  when: custom_components_count | int < hass.custom_components | list | count
+  with_dict: "{{ hass_custom_components }}"
+  when: custom_components_count | int < hass_custom_components | list | count
 
 - name: copy components to home assistant container
   copy:
@@ -87,7 +87,7 @@
     owner: "{{ main_user }}"
     group: "{{ docker_group }}"
   with_items: "{{ find_components_folders.results }}"
-  when: custom_components_count | int < hass.custom_components | list | count
+  when: custom_components_count | int < hass_custom_components | list | count
   # notify: restart hass container
 
 # HACS is special:
@@ -109,9 +109,9 @@
 
 # - name: Make Zigbee device permissions accessible to containers
 #   file:
-#     path: "{{ hass.zigbee_adapter_tty }}"
+#     path: "{{ hass_zigbee_adapter_tty }}"
 #     owner: "{{ main_user }}"
-#   when: hass.zigbee_adapter_tty is defined
+#   when: hass_zigbee_adapter_tty is defined
 
 # - name: obtain zigbee device serial
 #   shell:

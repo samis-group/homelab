@@ -1,0 +1,61 @@
+---
+version: "3"
+
+vars:
+  TF_DIR_CF: "{{.PROJECT_DIR}}/provision/terraform/cloudflare"
+  TF_DIR_PVE: "{{.PROJECT_DIR}}/provision/terraform/proxmox"
+
+tasks:
+  tf-init:
+    desc: Initialize terraform dependencies
+    internal: true
+    cmds:
+      - terraform init {{.CLI_ARGS}}
+
+  tf-plan:
+    desc: Show the changes terraform will make
+    internal: true
+    cmds:
+      - terraform plan {{.CLI_ARGS}}
+
+  tf-apply:
+    desc: Apply the changes
+    internal: true
+    cmds:
+      - terraform apply {{.CLI_ARGS}}
+
+  cf-init:
+    desc: Initialize Cloudflare terraform dependencies
+    dir: "{{.TF_DIR_CF}}"
+    cmds:
+      - task: tf-init
+
+  cf-plan:
+    desc: Show the changes Cloudflare terraform will make
+    dir: "{{.TF_DIR_CF}}"
+    cmds:
+      - task: tf-plan
+
+  cf-apply:
+    desc: Apply the changes to Cloudflare
+    dir: "{{.TF_DIR_CF}}"
+    cmds:
+      - task: tf-apply
+
+  pve-init:
+    desc: Initialize Proxmox terraform dependencies
+    dir: "{{.TF_DIR_PVE}}"
+    cmds:
+      - task: tf-init
+
+  pve-plan:
+    desc: Show the changes Proxmox terraform will make
+    dir: "{{.TF_DIR_PVE}}"
+    cmds:
+      - task: tf-plan
+
+  pve-apply:
+    desc: Apply the changes to Proxmox
+    dir: "{{.TF_DIR_PVE}}"
+    cmds:
+      - task: tf-apply

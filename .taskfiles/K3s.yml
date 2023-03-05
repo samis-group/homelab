@@ -7,31 +7,36 @@ tasks:
     desc: ☸ Main k3s play
     dir: provision/ansible
     cmds:
-      - ansible-playbook -i inventory/hosts.ini playbooks/k3s.yml {{.CLI_ARGS}}
+      - task: :generate-ansible-inventory
+      - "{{.ANSIBLE_PLAYBOOK_CMD}} {{.ANSIBLE_PLAYBOOK_DIR}}/k3s.yml {{.CLI_ARGS}}"
 
   run-tags:
     desc: ☸ Run only the tags passed in separated by comma (e.g. make run-tags update_compose,logrotate)
     dir: provision/ansible
     cmds:
-      - ansible-playbook -i inventory/hosts.ini --tags {{.CLI_ARGS}} playbooks/k3s.yml
+      - task: :generate-ansible-inventory
+      - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags {{.CLI_ARGS}} {{.ANSIBLE_PLAYBOOK_DIR}}/k3s.yml"
 
   run-tags-v:
     desc: ☸ VERBOSE - Same as above
     dir: provision/ansible
     cmds:
-      - ansible-playbook -i inventory/hosts.ini -vvv --tags {{.CLI_ARGS}} playbooks/k3s.yml
+      - task: :generate-ansible-inventory
+      - "{{.ANSIBLE_PLAYBOOK_CMD}} -vvv --tags {{.CLI_ARGS}} {{.ANSIBLE_PLAYBOOK_DIR}}/k3s.yml"
 
   reset:
     desc: ☸ Reset k3s stack from beginning of it's inception
     dir: provision/ansible
     cmds:
-      - ansible-playbook -i inventory/hosts.ini playbooks/k3s_reset.yml {{.CLI_ARGS}}
+      - task: :generate-ansible-inventory
+      - "{{.ANSIBLE_PLAYBOOK_CMD}} {{.ANSIBLE_PLAYBOOK_DIR}}/k3s_reset.yml {{.CLI_ARGS}}"
 
   helm-charts:
     desc: ☸ Deploy helm charts
     dir: provision/ansible
     cmds:
-      - ansible-playbook -i inventory/hosts.ini --tags "helm_charts" playbooks/k3s.yml {{.CLI_ARGS}}
+      - task: :generate-ansible-inventory
+      - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags \"helm_charts\" {{.ANSIBLE_PLAYBOOK_DIR}}/k3s.yml {{.CLI_ARGS}}"
 
   scp-kubeconfig-single:
     desc: Copy k3s kube config from single molecule node

@@ -7,7 +7,7 @@
   shell:   # can't user docker resource because it uses the loki logging driver, so no output in ansible return
     cmd: "docker run --rm authelia/authelia:latest authelia hash-password {{ item.value.password }} | cut -d\\  -f 3"
   register: authelia_hashed_passwords_result
-  with_dict: "{{ authelia.users }}"
+  with_dict: "{{ authelia_users }}"
   # no_log: true
 
 - name: debug authelia
@@ -201,7 +201,7 @@
 #         user: {{ zigbe2mqtt_user }}
 #         password: {{ mqtt_logins[zigbe2mqtt_user] }}
 #       serial:
-#         port: {{ hass.zigbee_adapter_tty }}
+#         port: {{ hass_zigbee_adapter_tty }}
 #       frontend:
 #         port: {{ zigbee2mqtt_port }}
 

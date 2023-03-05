@@ -19,31 +19,32 @@ vars:
   # Check if running as root, omit `sudo` from make targets if that is the case.
   DO_SUDO:
     sh: if [ "$UID" -ne 0 ]; then echo "sudo"; fi
-  ANSIBLE_DIR: "{{.PROJECT_DIR}}/provision/ansible"
   TERRAFORM_DIR: "{{.PROJECT_DIR}}/provision/terraform"
+  ANSIBLE_DIR: "{{.PROJECT_DIR}}/provision/ansible"
   # Check if VAULT_PASS is set, and pass through to container, otherwise don't and let stdin in the parse_pass python script, ask for it.
   ANSIBLE_PLAYBOOK_DIR: "{{.ANSIBLE_DIR}}/playbooks"
   ANSIBLE_INVENTORY_DIR: "{{.ANSIBLE_DIR}}/inventory"
+  ANSIBLE_INVENTORY_FILE: "{{.ANSIBLE_INVENTORY_DIR}}/generated.yml"
+  ANSIBLE_PLAYBOOK_CMD: "doppler run -- ansible-playbook -i {{.ANSIBLE_INVENTORY_FILE}}"
 
 env:
   KUBECONFIG: "{{.USER_HOME_DIR}}/.kube/config"
   PATH: "{{.PATH}}:{{.PROJECT_DIR}}/bin"  # add project bin to path
-  ANSIBLE_CONFIG: "{{.ANSIBLE_DIR}}/ansible.cfg"
   PROJECT_DIR: "{{.PROJECT_DIR}}"
+  ANSIBLE_CONFIG: "{{.ANSIBLE_DIR}}/ansible.cfg"
 
 includes:
-  ansible: .taskfiles/AnsibleTasks.yml
-  # cluster: .taskfiles/ClusterTasks.yml
+  ansible: .taskfiles/Ansible.yml
   docker: .taskfiles/Docker.yml
+  # cluster: .taskfiles/Flux.yml
   # k3s: .taskfiles/K3s.yml
   lxc: .taskfiles/Lxc.yml
   # minikube: .taskfiles/Minikube.yml
   molecule: .taskfiles/Molecule.yml
-  precommit: .taskfiles/PrecommitTasks.yml
+  precommit: .taskfiles/Precommit.yml
   proxmox: .taskfiles/Proxmox.yml
   setup: .taskfiles/Setup.yml
-  # sops: .taskfiles/SopsTasks.yml
-  terraform: .taskfiles/TerraformTasks.yml
+  terraform: .taskfiles/Terraform.yml
   windows: .taskfiles/Windows.yml
   workstation: .taskfiles/Workstation.yml
   wsl: .taskfiles/Wsl.yml
@@ -58,52 +59,21 @@ tasks:
   #   cmds:
   #     - task: workstation-registry-shell
 
-#---------------------------#
-# Vault and Variables Tasks #
-#---------------------------#
+#-----------------------------#
+# Secrets and Variables Tasks #
+#-----------------------------#
 
-# Let's allow the user to edit ansible vaults in-place instead of flat out decrypting it to reduce risk of pushing it in cleartext to remote repo.
-# Even though I've got the git commit hook in place, when the repo name changes for example, and repo is cloned fresh, this poses a problem when forgetting to run `make setup` first and deploying the hook.
-# This approach is just far safer than decrypting and encrypting the files themselves below.
-
-  edit-vault:
-    desc: 🔒 Edit ansible vaults in-place instead of flat out decrypting it to reduce risk of pushing it in cleartext to remote repo.
-    dir: provision/ansible/inventory/group_vars/all
-    cmds:
-      - ansible-vault edit vault.yml
-
-  edit-inventory:
-    desc: 🔒 Edit ansible inventory in-place instead of flat out decrypting it to reduce risk of pushing it in cleartext to remote repo.
-    dir: provision/ansible/inventory
-    cmds:
-      - ansible-vault edit hosts.ini
-
-  decrypt:
-    desc: 🔒 Decrypt vaulted items (requires stored password)
-    # internal: true
-    dir: provision/ansible/inventory
-    cmds:
-      - ansible-vault decrypt hosts.ini
-      - ansible-vault decrypt group_vars/all/vault.yml
-
-  encrypt:
-    desc: 🔒 Encrypt vaulted items (requires stored password)
-    # internal: true
-    dir: provision/ansible/inventory
-    cmds:
-      - ansible-vault encrypt hosts.ini
-      - ansible-vault encrypt group_vars/all/vault.yml
-
-  list-vars:
-    desc: 🔒 List variables
+  generate-ansible-inventory:
+    desc: Copy plain yaml inventory file from doppler and output as a generated inventory.
     internal: true
     cmds:
-      - $(CURDIR)/bin/vars_list.py vars/config.yml vault.yml {{.CLI_ARGS}}
+      - doppler secrets get ANSIBLE_HOSTS_INVENTORY --plain > {{.ANSIBLE_INVENTORY_DIR}}/generated.yml
 
   list-tags:
     desc: 🔒 List the available tags that you can run standalone from the playbook
+    dir: "{{.ANSIBLE_PLAYBOOK_DIR}}"
     cmds:
-      - grep 'tags:' playbook_*.yml | grep -v always | awk -F\" '{print $$2}'
+      - grep 'tags:' *.yml | grep -v always | awk -F\" '{print $$2}'
 
 #---------#
 # Linters #

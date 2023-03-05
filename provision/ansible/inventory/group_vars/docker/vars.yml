@@ -2,7 +2,7 @@
 # Run `make update-compose` whenever it needs updating.
 update_compose: true
 setup_containers: true
-setup_nas_mounts: true
+setup_nas_mounts: false
 setup_crons: true
 run_post_tasks: true
 hass_config: true

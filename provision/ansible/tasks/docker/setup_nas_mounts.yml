@@ -1,52 +1,52 @@
 ---
 # I cannot recurse dirs here because some of my mounts are in sub-dirs.
 # This is an issue because the below task errors as the dirs get created as
-# - name: Ensure mount directories exist
-#   file:
-#     path: "{{ user_dir }}/mount/{{ item }}"
-#     state: directory
-#     # We don't want to chown or chmod because running this again after mounting will cause errors
-#     # owner: "{{ main_user }}"
-#     # group: "{{ docker_group }}"
-#     # mode: '0777'  # Mounted drives will have 777
-#     recurse: true
-#   with_items: "{{ nas.mounts }}"
-#   become_user: "{{ vm.user | default(vm_defaults.user) }}"
-#   register: mount_dirs_exist
+- name: Ensure mount directories exist
+  file:
+    path: "{{ user_dir }}/mount/{{ item }}"
+    state: directory
+    # We don't want to chown or chmod because running this again after mounting will cause errors
+    # owner: "{{ main_user }}"
+    # group: "{{ docker_group }}"
+    # mode: '0777'  # Mounted drives will have 777
+    recurse: true
+  with_items: "{{ nas.mounts }}"
+  become_user: "{{ vm.user | default(vm_defaults.user) }}"
+  register: mount_dirs_exist
 
-# - name: Ensure mount directories exist
-#   file:
-#     path: "{{ user_dir }}/mount/{{ item }}"
-#     state: directory
-#     owner: "{{ main_user }}"
-#     # group: "{{ docker_group }}"
-#     mode: '0777'  # Mounted drives will have 777
-#     recurse: true
-#   with_items: "{{ nas.mounts }}"
-#   register: mount_dirs_exist
-#   ignore_errors: true   # Because if they already exist and are mounted, it will fail because it cannot change user/group of a mount
+- name: Ensure mount directories exist
+  file:
+    path: "{{ user_dir }}/mount/{{ item }}"
+    state: directory
+    owner: "{{ main_user }}"
+    # group: "{{ docker_group }}"
+    mode: '0777'  # Mounted drives will have 777
+    recurse: true
+  with_items: "{{ nas.mounts }}"
+  register: mount_dirs_exist
+  ignore_errors: true   # Because if they already exist and are mounted, it will fail because it cannot change user/group of a mount
 
 # Let's assert that the last command is a success when certain things exist
-## Needs work because there are perms issues with NFS and how I am mounting them in ansible. Commenting this for now.
-# - name: Are we mounted or is it just erroring because it already exists?
-#   assert:
-#     that:
-#       - "'foo' in some_command_result.stdout"
-#     fail_msg: "blah"
-#     success_msg: "blah"
+# Needs work because there are perms issues with NFS and how I am mounting them in ansible. Commenting this for now.
+- name: Are we mounted or is it just erroring because it already exists?
+  assert:
+    that:
+      - "'foo' in some_command_result.stdout"
+    fail_msg: "blah"
+    success_msg: "blah"
 
-# - name: Write custom line in fstab to denote mounts managed by ansible
-#   lineinfile:
-#     path: /etc/fstab
-#     insertbefore: '^{{nas.ip}}.*'
-#     firstmatch: true
-#     line: "### Ansible managed mounts ###"
+- name: Write custom line in fstab to denote mounts managed by ansible
+  lineinfile:
+    path: /etc/fstab
+    insertbefore: '^{{nas.ip}}.*'
+    firstmatch: true
+    line: "### Ansible managed mounts ###"
 
-# - name: Mount NFS volumes from NAS
-#   ansible.posix.mount:
-#     src: "{{ nas.ip }}:{{ item.value.remote_mapping }}"
-#     path: "{{ item.value.local_mapping }}"
-#     opts: wsize=65536,rsize=65536,hard,timeo=60,intr
-#     state: mounted
-#     fstype: nfs
-#   with_dict: '{{ nas.mounts }}'
+- name: Mount NFS volumes from NAS
+  ansible.posix.mount:
+    src: "{{ nas.ip }}:{{ item.value.remote_mapping }}"
+    path: "{{ item.value.local_mapping }}"
+    opts: wsize=65536,rsize=65536,hard,timeo=60,intr
+    state: mounted
+    fstype: nfs
+  with_dict: '{{ nas.mounts }}'

@@ -9,9 +9,9 @@
 users:
 {% for user, user_dict in authelia.users.items() %}
   {{ user }}:
-    displayname: "{{ authelia.users[user].displayname }}"
+    displayname: "{{ authelia_users[user].displayname }}"
     password: {{ authelia_hashed_passwords.users[user] }}
-    email: {{ authelia.users[user].email }}
+    email: {{ authelia_users[user].email }}
     groups:
 {% for group in authelia.users[user].groups %}
       - {{ group }}

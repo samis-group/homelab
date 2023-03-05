@@ -7,10 +7,10 @@ tasks:
     desc: Deploy k3s_single vm's
     dir: provision/ansible
     cmds:
-      - molecule create -s k3s_single
+      - doppler run -- molecule create -s k3s_single
 
   converge_k3s_single:
     desc: Deploy k3s_single vm's
     dir: provision/ansible
     cmds:
-      - molecule converge -s k3s_single
+      - doppler run -- molecule converge -s k3s_single

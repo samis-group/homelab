@@ -16,7 +16,7 @@ tasks:
       - ansible-playbook -i inventory/hosts.ini --tags lxc_dev playbooks/lxc.yml {{.CLI_ARGS}}
 
   gitlab-runner:
-    desc: 📦 Make Gitlab Runner LXC. Ensure 'gitlab.runner_token' in vault is updated with your group runners. Mine is here -> https://gitlab.com/groups/sami-group/-/runners.
+    desc: 📦 Make Gitlab Runner LXC. Ensure 'gitlab_runner_token' in doppler is updated with your group runners. Mine is here -> https://gitlab.com/groups/sami-group/-/runners.
     dir: provision/ansible
     cmds:
       - ansible-playbook -i inventory/hosts.ini --tags lxc_gitlab_runner playbooks/lxc.yml {{.CLI_ARGS}}

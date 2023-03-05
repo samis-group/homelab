@@ -10,4 +10,4 @@ lxc_container:
     - nesting=1
     # - mount=nfs
 
-gitlab_runner_registration_token: "{{ gitlab.runner_token }}"
+gitlab_runner_registration_token: "{{ gitlab_runner_token }}"

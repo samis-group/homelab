@@ -9,17 +9,17 @@ provider "ansiblevault" {
 
 data "ansiblevault_path" "proxmox_api_user" {
   path = "./group_vars/all/vault.yml"
-  key = "vault_pve.proxmox_api_user"
+  key = "vault_proxmox_api_user"
 }
 
 data "ansiblevault_path" "proxmox_api_pass" {
   path = "./group_vars/all/vault.yml"
-  key = "vault_pve.proxmox_api_pass"
+  key = "vault_proxmox_api_pass"
 }
 
 data "ansiblevault_path" "proxmox_host" {
   path = "./group_vars/all/vault.yml"
-  key = "vault_pve.proxmox_host"
+  key = "vault_proxmox_host"
 }
 
 data "ansiblevault_path" "proxmox_port" {
@@ -29,7 +29,7 @@ data "ansiblevault_path" "proxmox_port" {
 
 data "ansiblevault_path" "proxmox_node" {
   path = "./group_vars/all/vault.yml"
-  key = "vault_pve.proxmox_node"
+  key = "vault_proxmox_node"
 }
 
 data "ansiblevault_path" "domain_name" {

@@ -12,7 +12,7 @@ log:
   level: debug
 
 # This secret can also be set using the env variables AUTHELIA_JWT_SECRET_FILE
-jwt_secret: {{ authelia.jwt_secret }} # use docker secret file instead AUTHELIA_JWT_SECRET_FILE
+jwt_secret: {{ authelia_jwt_secret }} # use docker secret file instead AUTHELIA_JWT_SECRET_FILE
 theme: dark
 default_redirection_url: "https://home.{{ domain_name }}"
 
@@ -119,7 +119,7 @@ session:
   remember_me_duration: 1M      # 1 Month?
 
   redis:
-    host: {{ redis.host }}
+    host: {{ redis_host }}
     port: {{ redis_port }}
     # This secret can also be set using the env variables AUTHELIA_SESSION_REDIS_PASSWORD
     # password: authelia
@@ -137,17 +137,17 @@ regulation:
 
 ## Storage Provider Configuration
 storage:
-  encryption_key: "{{ authelia.storage_encryption_key }}" # Now required
+  encryption_key: "{{ authelia_storage_encryption_key }}" # Now required
   # local:
   #   path: /config/db.sqlite3
   mysql:
   # MySQL allows running multiple authelia instances. Create database and enter details below.
     host: {{ docker_ip }}
     port: {{ mariadb_port }}
-    database: {{ authelia.database.name }}
-    username: {{ authelia.database.username }}
+    database: {{ authelia_database_name }}
+    username: {{ authelia_database_username }}
     # Password can also be set using a secret: https://docs.authelia.com/configuration/secrets.html
-    password: {{ authelia.database.password }}
+    password: {{ authelia_database_password }}
     timeout: 20s
 
 notifier:
@@ -155,9 +155,9 @@ notifier:
     username: "{{ gmail_address }}"
     # This secret can also be set using the env variables AUTHELIA_NOTIFIER_SMTP_PASSWORD_FILE
     password: "{{ gmail_app_pass }}"    # The gmail password you use to login with, NOT the gmail_app_pass
-    host: "{{ authelia.smtp.host }}"
-    port: "{{ authelia.smtp.port }}"  # 465 for SSL
-    sender: "{{ authelia.smtp.sender }}"
+    host: "{{ authelia_smtp_host }}"
+    port: "{{ authelia_smtp_port }}"  # 465 for SSL
+    sender: "{{ authelia_smtp_sender }}"
   # For testing purpose, notifications can be sent in a file. Be sure map the volume in docker-compose.
   # filesystem:
   #   filename: /config/notification.txt

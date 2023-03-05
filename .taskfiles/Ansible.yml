@@ -14,66 +14,76 @@ tasks:
     desc: List all the hosts
     dir: provision/ansible
     cmds:
-      - ansible all -i {{.ANSIBLE_INVENTORY_DIR}}/hosts.ini --list-hosts
+      - ansible all -i {{.ANSIBLE_INVENTORY_FILE}} --list-hosts
 
   prepare:
     desc: Prepare all the k8s nodes for running k3s
     dir: provision/ansible
     cmds:
-      - ansible-playbook -i {{.ANSIBLE_INVENTORY_DIR}}/hosts.ini {{.ANSIBLE_PLAYBOOK_DIR}}/cluster-prepare.yml
+      - task: :generate-ansible-inventory
+      - "{{.ANSIBLE_PLAYBOOK_CMD}} {{.ANSIBLE_PLAYBOOK_DIR}}/cluster-prepare.yml {{.CLI_ARGS}}"
 
   install:
     desc: Install Kubernetes on the nodes
     dir: provision/ansible
     cmds:
-      - ansible-playbook -i {{.ANSIBLE_INVENTORY_DIR}}/hosts.ini {{.ANSIBLE_PLAYBOOK_DIR}}/cluster-installation.yml
+      - task: :generate-ansible-inventory
+      - "{{.ANSIBLE_PLAYBOOK_CMD}} {{.ANSIBLE_PLAYBOOK_DIR}}/cluster-installation.yml {{.CLI_ARGS}}"
 
   nuke:
     desc: Uninstall Kubernetes on the nodes
     dir: provision/ansible
     interactive: true
     cmds:
-      - ansible-playbook -i {{.ANSIBLE_INVENTORY_DIR}}/hosts.ini {{.ANSIBLE_PLAYBOOK_DIR}}/cluster-nuke.yml
+      - task: :generate-ansible-inventory
+      - "{{.ANSIBLE_PLAYBOOK_CMD}} {{.ANSIBLE_PLAYBOOK_DIR}}/cluster-nuke.yml {{.CLI_ARGS}}"
       - task: reboot
 
   ping:
     desc: Ping all the hosts
     dir: provision/ansible
     cmds:
-      - ansible all -i {{.ANSIBLE_INVENTORY_DIR}}/hosts.ini --one-line -m 'ping'
+      - task: :generate-ansible-inventory
+      - ansible all -i {{.ANSIBLE_INVENTORY_FILE}} --one-line -m 'ping'
 
   uptime:
     desc: Uptime of all the hosts
     dir: provision/ansible
     cmds:
-      - ansible all -i {{.ANSIBLE_INVENTORY_DIR}}/hosts.ini --one-line -a 'uptime'
+      - task: :generate-ansible-inventory
+      - ansible all -i {{.ANSIBLE_INVENTORY_FILE}} --one-line -a 'uptime'
 
   reboot:
     desc: Reboot all the k8s nodes
     dir: provision/ansible
     cmds:
-      - ansible-playbook -i {{.ANSIBLE_INVENTORY_DIR}}/hosts.ini {{.ANSIBLE_PLAYBOOK_DIR}}/cluster-reboot.yml
+      - task: :generate-ansible-inventory
+      - "{{.ANSIBLE_PLAYBOOK_CMD}} {{.ANSIBLE_PLAYBOOK_DIR}}/cluster-reboot.yml {{.CLI_ARGS}}"
 
   poweroff:
     desc: Shutdown all the k8s nodes
     dir: provision/ansible
     cmds:
-      - ansible kubernetes -i {{.ANSIBLE_INVENTORY_DIR}}/hosts.ini -a '/usr/bin/systemctl poweroff' --become
+      - task: :generate-ansible-inventory
+      - ansible kubernetes -i {{.ANSIBLE_INVENTORY_FILE}} -a '/usr/bin/systemctl poweroff' --become
 
   lint:
     desc: Ansible lint
     dir: provision/ansible
     cmds:
+      - task: :generate-ansible-inventory
       - ansible-lint --config-file {{.PROJECT_DIR}}/.ansible-lint --project-dir {{.PROJECT_DIR}}/provision/ansible/ --exclude="molecule/"
 
   test:
     desc: 🧪 Run the test playbook
     dir: provision/ansible
     cmds:
-      - ansible-playbook -i {{.ANSIBLE_INVENTORY_DIR}}/hosts.ini {{.ANSIBLE_PLAYBOOK_DIR}}/test.yml {{.CLI_ARGS}}
+      - task: :generate-ansible-inventory
+      - "{{.ANSIBLE_PLAYBOOK_CMD}} {{.ANSIBLE_PLAYBOOK_DIR}}/test.yml {{.CLI_ARGS}}"
 
   wsl-personal:
     desc: Setup/Configure WSL
     dir: provision/ansible
     cmds:
-      - ansible-playbook -i {{.ANSIBLE_INVENTORY_DIR}}/hosts.ini {{.ANSIBLE_PLAYBOOK_DIR}}/wsl.yml {{.ANSIBLE_PLAYBOOK_DIR}}/wsl_personal.yml {{.CLI_ARGS}}
+      - task: :generate-ansible-inventory
+      - "{{.ANSIBLE_PLAYBOOK_CMD}} {{.ANSIBLE_PLAYBOOK_DIR}}/wsl.yml {{.ANSIBLE_PLAYBOOK_DIR}}/wsl_personal.yml {{.CLI_ARGS}}"
