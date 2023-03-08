@@ -12,9 +12,9 @@ vars:
     sh: git log -n 1 --format=%h
   USER_HOME_DIR:
     sh: echo $HOME
-  USERID:
+  USER_ID:
     sh: id -u
-  GROUPID:
+  GROUP_ID:
     sh: id -g
   # Check if running as root, omit `sudo` from make targets if that is the case.
   DO_SUDO:
@@ -34,19 +34,35 @@ env:
   ANSIBLE_CONFIG: "{{.ANSIBLE_DIR}}/ansible.cfg"
 
 includes:
-  ansible: .taskfiles/Ansible.yml
-  docker: .taskfiles/Docker.yml
+  ansible:
+    taskfile: .taskfiles/Ansible.yml
+    aliases: ["a", "ans"]
+  docker:
+    taskfile: .taskfiles/Docker.yml
+    aliases: ["d"]
   # cluster: .taskfiles/Flux.yml
   # k3s: .taskfiles/K3s.yml
-  lxc: .taskfiles/Lxc.yml
+  lxc:
+    taskfile: .taskfiles/Lxc.yml
+    aliases: ["l"]
   # minikube: .taskfiles/Minikube.yml
-  molecule: .taskfiles/Molecule.yml
+  molecule:
+    taskfile: .taskfiles/Molecule.yml
+    aliases: ["m"]
   precommit: .taskfiles/Precommit.yml
   proxmox: .taskfiles/Proxmox.yml
-  setup: .taskfiles/Setup.yml
-  terraform: .taskfiles/Terraform.yml
-  windows: .taskfiles/Windows.yml
-  workstation: .taskfiles/Workstation.yml
+  setup:
+    taskfile: .taskfiles/Setup.yml
+    aliases: ["s"]
+  terraform:
+    taskfile: .taskfiles/Terraform.yml
+    aliases: ["t", "tf"]
+  windows:
+    taskfile: .taskfiles/Windows.yml
+    aliases: ["win"]
+  workstation:
+    taskfile: .taskfiles/Workstation.yml
+    aliases: ["ws"]
   wsl: .taskfiles/Wsl.yml
 
 tasks:

@@ -198,9 +198,6 @@ helm_charts:
 ### Doppler vars ###
 ####################
 
-# Entire yaml dump from doppler
-doppler_vault_data: "{{ lookup('pipe', 'doppler secrets get -c ans --plain ANSIBLE_VAULT_RAW') | string | from_yaml }}"
-
 main_user: "{{ lookup('env', 'MAIN_USER') }}"  # User that will be created and will manage the systems/containers
 main_pass: "{{ lookup('env', 'MAIN_PASS') }}"  # Password for the above user
 docker_group: "{{ lookup('env', 'DOCKER_GROUP') }}"            # Leave this as 'docker', the user will need to be added to this group to run docker

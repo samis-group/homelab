@@ -7,18 +7,26 @@ set -e
 # This will allow us to mount content from our FS without perms issues inside the container
 echo "usermod -u ${USER_ID} ${USER_NAME}"
 usermod -u ${USER_ID} ${USER_NAME}
-# echo "groupmod -u ${GROUP_ID} ${GROUP_NAME}"
-# groupmod -g ${GROUP_ID} ${GROUP_NAME}
+# echo "groupmod -u ${GROUP_ID} ${USER_NAME}"
+# groupmod -g ${GROUP_ID} ${USER_NAME}
 
 # Aliases
-gosu ${USER_NAME} echo "alias ll='ls -alh'" >> /home/ubuntu/.bashrc
+gosu ${USER_NAME} echo "alias ll='ls -alh'" >> /home/${USER_NAME}/.bashrc
 
 # Start SSH inside entrypoint for ansible tasks delegated to localhost (container)
 echo "Starting sshd..."
 service ssh start > /dev/null
 
 echo "Setting git safe dir..."
-git config --global --add safe.directory /
+gosu ${USER_NAME} git config --global --add safe.directory /homelab/
+
+# For some reason, when mounting vols inside the container, they're owned by root.
+# This fixes it inside the container I suppose.....
+find /homelab/ -type d -exec chown ${USER_NAME} {} +
+
+chown ${USER_NAME} /homelab/requirements.*
+chown -R ${USER_NAME} /homelab/roles/
+chown -R ${USER_NAME} /home/${USER_NAME}/.doppler
 
 # Using exec replaces the entrypoint.sh process as the new PID 1 in the container.
 # The replacement of the container PID 1 process means your application process

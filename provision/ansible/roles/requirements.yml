@@ -28,7 +28,5 @@
 - name: markosamuli.pyenv
   src: https://github.com/markosamuli/ansible-pyenv.git
   scm: git
-- src: https://github.com/c0sco/ansible-modules-bitwarden # Allows bitwarden lookups
-  scm: git
 
 # Others - Third party etc.

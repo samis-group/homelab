@@ -4,20 +4,19 @@ version: "3"
 vars:
   LOCAL_IMAGE_NAME: homelab_workstation
   REGISTRY_IMAGE_NAME: registry.gitlab.com/sami-group/homelab
-  DO_VAULT_PASS:
-    sh: if ! [ -z $VAULT_PASS ]; then echo '--env VAULT_PASS=${VAULT_PASS}'; fi
   DOCKER_RUN_CMD: docker container inspect {{.LOCAL_IMAGE_NAME}} > /dev/null 2>&1 || 
-    docker run -d -it {{.DO_VAULT_PASS}}
-    --volume "{{.PROJECT_DIR}}/provision:/home/ubuntu/provision"
-    --volume "{{.PROJECT_DIR}}/.git:/home/ubuntu/.git"
-    --volume "{{.PROJECT_DIR}}/Taskfile.yml:/home/ubuntu/Taskfile.yml"
-    --volume "{{.PROJECT_DIR}}/.taskfiles:/home/ubuntu/.taskfiles"
+    docker run -d -it
+    --volume "{{.PROJECT_DIR}}/provision:/homelab/provision"
+    --volume "{{.PROJECT_DIR}}/.git:/homelab/.git"
+    --volume "{{.PROJECT_DIR}}/Taskfile.yml:/homelab/Taskfile.yml"
+    --volume "{{.PROJECT_DIR}}/.taskfiles:/homelab/.taskfiles"
     --volume "${HOME}/.ssh/:/home/ubuntu/.ssh"
-    --env USER_ID={{.USERID}}
-    # --env GROUP_ID={{.GROUPID}}
-    # --user={{.USERID}}:{{.USERID}}
+    --env USER_ID={{.USER_ID}}
+    # --user={{.USER_ID}}:{{.USER_ID}}
+  DOCKER_GID_ADD:
+    sh: "[[ $(id -g) -gt 1000 ]] && echo '--env GROUP_ID={{.GROUP_ID}}' || echo ''"
   DOCKER_BUILD_CMD: docker build -t {{.LOCAL_IMAGE_NAME}}
-  DOCKER_EXEC_CMD: docker exec -u {{.USERID}} -it {{.LOCAL_IMAGE_NAME}}
+  DOCKER_EXEC_CMD: docker exec -u {{.USER_ID}} -it {{.LOCAL_IMAGE_NAME}}
   DOCKER_VOLUME_DOTFILES: --volume "${HOME}/.dotfiles:/home/ubuntu/.dotfiles"
   DOCKER_VOLUME_DOPPLER: --volume "{{.PROJECT_DIR}}/.doppler:/home/ubuntu/.doppler"
 
@@ -32,6 +31,7 @@ tasks:
   # Too late now.
   local-shell:
     desc: 🔨🐳 Build the Homelab Workstation container locally and jump into shell in order to run your automation stuff
+    deps: [doppler-login]
     cmds:
       - task: run-docker-local-dotfiles
       - "{{.DOCKER_EXEC_CMD}} bash"
@@ -39,6 +39,7 @@ tasks:
 
   registry-shell:
     desc: 🔨🐳 Download the registry Homelab Workstation image and jump into shell in order to run your automation stuff
+    deps: [doppler-login]
     cmds:
       - task: run-docker-registry-dotfiles
       - "{{.DOCKER_EXEC_CMD}} bash"
@@ -47,15 +48,16 @@ tasks:
   # Figure out how to execute this task when dir doesn't exist..
   doppler-login:
     desc: Creates doppler dir if it doesn't exist and Login to Doppler from inside the container. The volume is mounted in the docker run cmd so it persists upon re-creation unless re-cloning the repo.
-    preconditions:
-      - test ! -f ${DOPPLER_CONFIG}/.doppler.yaml
+    deps: [cleanup]
     env:
       DOPPLER_CONFIG: "{{.PROJECT_DIR}}/.doppler"
+    status: # Check if doppler token exists in file, means we've already logged in, otherwise login!
+      - grep -q '\s\+token' ${DOPPLER_CONFIG}/.doppler.yaml
     cmds:
       - "test -d ${DOPPLER_CONFIG} || mkdir ${DOPPLER_CONFIG}"
       - task: run-docker-registry-dotfiles
       - "{{.DOCKER_EXEC_CMD}} doppler login"
-      - "{{.DOCKER_EXEC_CMD}} doppler setup"
+      - "{{.DOCKER_EXEC_CMD}} doppler setup --scope /homelab"
       - task: cleanup
 
   # Figure out how to execute this task when dir doesn't exist..
@@ -68,18 +70,22 @@ tasks:
 
   cleanup:
     desc: Stop and remove the homelab workstation container
+    status: # Check if containers aren't running, otherwise destroy!
+      - "! docker ps -a | grep -q '{{.LOCAL_IMAGE_NAME}}'"
     cmds:
-      - "docker stop {{.LOCAL_IMAGE_NAME}} && docker rm {{.LOCAL_IMAGE_NAME}}"
+      - "docker stop {{.LOCAL_IMAGE_NAME}}"
+      - "docker rm {{.LOCAL_IMAGE_NAME}}"
 
   run-docker-local:
     desc: Run the docker container from the locally built image (also builds the image)
     internal: true
-    deps: [build-docker]
+    deps: [build-docker, cleanup]
     cmds:
       - "{{.DOCKER_RUN_CMD}} {{.DOCKER_VOLUME_DOPPLER}} --name {{.LOCAL_IMAGE_NAME}} {{.LOCAL_IMAGE_NAME}}"
 
   run-docker-registry:
     desc: Run the docker container from the public registry
+    deps: [cleanup]
     internal: true
     cmds:
       - "{{.DOCKER_RUN_CMD}} {{.DOCKER_VOLUME_DOPPLER}} --name {{.LOCAL_IMAGE_NAME}} {{.REGISTRY_IMAGE_NAME}}"
@@ -87,22 +93,23 @@ tasks:
   run-docker-local-dotfiles:
     desc: Run the docker container from the locally built image (also builds the image) with dotfiles volume mount (mainly personal)
     internal: true
-    deps: [build-docker]
+    deps: [build-docker, cleanup]
     cmds:
-      - "{{.DOCKER_RUN_CMD}} {{.DOCKER_VOLUME_DOPPLER}} {{.DOCKER_VOLUME_DOTFILES}} --name {{.LOCAL_IMAGE_NAME}} {{.LOCAL_IMAGE_NAME}}"
+      - "{{.DOCKER_RUN_CMD}} {{.DOCKER_VOLUME_DOPPLER}} {{.DOCKER_VOLUME_DOTFILES}} {{.DOCKER_GID_ADD}} --name {{.LOCAL_IMAGE_NAME}} {{.LOCAL_IMAGE_NAME}}"
 
   run-docker-registry-dotfiles:
     desc: Run the docker container from the public registry
+    deps: [cleanup]
     internal: true
     cmds:
-      - "{{.DOCKER_RUN_CMD}} {{.DOCKER_VOLUME_DOPPLER}} {{.DOCKER_VOLUME_DOTFILES}} --name {{.LOCAL_IMAGE_NAME}} {{.REGISTRY_IMAGE_NAME}}"
+      - "{{.DOCKER_RUN_CMD}} {{.DOCKER_VOLUME_DOPPLER}} {{.DOCKER_VOLUME_DOTFILES}} {{.DOCKER_GID_ADD}} --name {{.LOCAL_IMAGE_NAME}} {{.REGISTRY_IMAGE_NAME}}"
 
   run-docker-local-dotfiles-no-doppler:
     desc: Run the docker container from the locally built image (also builds the image) with dotfiles volume mount (mainly personal) WITHOUT doppler mounts
     internal: true
-    deps: [build-docker]
+    deps: [build-docker, cleanup]
     cmds:
-      - "{{.DOCKER_RUN_CMD}} {{.DOCKER_VOLUME_DOTFILES}} --name {{.LOCAL_IMAGE_NAME}} {{.LOCAL_IMAGE_NAME}}"
+      - "{{.DOCKER_RUN_CMD}} {{.DOCKER_VOLUME_DOTFILES}} {{.DOCKER_GID_ADD}} --name {{.LOCAL_IMAGE_NAME}} {{.LOCAL_IMAGE_NAME}}"
 
   build-docker:
     desc: Builds the docker image locally. If `.vault-password` file exists, source the password from it (helps with local build tests), else see if `VAULT_PASS` env var exists.

@@ -32,29 +32,28 @@ RUN curl -Ls https://cli.doppler.com/install.sh | sh
 # Setup user inside container, allowing us to change this UID in the entrypoint at container runtime
 # for mounting our volumes to match the host filesystem with correct UID/GID permissions
 ENV USER_NAME=ubuntu
-ENV GROUP_NAME=ubuntu
 # Run as 1000 by default unless passed in
 ENV USER_ID=1000
 ENV GROUP_ID=1000
-RUN groupadd -g ${GROUP_ID} ${GROUP_NAME} && \
+# Create a group with same username to give ownership of group to this user for file perms
+RUN groupadd -g ${GROUP_ID} ${USER_NAME} && \
   useradd -u ${USER_ID} -g ${GROUP_ID} -G sudo -s /bin/bash -m ${USER_NAME} && \
   echo "${USER_NAME}:${USER_NAME}" | chpasswd
 
-WORKDIR /home/${USER_NAME}
+WORKDIR /homelab
 
 # Make required directories and chown them
-RUN mkdir /root/.ssh ./roles ./.ssh && \
-  # && chown -R ${USER_NAME}:${USER_NAME} /home/${USER_NAME}/.ssh \
+RUN mkdir /root/.ssh ./roles /home/${USER_NAME}/.ssh && \
 # Also ensure sudo group users are not asked for a password when using sudo command
   echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
 # Installs Ansible, pre-commit-hooks, molecule, along with other pip dependencies.
-COPY --chown=${USER_NAME}:${GROUP_NAME} requirements.txt ./
-RUN pip3 install --upgrade pip && pip3 install --no-cache-dir -r ./requirements.txt
+COPY --chown=${USER_NAME}:${USER_NAME} requirements.txt /homelab/
+RUN pip3 install --upgrade pip && pip3 install --no-cache-dir -r /homelab/requirements.txt
 
 # Copy ansible requirements and install them
-COPY --chown=${USER_NAME}:${GROUP_NAME} provision/ansible/requirements.yml ./
-COPY --chown=${USER_NAME}:${GROUP_NAME} provision/ansible/roles/requirements.yml ./roles/
+COPY --chown=${USER_NAME}:${USER_NAME} provision/ansible/requirements.yml /homelab/
+COPY --chown=${USER_NAME}:${USER_NAME} provision/ansible/roles/requirements.yml /homelab/roles/
 
 RUN mkdir -p /usr/share/ansible/collections && \
   mkdir -p /usr/share/ansible/roles && \
