@@ -29,7 +29,7 @@ tasks:
     dir: provision/ansible
     cmds:
       - task: :generate-ansible-inventory
-      - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags \"copy_files,update_compose,setup_containers\" -e \"copy_files=true\" -e \"update_compose=true\" {{.ANSIBLE_PLAYBOOK_DIR}}/docker.yml {{.CLI_ARGS}}"
+      - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags \"setup_containers\" -e \"setup_containers=true\" {{.ANSIBLE_PLAYBOOK_DIR}}/docker.yml {{.CLI_ARGS}}"
 
   run-tags:
     desc: 🐳 Run only the tags passed in separated by comma (e.g. make run-tags update_compose,logrotate)

@@ -7,7 +7,9 @@
   ignore_errors: true
 
 # Print user info every run
-- debug: var=user_info
+- name: Debug user info every run
+  debug:
+    var: user_info
 
 # Grab UID/GID into vars
 - name: set variables UID and GID for user to use in the rest of the playbook

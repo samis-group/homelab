@@ -247,7 +247,7 @@ vm_netmask: "{{ lookup('env', 'VM_NETMASK') }}" # network mask ## NOT VM VAR
 vm_gateway: "{{ lookup('env', 'VM_GATEWAY') }}" # gateway ### NOT VM var
 local_network_lan: "{{ lookup('env', 'LOCAL_NETWORK_LAN') }}"      # Your local LAN subnet that will be used to whitelist certain aceess to resources
 local_network_iot: "{{ lookup('env', 'LOCAL_NETWORK_IOT') }}"      # Your local IOT subnet that will be used to whitelist certain aceess to resources
-local_network_homelab: "{{ vm_network }}0/{{ local_network_homelab }}"   # Your local homelab subnet that will be used to whitelist certain aceess to resources
+local_network_homelab: "{{ lookup('env', 'LOCAL_NETWORK_HOMELAB') }}"   # Your local homelab subnet that will be used to whitelist certain aceess to resources
 
 # Proxmox bits for one host in cluster where tasks will be run
 proxmox_api_user: "{{ lookup('env', 'PROXMOX_API_USER') }}"
