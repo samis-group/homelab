@@ -69,11 +69,25 @@ tasks:
       - task: cleanup
 
   cleanup:
-    desc: Stop and remove the homelab workstation container
-    status: # Check if containers aren't running, otherwise destroy!
-      - "! docker ps -a | grep -q '{{.LOCAL_IMAGE_NAME}}'"
+    desc: Stop and remove the container if it's running
+    cmds:
+      - task: cleanup-stop
+      - task: cleanup-rm
+
+  cleanup-stop:
+    desc: Stop the homelab workstation container
+    internal: true
+    status: # Check if container is running, otherwise stop!
+      - "! docker ps | grep -q '{{.LOCAL_IMAGE_NAME}}'"
     cmds:
       - "docker stop {{.LOCAL_IMAGE_NAME}}"
+
+  cleanup-rm:
+    desc: Remove the homelab workstation container
+    internal: true
+    status: # Check if container exists, otherwise destroy!
+      - "! docker ps -a | grep -q '{{.LOCAL_IMAGE_NAME}}'"
+    cmds:
       - "docker rm {{.LOCAL_IMAGE_NAME}}"
 
   run-docker-local:
