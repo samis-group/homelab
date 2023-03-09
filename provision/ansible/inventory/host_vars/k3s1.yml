@@ -1,14 +1,10 @@
 ---
-lxc_ip_address: "{{ vm_network }}55"  # Required
-ansible_host: "{{ lxc_ip_address }}"
+lxc_ip_address: "{{ vm_network }}24"  # Required
 lxc_container:
   image: "debian-11-standard_11.3-1_amd64.tar.zst"  # Default User = root
-  storage: "SSD"
-  id: 225 # Required
-  description: "Gitlab Runner 01."
+  id: 105 # Required
+  description: "k3s Standalone Container."
   netif: '{"net0":"name=eth0,gw={{ vm_gateway }},ip={{ lxc_ip_address }}/{{ vm_netmask }},bridge={{ lxc_defaults.network_device }}"}'
   features:
     - nesting=1
-    # - mount=nfs
-
-gitlab_runner_registration_token: "{{ gitlab_runner_token }}"
+    - mount=nfs

@@ -18,9 +18,9 @@ platforms:
       - network_name: private_network
         ip: 192.168.31.38
     groups:
+      - k3s
       - k3sm1
-      - k3s_cluster
-      - master
+      - k3s_master
     config_options:
       # We currently can not use public-key based authentication on Ubuntu 22.04,
       # see: https://github.com/chef/bento/issues/1405
@@ -46,8 +46,8 @@ platforms:
       - network_name: private_network
         ip: 192.168.31.39
     groups:
-      - k3s_cluster
-      - master
+      - k3s
+      - k3s_master
     config_options:
       ssh.keep_alive: yes
       synced_folder: true
@@ -65,8 +65,8 @@ platforms:
       - network_name: private_network
         ip: 192.168.31.40
     groups:
-      - k3s_cluster
-      - master
+      - k3s
+      - k3s_master
     config_options:
       ssh.keep_alive: yes
       synced_folder: true
@@ -84,8 +84,8 @@ platforms:
       - network_name: private_network
         ip: 192.168.31.41
     groups:
-      - k3s_cluster
-      - node
+      - k3s
+      - k3s_node
     config_options:
       # We currently can not use public-key based authentication on Ubuntu 22.04,
       # see: https://github.com/chef/bento/issues/1405
@@ -107,8 +107,8 @@ platforms:
       - network_name: private_network
         ip: 192.168.31.42
     groups:
-      - k3s_cluster
-      - node
+      - k3s
+      - k3s_node
     config_options:
       ssh.keep_alive: yes
       synced_folder: true

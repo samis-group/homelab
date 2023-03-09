@@ -15,7 +15,7 @@
 # --- #
 
 - name: Setup and configure dev01 Container
-  hosts: dev_lxc
+  hosts: dev01
   tags: ["lxc_dev"]
   become: true
 
@@ -63,7 +63,7 @@
     #   ansible.builtin.import_tasks: ../tasks/k3s/deploy_helm_charts.yml
 
 - name: Setup Gitlab Runner LXC(s)
-  hosts: gitlab_runner
+  hosts: gitlab_runner01
   tags: ["lxc_gitlab_runner"]
   become: true
 

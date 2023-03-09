@@ -1,6 +1,5 @@
 ---
 lxc_ip_address: "{{ vm_network }}70"  # Required
-ansible_host: "{{ lxc_ip_address }}"
 lxc_container:
   # image: "ubuntu-22.04-standard_22.04-1_amd64.tar.zst"
   id: 170 # Required

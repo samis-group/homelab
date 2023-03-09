@@ -1,6 +1,18 @@
 ---
 version: "3"
 
+vars:
+  ANSIBLE_DIR: "{{.PROJECT_DIR}}/provision/ansible"
+  ANSIBLE_PLAYBOOK_DIR: "{{.ANSIBLE_DIR}}/playbooks"
+  ANSIBLE_INVENTORY_DIR: "{{.ANSIBLE_DIR}}/inventory"
+  ANSIBLE_INVENTORY_FILE: "{{.ANSIBLE_INVENTORY_DIR}}/generated.yml"
+  ANSIBLE_INVENTORY_CMD: "-i {{.ANSIBLE_INVENTORY_FILE}}"
+  ANSIBLE_CMD: "doppler run -- ansible {{.ANSIBLE_INVENTORY_CMD}}"
+  ANSIBLE_PLAYBOOK_CMD: "doppler run -- ansible-playbook {{.ANSIBLE_INVENTORY_CMD}}"
+
+env:
+  ANSIBLE_CONFIG: "{{.ANSIBLE_DIR}}/ansible.cfg"
+
 tasks:
 
   init:
@@ -10,11 +22,17 @@ tasks:
       - ansible-galaxy install -r roles/requirements.yml --roles-path ~/.ansible/roles
       - ansible-galaxy collection install -r requirements.yml --collections-path ~/.ansible/collections
 
-  list:
+  list-hosts:
     desc: List all the hosts
     dir: provision/ansible
     cmds:
-      - ansible all -i {{.ANSIBLE_INVENTORY_FILE}} --list-hosts
+      - ansible all {{.ANSIBLE_INVENTORY_CMD}} --list-hosts
+
+  list-tags:
+    desc: 🔒 List the available tags that you can run standalone from the playbook
+    dir: provision/ansible/playbooks
+    cmds:
+      - "grep 'tags:' *.yml | grep -v always | awk -F 'tags: ' '{print $2}'"
 
   prepare:
     desc: Prepare all the k8s nodes for running k3s
@@ -44,14 +62,14 @@ tasks:
     dir: provision/ansible
     cmds:
       - task: :generate-ansible-inventory
-      - ansible all -i {{.ANSIBLE_INVENTORY_FILE}} --one-line -m 'ping'
+      - ansible all {{.ANSIBLE_INVENTORY_CMD}} --one-line -m 'ping'
 
   uptime:
     desc: Uptime of all the hosts
     dir: provision/ansible
     cmds:
       - task: :generate-ansible-inventory
-      - ansible all -i {{.ANSIBLE_INVENTORY_FILE}} --one-line -a 'uptime'
+      - ansible all {{.ANSIBLE_INVENTORY_CMD}} --one-line -a 'uptime'
 
   reboot:
     desc: Reboot all the k8s nodes
@@ -65,7 +83,7 @@ tasks:
     dir: provision/ansible
     cmds:
       - task: :generate-ansible-inventory
-      - ansible kubernetes -i {{.ANSIBLE_INVENTORY_FILE}} -a '/usr/bin/systemctl poweroff' --become
+      - ansible kubernetes {{.ANSIBLE_INVENTORY_CMD}} -a '/usr/bin/systemctl poweroff' --become
 
   lint:
     desc: Ansible lint

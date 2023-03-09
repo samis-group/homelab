@@ -2,8 +2,9 @@
 version: "3"
 
 vars:
-  TF_DIR_CF: "{{.PROJECT_DIR}}/provision/terraform/cloudflare"
-  TF_DIR_PVE: "{{.PROJECT_DIR}}/provision/terraform/proxmox"
+  TERRAFORM_DIR: "{{.PROJECT_DIR}}/provision/terraform"
+  TF_DIR_CF: "{{.TERRAFORM_DIR}}/cloudflare"
+  TF_DIR_PVE: "{{.TERRAFORM_DIR}}/proxmox"
 
 tasks:
   tf-init:

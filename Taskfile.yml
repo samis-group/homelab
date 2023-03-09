@@ -6,7 +6,6 @@ version: "3"
 
 vars:
   PROJECT_DIR:
-    # Check if git dir, get full path, otherwise assume running from container
     sh: git rev-parse --show-toplevel
   GIT_COMMIT:
     sh: git log -n 1 --format=%h
@@ -19,19 +18,11 @@ vars:
   # Check if running as root, omit `sudo` from make targets if that is the case.
   DO_SUDO:
     sh: if [ "$UID" -ne 0 ]; then echo "sudo"; fi
-  TERRAFORM_DIR: "{{.PROJECT_DIR}}/provision/terraform"
-  ANSIBLE_DIR: "{{.PROJECT_DIR}}/provision/ansible"
-  # Check if VAULT_PASS is set, and pass through to container, otherwise don't and let stdin in the parse_pass python script, ask for it.
-  ANSIBLE_PLAYBOOK_DIR: "{{.ANSIBLE_DIR}}/playbooks"
-  ANSIBLE_INVENTORY_DIR: "{{.ANSIBLE_DIR}}/inventory"
-  ANSIBLE_INVENTORY_FILE: "{{.ANSIBLE_INVENTORY_DIR}}/generated.yml"
-  ANSIBLE_PLAYBOOK_CMD: "doppler run -- ansible-playbook -i {{.ANSIBLE_INVENTORY_FILE}}"
 
 env:
   KUBECONFIG: "{{.USER_HOME_DIR}}/.kube/config"
   PATH: "{{.PATH}}:{{.PROJECT_DIR}}/bin"  # add project bin to path
   PROJECT_DIR: "{{.PROJECT_DIR}}"
-  ANSIBLE_CONFIG: "{{.ANSIBLE_DIR}}/ansible.cfg"
 
 includes:
   ansible:
@@ -67,29 +58,24 @@ includes:
 
 tasks:
 
-#-------------------#
-# Set default tasks #
-#-------------------#
+#--------------#
+# default task #
+#--------------#
 
   # default:
   #   cmds:
   #     - task: workstation-registry-shell
 
-#-----------------------------#
-# Secrets and Variables Tasks #
-#-----------------------------#
+#------------------#
+# Dependency tasks #
+#------------------#
 
+  # This task is required by multiple taskfiles, call it like `:generate-ansible-inventory` with a colon to call a task in the main `taskfile.yml` file
   generate-ansible-inventory:
     desc: Copy plain yaml inventory file from doppler and output as a generated inventory.
     internal: true
     cmds:
       - doppler secrets get ANSIBLE_HOSTS_INVENTORY --plain > {{.ANSIBLE_INVENTORY_DIR}}/generated.yml
-
-  list-tags:
-    desc: 🔒 List the available tags that you can run standalone from the playbook
-    dir: "{{.ANSIBLE_PLAYBOOK_DIR}}"
-    cmds:
-      - grep 'tags:' *.yml | grep -v always | awk -F\" '{print $$2}'
 
 #---------#
 # Linters #

@@ -8,10 +8,10 @@ I have these scenarios:
 
 - **default**:
   A docker VM that runs my docker containers
-- **k3s_cluster**:
+- **k3s**:
   A 3 control + 2 worker node k3s cluster.
 - **k3s_single**:
-  Very similar to the `k3s_cluster` scenario, but uses only a single node for all cluster functionality. Quik-Kubes-Brah!
+  Very similar to the `k3s` scenario, but uses only a single node for all cluster functionality. Quik-Kubes-Brah!
 
 ### tl;dr
 
@@ -25,14 +25,14 @@ I have these scenarios:
   molecule converge
   ```
 
-- k3s_cluster:
+- k3s:
 
   ```bash
-  molecule create -s k3s_cluster
+  molecule create -s k3s
   ```
 
   ```bash
-  molecule converge -s k3s_cluster
+  molecule converge -s k3s
   ```
 
 - k3s_single:

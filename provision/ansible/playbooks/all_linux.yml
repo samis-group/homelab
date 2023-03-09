@@ -4,7 +4,7 @@
 ####################################
 
 - name: Run tasks on all linux hosts
-  hosts: docker wsl proxmox
+  hosts: linux
   become: true
 
   tasks:

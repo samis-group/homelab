@@ -3,7 +3,7 @@
 # Pre-tasks run before anything else! #
 # ----------------------------------- #
 - name: Pre-all
-  hosts: docker
+  hosts: docker1
   # Special tag "always" -> https://docs.ansible.com/ansible/latest/user_guide/playbooks_tags.html#special-tags-always-and-never
   tags: ["always"]
   gather_facts: false
@@ -12,7 +12,7 @@
       ansible.builtin.import_tasks: ../tasks/pre-all.yml
 
 - name: Play not as root user
-  hosts: docker
+  hosts: docker1
   # Special tag "always" -> https://docs.ansible.com/ansible/latest/user_guide/playbooks_tags.html#special-tags-always-and-never
   tags: ["always"]
   roles:
@@ -27,7 +27,7 @@
 ###########################
 
 - name: Configure Docker VM
-  hosts: docker
+  hosts: docker1
   # remote_user: "{{ vm.user | default(main_user) }}"  # Login as user and become root
   become: true
 

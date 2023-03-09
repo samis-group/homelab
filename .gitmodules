@@ -1,3 +1,0 @@
-[submodule "provision/ansible/inventory/host_vars"]
-	path = provision/ansible/inventory/host_vars
-	url = https://gitlab.com/sami-group/ansible/homelab-host-vars.git
