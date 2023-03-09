@@ -26,8 +26,6 @@ There is so much it can do, but some key things you can achieve, from just a deb
 
 ❗ **DNS is managed manually for the docker containers, but any VM's will have DNS created for them. There are no current plans for me to automate creating container records, i know there is a container that will do this for you but I haven't looked into it. Soz..**
 
-❗ **My Host inventories are managed in a private submodule. I've provided examples for you based off them to use. Head over to #if-you-are-not-me heading below for steps on what you need to do to setup this repo to run the bits yourself.**
-
 ❗ **This Playbook is fully configurable. You can skip or reconfigure any task by [Overriding Defaults](#overriding-defaults).**
 
 ## Contents
@@ -397,14 +395,6 @@ Check the following files for these configurable items:
 - [group_vars/all/vars](group_vars/all/vars)
 
 ## Things to note
-
-### Recursively pull in git
-
-When doing a git pull, recurse into submodules as well to pull any submodule updates, otherwise you'll potentially push old code into prod.
-
-```bash
-git pull --recurse-submodules
-```
 
 ### Proxmox VM ID namespaces
 
