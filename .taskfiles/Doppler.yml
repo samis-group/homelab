@@ -1,0 +1,25 @@
+---
+version: "3"
+
+# vars:
+
+# env:
+
+tasks:
+
+  push-generated:
+    desc: Push file `provision/ansible/inventory/generated.yml` back to Doppler (i.e. if you modify the file in your IDE, use this task to just push it back, don't need GUI!)
+    dir: provision/ansible/inventory
+    # Todo: Check if a swp file exists, means the file is open? How to check if vscode needs saving before running?
+    # Also in wsl when files are on windows host?
+    # preconditions:
+    #   - sh:
+    #     msg: |
+    #       Save the file `provision/ansible/inventory/generated.yml` before proceeding please!
+    #       For your sanity.. not mine.. I am a machine.
+    #       bleep bloop...
+    aliases: ["pg"]
+    cmds:
+      - cat generated.yml | doppler secrets set ANSIBLE_HOSTS_INVENTORY
+      - echo "Please ensure your file was saved... otherwise save and redo."
+    silent: true

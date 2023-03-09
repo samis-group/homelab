@@ -8,6 +8,8 @@ FROM python:3
 ARG DEBIAN_FRONTEND=noninteractive
 # Set TZ
 ENV TZ=Australia/Sydney
+# Ensure doppler secrets aren't stored in shell history.
+ENV HISTIGNORE='*doppler secrets set*'
 
 # Ubuntu OS dependencies
 RUN apt-get update \
@@ -40,7 +42,8 @@ RUN groupadd -g ${GROUP_ID} ${USER_NAME} && \
   useradd -u ${USER_ID} -g ${GROUP_ID} -G sudo -s /bin/bash -m ${USER_NAME} && \
   echo "${USER_NAME}:${USER_NAME}" | chpasswd
 
-WORKDIR /homelab
+ENV HOMELAB_DIR=/workspace/homelab
+WORKDIR ${HOMELAB_DIR}
 
 # Make required directories and chown them
 RUN mkdir /root/.ssh ./roles /home/${USER_NAME}/.ssh && \
@@ -48,12 +51,12 @@ RUN mkdir /root/.ssh ./roles /home/${USER_NAME}/.ssh && \
   echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
 # Installs Ansible, pre-commit-hooks, molecule, along with other pip dependencies.
-COPY --chown=${USER_NAME}:${USER_NAME} requirements.txt /homelab/
-RUN pip3 install --upgrade pip && pip3 install --no-cache-dir -r /homelab/requirements.txt
+COPY --chown=${USER_NAME}:${USER_NAME} requirements.txt ${HOMELAB_DIR}/
+RUN pip3 install --upgrade pip && pip3 install --no-cache-dir -r ${HOMELAB_DIR}/requirements.txt
 
 # Copy ansible requirements and install them
-COPY --chown=${USER_NAME}:${USER_NAME} provision/ansible/requirements.yml /homelab/
-COPY --chown=${USER_NAME}:${USER_NAME} provision/ansible/roles/requirements.yml /homelab/roles/
+COPY --chown=${USER_NAME}:${USER_NAME} provision/ansible/requirements.yml ${HOMELAB_DIR}/
+COPY --chown=${USER_NAME}:${USER_NAME} provision/ansible/roles/requirements.yml ${HOMELAB_DIR}/roles/
 
 RUN mkdir -p /usr/share/ansible/collections && \
   mkdir -p /usr/share/ansible/roles && \

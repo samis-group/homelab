@@ -4,12 +4,13 @@ version: "3"
 vars:
   LOCAL_IMAGE_NAME: homelab_workstation
   REGISTRY_IMAGE_NAME: registry.gitlab.com/sami-group/homelab
+  HOMELAB_DIR: /workspace/homelab
   DOCKER_RUN_CMD: docker container inspect {{.LOCAL_IMAGE_NAME}} > /dev/null 2>&1 || 
     docker run -d -it
-    --volume "{{.PROJECT_DIR}}/provision:/homelab/provision"
-    --volume "{{.PROJECT_DIR}}/.git:/homelab/.git"
-    --volume "{{.PROJECT_DIR}}/Taskfile.yml:/homelab/Taskfile.yml"
-    --volume "{{.PROJECT_DIR}}/.taskfiles:/homelab/.taskfiles"
+    --volume "{{.PROJECT_DIR}}/provision:{{.HOMELAB_DIR}}/provision"
+    --volume "{{.PROJECT_DIR}}/.git:{{.HOMELAB_DIR}}/.git"
+    --volume "{{.PROJECT_DIR}}/Taskfile.yml:{{.HOMELAB_DIR}}/Taskfile.yml"
+    --volume "{{.PROJECT_DIR}}/.taskfiles:{{.HOMELAB_DIR}}/.taskfiles"
     --volume "${HOME}/.ssh/:/home/ubuntu/.ssh"
     --env USER_ID={{.USER_ID}}
     # --user={{.USER_ID}}:{{.USER_ID}}
@@ -32,6 +33,7 @@ tasks:
   local-shell:
     desc: 🔨🐳 Build the Homelab Workstation container locally and jump into shell in order to run your automation stuff
     deps: [doppler-login]
+    aliases: ["ls"]
     cmds:
       - task: run-docker-local-dotfiles
       - "{{.DOCKER_EXEC_CMD}} bash"
@@ -40,6 +42,7 @@ tasks:
   registry-shell:
     desc: 🔨🐳 Download the registry Homelab Workstation image and jump into shell in order to run your automation stuff
     deps: [doppler-login]
+    aliases: ["rs"]
     cmds:
       - task: run-docker-registry-dotfiles
       - "{{.DOCKER_EXEC_CMD}} bash"
@@ -57,7 +60,7 @@ tasks:
       - "test -d ${DOPPLER_CONFIG} || mkdir ${DOPPLER_CONFIG}"
       - task: run-docker-registry-dotfiles
       - "{{.DOCKER_EXEC_CMD}} doppler login"
-      - "{{.DOCKER_EXEC_CMD}} doppler setup --scope /homelab"
+      - "{{.DOCKER_EXEC_CMD}} doppler setup --scope {{.HOMELAB_DIR}}"
       - task: cleanup
 
   # Figure out how to execute this task when dir doesn't exist..

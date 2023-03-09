@@ -18,14 +18,14 @@ echo "Starting sshd..."
 service ssh start > /dev/null
 
 echo "Setting git safe dir..."
-gosu ${USER_NAME} git config --global --add safe.directory /homelab/
+gosu ${USER_NAME} git config --global --add safe.directory ${HOMELAB_DIR}/
 
 # For some reason, when mounting vols inside the container, they're owned by root.
 # This fixes it inside the container I suppose.....
-find /homelab/ -type d -exec chown ${USER_NAME} {} +
+find ${HOMELAB_DIR}/ -type d -exec chown ${USER_NAME} {} +
 
-chown ${USER_NAME} /homelab/requirements.*
-chown -R ${USER_NAME} /homelab/roles/
+chown ${USER_NAME} ${HOMELAB_DIR}/requirements.*
+chown -R ${USER_NAME} ${HOMELAB_DIR}/roles/
 chown -R ${USER_NAME} /home/${USER_NAME}/.doppler
 
 # Using exec replaces the entrypoint.sh process as the new PID 1 in the container.

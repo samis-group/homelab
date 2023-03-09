@@ -4,41 +4,50 @@
 # ----------------------------------- #
 - name: Test Playbook  # Special tag "always" -> https://docs.ansible.com/ansible/latest/user_guide/playbooks_tags.html#special-tags-always-and-never
   tags: ["always"]
-  gather_facts: false
+  gather_facts: true
 
 # ----------------- #
 # Hosts Declaration #
 # ----------------- #
 
-  # ### localhost
-  hosts: localhost
+  # --------- #
+  # localhost #
+  # --------- #
+  # hosts: localhost
 
-  # ### Docker
-  # hosts: docker
-  # become: true
-  # handlers:
-  #   - ansible.builtin.import_tasks: handlers/docker.yml
-  #   - ansible.builtin.import_tasks: handlers/proxmox.yml
-  # pre_tasks:
-  #   # This is to get the PUID and PGID variables to use later in multiple areas
-  #   - name: Get user info or create a user if one doesn't exist
-  #     ansible.builtin.import_tasks: tasks/linux/pre_tasks.yml
-  #     tags: ["always"]
+  # ------ #
+  # docker #
+  # ------ #
+  hosts: docker
+  become: true
+  handlers:
+    - name: Import handlers
+      ansible.builtin.import_tasks: ../handlers/docker.yml
+  pre_tasks:
+    # This is to get the PUID and PGID variables to use later in multiple areas
+    - name: Get user info or create a user if one doesn't exist
+      ansible.builtin.import_tasks: ../tasks/linux/pre_tasks.yml
+      tags: ["always"]
 
-
-  ### Windows
+  # ------- #
+  # windows #
+  # ------- #
   # hosts: windows
 
-  # ### lxc
+  # --- #
+  # lxc #
+  # --- #
   # hosts: lxc
   # become: true
   # pre_tasks:
   #   # This is to get the PUID and PGID variables to use later in multiple areas
   #   - name: Get user info or create a user if one doesn't exist
-  #     ansible.builtin.import_tasks: tasks/linux/pre_tasks.yml
+  #     ansible.builtin.import_tasks: ../tasks/linux/pre_tasks.yml
   #     tags: ["always"]
 
-  # ### wsl
+  # --- #
+  # wsl #
+  # --- #
   # hosts: wsl
   # become: true
   # pre_tasks:
@@ -67,8 +76,6 @@
     #   ansible.builtin.debug:
     #     var: ansible_facts
 
-    # - debug: var=hostvars['localhost']['ansible_facts']['env']
-
-    - name: Debug imported vars from doppler vault
-      debug:
-        var: authelia_jwt_secret
+    - name: Print all available facts
+      ansible.builtin.debug:
+        var: hostvars['localhost']['ansible_facts']['env']

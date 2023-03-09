@@ -30,9 +30,16 @@ includes:
     aliases: ["a", "ans"]
   docker:
     taskfile: .taskfiles/Docker.yml
-    aliases: ["d"]
-  # cluster: .taskfiles/Flux.yml
-  # k3s: .taskfiles/K3s.yml
+    aliases: ["dc"]
+  doppler:
+    taskfile: .taskfiles/Doppler.yml
+    aliases: ["dp"]
+  # flux:
+  #   taskfile: .taskfiles/Flux.yml
+  #   aliases: ["f"]
+  # k3s:
+  #   taskfile: .taskfiles/K3s.yml
+  #   aliases: ["k"]
   lxc:
     taskfile: .taskfiles/Lxc.yml
     aliases: ["l"]
@@ -40,8 +47,12 @@ includes:
   molecule:
     taskfile: .taskfiles/Molecule.yml
     aliases: ["m"]
-  precommit: .taskfiles/Precommit.yml
-  proxmox: .taskfiles/Proxmox.yml
+  precommit:
+    taskfile: .taskfiles/Precommit.yml
+    aliases: ["pc"]
+  proxmox:
+    taskfile: .taskfiles/Proxmox.yml
+    aliases: ["p", "px"]
   setup:
     taskfile: .taskfiles/Setup.yml
     aliases: ["s"]
@@ -58,9 +69,10 @@ includes:
 
 tasks:
 
-#--------------#
-# default task #
-#--------------#
+#----------------------#
+#     default task     #
+# Leave empty for list #
+#----------------------#
 
   # default:
   #   cmds:
