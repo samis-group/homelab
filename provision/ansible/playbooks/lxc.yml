@@ -2,17 +2,26 @@
 # ----------------------------------- #
 # Pre-tasks run before anything else! #
 # ----------------------------------- #
-- hosts: lxc
-  name: LXC Pre-all
+- name: LXC Pre-all
+  hosts: lxc
   # Special tag "always" -> https://docs.ansible.com/ansible/latest/user_guide/playbooks_tags.html#special-tags-always-and-never
   tags: ["always"]
   gather_facts: false
   tasks:
     - ansible.builtin.import_tasks: ../tasks/pre-all.yml
 
-# --- #
-# LXC #
-# --- #
+- name: Download and provision LXC templates/containers
+  hosts: lxc
+  tags: ["provision_lxc"]
+  gather_facts: false   # Because they don't exist yet
+
+  roles:
+
+    # Download and configure LXC containers
+    - role: ../roles/proxmox/provision-lxcs
+      when: provision_lxcs
+      tags: ["provision_lxcs"]
+      delegate_to: proxmox1  # The hosts aren't provisioned yet, so no tasks should run on them. Delegate everything to proxmox but use lxc inventory.
 
 - name: Setup and configure dev01 Container
   hosts: dev01
@@ -63,7 +72,7 @@
     #   ansible.builtin.import_tasks: ../tasks/k3s/deploy_helm_charts.yml
 
 - name: Setup Gitlab Runner LXC(s)
-  hosts: gitlab_runner01
+  hosts: gitlab-runner01
   tags: ["lxc_gitlab_runner"]
   become: true
 
@@ -75,6 +84,53 @@
     - geerlingguy.docker
     - geerlingguy.ntp
     - ../roles/lxc/gitlab-runner
+
+- name: Setup k3s LXC(s)
+  hosts: k3s1
+  tags: ["lxc_k3s1"]
+  become: true
+  roles:
+    - role: ../roles/k3s/prereq
+    - role: ../roles/k3s/download
+    - role: ../roles/k3s/raspberrypi
+    - andrewrothstein.kubectl
+    - geerlingguy.helm  # Install helm on k3sm nodes to deploy charts in ansible
+
+- name: K3s1/master
+  hosts: k3s1
+  tags: ["lxc_k3s1"]
+  become: true
+  roles:
+    - role: ../roles/k3s/master
+
+- name: K3s/post
+  hosts: k3s1
+  tags: ["lxc_k3s1"]
+  become: true
+  roles:
+    - role: ../roles/k3s/post
+
+- name: Custom plays on main..main node
+  hosts: k3s1
+  become: false
+  tags: ["lxc_k3s1"]
+
+  tasks:
+
+    - name: Setup system dependencies
+      ansible.builtin.import_tasks: ../tasks/k3s/system_dependencies.yml
+      become: true
+
+    - name: Setup user dependencies
+      ansible.builtin.import_tasks: ../tasks/k3s/user_dependencies.yml
+
+    # - name: deploy k8s manifests
+    #   import_role:
+    #     name: geerlingguy.k8s_manifests # Deploys everything inside file - `group_vars/all.yml` lines starting - `k8s_*`
+    #   tags: ['nfs', 'k8s_manifests']
+
+    # - name: Deploy Helm Charts
+    #   import_tasks: ../tasks/k3s/deploy_helm_charts.yml
 
 ### LDAP turnkey is a WIP
 

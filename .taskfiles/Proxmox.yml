@@ -59,16 +59,9 @@ tasks:
       - task: :generate-ansible-inventory
       - "{{.ANSIBLE_PLAYBOOK_CMD}} -e \"provision_vms=true\" --tags {{.CLI_ARGS}} {{.ANSIBLE_PLAYBOOK_DIR}}/proxmox.yml"
 
-  provision-lxc:
-    desc: 🖥️ Provision LXC's.
-    dir: provision/ansible
-    cmds:
-      - task: :generate-ansible-inventory
-      - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags proxmox-provision-lxc {{.ANSIBLE_PLAYBOOK_DIR}}/proxmox.yml {{.CLI_ARGS}}"
-
   provision-docker:
     desc: 🖥️ Provision docker vm.
     dir: provision/ansible
     cmds:
       - task: :generate-ansible-inventory
-      - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags proxmox-provision-docker {{.ANSIBLE_PLAYBOOK_DIR}}/proxmox.yml {{.CLI_ARGS}}"
+      - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags proxmox-provision-docker {{.ANSIBLE_PLAYBOOK_DIR}}/vm.yml {{.CLI_ARGS}}"

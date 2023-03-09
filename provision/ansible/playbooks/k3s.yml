@@ -30,7 +30,7 @@
 # Custom entries #
 # -------------- #
 
-- name: Install/configure Helm/kubectl on main node
+- name: Install/configure Helm/kubectl on main nodes
   hosts: k3sm1
   become: true
 
@@ -62,6 +62,6 @@
 
 # End of configuration
 
-    - name: End of config, run `make setup-pb` to setup local machine for connecting to kubernetes environment (run `make reqs` to install reqs if not done)
+    - name: End of config
       ansible.builtin.debug:
-        msg: "End of config, run `make setup-pb` to setup local machine for connecting to kubernetes environment (run `make reqs` to install reqs if not done)"
+        msg: "End of config, run `task setup-pb` to setup local machine for connecting to kubernetes environment (run `make reqs` to install reqs if not done)"

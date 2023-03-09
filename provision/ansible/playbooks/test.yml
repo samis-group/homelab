@@ -18,16 +18,16 @@
   # ------ #
   # docker #
   # ------ #
-  hosts: docker
-  become: true
-  handlers:
-    - name: Import handlers
-      ansible.builtin.import_tasks: ../handlers/docker.yml
-  pre_tasks:
-    # This is to get the PUID and PGID variables to use later in multiple areas
-    - name: Get user info or create a user if one doesn't exist
-      ansible.builtin.import_tasks: ../tasks/linux/pre_tasks.yml
-      tags: ["always"]
+  # hosts: docker
+  # become: true
+  # handlers:
+  #   - name: Import handlers
+  #     ansible.builtin.import_tasks: ../handlers/docker.yml
+  # pre_tasks:
+  #   # This is to get the PUID and PGID variables to use later in multiple areas
+  #   - name: Get user info or create a user if one doesn't exist
+  #     ansible.builtin.import_tasks: ../tasks/linux/pre_tasks.yml
+  #     tags: ["always"]
 
   # ------- #
   # windows #
@@ -37,13 +37,13 @@
   # --- #
   # lxc #
   # --- #
-  # hosts: lxc
-  # become: true
-  # pre_tasks:
-  #   # This is to get the PUID and PGID variables to use later in multiple areas
-  #   - name: Get user info or create a user if one doesn't exist
-  #     ansible.builtin.import_tasks: ../tasks/linux/pre_tasks.yml
-  #     tags: ["always"]
+  hosts: lxc
+  become: true
+  pre_tasks:
+    # This is to get the PUID and PGID variables to use later in multiple areas
+    - name: Get user info or create a user if one doesn't exist
+      ansible.builtin.import_tasks: ../tasks/linux/pre_tasks.yml
+      tags: ["always"]
 
   # --- #
   # wsl #

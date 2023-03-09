@@ -4,19 +4,35 @@ version: "3"
 tasks:
 
   main:
-    desc: 📦 Main LXC configuration playbooks to deploy all LXC's
+    desc: 📦 Main LXC configuration playbooks to provision and configure all LXC's
     dir: provision/ansible
     cmds:
-      - ansible-playbook -i inventory/hosts.ini playbooks/lxc.yml {{.CLI_ARGS}}
+      - task: :generate-ansible-inventory
+      - task: provision-lxc
+      - "{{.ANSIBLE_PLAYBOOK_CMD}} {{.ANSIBLE_PLAYBOOK_DIR}}/lxc.yml {{.CLI_ARGS}}"
+
+  provision-lxc:
+    desc: 📦 Provision LXC's
+    dir: provision/ansible
+    cmds:
+      - task: :generate-ansible-inventory
+      - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags provision_lxc {{.ANSIBLE_PLAYBOOK_DIR}}/lxc.yml {{.CLI_ARGS}}"
 
   dev:
     desc: 📦 Dev LXC
     dir: provision/ansible
     cmds:
-      - ansible-playbook -i inventory/hosts.ini --tags lxc_dev playbooks/lxc.yml {{.CLI_ARGS}}
+      - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags lxc_dev {{.ANSIBLE_PLAYBOOK_DIR}}/lxc.yml {{.CLI_ARGS}}"
 
   gitlab-runner:
     desc: 📦 Make Gitlab Runner LXC. Ensure 'gitlab_runner_token' in doppler is updated with your group runners. Mine is here -> https://gitlab.com/groups/sami-group/-/runners.
     dir: provision/ansible
     cmds:
-      - ansible-playbook -i inventory/hosts.ini --tags lxc_gitlab_runner playbooks/lxc.yml {{.CLI_ARGS}}
+      - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags lxc_gitlab_runner {{.ANSIBLE_PLAYBOOK_DIR}}/lxc.yml {{.CLI_ARGS}}"
+
+  k3s1:
+    desc: 📦 Make k3s single node cluster
+    dir: provision/ansible
+    cmds:
+      # - task: :k3s:main
+      - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags lxc_k3s1 {{.ANSIBLE_PLAYBOOK_DIR}}/lxc.yml {{.CLI_ARGS}}"

@@ -46,9 +46,9 @@ provisioner:
   inventory:
     links:
       group_vars: ${MOLECULE_PROJECT_DIRECTORY}/inventory/group_vars/
-  config_options:
-    defaults:
-      vault_password_file: "${MOLECULE_PROJECT_DIRECTORY}/.vault-password"
+  # config_options:
+  #   defaults:
+  #     vault_password_file: "${MOLECULE_PROJECT_DIRECTORY}/.vault-password"
 
 scenario:
   test_sequence:

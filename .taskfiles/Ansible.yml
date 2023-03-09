@@ -1,18 +1,6 @@
 ---
 version: "3"
 
-vars:
-  ANSIBLE_DIR: "{{.PROJECT_DIR}}/provision/ansible"
-  ANSIBLE_PLAYBOOK_DIR: "{{.ANSIBLE_DIR}}/playbooks"
-  ANSIBLE_INVENTORY_DIR: "{{.ANSIBLE_DIR}}/inventory"
-  ANSIBLE_INVENTORY_FILE: "{{.ANSIBLE_INVENTORY_DIR}}/generated.yml"
-  ANSIBLE_INVENTORY_CMD: "-i {{.ANSIBLE_INVENTORY_FILE}}"
-  ANSIBLE_CMD: "doppler run -- ansible {{.ANSIBLE_INVENTORY_CMD}}"
-  ANSIBLE_PLAYBOOK_CMD: "doppler run -- ansible-playbook {{.ANSIBLE_INVENTORY_CMD}}"
-
-env:
-  ANSIBLE_CONFIG: "{{.ANSIBLE_DIR}}/ansible.cfg"
-
 tasks:
 
   init:
@@ -21,6 +9,13 @@ tasks:
     cmds:
       - ansible-galaxy install -r roles/requirements.yml --roles-path ~/.ansible/roles
       - ansible-galaxy collection install -r requirements.yml --collections-path ~/.ansible/collections
+
+  init-docker:
+    desc: Install / Upgrade Ansible galaxy deps inside docker container
+    dir: provision/ansible
+    cmds:
+      - sudo ansible-galaxy install -r roles/requirements.yml --roles-path /usr/share/ansible/roles
+      - sudo ansible-galaxy collection install -r requirements.yml --collections-path /usr/share/ansible/collections
 
   list-hosts:
     desc: List all the hosts

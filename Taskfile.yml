@@ -18,11 +18,20 @@ vars:
   # Check if running as root, omit `sudo` from make targets if that is the case.
   DO_SUDO:
     sh: if [ "$UID" -ne 0 ]; then echo "sudo"; fi
+  # Ansible vars are inherited in many taskfiles, so leave them here in main taskfile.
+  ANSIBLE_DIR: "{{.PROJECT_DIR}}/provision/ansible"
+  ANSIBLE_PLAYBOOK_DIR: "{{.ANSIBLE_DIR}}/playbooks"
+  ANSIBLE_INVENTORY_DIR: "{{.ANSIBLE_DIR}}/inventory"
+  ANSIBLE_INVENTORY_FILE: "{{.ANSIBLE_INVENTORY_DIR}}/generated.yml"
+  ANSIBLE_INVENTORY_CMD: "-i {{.ANSIBLE_INVENTORY_FILE}}"
+  ANSIBLE_CMD: "doppler run -- ansible {{.ANSIBLE_INVENTORY_CMD}}"
+  ANSIBLE_PLAYBOOK_CMD: "doppler run -- ansible-playbook {{.ANSIBLE_INVENTORY_CMD}}"
 
 env:
   KUBECONFIG: "{{.USER_HOME_DIR}}/.kube/config"
   PATH: "{{.PATH}}:{{.PROJECT_DIR}}/bin"  # add project bin to path
   PROJECT_DIR: "{{.PROJECT_DIR}}"
+  ANSIBLE_CONFIG: "{{.ANSIBLE_DIR}}/ansible.cfg"
 
 includes:
   ansible:

@@ -1,0 +1,93 @@
+---
+# ----------------------------------- #
+# Pre-tasks run before anything else! #
+# ----------------------------------- #
+- name: Download and configure base OS templates from cloud images on proxmox
+  hosts: proxmox1
+
+  pre_tasks: &pre_tasks   # Anchors to re-use the code later. No point duplicating code.
+
+    # This is to get the PUID and PGID variables to use later in multiple areas
+    - name: Get user info or create a user if one doesn't exist
+      ansible.builtin.import_tasks: ../tasks/linux/pre_tasks.yml
+      tags: ["always"]
+
+  roles:
+
+    # Create Ubuntu VM Template from public cloud image
+    - role: ../roles/proxmox/vm-template-from-ubuntu-cloud-image
+      when: create_ubuntu_vm_template
+      tags: ["create_ubuntu_vm_template"]
+    # Create Debian VM Template from public cloud image
+    - role: ../roles/proxmox/vm-template-from-debian-cloud-image
+      when: create_debian_vm_template
+      tags: ["create_debian_vm_template"]
+
+# Run this play with the docker host inventory, (load vm definition vars defined in each host_vars/host item), but delegate the tasks to proxmox
+- name: Provision Docker VM on Proxmox Host
+  tags: ["proxmox-provision-docker"]
+  # Currently only want to ensure docker-dev is created, not messing with legacy docker inventory group
+  hosts: docker
+  # hosts: docker
+  gather_facts: false   # Because they don't exist yet
+  become: true
+
+  roles:
+
+    - role: ../roles/proxmox/provision-vms
+      when: provision_vms
+      tags: ["provision_vms"]
+      delegate_to: proxmox1  # The hosts aren't provisioned yet, so no tasks should run on them. Delegate everything to proxmox but use docker inventory.
+    - role: ../roles/proxmox/vm-post-tasks
+      when: provision_vms
+      tags: ["provision_vms"]
+
+# - name: Provision Minikube VM on Proxmox Host
+#   tags: ["proxmox-provision-minikube"]  # Run `make proxmox-provision-minikube` to make this vm
+#   # Currently only want to ensure docker-dev is created, not messing with legacy docker inventory group
+#   hosts: minikube
+#   # hosts: docker
+#   gather_facts: false   # Because they don't exist yet
+#   become: true
+
+#   roles:
+
+#     - role: ../roles/proxmox/provision-vms
+#       when: provision_vms
+#       tags: ["provision_vms"]
+#       delegate_to: proxmox1  # The hosts aren't provisioned yet, so no tasks should run on them. Delegate everything to proxmox but use docker inventory.
+#     - role: ../roles/proxmox/vm-post-tasks
+#       when: provision_vms
+#       tags: ["provision_vms"]
+
+# # load vm definition vars defined in each host_vars/host item, but delegate the tasks to proxmox
+# - name: Provision k3s VM's on Proxmox Host
+#   # Currently don't have a server powerful enough to continue building this, hence never tag unless specified with other tag specifically
+#   tags: ["never", "proxmox-provision-k3s"]
+#   hosts: k3s
+#   gather_facts: false   # Because they don't exist yet
+#   become: true
+
+#   roles:
+
+#     - role: ../roles/proxmox/provision-vms
+#       when: provision_vms
+#       tags: ["provision_vms"]
+#       delegate_to: proxmox1  # The hosts aren't provisioned yet, so no tasks should run on them. Delegate everything to proxmox but use docker inventory.
+#     - role: ../roles/proxmox/vm-post-tasks
+#       when: provision_vms
+#       tags: ["provision_vms"]
+
+- name: Gather localhost facts for next play
+  hosts: localhost
+
+- name: Setup ssh configs to localhost
+  tags: ["copy_ssh_configs"]
+  hosts: docker
+  # hosts: proxmox docker k3s lxc   # Put this back if provisioning k3s as well
+  become: true
+
+  pre_tasks: *pre_tasks
+
+  roles:
+    - role: sami_shakir.public_collection.copy_ssh_configs_d
