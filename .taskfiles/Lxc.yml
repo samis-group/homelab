@@ -46,4 +46,4 @@ tasks:
     cmds:
       - task: :doppler:generate-ansible-inventory
       - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags lxc_k3s1 {{.ANSIBLE_PLAYBOOK_DIR}}/lxc.yml {{.CLI_ARGS}}"
-      - task: :k3s:main
+      # - task: :k3s:main

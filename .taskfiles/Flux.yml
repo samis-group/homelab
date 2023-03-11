@@ -1,6 +1,9 @@
 ---
 version: "3"
 
+vars:
+  CLUSTER_DIR: "{{.PROJECT_DIR}}/clusters"
+
 tasks:
 
   verify:
@@ -12,17 +15,9 @@ tasks:
     desc: Install Flux into your cluster
     cmds:
       - kubectl apply --kustomize {{.CLUSTER_DIR}}/bootstrap/
-      - cat {{.SOPS_AGE_KEY_FILE}} | kubectl -n flux-system create secret generic sops-age --from-file=age.agekey=/dev/stdin
-      - sops --decrypt {{.CLUSTER_DIR}}/flux/vars/cluster-secrets.sops.yaml | kubectl apply -f -
       - kubectl apply -f {{.CLUSTER_DIR}}/flux/vars/cluster-settings.yaml
       - kubectl apply --kustomize {{.CLUSTER_DIR}}/flux/config
       - task: reconcile
-    preconditions:
-      - sh: test -f {{.SOPS_AGE_KEY_FILE}}
-        msg: |
-          Age key file is not found. Did you forget to create it?
-    vars:
-      SOPS_AGE_KEY_FILE: ~/.config/sops/age/keys.txt
 
   reconcile:
     desc: Force update Flux to pull in changes from your Git repository

@@ -11,6 +11,7 @@ tasks:
     dir: provision/ansible/inventory
     aliases: ["p"]
     silent: true
+    run: once
     cmds:
       - cat generated.yml | doppler secrets set ANSIBLE_HOSTS_INVENTORY
       - echo "Please ensure your file was saved... otherwise save and redo."
@@ -20,6 +21,7 @@ tasks:
     desc: Copy plain yaml inventory file from doppler and output/overwrite generated inventory
     dir: provision/ansible/inventory
     aliases: ["g"]
+    run: once
     preconditions:
       # If file doesn't exist, create it or;
       # Check if what is in doppler is different from local inventory file, let user handle it as they could be making changes locally which we do not with to override
