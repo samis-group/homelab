@@ -7,42 +7,42 @@ tasks:
     desc: 🐳 Main docker play
     dir: provision/ansible
     cmds:
-      - task: :generate-ansible-inventory
+      - task: :doppler:generate-ansible-inventory
       - "{{.ANSIBLE_PLAYBOOK_CMD}} {{.ANSIBLE_PLAYBOOK_DIR}}/docker.yml {{.CLI_ARGS}}"
 
   update-compose:
     desc: 🐳 Updated docker-compose files
     dir: provision/ansible
     cmds:
-      - task: :generate-ansible-inventory
+      - task: :doppler:generate-ansible-inventory
       - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags \"update_compose\" -e \"update_compose=true\" {{.ANSIBLE_PLAYBOOK_DIR}}/docker.yml {{.CLI_ARGS}}"
 
   copy-files:
     desc: 🐳 Copy docker files to docker vm
     dir: provision/ansible
     cmds:
-      - task: :generate-ansible-inventory
+      - task: :doppler:generate-ansible-inventory
       - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags \"copy_files,update_compose\" -e \"copy_files=true\" -e \"update_compose=true\" {{.ANSIBLE_PLAYBOOK_DIR}}/docker.yml {{.CLI_ARGS}}"
 
   setup-containers:
     desc: 🐳 Run setup docker containers tasks
     dir: provision/ansible
     cmds:
-      - task: :generate-ansible-inventory
+      - task: :doppler:generate-ansible-inventory
       - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags \"setup_containers\" -e \"setup_containers=true\" {{.ANSIBLE_PLAYBOOK_DIR}}/docker.yml {{.CLI_ARGS}}"
 
   run-tags:
     desc: 🐳 Run only the tags passed in separated by comma (e.g. make run-tags update_compose,logrotate)
     dir: provision/ansible
     cmds:
-      - task: :generate-ansible-inventory
+      - task: :doppler:generate-ansible-inventory
       - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags {{.CLI_ARGS}} {{.ANSIBLE_PLAYBOOK_DIR}}/docker.yml"
 
   run-tags-v:
     desc: 🐳 VERBOSE - Same as above
     dir: provision/ansible
     cmds:
-      - task: :generate-ansible-inventory
+      - task: :doppler:generate-ansible-inventory
       - "{{.ANSIBLE_PLAYBOOK_CMD}} -vvv --tags {{.CLI_ARGS}} {{.ANSIBLE_PLAYBOOK_DIR}}/docker.yml"
 
   # restore-containers:

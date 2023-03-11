@@ -1,25 +1,32 @@
 ---
 version: "3"
 
-# vars:
-
-# env:
+vars:
+  DOPPLER_GET_INVENTORY_CMD: doppler secrets get ANSIBLE_HOSTS_INVENTORY --plain
 
 tasks:
 
-  push-generated:
+  push-inventory:
     desc: Push file `provision/ansible/inventory/generated.yml` back to Doppler (i.e. if you modify the file in your IDE, use this task to just push it back, don't need GUI!)
     dir: provision/ansible/inventory
-    # Todo: Check if a swp file exists, means the file is open? How to check if vscode needs saving before running?
-    # Also in wsl when files are on windows host?
-    # preconditions:
-    #   - sh:
-    #     msg: |
-    #       Save the file `provision/ansible/inventory/generated.yml` before proceeding please!
-    #       For your sanity.. not mine.. I am a machine.
-    #       bleep bloop...
-    aliases: ["pg"]
+    aliases: ["p"]
+    silent: true
     cmds:
       - cat generated.yml | doppler secrets set ANSIBLE_HOSTS_INVENTORY
       - echo "Please ensure your file was saved... otherwise save and redo."
-    silent: true
+
+  # This task is required by multiple other taskfiles, call it with `:doppler:generate-ansible-inventory`
+  generate-ansible-inventory:
+    desc: Copy plain yaml inventory file from doppler and output/overwrite generated inventory
+    dir: provision/ansible/inventory
+    aliases: ["g"]
+    preconditions:
+      # If file doesn't exist, create it or;
+      # Check if what is in doppler is different from local inventory file, let user handle it as they could be making changes locally which we do not with to override
+      - sh: "[[ ! -f {{.ANSIBLE_INVENTORY_FILENAME}} ]] || diff -q generated.yml <({{.DOPPLER_GET_INVENTORY_CMD}})"
+        msg: |
+          Inventory file '{{.ANSIBLE_INVENTORY_DIR}}/{{.ANSIBLE_INVENTORY_FILENAME}}' and doppler secret ANSIBLE_HOSTS_INVENTORY have diverged.
+          If you have made changes to the generated inventory file that was downloaded from doppler locally, then please save the inventory file
+          and ensure you've pushed this to doppler with command `dp:pg` so that it pulls down the latest inventory before proceeding!
+    cmds:
+      - "{{.DOPPLER_GET_INVENTORY_CMD}} > {{.ANSIBLE_INVENTORY_FILENAME}}"

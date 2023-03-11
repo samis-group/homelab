@@ -4,6 +4,9 @@
 
 version: "3"
 
+set: [pipefail]
+# shopt: [globstar]
+
 vars:
   PROJECT_DIR:
     sh: git rev-parse --show-toplevel
@@ -22,8 +25,8 @@ vars:
   ANSIBLE_DIR: "{{.PROJECT_DIR}}/provision/ansible"
   ANSIBLE_PLAYBOOK_DIR: "{{.ANSIBLE_DIR}}/playbooks"
   ANSIBLE_INVENTORY_DIR: "{{.ANSIBLE_DIR}}/inventory"
-  ANSIBLE_INVENTORY_FILE: "{{.ANSIBLE_INVENTORY_DIR}}/generated.yml"
-  ANSIBLE_INVENTORY_CMD: "-i {{.ANSIBLE_INVENTORY_FILE}}"
+  ANSIBLE_INVENTORY_FILENAME: "generated.yml"
+  ANSIBLE_INVENTORY_CMD: "-i {{.ANSIBLE_INVENTORY_DIR}}/{{.ANSIBLE_INVENTORY_FILENAME}}"
   ANSIBLE_CMD: "doppler run -- ansible {{.ANSIBLE_INVENTORY_CMD}}"
   ANSIBLE_PLAYBOOK_CMD: "doppler run -- ansible-playbook {{.ANSIBLE_INVENTORY_CMD}}"
 
@@ -46,9 +49,9 @@ includes:
   # flux:
   #   taskfile: .taskfiles/Flux.yml
   #   aliases: ["f"]
-  # k3s:
-  #   taskfile: .taskfiles/K3s.yml
-  #   aliases: ["k"]
+  k3s:
+    taskfile: .taskfiles/K3s.yml
+    aliases: ["k"]
   lxc:
     taskfile: .taskfiles/Lxc.yml
     aliases: ["l"]
@@ -76,7 +79,7 @@ includes:
     aliases: ["ws"]
   wsl: .taskfiles/Wsl.yml
 
-tasks:
+# tasks:
 
 #----------------------#
 #     default task     #
@@ -86,17 +89,6 @@ tasks:
   # default:
   #   cmds:
   #     - task: workstation-registry-shell
-
-#------------------#
-# Dependency tasks #
-#------------------#
-
-  # This task is required by multiple taskfiles, call it like `:generate-ansible-inventory` with a colon to call a task in the main `taskfile.yml` file
-  generate-ansible-inventory:
-    desc: Copy plain yaml inventory file from doppler and output as a generated inventory.
-    internal: true
-    cmds:
-      - doppler secrets get ANSIBLE_HOSTS_INVENTORY --plain > {{.ANSIBLE_INVENTORY_DIR}}/generated.yml
 
 #---------#
 # Linters #
