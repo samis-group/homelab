@@ -1,0 +1,3 @@
+[submodule "provision/k3s-ansible"]
+	path = provision/k3s-ansible
+	url = https://github.com/sami-shakir/k3s-ansible.git
