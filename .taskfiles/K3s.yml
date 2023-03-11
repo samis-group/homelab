@@ -3,6 +3,11 @@ version: "3"
 
 tasks:
 
+  watch-kustomizations:
+    interactive: true
+    cmds:
+      - flux get kustomizations --watch
+
   main:
     desc: ☸ Main k3s play
     dir: provision/ansible
