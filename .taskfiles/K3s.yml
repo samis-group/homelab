@@ -11,7 +11,10 @@ tasks:
     cmds:
       - task: :doppler:generate-k3s-ansible-inventory
       - "{{.K3S_ANSIBLE_PLAYBOOK_CMD}} site.yml {{.CLI_ARGS}}"
-      - defer: { task: scp-kubeconfig }
+      - task: scp-kubeconfig
+      - task: :doppler:token-cluster
+      - task: :doppler:token-cluster
+      - task: :flux:install
 
   reset:
     desc: ☸ Reset k3s stack from beginning of it's inception

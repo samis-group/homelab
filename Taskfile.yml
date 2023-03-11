@@ -52,9 +52,9 @@ includes:
   doppler:
     taskfile: .taskfiles/Doppler.yml
     aliases: ["dp"]
-  # flux:
-  #   taskfile: .taskfiles/Flux.yml
-  #   aliases: ["f"]
+  flux:
+    taskfile: .taskfiles/Flux.yml
+    aliases: ["f"]
   k3s:
     taskfile: .taskfiles/K3s.yml
     aliases: ["k"]

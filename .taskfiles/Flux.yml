@@ -13,17 +13,24 @@ tasks:
 
   install:
     desc: Install Flux into your cluster
+    aliases: ["i"]
+    vars:
+      GITLAB_PERSONAL_ACCESS_TOKEN:
+        sh: doppler secrets get GITLAB_PERSONAL_ACCESS_TOKEN --plain
+    env:
+      GITLAB_PERSONAL_ACCESS_TOKEN: "{{.GITLAB_PERSONAL_ACCESS_TOKEN}}"
     cmds:
-      - kubectl apply --kustomize {{.CLUSTER_DIR}}/bootstrap/
-      - kubectl apply -f {{.CLUSTER_DIR}}/flux/vars/cluster-settings.yaml
-      - kubectl apply --kustomize {{.CLUSTER_DIR}}/flux/config
-      - task: reconcile
+      - flux bootstrap gitlab --components-extra=image-reflector-controller,image-automation-controller --owner=sami-group --repository=homelab --branch=main --path=clusters/home --token-auth --personal
+      # - kubectl apply --kustomize {{.CLUSTER_DIR}}/bootstrap/
+      # - kubectl apply -f {{.CLUSTER_DIR}}/flux/vars/cluster-settings.yaml
+      # - kubectl apply --kustomize {{.CLUSTER_DIR}}/flux/config
+      # - task: reconcile
 
   reconcile:
     desc: Force update Flux to pull in changes from your Git repository
     cmds:
       - flux reconcile -n flux-system source git flux-cluster
-      - flux reconcile -n flux-system kustomization flux-cluster
+      # - flux reconcile -n flux-system kustomization flux-cluster
 
   hr-restart:
     desc: Restart all failed Helm Releases
