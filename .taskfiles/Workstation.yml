@@ -7,7 +7,7 @@ vars:
   RUN_LOCAL_OR_REGISTRY: "{{.REGISTRY_IMAGE_NAME}}" # Default to running registry container
   HOMELAB_DIR: /workspace/homelab
   DOCKER_RUN_CMD:
-    docker container inspect {{.LOCAL_IMAGE_NAME}} > /dev/null 2>&1 > /dev/null 2>&1 || 
+    docker container inspect {{.LOCAL_IMAGE_NAME}} > /dev/null 2>&1 || 
     docker run -d -it
     --volume "{{.PROJECT_DIR}}/provision:{{.HOMELAB_DIR}}/provision"
     --volume "{{.PROJECT_DIR}}/.git:{{.HOMELAB_DIR}}/.git"

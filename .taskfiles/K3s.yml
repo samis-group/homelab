@@ -3,11 +3,6 @@ version: "3"
 
 tasks:
 
-  watch-kustomizations:
-    interactive: true
-    cmds:
-      - flux get kustomizations --watch
-
   main:
     desc: ☸ Main k3s play
     dir: provision/ansible
@@ -15,6 +10,11 @@ tasks:
     cmds:
       - task: :doppler:generate-ansible-inventory
       - "{{.ANSIBLE_PLAYBOOK_CMD}} {{.ANSIBLE_PLAYBOOK_DIR}}/k3s.yml {{.CLI_ARGS}}"
+
+  watch-kustomizations:
+    interactive: true
+    cmds:
+      - flux get kustomizations --watch
 
   run-tags:
     desc: ☸ Run only the tags passed in separated by comma (e.g. make run-tags update_compose,logrotate)
@@ -37,20 +37,50 @@ tasks:
       - task: :doppler:generate-ansible-inventory
       - "{{.ANSIBLE_PLAYBOOK_CMD}} {{.ANSIBLE_PLAYBOOK_DIR}}/k3s_reset.yml {{.CLI_ARGS}}"
 
-  helm-charts:
-    desc: ☸ Deploy helm charts
-    dir: provision/ansible
-    cmds:
-      - task: :doppler:generate-ansible-inventory
-      - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags \"helm_charts\" {{.ANSIBLE_PLAYBOOK_DIR}}/k3s.yml {{.CLI_ARGS}}"
+  # helm-charts:
+  #   desc: ☸ Deploy helm charts
+  #   dir: provision/ansible
+  #   cmds:
+  #     - task: :doppler:generate-ansible-inventory
+  #     - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags \"helm_charts\" {{.ANSIBLE_PLAYBOOK_DIR}}/k3s.yml {{.CLI_ARGS}}"
 
   scp-kubeconfig-single:
     desc: Copy k3s kube config from single molecule node
     aliases: ["s"]
     cmds:
+      - task: mkdir-kubeconfig
       - scp root@10.10.0.24:~/.kube/config ~/.kube/config
 
   scp-kubeconfig-vagrant:
     desc: Copy k3s kube config from single molecule node
+    internal: true
     cmds:
+      - task: mkdir-kubeconfig
       - scp vagrant@192.168.30.50:~/.kube/config ~/.kube/config
+
+  mkdir-kubeconfig:
+    internal: true
+    cmds:
+      - "test -d ${HOME}/.kube || mkdir ${HOME}/.kube"
+
+  doppler-token-cluster:
+    desc: import a Doppler service token into k3s cluster
+    deps: [doppler-push-token]
+    vars:
+      K3S_DOPPLER_SERVICE_TOKEN:
+        sh: doppler secrets get K3S_DOPPLER_SERVICE_TOKEN --plain
+      DOPPLER_TOKEN_IN_K3S:
+        sh: kubectl get secret doppler-token-secret -n doppler-operator-system -o json --ignore-not-found=true | jq -r '.data.serviceToken' | base64 -d
+    status:
+      - "[[ '{{.K3S_DOPPLER_SERVICE_TOKEN}}' == '{{.DOPPLER_TOKEN_IN_K3S}}' ]]"
+    cmds:
+      - kubectl delete secret doppler-token-secret -n doppler-operator-system --ignore-not-found
+      - doppler run -- kubectl create secret generic doppler-token-secret -n doppler-operator-system --from-literal=serviceToken={{.K3S_DOPPLER_SERVICE_TOKEN}}
+
+  doppler-push-token:
+    desc: Create a config service token
+    internal: true
+    status:
+      - ! doppler configs tokens | grep -q doppler
+    cmds:
+      - K3S_DOPPLER_SERVICE_TOKEN=$(doppler configs tokens create doppler-kubernetes-operator --plain) && echo -e "${K3S_DOPPLER_SERVICE_TOKEN}" | doppler secrets set K3S_DOPPLER_SERVICE_TOKEN
