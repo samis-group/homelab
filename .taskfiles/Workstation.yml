@@ -72,7 +72,8 @@ tasks:
     aliases: ["c"]
     cmds:
       - task: cleanup-stop
-      - task: cleanup-rm
+      - task: cleanup-rm-container
+      - task: cleanup-rm-image
 
   cleanup-stop:
     desc: Stop the homelab workstation container
@@ -82,13 +83,21 @@ tasks:
     cmds:
       - "docker stop {{.LOCAL_IMAGE_NAME}}"
 
-  cleanup-rm:
+  cleanup-rm-container:
     desc: Remove the homelab workstation container
     internal: true
     status: # Check if container exists, otherwise destroy!
       - "! docker ps -a | grep -q '{{.LOCAL_IMAGE_NAME}}'"
     cmds:
       - "docker rm {{.LOCAL_IMAGE_NAME}}"
+
+  cleanup-rm-image:
+    desc: Remove the homelab workstation image
+    internal: true
+    status: # Check if container exists, otherwise destroy!
+      - "! docker image inspect {{.LOCAL_IMAGE_NAME}} > /dev/null 2>&1"
+    cmds:
+      - "docker rmi {{.LOCAL_IMAGE_NAME}}"
 
   run-docker:
     desc: Run the docker container from the locally built image (also builds the image)

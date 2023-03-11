@@ -6,6 +6,7 @@ tasks:
   main:
     desc: ☸ Main k3s play
     dir: provision/ansible
+    aliases: ["m"]
     cmds:
       - task: :doppler:generate-ansible-inventory
       - "{{.ANSIBLE_PLAYBOOK_CMD}} {{.ANSIBLE_PLAYBOOK_DIR}}/k3s.yml {{.CLI_ARGS}}"
@@ -40,6 +41,7 @@ tasks:
 
   scp-kubeconfig-single:
     desc: Copy k3s kube config from single molecule node
+    aliases: ["s"]
     cmds:
       - scp root@10.10.0.24:~/.kube/config ~/.kube/config
 

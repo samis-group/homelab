@@ -13,23 +13,35 @@ ENV HISTIGNORE='*doppler secrets set*'
 
 # Ubuntu OS dependencies
 RUN apt-get update \
-  && apt-get install -y curl wget unzip tzdata vim openssh-server bash-completion sudo gosu sshpass \
-  && apt-get clean \
-  && rm -rf /var/lib/apt/lists/*
+    && apt-get install -y curl wget unzip tzdata vim openssh-server bash-completion sudo gosu sshpass jq \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install go-task
 RUN curl -L https://github.com/go-task/task/releases/download/v3.21.0/task_linux_amd64.tar.gz | \
     tar -C /usr/local/bin -xzf -
 
 # Install Terraform
-ENV TERRAFORM_VERSION=1.3.9
-RUN curl -LO https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
+RUN TERRAFORM_VERSION=$(curl -s https://api.github.com/repos/hashicorp/terraform/releases/latest \
+    | jq -r '.tag_name' | sed 's/v//') && \
+    curl -LO "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip" && \
     unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
     mv terraform /usr/local/bin && \
     rm terraform_${TERRAFORM_VERSION}_linux_amd64.zip
 
 # Install Doppler CLI tools
 RUN curl -Ls https://cli.doppler.com/install.sh | sh
+
+# Install kubectl
+RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+RUN chmod +x ./kubectl
+RUN mv ./kubectl /usr/local/bin
+
+# Install helm
+RUN curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+# Install Flux cli
+RUN curl -s https://fluxcd.io/install.sh | sudo bash
 
 # Setup user inside container, allowing us to change this UID in the entrypoint at container runtime
 # for mounting our volumes to match the host filesystem with correct UID/GID permissions
@@ -39,16 +51,16 @@ ENV USER_ID=1000
 ENV GROUP_ID=1000
 # Create a group with same username to give ownership of group to this user for file perms
 RUN groupadd -g ${GROUP_ID} ${USER_NAME} && \
-  useradd -u ${USER_ID} -g ${GROUP_ID} -G sudo -s /bin/bash -m ${USER_NAME} && \
-  echo "${USER_NAME}:${USER_NAME}" | chpasswd
+    useradd -u ${USER_ID} -g ${GROUP_ID} -G sudo -s /bin/bash -m ${USER_NAME} && \
+    echo "${USER_NAME}:${USER_NAME}" | chpasswd
 
 ENV HOMELAB_DIR=/workspace/homelab
 WORKDIR ${HOMELAB_DIR}
 
 # Make required directories and chown them
-RUN mkdir /root/.ssh ./roles /home/${USER_NAME}/.ssh && \
+RUN mkdir /root/.ssh ./roles /home/${USER_NAME}/.ssh /home/${USER_NAME}/.kube && \
 # Also ensure sudo group users are not asked for a password when using sudo command
-  echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+    echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
 # Installs Ansible, pre-commit-hooks, molecule, along with other pip dependencies.
 COPY --chown=${USER_NAME}:${USER_NAME} requirements.txt ${HOMELAB_DIR}/
@@ -59,9 +71,9 @@ COPY --chown=${USER_NAME}:${USER_NAME} provision/ansible/requirements.yml ${HOME
 COPY --chown=${USER_NAME}:${USER_NAME} provision/ansible/roles/requirements.yml ${HOMELAB_DIR}/roles/
 
 RUN mkdir -p /usr/share/ansible/collections && \
-  mkdir -p /usr/share/ansible/roles && \
-  ansible-galaxy collection install -r ./requirements.yml --collections-path /usr/share/ansible/collections && \
-  ansible-galaxy role install -r ./roles/requirements.yml --roles-path /usr/share/ansible/roles
+    mkdir -p /usr/share/ansible/roles && \
+    ansible-galaxy collection install -r ./requirements.yml --collections-path /usr/share/ansible/collections && \
+    ansible-galaxy role install -r ./roles/requirements.yml --roles-path /usr/share/ansible/roles
 
 # Copy bin files and docker-entrypoint.sh
 COPY bin/ /usr/local/bin
