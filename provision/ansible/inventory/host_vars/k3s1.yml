@@ -5,6 +5,8 @@ lxc_container:
   storage: "SSD"
   id: 105 # Required
   description: "k3s Standalone Container."
+  unprivileged: False
+  swap: 0
   netif: '{"net0":"name=eth0,gw={{ vm_gateway }},ip={{ lxc_ip_address }}/{{ vm_netmask }},bridge={{ lxc_defaults.network_device }}"}'
   features:
     - nesting=1

@@ -1,0 +1,24 @@
+---
+- name: Set bridge-nf-call-iptables value to allow bridged IP traffic from the kernel to pass to iptables
+  sysctl:
+    name: net.bridge.bridge-nf-call-iptables
+    value: 1
+    state: present
+    reload: yes
+
+- name: Disable swap
+  sysctl:
+    name: vm.swappiness
+    value: 0
+    state: present
+    reload: yes
+
+- name: Turn off swap
+  command: swapoff -a
+
+- name: Enable IPv4 forwarding
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: "1"
+    state: present
+    reload: yes

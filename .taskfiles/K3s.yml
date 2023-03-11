@@ -41,4 +41,9 @@ tasks:
   scp-kubeconfig-single:
     desc: Copy k3s kube config from single molecule node
     cmds:
+      - scp root@10.10.0.24:~/.kube/config ~/.kube/config
+
+  scp-kubeconfig-vagrant:
+    desc: Copy k3s kube config from single molecule node
+    cmds:
       - scp vagrant@192.168.30.50:~/.kube/config ~/.kube/config

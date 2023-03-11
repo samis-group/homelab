@@ -27,6 +27,6 @@ tasks:
         msg: |
           Inventory file '{{.ANSIBLE_INVENTORY_DIR}}/{{.ANSIBLE_INVENTORY_FILENAME}}' and doppler secret ANSIBLE_HOSTS_INVENTORY have diverged.
           If you have made changes to the generated inventory file that was downloaded from doppler locally, then please save the inventory file
-          and ensure you've pushed this to doppler with command `dp:pg` so that it pulls down the latest inventory before proceeding!
+          and ensure you've pushed this to doppler with command `task dp:p` so that it pulls down the latest inventory before proceeding!
     cmds:
       - "{{.DOPPLER_GET_INVENTORY_CMD}} > {{.ANSIBLE_INVENTORY_FILENAME}}"

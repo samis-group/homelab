@@ -42,7 +42,7 @@
     - role: ironicbadger.proxmox_nag_removal
     # Run pre-tasks on Proxmox host (Mainly just check connectivity)
     - role: ../roles/proxmox/pre-tasks
-      tags: ["pre-tasks"]
+    - role: ../roles/proxmox/configure-for-lxcs
     - role: ../roles/proxmox/install-os-packages
       when: install_os_packages
       tags: ["install_os_packages"]
@@ -61,16 +61,16 @@
         haos_proxmox_node: "{{ proxmox_node }}"
         haos_proxmox_storage: local
 
-- name: Gather localhost facts for next play
-  hosts: localhost
+# - name: Gather localhost facts for next play
+#   hosts: localhost
 
-- name: Setup ssh configs to localhost
-  tags: ["copy_ssh_configs"]
-  hosts: proxmox
-  # hosts: proxmox docker k3s lxc   # Put this back if provisioning k3s as well
-  become: true
+# - name: Setup ssh configs to localhost
+#   tags: ["copy_ssh_configs"]
+#   hosts: proxmox
+#   # hosts: proxmox docker k3s lxc   # Put this back if provisioning k3s as well
+#   become: true
 
-  pre_tasks: *pre_tasks
+#   pre_tasks: *pre_tasks
 
-  roles:
-    - role: sami_shakir.public_collection.copy_ssh_configs_d
+#   roles:
+#     - role: sami_shakir.public_collection.copy_ssh_configs_d

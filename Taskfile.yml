@@ -64,7 +64,7 @@ includes:
     aliases: ["pc"]
   proxmox:
     taskfile: .taskfiles/Proxmox.yml
-    aliases: ["p", "px"]
+    aliases: ["p"]
   setup:
     taskfile: .taskfiles/Setup.yml
     aliases: ["s"]

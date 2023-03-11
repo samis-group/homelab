@@ -13,13 +13,6 @@ platforms:
     box: generic/ubuntu2204
     memory: 4096
     cpus: 4
-    interfaces:
-      - network_name: private_network
-        ip: 192.168.30.50
-    groups:
-      - k3s
-      - k3sm1
-      - k3s_master
     config_options:
       # We currently can not use public-key based authentication on Ubuntu 22.04,
       # see: https://github.com/chef/bento/issues/1405
@@ -27,6 +20,13 @@ platforms:
       ssh.password: "vagrant"
       ssh.keep_alive: yes
       synced_folder: true
+    groups:
+      - k3s
+      - k3sm1
+      - k3s_master
+    interfaces:
+      - network_name: private_network
+        ip: 192.168.30.50
     instance_raw_config_args:
       - 'vm.synced_folder ".", "/vagrant", type: "rsync"'
     provider_raw_config_args:

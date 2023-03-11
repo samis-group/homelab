@@ -104,6 +104,10 @@ lxc_defaults:
   default_behavior: compatibility
   network_device: 'vmbr0'
 
+# the unique proxmox ids for all of the containers in the cluster, both worker and master nodes
+proxmox_lxc_ct_ids:
+  - 105
+
 # Playbook run tasks default actions:
 install_os_packages: true
 # Run `make copy-files` whenever it needs updating.

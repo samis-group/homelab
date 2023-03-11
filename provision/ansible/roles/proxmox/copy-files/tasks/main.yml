@@ -27,7 +27,7 @@
 
 - name: Copy proxmox templates
   template:
-    src: "proxmox/{{ item }}"
+    src: "../templates/proxmox/{{ item }}"
     dest: "/{{ item }}"
     # owner: root
     # group: root
