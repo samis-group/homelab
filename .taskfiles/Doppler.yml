@@ -3,6 +3,7 @@ version: "3"
 
 vars:
   DOPPLER_GET_INVENTORY_CMD: doppler secrets get ANSIBLE_HOSTS_INVENTORY --plain
+  DOPPLER_GET_K3S_INVENTORY_CMD: doppler secrets get K3S_ANSIBLE_HOSTS_INVENTORY --plain
 
 tasks:
 
@@ -32,3 +33,53 @@ tasks:
           and ensure you've pushed this to doppler with command `task dp:p` so that it pulls down the latest inventory before proceeding!
     cmds:
       - "{{.DOPPLER_GET_INVENTORY_CMD}} > {{.ANSIBLE_INVENTORY_FILENAME}}"
+
+  push-k3s-inventory:
+    desc: Push file `provision/k3s-ansible/inventory/generated.ini` back to Doppler (i.e. if you modify the file in your IDE, use this task to just push it back, don't need GUI!)
+    dir: provision/k3s-ansible/inventory
+    aliases: ["pk"]
+    silent: true
+    run: once
+    cmds:
+      - cat generated.ini | doppler secrets set K3S_ANSIBLE_HOSTS_INVENTORY
+      - echo "Please ensure your file was saved... otherwise save and redo."
+
+  # This task is required by multiple other taskfiles, call it with `:doppler:generate-ansible-inventory`
+  generate-k3s-ansible-inventory:
+    desc: Copy plain yaml inventory file from doppler and output/overwrite generated inventory
+    dir: provision/k3s-ansible/inventory
+    run: once
+    internal: true
+    preconditions:
+      # If file doesn't exist, create it or;
+      # Check if what is in doppler is different from local inventory file, let user handle it as they could be making changes locally which we do not with to override
+      - sh: "[[ ! -f {{.K3S_ANSIBLE_INVENTORY_FILENAME}} ]] || diff -q {{.K3S_ANSIBLE_INVENTORY_FILENAME}} <({{.DOPPLER_GET_K3S_INVENTORY_CMD}})"
+        msg: |
+          Inventory file '{{.K3S_ANSIBLE_INVENTORY_DIR}}/{{.K3S_ANSIBLE_INVENTORY_FILENAME}}' and doppler secret K3S_ANSIBLE_HOSTS_INVENTORY have diverged.
+          If you have made changes to the generated inventory file that was downloaded from doppler locally, then please save the inventory file
+          and ensure you've pushed this to doppler with command `task dp:pk` so that it pulls down the latest inventory before proceeding!
+    cmds:
+      - "{{.DOPPLER_GET_K3S_INVENTORY_CMD}} > {{.K3S_ANSIBLE_INVENTORY_FILENAME}}"
+
+  token-cluster:
+    desc: import a Doppler service token into k3s cluster
+    deps: [push-token]
+    aliases: ["t"]
+    vars:
+      K3S_DOPPLER_SERVICE_TOKEN:
+        sh: doppler secrets get K3S_DOPPLER_SERVICE_TOKEN --plain
+      DOPPLER_TOKEN_IN_K3S:
+        sh: kubectl get secret doppler-token-secret -n doppler-operator-system -o json --ignore-not-found=true | jq -r '.data.serviceToken' | base64 -d
+    status:
+      - "[[ '{{.K3S_DOPPLER_SERVICE_TOKEN}}' == '{{.DOPPLER_TOKEN_IN_K3S}}' ]]"
+    cmds:
+      - kubectl delete secret doppler-token-secret -n doppler-operator-system --ignore-not-found
+      - kubectl create secret generic doppler-token-secret -n doppler-operator-system --from-literal=serviceToken={{.K3S_DOPPLER_SERVICE_TOKEN}}
+
+  push-token:
+    desc: Create a config service token
+    internal: true
+    status:
+      - ! doppler configs tokens | grep -q doppler
+    cmds:
+      - K3S_DOPPLER_SERVICE_TOKEN=$(doppler configs tokens create doppler-kubernetes-operator --plain) && echo -e "${K3S_DOPPLER_SERVICE_TOKEN}" | doppler secrets set K3S_DOPPLER_SERVICE_TOKEN

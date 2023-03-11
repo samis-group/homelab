@@ -120,7 +120,7 @@ scp vagrant@192.168.30.38:~/.kube/config ~/.kube/config
 or if single (k3s-single):
 
 ```bash
-task k3s:scp-kubeconfig-single
+task k3s:scp-kubeconfig
 ```
 
 alternatively manual command:
