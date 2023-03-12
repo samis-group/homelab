@@ -11,5 +11,7 @@ spec:
     name: '*'
   - kind: Kustomization
     name: '*'
+  - kind: ImagePolicy
+    name: '*'
   providerRef:
     name: discord
