@@ -7,6 +7,7 @@ tasks:
     desc: ☸ Main k3s play
     dir: provision/k3s-ansible
     deps: [':lxc:k3s1']
+    vars:
     aliases: ["m"]
     cmds:
       - task: :doppler:generate-k3s-ansible-inventory
@@ -14,6 +15,13 @@ tasks:
       - task: scp-kubeconfig
       # - task: :flux:install
       - task: :doppler:token-cluster
+      - task: discord-secret
+
+  discord-secret:
+    desc: Deploy dicsord webhook URL as secret to k3s.. will be flux later
+    internal: true
+    cmds:
+      - kubectl create secret generic discord --from-literal=address=$(doppler secrets get DISCORD_FLUX_WEBHOOK_URL --plain)
 
   reset:
     desc: ☸ Reset k3s stack from beginning of it's inception
