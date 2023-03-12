@@ -9,7 +9,8 @@ provision/ansible/inventory/generated.*
 # Terraform
 provision/terraform/**/.terraform.tfstate*
 provision/terraform/**/terraform.tfstate*
-provision/terraform/**/*.terraform*
+provision/terraform/**/.terraform
+**.tfvars
 
 # Others
 .doppler*

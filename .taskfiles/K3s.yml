@@ -14,7 +14,6 @@ tasks:
       - task: scp-kubeconfig
       # - task: :flux:install
       - task: :doppler:token-cluster
-      - task: :doppler:token-cluster
 
   reset:
     desc: ☸ Reset k3s stack from beginning of it's inception

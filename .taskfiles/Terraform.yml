@@ -2,19 +2,14 @@
 version: "3"
 
 vars:
-  TF_VAR_DOPPLER_TOKEN:
-    sh: doppler secrets get TF_VAR_DOPPLER_TOKEN --plain
-  GITLAB_PERSONAL_ACCESS_TOKEN:
-    sh: doppler secrets get GITLAB_PERSONAL_ACCESS_TOKEN --plain
+
   TERRAFORM_DIR: "provision/terraform"
   TF_DIR_CF: "{{.TERRAFORM_DIR}}/cloudflare"
   TF_DIR_PVE: "{{.TERRAFORM_DIR}}/proxmox"
   TF_DIR_DOPPLER: "{{.TERRAFORM_DIR}}/doppler"
   TF_DIR_FLUX: "{{.TERRAFORM_DIR}}/flux"
-
-env:
-  TF_VAR_doppler_token: "{{.TF_VAR_DOPPLER_TOKEN}}"
-  TF_VAR_gitlab_token: "{{.GITLAB_PERSONAL_ACCESS_TOKEN}}"
+  TF_VARS_FILE: "myvars.tfvars"
+  TF_VARS_CMD: "-var-file=../{{.TF_VARS_FILE}}"
 
 tasks:
 
@@ -22,24 +17,27 @@ tasks:
 
   tf-init:
     desc: Initialize terraform dependencies
+    deps: [':doppler:tfvars']
     internal: true
     dir: "{{.TF_DIR_TODO}}"
     cmds:
-      - terraform init {{.CLI_ARGS}}
+      - terraform init {{.TF_VARS_CMD}} {{.CLI_ARGS}}
 
   tf-plan:
     desc: Show the changes terraform will make
+    deps: [':doppler:tfvars']
     internal: true
     dir: "{{.TF_DIR_TODO}}"
     cmds:
-      - terraform plan {{.CLI_ARGS}}
+      - terraform plan {{.TF_VARS_CMD}} {{.CLI_ARGS}}
 
   tf-apply:
     desc: Apply the changes
+    deps: [':doppler:tfvars']
     internal: true
     dir: "{{.TF_DIR_TODO}}"
     cmds:
-      - terraform apply {{.CLI_ARGS}}
+      - terraform apply {{.TF_VARS_CMD}} {{.CLI_ARGS}}
 
 ### Start ###
 

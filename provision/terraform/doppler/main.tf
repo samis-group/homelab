@@ -12,6 +12,7 @@ terraform {
 ###
 
 variable "doppler_token" {
+  description = "A token to authenticate with Doppler"
   type = string
 }
 
@@ -19,40 +20,40 @@ variable "doppler_token" {
 provider "doppler" {
   # Your Doppler token, either a personal or service token
   doppler_token = var.doppler_token
-  # The token can be provided with the environment variable `DOPPLER_TOKEN` instead
+  # The token can be provided with the environment variable `TF_VAR_doppler_token` instead of input
 }
 
 ###
 ### Read Doppler secrets with the doppler_secrets data provider
 ###
 
-# Mapped access to secrets
-data "doppler_secrets" "this" {
-  # Project and config are required if you are using a personal token
-  project = "homelab"
-  config = "dev_container"
-}
+# # Mapped access to secrets
+# data "doppler_secrets" "this" {
+#   # Project and config are required if you are using a personal token
+#   project = "homelab"
+#   config = "dev_container"
+# }
 
-output "all_secrets" {
-  # nonsensitive used for demo purposes only
-  value = nonsensitive(data.doppler_secrets.this.map)
-}
+# output "all_secrets" {
+#   # nonsensitive used for demo purposes only
+#   value = nonsensitive(data.doppler_secrets.this.map)
+# }
 
-output "domain_name" {
-  # Individual keys can be accessed directly by name
-  value = nonsensitive(data.doppler_secrets.this.map.DOMAIN_NAME)
-}
+# output "domain_name" {
+#   # Individual keys can be accessed directly by name
+#   value = nonsensitive(data.doppler_secrets.this.map.DOMAIN_NAME)
+# }
 
-output "vm_netmask" {
-  # Use `tonumber` and `tobool` to parse string values into Terraform primatives
-  value = nonsensitive(tonumber(data.doppler_secrets.this.map.VM_NETMASK))
-}
+# output "vm_netmask" {
+#   # Use `tonumber` and `tobool` to parse string values into Terraform primatives
+#   value = nonsensitive(tonumber(data.doppler_secrets.this.map.VM_NETMASK))
+# }
 
-output "json_parsing_values" {
-  # JSON values can be decoded direcly in Terraform
-  # e.g. FEATURE_FLAGS = `{ "AUTOPILOT": true, "TOP_SPEED": 130 }`
-  value = nonsensitive(jsondecode(data.doppler_secrets.this.map.TEST_JSON_DATA)["test"])
-}
+# output "json_parsing_values" {
+#   # JSON values can be decoded direcly in Terraform
+#   # e.g. FEATURE_FLAGS = `{ "AUTOPILOT": true, "TOP_SPEED": 130 }`
+#   value = nonsensitive(jsondecode(data.doppler_secrets.this.map.TEST_JSON_DATA)["test"])
+# }
 
 ###
 ### Create and modify Doppler secrets with the `doppler_secret` resource
@@ -84,31 +85,46 @@ output "json_parsing_values" {
 ### Create and modify Doppler projects, environments, configs, and service tokens
 ###
 
-# resource "doppler_project" "test_proj" {
-#   name = "my-test-project"
-#   description = "This is a test project"
-# }
+# Create and manage your project
+resource "doppler_project" "homelab" {
+  name = "homelab"
+  description = "Homelab Project"
+}
 
-# resource "doppler_environment" "ci" {
-#   project = doppler_project.test_proj.name
-#   slug = "ci"
-#   name = "CI-CD"
-# }
+# Create and manage your environments
+resource "doppler_environment" "homelab_dev" {
+  project = doppler_project.homelab.name
+  slug = "dev"
+  name = "Development"
+}
 
-# resource "doppler_config" "ci_github" {
-#   project = doppler_project.test_proj.name
-#   environment = doppler_environment.ci.slug
-#   name = "ci_github"
-# }
+resource "doppler_environment" "homelab_gitlab" {
+  project = doppler_project.homelab.name
+  slug = "gitlab"
+  name = "Gitlab CI"
+}
 
-# resource "doppler_service_token" "ci_github_token" {
-#   project = doppler_project.test_proj.name
-#   config = doppler_config.ci_github.name
-#   name = "test token"
-#   access = "read"
-# }
+resource "doppler_environment" "homelab_production" {
+  project = doppler_project.homelab.name
+  slug = "prd"
+  name = "Production"
+}
 
-# output "token_key" {
-#   # Access the service token key
-#   value = nonsensitive(doppler_service_token.ci_github_token.key)
-# }
+# Create and manage branch configs
+resource "doppler_config" "homelab_dev_container" {
+  project = doppler_project.homelab.name
+  environment = doppler_environment.homelab_dev.slug
+  name = "dev_container"
+}
+
+resource "doppler_service_token" "homelab_dev_container_token" {
+  project = doppler_project.homelab.name
+  config = doppler_config.homelab_dev_container.name
+  name = "test token"
+  access = "read"
+}
+
+output "token_key" {
+  # Access the service token key
+  value = nonsensitive(doppler_service_token.homelab_dev_container_token.key)
+}
