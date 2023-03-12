@@ -1,8 +1,9 @@
+---
 apiVersion: source.toolkit.fluxcd.io/v1beta2
 kind: HelmRepository
 metadata:
   name: doppler
   namespace: default
 spec:
-  interval: 1m
+  interval: 5m
   url: https://helm.doppler.com

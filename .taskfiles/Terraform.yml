@@ -13,6 +13,26 @@ vars:
 
 tasks:
 
+  tfvars:
+    desc: Write tfvars file for terraform to use
+    aliases: ["t"]
+    run: once
+    cmds:
+      - task: tfvars-doppler-token
+
+  tfvars-doppler-token:
+    desc: Write doppler_token tfvar
+    dir: provision/terraform
+    internal: true
+    interactive: true
+    silent: true
+    status:
+      - grep -q 'doppler_token' myvars.tfvars
+    cmds:
+      - |
+        read -p "Enter the Doppler token to use in terraform: " doppler_token
+        echo "doppler_token = \"$doppler_token\"" > myvars.tfvars
+
 ### Base ###
 
   tf-init:

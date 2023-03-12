@@ -13,8 +13,8 @@ tasks:
       - task: :doppler:generate-k3s-ansible-inventory
       - "{{.K3S_ANSIBLE_PLAYBOOK_CMD}} site.yml {{.CLI_ARGS}}"
       - task: scp-kubeconfig
+      - task: token-cluster
       # - task: :flux:install
-      - task: :doppler:token-cluster
       - task: discord-secret
 
   discord-secret:
@@ -22,6 +22,38 @@ tasks:
     internal: true
     cmds:
       - kubectl create secret generic discord --from-literal=address=$(doppler secrets get DISCORD_FLUX_WEBHOOK_URL --plain)
+
+  # Below is being migrated to doppler in tf
+  token-cluster:
+    desc: Create a config service token and push this to doppler and the cluster as a secret so that all doppler secrets can be loaded
+    aliases: ["tc"]
+    cmds:
+      - task: token-doppler
+      - task: push-token-cluster
+
+  token-doppler:
+    desc: Create a config service token
+    internal: true
+    status:
+      - ! doppler configs tokens | grep -q doppler
+    cmds:
+      - |
+        K3S_DOPPLER_SERVICE_TOKEN=$(doppler configs tokens create doppler-kubernetes-operator --plain) &&
+        echo -e "${K3S_DOPPLER_SERVICE_TOKEN}" | doppler secrets set K3S_DOPPLER_SERVICE_TOKEN
+
+  push-token-cluster:
+    desc: import the Doppler service token into k3s cluster
+    internal: true
+    vars:
+      K3S_DOPPLER_SERVICE_TOKEN:
+        sh: doppler secrets get K3S_DOPPLER_SERVICE_TOKEN --plain
+      DOPPLER_TOKEN_IN_K3S:
+        sh: kubectl get secret doppler-token-secret -n doppler-operator-system -o json --ignore-not-found=true | jq -r '.data.serviceToken' | base64 -d
+    status:
+      - "[[ '{{.K3S_DOPPLER_SERVICE_TOKEN}}' == '{{.DOPPLER_TOKEN_IN_K3S}}' ]]"
+    cmds:
+      - kubectl delete secret doppler-token-secret -n doppler-operator-system --ignore-not-found
+      - kubectl create secret generic doppler-token-secret -n doppler-operator-system --from-literal=serviceToken={{.K3S_DOPPLER_SERVICE_TOKEN}}
 
   reset:
     desc: ☸ Reset k3s stack from beginning of it's inception
@@ -80,7 +112,7 @@ tasks:
       - "test -d ${HOME}/.kube || mkdir ${HOME}/.kube"
 
   scp-kubeconfig-wsl:
-    desc: Copy k3s kube config from single node to windows host
+    desc: Copy k3s kube config from single node to windows host for Lens to work (must not be run in workstation container)
     aliases: ["sw"]
     status:
       - "test -f /mnt/c/.kube/config"
