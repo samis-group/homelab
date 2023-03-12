@@ -7,5 +7,5 @@ metadata:
 spec:
   interval: 5m0s
   ref:
-    branch: master
+    branch: main
   url: https://github.com/nbrownuk/gitops-lab-deploy
