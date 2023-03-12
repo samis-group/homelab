@@ -54,6 +54,7 @@ tasks:
     aliases: ["s"]
     status:
       - "test -f ${HOME}/.kube/config"
+      - "test -f /mnt/c/.kube/config"
     cmds:
       - task: mkdir-kubeconfig
       - scp root@10.10.0.24:~/.kube/config ~/.kube/config
@@ -69,3 +70,12 @@ tasks:
     internal: true
     cmds:
       - "test -d ${HOME}/.kube || mkdir ${HOME}/.kube"
+
+  scp-kubeconfig-wsl:
+    desc: Copy k3s kube config from single node to windows host
+    aliases: ["sw"]
+    status:
+      - "test -f /mnt/c/.kube/config"
+    cmds:
+      - "test -d /mnt/c/.kube || mkdir /mnt/c/.kube"
+      - scp root@10.10.0.24:~/.kube/config /mnt/c/.kube/config
