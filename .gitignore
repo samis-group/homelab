@@ -7,10 +7,9 @@ Thumbs.db
 provision/ansible/inventory/generated.*
 
 # Terraform
-.terraform
-.terraform.tfstate*
-terraform.tfstate*
-provision/terraform/**.terraform*
+provision/terraform/**/.terraform.tfstate*
+provision/terraform/**/terraform.tfstate*
+provision/terraform/**/*.terraform*
 
 # Others
 .doppler*

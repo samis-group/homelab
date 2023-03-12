@@ -12,13 +12,14 @@ tasks:
       - task: :doppler:generate-k3s-ansible-inventory
       - "{{.K3S_ANSIBLE_PLAYBOOK_CMD}} site.yml {{.CLI_ARGS}}"
       - task: scp-kubeconfig
+      # - task: :flux:install
       - task: :doppler:token-cluster
       - task: :doppler:token-cluster
-      - task: :flux:install
 
   reset:
     desc: ☸ Reset k3s stack from beginning of it's inception
-    dir: provision/ansible
+    dir: provision/k3s-ansible
+    aliases: ["r"]
     cmds:
       - task: :doppler:generate-k3s-ansible-inventory
       - "{{.K3S_ANSIBLE_PLAYBOOK_CMD}} reset.yml {{.CLI_ARGS}}"
@@ -30,21 +31,21 @@ tasks:
 
   run-tags:
     desc: ☸ Run only the tags passed in separated by comma (e.g. make run-tags update_compose,logrotate)
-    dir: provision/ansible
+    dir: provision/k3s-ansible
     cmds:
       - task: :doppler:generate-k3s-ansible-inventory
       - "{{.K3S_ANSIBLE_PLAYBOOK_CMD}} --tags {{.CLI_ARGS}} k3s.yml"
 
   run-tags-v:
     desc: ☸ VERBOSE - Same as above
-    dir: provision/ansible
+    dir: provision/k3s-ansible
     cmds:
       - task: :doppler:generate-k3s-ansible-inventory
       - "{{.K3S_ANSIBLE_PLAYBOOK_CMD}} -vvv --tags {{.CLI_ARGS}} k3s.yml"
 
   # helm-charts:
   #   desc: ☸ Deploy helm charts
-  #   dir: provision/ansible
+  #   dir: provision/k3s-ansible
   #   cmds:
   #     - task: :doppler:generate-k3s-ansible-inventory
   #     - "{{.K3S_ANSIBLE_PLAYBOOK_CMD}} --tags \"helm_charts\" k3s.yml {{.CLI_ARGS}}"

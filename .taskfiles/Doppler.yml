@@ -62,9 +62,23 @@ tasks:
       - "{{.DOPPLER_GET_K3S_INVENTORY_CMD}} > {{.K3S_ANSIBLE_INVENTORY_FILENAME}}"
 
   token-cluster:
-    desc: import a Doppler service token into k3s cluster
-    deps: [push-token]
+    desc: Create a config service token and push to doppler and cluster
     aliases: ["t"]
+    cmds:
+      - task: push-token-doppler
+      - task: push-token-cluster
+
+  push-token-doppler:
+    desc: Create a config service token
+    internal: true
+    status:
+      - ! doppler configs tokens | grep -q doppler
+    cmds:
+      - K3S_DOPPLER_SERVICE_TOKEN=$(doppler configs tokens create doppler-kubernetes-operator --plain) && echo -e "${K3S_DOPPLER_SERVICE_TOKEN}" | doppler secrets set K3S_DOPPLER_SERVICE_TOKEN
+
+  push-token-cluster:
+    desc: import the Doppler service token into k3s cluster
+    internal: true
     vars:
       K3S_DOPPLER_SERVICE_TOKEN:
         sh: doppler secrets get K3S_DOPPLER_SERVICE_TOKEN --plain
@@ -75,11 +89,3 @@ tasks:
     cmds:
       - kubectl delete secret doppler-token-secret -n doppler-operator-system --ignore-not-found
       - kubectl create secret generic doppler-token-secret -n doppler-operator-system --from-literal=serviceToken={{.K3S_DOPPLER_SERVICE_TOKEN}}
-
-  push-token:
-    desc: Create a config service token
-    internal: true
-    status:
-      - ! doppler configs tokens | grep -q doppler
-    cmds:
-      - K3S_DOPPLER_SERVICE_TOKEN=$(doppler configs tokens create doppler-kubernetes-operator --plain) && echo -e "${K3S_DOPPLER_SERVICE_TOKEN}" | doppler secrets set K3S_DOPPLER_SERVICE_TOKEN

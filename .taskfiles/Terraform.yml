@@ -2,61 +2,139 @@
 version: "3"
 
 vars:
-  TERRAFORM_DIR: "{{.PROJECT_DIR}}/provision/terraform"
+  TF_VAR_DOPPLER_TOKEN:
+    sh: doppler secrets get TF_VAR_DOPPLER_TOKEN --plain
+  GITLAB_PERSONAL_ACCESS_TOKEN:
+    sh: doppler secrets get GITLAB_PERSONAL_ACCESS_TOKEN --plain
+  TERRAFORM_DIR: "provision/terraform"
   TF_DIR_CF: "{{.TERRAFORM_DIR}}/cloudflare"
   TF_DIR_PVE: "{{.TERRAFORM_DIR}}/proxmox"
+  TF_DIR_DOPPLER: "{{.TERRAFORM_DIR}}/doppler"
+  TF_DIR_FLUX: "{{.TERRAFORM_DIR}}/flux"
+
+env:
+  TF_VAR_doppler_token: "{{.TF_VAR_DOPPLER_TOKEN}}"
+  TF_VAR_gitlab_token: "{{.GITLAB_PERSONAL_ACCESS_TOKEN}}"
 
 tasks:
+
+### Base ###
+
   tf-init:
     desc: Initialize terraform dependencies
     internal: true
+    dir: "{{.TF_DIR_TODO}}"
     cmds:
       - terraform init {{.CLI_ARGS}}
 
   tf-plan:
     desc: Show the changes terraform will make
     internal: true
+    dir: "{{.TF_DIR_TODO}}"
     cmds:
       - terraform plan {{.CLI_ARGS}}
 
   tf-apply:
     desc: Apply the changes
     internal: true
+    dir: "{{.TF_DIR_TODO}}"
     cmds:
       - terraform apply {{.CLI_ARGS}}
 
+### Start ###
+
   cf-init:
     desc: Initialize Cloudflare terraform dependencies
-    dir: "{{.TF_DIR_CF}}"
+    aliases: [ci]
     cmds:
       - task: tf-init
+        vars:
+          TF_DIR_TODO: "{{.TF_DIR_CF}}"
 
   cf-plan:
     desc: Show the changes Cloudflare terraform will make
-    dir: "{{.TF_DIR_CF}}"
+    aliases: [cp]
     cmds:
       - task: tf-plan
+        vars:
+          TF_DIR_TODO: "{{.TF_DIR_CF}}"
 
   cf-apply:
     desc: Apply the changes to Cloudflare
-    dir: "{{.TF_DIR_CF}}"
+    aliases: [ca]
     cmds:
       - task: tf-apply
+        vars:
+          TF_DIR_TODO: "{{.TF_DIR_CF}}"
 
   pve-init:
     desc: Initialize Proxmox terraform dependencies
-    dir: "{{.TF_DIR_PVE}}"
+    aliases: [pi]
     cmds:
       - task: tf-init
+        vars:
+          TF_DIR_TODO: "{{.TF_DIR_PVE}}"
 
   pve-plan:
     desc: Show the changes Proxmox terraform will make
-    dir: "{{.TF_DIR_PVE}}"
+    aliases: [pp]
     cmds:
       - task: tf-plan
+        vars:
+          TF_DIR_TODO: "{{.TF_DIR_PVE}}"
 
   pve-apply:
     desc: Apply the changes to Proxmox
-    dir: "{{.TF_DIR_PVE}}"
+    aliases: [pa]
     cmds:
       - task: tf-apply
+        vars:
+          TF_DIR_TODO: "{{.TF_DIR_PVE}}"
+
+  doppler-init:
+    desc: Initialize Proxmox terraform dependencies
+    aliases: [di]
+    cmds:
+      - task: tf-init
+        vars:
+          TF_DIR_TODO: "{{.TF_DIR_DOPPLER}}"
+
+  doppler-plan:
+    desc: Show the changes Proxmox terraform will make
+    aliases: [dp]
+    cmds:
+      - task: tf-plan
+        vars:
+          TF_DIR_TODO: "{{.TF_DIR_DOPPLER}}"
+
+  doppler-apply:
+    desc: Apply the changes to Proxmox
+    aliases: [da]
+    cmds:
+      - task: tf-apply
+        vars:
+          TF_DIR_TODO: "{{.TF_DIR_DOPPLER}}"
+
+  flux-init:
+    desc: Initialize Proxmox terraform dependencies
+    aliases: [fi]
+    cmds:
+      - task: tf-init
+        vars:
+          TF_DIR_TODO: "{{.TF_DIR_FLUX}}"
+
+  flux-plan:
+    desc: Show the changes Proxmox terraform will make
+    aliases: [fp]
+    cmds:
+      - task: tf-plan
+        vars:
+          TF_DIR_TODO: "{{.TF_DIR_FLUX}}"
+
+  flux-apply:
+    desc: Apply the changes to Proxmox
+    aliases: [fa]
+    cmds:
+      - task: tf-apply
+        vars:
+          TF_DIR_TODO: "{{.TF_DIR_FLUX}}"
