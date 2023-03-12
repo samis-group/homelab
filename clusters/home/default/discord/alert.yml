@@ -13,5 +13,9 @@ spec:
     name: '*'
   - kind: ImagePolicy
     name: '*'
+  - kind: HelmRepository
+    name: '*'
+  - kind: HelmRelease
+    name: '*'
   providerRef:
     name: discord
