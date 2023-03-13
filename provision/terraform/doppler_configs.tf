@@ -1,14 +1,10 @@
-###
-### Create and modify Doppler projects, environments, configs, and service tokens
-###
-
-# Create and manage your project
+# project
 resource "doppler_project" "homelab" {
   name = "homelab"
   description = "Homelab Project"
 }
 
-# Create and manage your environments
+# environments
 resource "doppler_environment" "homelab_dev" {
   project = doppler_project.homelab.name
   slug = "dev"
@@ -27,7 +23,7 @@ resource "doppler_environment" "homelab_production" {
   name = "Production"
 }
 
-# Create and manage branch configs
+# branch configs
 resource "doppler_config" "homelab_dev_container" {
   project = doppler_project.homelab.name
   environment = doppler_environment.homelab_dev.slug

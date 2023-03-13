@@ -12,6 +12,8 @@ usermod -u ${USER_ID} ${USER_NAME}
 
 # Aliases
 gosu ${USER_NAME} echo "alias ll='ls -alh'" >> /home/${USER_NAME}/.bashrc
+gosu ${USER_NAME} echo "alias t='task'" >> /home/${USER_NAME}/.bashrc
+gosu ${USER_NAME} echo "alias k='kubectl'" >> /home/${USER_NAME}/.bashrc
 
 # Start SSH inside entrypoint for ansible tasks delegated to localhost (container)
 echo "Starting sshd..."

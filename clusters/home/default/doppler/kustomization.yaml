@@ -1,0 +1,20 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+metadata:
+  name: doppler-helm
+  namespace: flux-system
+resources:
+  - ./doppler-helm-release.yml
+  - ./doppler-helm-repository.yml
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+metadata:
+  name: doppler-secret
+  namespace: flux-system
+resources:
+  - ./doppler-secret.yml
+spec:
+  dependsOn:
+    - name: doppler-helm

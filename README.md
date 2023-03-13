@@ -74,7 +74,7 @@ cd homelab
 > Go through setting up password.
 
 ```bash
-task workstation:doppler-login
+task doppler:login
 ```
 
 > Now start the container and drop you in a shell already setup to go.

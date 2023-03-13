@@ -1,25 +1,12 @@
 # https://registry.terraform.io/providers/fluxcd/flux/latest/docs
-terraform {
-  cloud {
-    organization = "sami-group"
-    workspaces {
-      name = "homelab-flux"
-    }
-  }
-  required_providers {
-    flux = {
-      source  = "fluxcd/flux"
-    }
-  }
-}
-
 variable "gitlab_owner" {
   description = "gitlab owner"
   type        = string
   default     = "th3cookie"
 }
 
-variable "gitlab_token" {
+# Figure out how to reference doppler secrets from inside this module
+variable "gitlab_personal_access_token" {
   description = "gitlab token"
   type        = string
   sensitive   = true
@@ -45,7 +32,7 @@ provider "flux" {
     url    = var.repository_url
     http = {
       username = var.gitlab_owner
-      password = var.gitlab_token
+      password = var.gitlab_personal_access_token
     }
   }
 }

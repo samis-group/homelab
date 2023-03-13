@@ -1,5 +1,4 @@
 # See https://toolkit.fluxcd.io/components/source/gitrepositories/#excluding-files
-.doppler/
 .gitlab/
 .taskfiles/
 .vscode/

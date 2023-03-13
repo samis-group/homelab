@@ -18,7 +18,7 @@ tasks:
       GITLAB_PERSONAL_ACCESS_TOKEN:
         sh: doppler secrets get GITLAB_PERSONAL_ACCESS_TOKEN --plain
     env:
-      GITLAB_PERSONAL_ACCESS_TOKEN: "{{.GITLAB_PERSONAL_ACCESS_TOKEN}}"
+      GITLAB_TOKEN: "{{.GITLAB_PERSONAL_ACCESS_TOKEN}}"
     cmds:
       - flux bootstrap gitlab --components-extra=image-reflector-controller,image-automation-controller --owner=sami-group --repository=homelab --branch=main --path=clusters/home --token-auth --personal
       # - kubectl apply --kustomize {{.CLUSTER_DIR}}/bootstrap/

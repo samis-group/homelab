@@ -55,6 +55,9 @@ includes:
   flux:
     taskfile: .taskfiles/Flux.yml
     aliases: ["f"]
+  internal:
+    taskfile: .taskfiles/internal.yml
+    internal: true
   k3s:
     taskfile: .taskfiles/K3s.yml
     aliases: ["k"]
@@ -85,16 +88,18 @@ includes:
     aliases: ["ws"]
   wsl: .taskfiles/Wsl.yml
 
-# tasks:
+tasks:
 
-#----------------------#
-#     default task     #
-# Leave empty for list #
-#----------------------#
-
-  # default:
-  #   cmds:
-  #     - task: workstation-registry-shell
+  all:
+    desc: My current entire automation for k3s stack with LXC containers on proxmox w/ flux + tf + ansible etc.
+    cmds:
+      - task: k3s:main
+      - task: terraform:init
+      - task: terraform:plan
+      - task: terraform:apply
+      # - task: terraform:proxmox-init
+      # - task: terraform:proxmox-plan
+      # - task: terraform:proxmox-apply
 
 #---------#
 # Linters #

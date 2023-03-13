@@ -8,18 +8,35 @@ vars:
   TF_DIR_PVE: "{{.TERRAFORM_DIR}}/proxmox"
   TF_DIR_DOPPLER: "{{.TERRAFORM_DIR}}/doppler"
   TF_DIR_FLUX: "{{.TERRAFORM_DIR}}/flux"
-  TF_VARS_FILE: "myvars.tfvars"
-  TF_VARS_CMD: "-var-file=../{{.TF_VARS_FILE}}"
+  TF_VARS_CMD: "-var-file=myvars.tfvars"
 
 tasks:
 
+  login:
+    desc: Login to terraform cloud as that is where the state files are stored
+    internal: true
+    interactive: true
+    status:
+      - "test -f ${HOME}/.terraform.d/credentials.tfrc.json"
+    cmds:
+      - "test -d ${HOME}/.terraform.d || mkdir ${HOME}/.terraform.d"
+      - terraform login
+
+  output:
+    desc: Get output value from terraform. Pass in arg like '-- doppler_token'.
+    aliases: ['o']
+    dir: "{{.TERRAFORM_DIR}}"
+    cmds:
+      - echo '{{.CLI_ARGS}} value:' && terraform output -raw {{.CLI_ARGS}} && echo
+
   tfvars:
     desc: Write tfvars file for terraform to use
-    aliases: ["t"]
+    internal: true
     run: once
     silent: true
     cmds:
       - task: tfvars-doppler-token
+      - task: tfvars-gitlab-token
 
   tfvars-doppler-token:
     desc: Write doppler_token tfvar
@@ -30,129 +47,122 @@ tasks:
       - grep -q 'doppler_token' myvars.tfvars
     cmds:
       - |
-        read -p "Enter the Doppler token to be used in terraform (read/write): " doppler_token
-        echo "doppler_token = \"$doppler_token\"" >> myvars.tfvars
+        echo "doppler_token = \"$(doppler secrets get DOPPLER_TOKEN --plain)\"" >> myvars.tfvars ||
+        (read -p "Enter the Doppler token to be used in terraform (read/write): " doppler_token &&
+        echo "doppler_token = \"$(doppler secrets get DOPPLER_TOKEN --plain)\"" >> myvars.tfvars)
+
+  tfvars-gitlab-token:
+    desc: Write gitlab_personal_access_token tfvar
+    dir: provision/terraform
+    internal: true
+    interactive: true
+    status:
+      - grep -q 'gitlab_personal_access_token' myvars.tfvars
+    cmds:
+      - |
+        echo "gitlab_personal_access_token = \"$(doppler secrets get GITLAB_PERSONAL_ACCESS_TOKEN --plain)\"" >> myvars.tfvars ||
+        (read -p "Enter the Doppler token to be used in terraform (read/write): " gitlab_personal_access_token &&
+        echo "gitlab_personal_access_token = \"$(doppler secrets get GITLAB_PERSONAL_ACCESS_TOKEN --plain)\"" >> myvars.tfvars)
 
 ### Base ###
 
-  tf-init:
+  init:
     desc: Initialize terraform dependencies
     deps: ['tfvars']
-    internal: true
-    dir: "{{.TF_DIR_TODO}}"
+    aliases: ['i']
+    dir: "{{default .TERRAFORM_DIR .TF_DIR_TODO}}"
     cmds:
       - terraform init {{.TF_VARS_CMD}} {{.CLI_ARGS}}
 
-  tf-plan:
+  plan:
     desc: Show the changes terraform will make
     deps: ['tfvars']
-    internal: true
-    dir: "{{.TF_DIR_TODO}}"
+    aliases: ['p']
+    dir: "{{default .TERRAFORM_DIR .TF_DIR_TODO}}"
     cmds:
       - terraform plan {{.TF_VARS_CMD}} {{.CLI_ARGS}}
 
-  tf-apply:
+  apply:
     desc: Apply the changes
     deps: ['tfvars']
-    internal: true
-    dir: "{{.TF_DIR_TODO}}"
+    aliases: ['a']
+    dir: "{{default .TERRAFORM_DIR .TF_DIR_TODO}}"
     cmds:
       - terraform apply {{.TF_VARS_CMD}} {{.CLI_ARGS}}
 
-### Start ###
+### Extends ###
 
-  cf-init:
-    desc: Initialize Cloudflare terraform dependencies
-    aliases: [ci]
-    cmds:
-      - task: tf-init
-        vars:
-          TF_DIR_TODO: "{{.TF_DIR_CF}}"
+  # flux-init:
+  #   desc: Initialize Proxmox terraform dependencies
+  #   aliases: [fi]
+  #   cmds:
+  #     - task: init
+  #       vars:
+  #         TF_DIR_TODO: "{{.TF_DIR_FLUX}}"
+  #         TF_VARS_CMD: "-var-file=../myvars.tfvars"
 
-  cf-plan:
-    desc: Show the changes Cloudflare terraform will make
-    aliases: [cp]
-    cmds:
-      - task: tf-plan
-        vars:
-          TF_DIR_TODO: "{{.TF_DIR_CF}}"
+  # flux-plan:
+  #   desc: Show the changes Proxmox terraform will make
+  #   aliases: [fp]
+  #   cmds:
+  #     - task: plan
+  #       vars:
+  #         TF_DIR_TODO: "{{.TF_DIR_FLUX}}"
+  #         TF_VARS_CMD: "-var-file=../myvars.tfvars"
 
-  cf-apply:
-    desc: Apply the changes to Cloudflare
-    aliases: [ca]
-    cmds:
-      - task: tf-apply
-        vars:
-          TF_DIR_TODO: "{{.TF_DIR_CF}}"
+  # flux-apply:
+  #   desc: Apply the changes to Proxmox
+  #   aliases: [fa]
+  #   cmds:
+  #     - task: apply
+  #       vars:
+  #         TF_DIR_TODO: "{{.TF_DIR_FLUX}}"
+  #         TF_VARS_CMD: "-var-file=../myvars.tfvars"
 
-  pve-init:
-    desc: Initialize Proxmox terraform dependencies
-    aliases: [pi]
-    cmds:
-      - task: tf-init
-        vars:
-          TF_DIR_TODO: "{{.TF_DIR_PVE}}"
+  # cf-init:
+  #   desc: Initialize Cloudflare terraform dependencies
+  #   aliases: [ci]
+  #   cmds:
+  #     - task: init
+  #       vars:
+  #         TF_DIR_TODO: "{{.TF_DIR_CF}}"
 
-  pve-plan:
-    desc: Show the changes Proxmox terraform will make
-    aliases: [pp]
-    cmds:
-      - task: tf-plan
-        vars:
-          TF_DIR_TODO: "{{.TF_DIR_PVE}}"
+  # cf-plan:
+  #   desc: Show the changes Cloudflare terraform will make
+  #   aliases: [cp]
+  #   cmds:
+  #     - task: plan
+  #       vars:
+  #         TF_DIR_TODO: "{{.TF_DIR_CF}}"
 
-  pve-apply:
-    desc: Apply the changes to Proxmox
-    aliases: [pa]
-    cmds:
-      - task: tf-apply
-        vars:
-          TF_DIR_TODO: "{{.TF_DIR_PVE}}"
+  # cf-apply:
+  #   desc: Apply the changes to Cloudflare
+  #   aliases: [ca]
+  #   cmds:
+  #     - task: apply
+  #       vars:
+  #         TF_DIR_TODO: "{{.TF_DIR_CF}}"
 
-  doppler-init:
-    desc: Initialize Proxmox terraform dependencies
-    aliases: [di]
-    cmds:
-      - task: tf-init
-        vars:
-          TF_DIR_TODO: "{{.TF_DIR_DOPPLER}}"
+  # pve-init:
+  #   desc: Initialize Proxmox terraform dependencies
+  #   aliases: [pi]
+  #   cmds:
+  #     - task: init
+  #       vars:
+  #         TF_DIR_TODO: "{{.TF_DIR_PVE}}"
 
-  doppler-plan:
-    desc: Show the changes Proxmox terraform will make
-    aliases: [dp]
-    cmds:
-      - task: tf-plan
-        vars:
-          TF_DIR_TODO: "{{.TF_DIR_DOPPLER}}"
+  # pve-plan:
+  #   desc: Show the changes Proxmox terraform will make
+  #   aliases: [pp]
+  #   cmds:
+  #     - task: plan
+  #       vars:
+  #         TF_DIR_TODO: "{{.TF_DIR_PVE}}"
 
-  doppler-apply:
-    desc: Apply the changes to Proxmox
-    aliases: [da]
-    cmds:
-      - task: tf-apply
-        vars:
-          TF_DIR_TODO: "{{.TF_DIR_DOPPLER}}"
-
-  flux-init:
-    desc: Initialize Proxmox terraform dependencies
-    aliases: [fi]
-    cmds:
-      - task: tf-init
-        vars:
-          TF_DIR_TODO: "{{.TF_DIR_FLUX}}"
-
-  flux-plan:
-    desc: Show the changes Proxmox terraform will make
-    aliases: [fp]
-    cmds:
-      - task: tf-plan
-        vars:
-          TF_DIR_TODO: "{{.TF_DIR_FLUX}}"
-
-  flux-apply:
-    desc: Apply the changes to Proxmox
-    aliases: [fa]
-    cmds:
-      - task: tf-apply
-        vars:
-          TF_DIR_TODO: "{{.TF_DIR_FLUX}}"
+  # pve-apply:
+  #   desc: Apply the changes to Proxmox
+  #   aliases: [pa]
+  #   cmds:
+  #     - task: apply
+  #       vars:
+  #         TF_DIR_TODO: "{{.TF_DIR_PVE}}"

@@ -1,0 +1,22 @@
+---
+version: "3"
+
+tasks:
+
+  mkdirs-local:
+    run: once
+    cmds:
+      - task: mkdir-kube
+      - task: mkdir-terraform
+
+  mkdir-kube:
+    status:
+      - "test -d ${HOME}/.kube"
+    cmds:
+      - "mkdir ${HOME}/.kube"
+
+  mkdir-terraform:
+    status:
+      - "test -d ${HOME}/.terraform.d"
+    cmds:
+      - "mkdir ${HOME}/.terraform.d"
