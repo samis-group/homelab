@@ -15,6 +15,7 @@ vars:
     --volume "{{.PROJECT_DIR}}/.taskfiles:{{.HOMELAB_DIR}}/.taskfiles"
     --volume "{{.PROJECT_DIR}}/clusters:{{.HOMELAB_DIR}}/clusters"
     --volume "${HOME}/.ssh/:/home/ubuntu/.ssh"
+    --volume "${HOME}/.kube/:/home/ubuntu/.kube"
     --env USER_ID={{.USER_ID}}
     # --volume "${HOME}/git/personal/others/k3s-ansible:{{.HOMELAB_DIR}}/k3s-ansible"
     # --user={{.USER_ID}}:{{.USER_ID}}
@@ -24,12 +25,13 @@ vars:
   DOCKER_EXEC_CMD: docker exec -u {{.USER_ID}} -it {{.LOCAL_IMAGE_NAME}}
   DOCKER_VOLUME_DOTFILES: --volume "${HOME}/.dotfiles:/home/ubuntu/.dotfiles"
   DOCKER_VOLUME_DOPPLER: --volume "{{.PROJECT_DIR}}/.doppler:/home/ubuntu/.doppler"
+  DOCKER_VOLUME_TERRAFORM: --volume "${HOME}/.terraform.d:/home/ubuntu/.terraform.d"
 
 tasks:
 
   local-shell:
     desc: 🔨🐳 Build the Homelab Workstation container locally and jump into shell in order to run your automation stuff
-    deps: [doppler-login, build-docker]
+    deps: [doppler-login, terraform-login, build-docker]
     aliases: ["ls"]
     interactive: true
     cmds:
@@ -40,7 +42,7 @@ tasks:
 
   registry-shell:
     desc: 🔨🐳 Download the registry Homelab Workstation image and jump into shell in order to run your automation stuff
-    deps: [doppler-login]
+    deps: [doppler-login, terraform-login]
     aliases: ["rs"]
     interactive: true
     cmds:
@@ -60,6 +62,16 @@ tasks:
       - task: run-docker-dotfiles
       - "{{.DOCKER_EXEC_CMD}} doppler login"
       - "{{.DOCKER_EXEC_CMD}} doppler setup --scope {{.HOMELAB_DIR}}"
+
+  terraform-login:
+    desc: Login to terraform cloud as that is where the state files are stored
+    internal: true
+    interactive: true
+    status:
+      - "test -f ${HOME}/.terraform.d/credentials.tfrc.json"
+    cmds:
+      - "test -d ${HOME}/.terraform.d || mkdir ${HOME}/.terraform.d"
+      - terraform login
 
   # Figure out how to execute this task when dir doesn't exist..
   doppler-test:
@@ -106,14 +118,14 @@ tasks:
     internal: true
     run: once
     cmds:
-      - "{{.DOCKER_RUN_CMD}} {{.DOCKER_VOLUME_DOPPLER}} --name {{.LOCAL_IMAGE_NAME}} {{.RUN_LOCAL_OR_REGISTRY}}"
+      - "{{.DOCKER_RUN_CMD}} {{.DOCKER_VOLUME_DOPPLER}} {{.DOCKER_VOLUME_TERRAFORM}} --name {{.LOCAL_IMAGE_NAME}} {{.RUN_LOCAL_OR_REGISTRY}}"
 
   run-docker-dotfiles:
     desc: Run the docker container from the locally built image (also builds the image) with dotfiles volume mount (mainly personal)
     internal: true
     run: once
     cmds:
-      - "{{.DOCKER_RUN_CMD}} {{.DOCKER_VOLUME_DOPPLER}} {{.DOCKER_VOLUME_DOTFILES}} --name {{.LOCAL_IMAGE_NAME}} {{.RUN_LOCAL_OR_REGISTRY}}"
+      - "{{.DOCKER_RUN_CMD}} {{.DOCKER_VOLUME_DOPPLER}} {{.DOCKER_VOLUME_TERRAFORM}} {{.DOCKER_VOLUME_DOTFILES}} --name {{.LOCAL_IMAGE_NAME}} {{.RUN_LOCAL_OR_REGISTRY}}"
 
   build-docker:
     desc: Builds the docker image locally

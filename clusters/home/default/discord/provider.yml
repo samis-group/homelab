@@ -7,6 +7,6 @@ metadata:
 spec:
   channel: homelab
   secretRef:
-    name: discord
+    name: discord-webhook
   type: discord
   username: FluxBot

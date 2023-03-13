@@ -1,10 +1,14 @@
 # https://registry.terraform.io/providers/fluxcd/flux/latest/docs
-
 terraform {
+  cloud {
+    organization = "sami-group"
+    workspaces {
+      name = "homelab-flux"
+    }
+  }
   required_providers {
     flux = {
       source  = "fluxcd/flux"
-      # version = ">= 0.11.0"
     }
   }
 }
