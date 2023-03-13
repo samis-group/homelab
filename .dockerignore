@@ -1,17 +1,10 @@
 # Exclude the following from the docker build
 .git*
 .pre-commit*
-.secretlintignore
-.sops.yaml
 .sourceignore
-.vault-password
-.yamllint.yml
-apps
 clusters
-cluster_bak
 Dockerfile
 docs
-infrastructure
 linters
 LICENSE
 README.md
