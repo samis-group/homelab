@@ -14,7 +14,7 @@ metadata:
   name: doppler-secret
   namespace: flux-system
 resources:
-  - ./doppler-secret.yml
+  - ./secret.yml
 spec:
   dependsOn:
     - name: doppler-helm
