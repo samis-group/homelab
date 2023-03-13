@@ -3,7 +3,6 @@ version: "3"
 
 tasks:
 
-  # Figure out how to execute this task when dir doesn't exist..
   login:
     desc: Creates doppler dir if it doesn't exist and Login to Doppler from inside the container. The volume is mounted in the docker run cmd so it persists upon re-creation unless re-cloning the repo.
     internal: true
@@ -64,13 +63,13 @@ tasks:
     internal: true
     vars:
       DOPPLER_GET_K3S_INVENTORY_CMD: doppler secrets get K3S_ANSIBLE_HOSTS_INVENTORY --plain
-    preconditions:
-      # If file doesn't exist, create it or;
-      # Check if what is in doppler is different from local inventory file, let user handle it as they could be making changes locally which we do not with to override
-      - sh: "[[ ! -f {{.K3S_ANSIBLE_INVENTORY_FILENAME}} ]] || diff -q {{.K3S_ANSIBLE_INVENTORY_FILENAME}} <({{.DOPPLER_GET_K3S_INVENTORY_CMD}})"
-        msg: |
-          Inventory file '{{.K3S_ANSIBLE_INVENTORY_DIR}}/{{.K3S_ANSIBLE_INVENTORY_FILENAME}}' and doppler secret K3S_ANSIBLE_HOSTS_INVENTORY have diverged.
-          If you have made changes to the generated inventory file that was downloaded from doppler locally, then please save the inventory file
-          and ensure you've pushed this to doppler with command `task dp:pk` so that it pulls down the latest inventory before proceeding!
+    # preconditions:
+    #   # If file doesn't exist, create it or;
+    #   # Check if what is in doppler is different from local inventory file, let user handle it as they could be making changes locally which we do not with to override
+    #   - sh: "[[ -f {{.K3S_ANSIBLE_INVENTORY_FILENAME}} ]] || diff -q {{.K3S_ANSIBLE_INVENTORY_FILENAME}} <({{.DOPPLER_GET_K3S_INVENTORY_CMD}})"
+    #     msg: |
+    #       Inventory file '{{.K3S_ANSIBLE_INVENTORY_DIR}}/{{.K3S_ANSIBLE_INVENTORY_FILENAME}}' and doppler secret K3S_ANSIBLE_HOSTS_INVENTORY have diverged.
+    #       If you have made changes to the generated inventory file that was downloaded from doppler locally, then please save the inventory file
+    #       and ensure you've pushed this to doppler with command `task dp:pk` so that it pulls down the latest inventory before proceeding!
     cmds:
       - "{{.DOPPLER_GET_K3S_INVENTORY_CMD}} > {{.K3S_ANSIBLE_INVENTORY_FILENAME}}"

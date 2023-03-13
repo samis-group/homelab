@@ -24,7 +24,6 @@ tasks:
       - task: :doppler:generate-k3s-ansible-inventory
       - "{{.K3S_ANSIBLE_PLAYBOOK_CMD}} reset.yml {{.CLI_ARGS}}"
       - rm -rf ~/.kube/ || true
-      - rm -rf /mnt/c/.kube/ || true
 
   watch-kustomizations:
     interactive: true
