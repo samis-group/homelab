@@ -24,14 +24,14 @@ vars:
   DOCKER_BUILD_CMD: docker build -t {{.LOCAL_IMAGE_NAME}}
   DOCKER_EXEC_CMD: docker exec -u {{.USER_ID}} -it {{.LOCAL_IMAGE_NAME}}
   DOCKER_VOLUME_DOTFILES: --volume "${HOME}/.dotfiles:/home/ubuntu/.dotfiles"
-  DOCKER_VOLUME_DOPPLER: --volume "{{.PROJECT_DIR}}/.doppler:/home/ubuntu/.doppler"
+  DOCKER_VOLUME_DOPPLER: --volume "${HOME}/.doppler:/home/ubuntu/.doppler"
   DOCKER_VOLUME_TERRAFORM: --volume "${HOME}/.terraform.d:/home/ubuntu/.terraform.d"
 
 tasks:
 
   local-shell:
     desc: 🔨🐳 Build the Homelab Workstation container locally and jump into shell in order to run your automation stuff
-    deps: [doppler-login, terraform-login, build-docker]
+    deps: [':doppler:login', ':terraform:login', build-docker, ':internal:mkdirs-local']
     aliases: ["ls"]
     interactive: true
     cmds:
@@ -42,36 +42,14 @@ tasks:
 
   registry-shell:
     desc: 🔨🐳 Download the registry Homelab Workstation image and jump into shell in order to run your automation stuff
-    deps: [doppler-login, terraform-login]
+    deps: [':doppler:login', ':terraform:login', ':internal:mkdirs-local']
     aliases: ["rs"]
     interactive: true
     cmds:
       - task: run-docker-dotfiles
       - "{{.DOCKER_EXEC_CMD}} bash"
 
-  # Figure out how to execute this task when dir doesn't exist..
-  doppler-login:
-    desc: Creates doppler dir if it doesn't exist and Login to Doppler from inside the container. The volume is mounted in the docker run cmd so it persists upon re-creation unless re-cloning the repo.
-    internal: true
-    env:
-      DOPPLER_CONFIG: "{{.PROJECT_DIR}}/.doppler"
-    status: # Check if doppler token exists in file, means we've already logged in, otherwise login!
-      - grep -q '\s\+token' ${DOPPLER_CONFIG}/.doppler.yaml
-    cmds:
-      - "test -d ${DOPPLER_CONFIG} || mkdir ${DOPPLER_CONFIG}"
-      - task: run-docker-dotfiles
-      - "{{.DOCKER_EXEC_CMD}} doppler login"
-      - "{{.DOCKER_EXEC_CMD}} doppler setup --scope {{.HOMELAB_DIR}}"
 
-  terraform-login:
-    desc: Login to terraform cloud as that is where the state files are stored
-    internal: true
-    interactive: true
-    status:
-      - "test -f ${HOME}/.terraform.d/credentials.tfrc.json"
-    cmds:
-      - "test -d ${HOME}/.terraform.d || mkdir ${HOME}/.terraform.d"
-      - terraform login
 
   # Figure out how to execute this task when dir doesn't exist..
   doppler-test:

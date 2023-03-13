@@ -2,10 +2,13 @@ terraform {
   cloud {
     organization = "sami-group"
     workspaces {
-      name = "flux"
+      name = "terraform"
     }
   }
   required_providers {
+    doppler = {
+      source = "DopplerHQ/doppler"
+    }
     flux = {
       source  = "fluxcd/flux"
     }

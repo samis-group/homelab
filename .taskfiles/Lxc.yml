@@ -15,6 +15,7 @@ tasks:
   provision-lxc:
     desc: 📦 Provision LXC's
     dir: provision/ansible
+    deps: [':doppler:login']
     aliases: ["p"]
     cmds:
       - task: :doppler:generate-ansible-inventory

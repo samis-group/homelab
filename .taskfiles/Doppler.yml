@@ -3,6 +3,20 @@ version: "3"
 
 tasks:
 
+  # Figure out how to execute this task when dir doesn't exist..
+  login:
+    desc: Creates doppler dir if it doesn't exist and Login to Doppler from inside the container. The volume is mounted in the docker run cmd so it persists upon re-creation unless re-cloning the repo.
+    internal: true
+    # env:
+    #   DOPPLER_CONFIG: "{{.PROJECT_DIR}}/.doppler"
+    status: # Check if doppler token exists in file, means we've already logged in, otherwise login!
+      - grep -q '\s\+token' ${HOME}/.doppler/.doppler.yaml
+    cmds:
+      - "test -d ${HOME}/.doppler || mkdir ${HOME}/.doppler"
+      - task: ':workstation:run-docker-dotfiles'
+      - "{{.DOCKER_EXEC_CMD}} doppler login"
+      - "{{.DOCKER_EXEC_CMD}} doppler setup --scope {{.HOMELAB_DIR}}"
+
   push-inventory:
     desc: Push file `provision/ansible/inventory/generated.yml` back to Doppler (i.e. if you modify the file in your IDE, use this task to just push it back, don't need GUI!)
     dir: provision/ansible/inventory
@@ -21,14 +35,14 @@ tasks:
     run: once
     vars:
       DOPPLER_GET_INVENTORY_CMD: doppler secrets get ANSIBLE_HOSTS_INVENTORY --plain
-    preconditions:
-      # If file doesn't exist, create it or;
-      # Check if what is in doppler is different from local inventory file, let user handle it as they could be making changes locally which we do not with to override
-      - sh: "[[ ! -f {{.ANSIBLE_INVENTORY_FILENAME}} ]] || diff -q generated.yml <({{.DOPPLER_GET_INVENTORY_CMD}})"
-        msg: |
-          Inventory file '{{.ANSIBLE_INVENTORY_DIR}}/{{.ANSIBLE_INVENTORY_FILENAME}}' and doppler secret ANSIBLE_HOSTS_INVENTORY have diverged.
-          If you have made changes to the generated inventory file that was downloaded from doppler locally, then please save the inventory file
-          and ensure you've pushed this to doppler with command `task dp:p` so that it pulls down the latest inventory before proceeding!
+    # preconditions:
+    #   # If file doesn't exist, create it or;
+    #   # Check if what is in doppler is different from local inventory file, let user handle it as they could be making changes locally which we do not with to override
+    #   - sh: "[[ -f {{.ANSIBLE_INVENTORY_FILENAME}} ]] || diff -q generated.yml <({{.DOPPLER_GET_INVENTORY_CMD}})"
+    #     msg: |
+    #       Inventory file '{{.ANSIBLE_INVENTORY_DIR}}/{{.ANSIBLE_INVENTORY_FILENAME}}' and doppler secret ANSIBLE_HOSTS_INVENTORY have diverged.
+    #       If you have made changes to the generated inventory file that was downloaded from doppler locally, then please save the inventory file
+    #       and ensure you've pushed this to doppler with command `task dp:p` so that it pulls down the latest inventory before proceeding!
     cmds:
       - "{{.DOPPLER_GET_INVENTORY_CMD}} > {{.ANSIBLE_INVENTORY_FILENAME}}"
 

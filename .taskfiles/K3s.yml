@@ -23,6 +23,8 @@ tasks:
     cmds:
       - task: :doppler:generate-k3s-ansible-inventory
       - "{{.K3S_ANSIBLE_PLAYBOOK_CMD}} reset.yml {{.CLI_ARGS}}"
+      - rm -rf ~/.kube/ || true
+      - rm -rf /mnt/c/.kube/ || true
 
   watch-kustomizations:
     interactive: true
@@ -56,22 +58,10 @@ tasks:
     status:
       - "test -f ${HOME}/.kube/config"
     cmds:
-      - task: mkdir-kubeconfig
+      - task: :internal:mkdirs-local
       - scp root@10.10.0.24:~/.kube/config ~/.kube/config
 
-  scp-kubeconfig-vagrant:
-    desc: Copy k3s kube config from single molecule node
-    internal: true
-    cmds:
-      - task: mkdir-kubeconfig
-      - scp vagrant@192.168.30.50:~/.kube/config ~/.kube/config
-
-  mkdir-kubeconfig:
-    internal: true
-    cmds:
-      - "test -d ${HOME}/.kube || mkdir ${HOME}/.kube"
-
-  scp-kubeconfig-wsl:
+  scp-kubeconfig-windows:
     desc: Copy k3s kube config from single node to windows host for Lens to work (must not be run in workstation container)
     aliases: ["sw"]
     status:
