@@ -8,10 +8,10 @@
 #   value = nonsensitive(doppler_secret.doppler_token.value)
 # }
 
-output "domain_name" {
-  # Individual keys can be accessed directly by name
-  value = nonsensitive(data.doppler_secrets.doppler_secrets.map.DOMAIN_NAME)
-}
+# output "domain_name" {
+#   # Individual keys can be accessed directly by name
+#   value = nonsensitive(data.doppler_secrets.doppler_secrets.map.DOMAIN_NAME)
+# }
 
 # output "vm_netmask" {
 #   # Use `tonumber` and `tobool` to parse string values into Terraform primatives
