@@ -1,32 +1,15 @@
-terraform {
-  required_providers {
-    proxmox = {
-      source  = "telmate/proxmox"
-      version = "2.9.11"
-    }
-    ansiblevault = {
-      source = "MeilleursAgents/ansiblevault"
-      version = "2.2.0"
-    }
-  }
-}
-
 provider "proxmox" {
   pm_tls_insecure = true
-  pm_api_url = "https://${data.ansiblevault_path.proxmox_host}:${data.ansiblevault_path.proxmox_port}/api2/json"
-  pm_password = data.ansiblevault_path.proxmox_api_pass
-  pm_user = data.ansiblevault_path.proxmox_api_user
+  pm_api_url = "https://${data.doppler_secrets.doppler_secrets.map.PROXMOX_HOST}:${data.doppler_secrets.doppler_secrets.map.PROXMOX_PORT}/api2/json"
+  pm_password = data.doppler_secrets.doppler_secrets.map.PROXMOX_API_PASS
+  pm_user = data.doppler_secrets.doppler_secrets.map.PROXMOX_API_USER
 }
-
-# provider "ansiblevault" {
-#   # Configuration options
-# }
 
 /* Uses Cloud-Init options from Proxmox 5.2 */
 resource "proxmox_vm_qemu" "cloudinit-test" {
-  name        = "tftest1.${data.ansiblevault_path.domain_name}"
+  name        = "tftest1.${data.doppler_secrets.doppler_secrets.map.DOMAIN_NAME}"
   desc        = "tf description"
-  target_node = data.ansiblevault_path.proxmox_node
+  target_node = data.doppler_secrets.doppler_secrets.map.PROXMOX_NODE
 
   clone = "UbuntuCloud-22.04"
 
@@ -56,7 +39,7 @@ resource "proxmox_vm_qemu" "cloudinit-test" {
     bridge = "vmbr0"
   }
 
-  ipconfig0 = "ip=${data.ansiblevault_path.vault_vm_network}76/24,gw=${data.ansiblevault_path.vault_vm_gateway}"
+  ipconfig0 = "ip=${data.doppler_secrets.doppler_secrets.map.vault_vm_network}76/24,gw=${data.doppler_secrets.doppler_secrets.map.vault_vm_gateway}"
 
   sshkeys = local.ssh_key_pub
 
@@ -69,27 +52,27 @@ resource "proxmox_vm_qemu" "cloudinit-test" {
 
 # /* Null resource that generates a cloud-config file per vm */
 # data "template_file" "user_data" {
-#   count    = data.ansiblevault_path.vm_count
+#   count    = data.doppler_secrets.doppler_secrets.map.vm_count
 #   template = file("${path.module}/files/user_data.cfg")
 #   vars     = {
 #     pubkey   = file(pathexpand("~/.ssh/id_rsa.pub"))
 #     hostname = "vm-${count.index}"
-#     fqdn     = "vm-${count.index}.${data.ansiblevault_path.domain_name}"
+#     fqdn     = "vm-${count.index}.${data.doppler_secrets.doppler_secrets.map.domain_name}"
 #   }
 # }
 # resource "local_file" "cloud_init_user_data_file" {
-#   count    = data.ansiblevault_path.vm_count
+#   count    = data.doppler_secrets.doppler_secrets.map.vm_count
 #   content  = data.template_file.user_data[count.index].rendered
 #   filename = "${path.module}/files/user_data_${count.index}.cfg"
 # }
 
 # resource "null_resource" "cloud_init_config_files" {
-#   count = data.ansiblevault_path.vm_count
+#   count = data.doppler_secrets.doppler_secrets.map.vm_count
 #   connection {
 #     type     = "ssh"
-#     user     = "${data.ansiblevault_path.pve_user}"
-#     password = "${data.ansiblevault_path.pve_password}"
-#     host     = "${data.ansiblevault_path.pve_host}"
+#     user     = "${data.doppler_secrets.doppler_secrets.map.pve_user}"
+#     password = "${data.doppler_secrets.doppler_secrets.map.pve_password}"
+#     host     = "${data.doppler_secrets.doppler_secrets.map.pve_host}"
 #   }
 
 #   provisioner "file" {

@@ -2,12 +2,6 @@ provider "kubernetes" {
   config_path = "~/.kube/config"
 }
 
-resource "kubernetes_namespace" "doppler-operator-system" {
-  metadata {
-    name = "doppler-operator-system"
-  }
-}
-
 # Doppler token to k3s cluster
 resource "kubernetes_secret" "doppler_kube_token" {
   metadata {

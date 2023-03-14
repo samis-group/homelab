@@ -13,7 +13,7 @@ resource "doppler_environment" "homelab_dev" {
 
 resource "doppler_environment" "homelab_gitlab" {
   project = doppler_project.homelab.name
-  slug = "gitlab"
+  slug = "ci"
   name = "Gitlab CI"
 }
 
