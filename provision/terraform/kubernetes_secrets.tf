@@ -11,7 +11,7 @@ resource "kubernetes_secret" "doppler_kube_token" {
     namespace = "doppler-operator-system"
   }
   data = {
-    serviceToken = doppler_service_token.doppler_token.key
+    serviceToken = data.doppler_secrets.doppler_secrets.map.DOPPLER_TOKEN
   }
   type = "Opaque"
 }

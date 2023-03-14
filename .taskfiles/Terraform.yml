@@ -98,7 +98,7 @@ tasks:
 ### Extends ###
 
   bootstrap:
-    desc: Bootstrap doppler before running main terraform.
+    desc: Bootstrap terraform setting up doppler environment and terraform cloud org + workspaces, before running main terraform that will use these as remote backend for states.
     deps: ['tfvars']
     aliases: [bs]
     dir: "provision/terraform/bootstrap"
