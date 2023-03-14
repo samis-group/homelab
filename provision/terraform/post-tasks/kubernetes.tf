@@ -1,10 +1,17 @@
-# Doppler token to k3s cluster
-resource "kubernetes_namespace" "doppler-operator-system" {
-  metadata {
-    name = "doppler-operator-system"
+terraform {
+  cloud {
+    organization = "sami-group"
+    workspaces {
+      name = "post-tasks"
+    }
   }
 }
 
+provider "kubernetes" {
+  config_path = "~/.kube/config"
+}
+
+# Doppler token to k3s cluster
 resource "kubernetes_secret" "doppler_kube_token" {
   metadata {
     name = "doppler-token"

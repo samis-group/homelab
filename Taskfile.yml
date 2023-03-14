@@ -98,6 +98,7 @@ tasks:
       - task: terraform:init
       - task: terraform:apply
       - task: flux:install
+      - task: terraform:post-tasks
       # - task: terraform:proxmox-init
       # - task: terraform:proxmox-plan
       # - task: terraform:proxmox-apply
