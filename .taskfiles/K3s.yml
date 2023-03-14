@@ -58,7 +58,7 @@ tasks:
       - "test -f ${HOME}/.kube/config"
     cmds:
       - task: :internal:mkdirs-local
-      - scp root@10.10.0.24:~/.kube/config ~/.kube/config
+      - scp -o StrictHostKeyChecking=no root@10.10.0.24:~/.kube/config ~/.kube/config
 
   scp-kubeconfig-windows:
     desc: Copy k3s kube config from single node to windows host for Lens to work (must not be run in workstation container)

@@ -39,7 +39,7 @@ resource "proxmox_vm_qemu" "cloudinit-test" {
     bridge = "vmbr0"
   }
 
-  ipconfig0 = "ip=${data.doppler_secrets.doppler_secrets.map.vault_vm_network}76/24,gw=${data.doppler_secrets.doppler_secrets.map.vault_vm_gateway}"
+  ipconfig0 = "ip=${data.doppler_secrets.doppler_secrets.map.VM_NETWORK}76/24,gw=${data.doppler_secrets.doppler_secrets.map.VM_GATEWAY}"
 
   sshkeys = local.ssh_key_pub
 

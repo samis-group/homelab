@@ -3,7 +3,7 @@ provider "doppler" {
   doppler_token = var.doppler_token
 }
 
-# doppler secrets resource - required
+# Retrieve all secrets in the config.
 data "doppler_secrets" "doppler_secrets" {
   project = var.doppler_project
   config = var.doppler_config

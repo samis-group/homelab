@@ -94,9 +94,10 @@ tasks:
     desc: My current entire automation for k3s stack with LXC containers on proxmox w/ flux + tf + ansible etc.
     cmds:
       - task: k3s:main
+      - task: terraform:bootstrap
       - task: terraform:init
-      - task: terraform:plan
       - task: terraform:apply
+      - task: flux:install
       # - task: terraform:proxmox-init
       # - task: terraform:proxmox-plan
       # - task: terraform:proxmox-apply

@@ -26,6 +26,7 @@ build docker image:
 
   # Only run build if Dockerfile changes
   rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     - changes:
       - Dockerfile
       - provision/ansible/requirements.yml

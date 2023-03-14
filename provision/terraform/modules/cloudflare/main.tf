@@ -1,9 +1,6 @@
 terraform {
   cloud {
     organization = "sami-group"
-    workspaces {
-      name = "homelab-cloudflare"
-    }
   }
   required_providers {
     cloudflare = {

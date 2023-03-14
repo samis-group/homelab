@@ -1,8 +1,10 @@
-provider "kubernetes" {
-  config_path = "~/.kube/config"
+# Doppler token to k3s cluster
+resource "kubernetes_namespace" "doppler-operator-system" {
+  metadata {
+    name = "doppler-operator-system"
+  }
 }
 
-# Doppler token to k3s cluster
 resource "kubernetes_secret" "doppler_kube_token" {
   metadata {
     name = "doppler-token"
@@ -21,7 +23,7 @@ resource "kubernetes_secret" "discord_webhook" {
     namespace = "default"
   }
   data = {
-    address = base64encode(data.doppler_secrets.doppler_secrets.map.DISCORD_FLUX_WEBHOOK_URL)
+    address = data.doppler_secrets.doppler_secrets.map.DISCORD_FLUX_WEBHOOK_URL
   }
   type = "Opaque"
 }
