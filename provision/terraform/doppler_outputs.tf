@@ -1,23 +1,11 @@
-output "doppler_token2" {
-  # Access the raw secret value
-  value = nonsensitive(doppler_secret.doppler_token.value)
-}
-
-output "doppler_token" {
-  # Access the computed secret value (if using Doppler secrets referencing)
-  value = doppler_service_token.doppler_token.key
-  sensitive = true
-}
-
-output "doppler_gitlab_token" {
-  # Access the computed secret value (if using Doppler secrets referencing)
-  value = doppler_service_token.doppler_gitlab_token.key
-  sensitive = true
-}
-
-# output "all_secrets" {
+# output "doppler_secrets" {
 #   # nonsensitive used for demo purposes only
 #   value = nonsensitive(data.doppler_secrets.doppler_secrets.map)
+# }
+
+# output "doppler_token2" {
+#   # Access the raw secret value
+#   value = nonsensitive(doppler_secret.doppler_token.value)
 # }
 
 # output "domain_name" {

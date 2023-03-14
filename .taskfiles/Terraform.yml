@@ -32,37 +32,42 @@ tasks:
   tfvars:
     desc: Write tfvars file for terraform to use
     internal: true
-    run: once
+    interactive: true
     silent: true
+    run: once
     cmds:
       - task: tfvars-doppler-token
-      - task: tfvars-gitlab-token
+      - task: tfvars-terraform-token
+
+  tfvars-base:
+    desc: Write tfvar to file
+    dir: provision/terraform
+    internal: true
+    status:
+      - grep -q '{{.TFVAR_LOCAL}}' myvars.tfvars
+    cmds:
+      - |
+        echo "{{.TFVAR_LOCAL}} = \"$(doppler secrets get {{.TFVAR_DOPPLER}} --plain)\"" >> myvars.tfvars ||
+        (read -p "Enter the Doppler token to be used in terraform (read/write): " {{.TFVAR_LOCAL}} &&
+        echo "{{.TFVAR_LOCAL}} = \"$(doppler secrets get {{.TFVAR_DOPPLER}} --plain)\"" >> myvars.tfvars)
 
   tfvars-doppler-token:
     desc: Write doppler_token tfvar
-    dir: provision/terraform
     internal: true
-    interactive: true
-    status:
-      - grep -q 'doppler_token' myvars.tfvars
     cmds:
-      - |
-        echo "doppler_token = \"$(doppler secrets get DOPPLER_TOKEN --plain)\"" >> myvars.tfvars ||
-        (read -p "Enter the Doppler token to be used in terraform (read/write): " doppler_token &&
-        echo "doppler_token = \"$(doppler secrets get DOPPLER_TOKEN --plain)\"" >> myvars.tfvars)
+      - task: tfvars-base
+        vars:
+          TFVAR_LOCAL: doppler_token
+          TFVAR_DOPPLER: DOPPLER_TOKEN
 
-  tfvars-gitlab-token:
-    desc: Write gitlab_personal_access_token tfvar
-    dir: provision/terraform
+  tfvars-terraform-token:
+    desc: Write terraform cloud token tfvar
     internal: true
-    interactive: true
-    status:
-      - grep -q 'gitlab_personal_access_token' myvars.tfvars
     cmds:
-      - |
-        echo "gitlab_personal_access_token = \"$(doppler secrets get GITLAB_PERSONAL_ACCESS_TOKEN --plain)\"" >> myvars.tfvars ||
-        (read -p "Enter the Doppler token to be used in terraform (read/write): " gitlab_personal_access_token &&
-        echo "gitlab_personal_access_token = \"$(doppler secrets get GITLAB_PERSONAL_ACCESS_TOKEN --plain)\"" >> myvars.tfvars)
+      - task: tfvars-base
+        vars:
+          TFVAR_LOCAL: terraform_cloud_token
+          TFVAR_DOPPLER: TERRAFORM_CLOUD_TOKEN
 
 ### Base ###
 
@@ -91,6 +96,29 @@ tasks:
       - terraform apply {{.TF_VARS_CMD}} {{.CLI_ARGS}}
 
 ### Extends ###
+
+  bootstrap:
+    desc: Bootstrap terraform setting up doppler environment and terraform cloud org + workspaces, before running main terraform that will use these as remote backend for states.
+    deps: ['tfvars']
+    aliases: [bs]
+    dir: "provision/terraform/bootstrap"
+    run_once: true
+    vars:
+      TF_VARS_CMD: "-var-file=../myvars.tfvars"
+    cmds:
+      - terraform init {{.TF_VARS_CMD}} {{.CLI_ARGS}}
+      - terraform apply -auto-approve {{.TF_VARS_CMD}} {{.CLI_ARGS}}
+
+  post-tasks:
+    desc: Run post tasks due to conflicts with flux
+    aliases: [pt]
+    dir: "provision/terraform/post-tasks"
+    run_once: true
+    vars:
+      TF_VARS_CMD: "-var-file=../myvars.tfvars"
+    cmds:
+      - terraform init {{.TF_VARS_CMD}} {{.CLI_ARGS}}
+      - terraform apply -auto-approve {{.TF_VARS_CMD}} {{.CLI_ARGS}}
 
   # flux-init:
   #   desc: Initialize Proxmox terraform dependencies

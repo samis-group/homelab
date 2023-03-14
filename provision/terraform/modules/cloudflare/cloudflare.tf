@@ -1,38 +1,11 @@
-terraform {
-  cloud {
-    organization = "sami-group"
-    workspaces {
-      name = "homelab-cloudflare"
-    }
-  }
-  required_providers {
-    cloudflare = {
-      source  = "cloudflare/cloudflare"
-      version = "3.29.0"
-    }
-    http = {
-      source  = "hashicorp/http"
-      version = "3.2.1"
-    }
-    sops = {
-      source  = "carlpett/sops"
-      version = "0.7.1"
-    }
-  }
-}
-
-data "sops_file" "cloudflare_secrets" {
-  source_file = "secret.sops.yaml"
-}
-
 provider "cloudflare" {
-  email   = data.sops_file.cloudflare_secrets.data["cloudflare_email"]
-  api_key = data.sops_file.cloudflare_secrets.data["cloudflare_apikey"]
+  email   = data.doppler_secrets.doppler_secrets.map.CLOUDFLARE_EMAIL
+  api_key = data.doppler_secrets.doppler_secrets.map.CLOUDFLARE_API_KEY
 }
 
 data "cloudflare_zones" "domain" {
   filter {
-    name = data.sops_file.cloudflare_secrets.data["cloudflare_domain"]
+    name = data.doppler_secrets.doppler_secrets.map.DOMAIN_NAME
   }
 }
 

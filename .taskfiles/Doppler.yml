@@ -6,6 +6,7 @@ tasks:
   login:
     desc: Creates doppler dir if it doesn't exist and Login to Doppler from inside the container. The volume is mounted in the docker run cmd so it persists upon re-creation unless re-cloning the repo.
     internal: true
+    run: once
     # env:
     #   DOPPLER_CONFIG: "{{.PROJECT_DIR}}/.doppler"
     status: # Check if doppler token exists in file, means we've already logged in, otherwise login!

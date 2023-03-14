@@ -9,8 +9,13 @@ terraform {
     doppler = {
       source = "DopplerHQ/doppler"
     }
-    flux = {
-      source  = "fluxcd/flux"
-    }
   }
 }
+
+# module "cloudflare" {
+#   source = "./modules/cloudflare"
+# }
+
+# module "proxmox" {
+#   source = "./modules/proxmox"
+# }
