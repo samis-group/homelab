@@ -3,7 +3,7 @@
 apiVersion: source.toolkit.fluxcd.io/v1beta2
 kind: GitRepository
 metadata:
-  name: homelab-cluster
+  name: homelab-repo
   namespace: flux-system
 spec:
   interval: 30m
@@ -29,4 +29,4 @@ spec:
   wait: false
   sourceRef:
     kind: GitRepository
-    name: homelab-cluster
+    name: homelab-repo
