@@ -18,11 +18,3 @@ resource "tfe_workspace" "bootstrap" {
   tag_names    = ["bootstrap"]
   execution_mode = "local"
 }
-
-resource "tfe_workspace" "post-tasks" {
-  name         = "post-tasks"
-  description  = "post-tasks workspace to separate post tasks due to Namespace conflicts when flux adds it's stuff"
-  organization = tfe_organization.sami-group.name
-  tag_names    = ["post-tasks"]
-  execution_mode = "local"
-}
