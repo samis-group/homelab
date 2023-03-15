@@ -31,13 +31,13 @@ tasks:
 
   tfvars:
     desc: Write tfvars file for terraform to use
-    internal: true
+    # internal: true
     interactive: true
     silent: true
     run: once
     cmds:
       - task: tfvars-doppler-token
-      - task: tfvars-terraform-token
+      # - task: tfvars-terraform-token
 
   tfvars-base:
     desc: Write tfvar to file
@@ -48,26 +48,29 @@ tasks:
     cmds:
       - |
         echo "{{.TFVAR_LOCAL}} = \"$(doppler secrets get {{.TFVAR_DOPPLER}} --plain)\"" >> myvars.tfvars ||
-        (read -p "Enter the Doppler token to be used in terraform (read/write): " {{.TFVAR_LOCAL}} &&
-        echo "{{.TFVAR_LOCAL}} = \"$(doppler secrets get {{.TFVAR_DOPPLER}} --plain)\"" >> myvars.tfvars)
+        (read -p "Enter the Doppler token to be used in terraform (read/write): " DOPPLER_TODO &&
+        echo "{{.TFVAR_LOCAL}} = \"$DOPPLER_TODO\"" >> myvars.tfvars)
 
   tfvars-doppler-token:
-    desc: Write doppler_token tfvar
+    desc: Write doppler_token tfvar - USE PERSONAL ACCESS TOKEN!
+    dir: provision/terraform
     internal: true
+    interactive: true
+    status:
+      - grep -q '{{.TFVAR_LOCAL}}' myvars.tfvars
+    vars:
+      TFVAR_LOCAL: doppler_token
     cmds:
-      - task: tfvars-base
-        vars:
-          TFVAR_LOCAL: doppler_token
-          TFVAR_DOPPLER: DOPPLER_TOKEN
+      - 'read -p "Enter the Doppler token to be used in terraform (PAT): " PAT && echo "{{.TFVAR_LOCAL}} = \"${PAT}\"" >> myvars.tfvars'
 
-  tfvars-terraform-token:
-    desc: Write terraform cloud token tfvar
-    internal: true
-    cmds:
-      - task: tfvars-base
-        vars:
-          TFVAR_LOCAL: terraform_cloud_token
-          TFVAR_DOPPLER: TERRAFORM_CLOUD_TOKEN
+  # tfvars-terraform-token:
+  #   desc: Write terraform cloud token tfvar
+  #   internal: true
+  #   cmds:
+  #     - task: tfvars-base
+  #       vars:
+  #         TFVAR_LOCAL: terraform_cloud_token
+  #         TFVAR_DOPPLER: TERRAFORM_CLOUD_TOKEN
 
 ### Base ###
 
