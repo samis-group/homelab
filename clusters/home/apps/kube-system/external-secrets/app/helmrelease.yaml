@@ -26,8 +26,8 @@ spec:
       retries: 3
   uninstall:
     keepHistory: false
-  # values:
-  #   installCRDs: true
+  values:
+    installCRDs: true
   #   serviceMonitor:
   #     enabled: true
   #   webhook:
