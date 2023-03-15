@@ -29,9 +29,18 @@ vars:
 
 tasks:
 
+  registry-shell:
+    desc: 🔨🐳 Download the registry Homelab Workstation image and jump into shell in order to run your automation stuff
+    deps: [':doppler:login', ':terraform:login', ':internal:mkdirs-local']
+    aliases: ["s", "rs"]
+    interactive: true
+    cmds:
+      - task: run-docker-dotfiles
+      - "{{.DOCKER_EXEC_CMD}} bash"
+
   local-shell:
     desc: 🔨🐳 Build the Homelab Workstation container locally and jump into shell in order to run your automation stuff
-    deps: [':doppler:login', ':terraform:login', build-docker, ':internal:mkdirs-local']
+    deps: [':doppler:login', ':terraform:login', ':internal:mkdirs-local', build-docker]
     aliases: ["ls"]
     interactive: true
     cmds:
@@ -40,18 +49,6 @@ tasks:
           RUN_LOCAL_OR_REGISTRY: "{{.LOCAL_IMAGE_NAME}}"
       - "{{.DOCKER_EXEC_CMD}} bash"
 
-  registry-shell:
-    desc: 🔨🐳 Download the registry Homelab Workstation image and jump into shell in order to run your automation stuff
-    deps: [':doppler:login', ':terraform:login', ':internal:mkdirs-local']
-    aliases: ["rs"]
-    interactive: true
-    cmds:
-      - task: run-docker-dotfiles
-      - "{{.DOCKER_EXEC_CMD}} bash"
-
-
-
-  # Figure out how to execute this task when dir doesn't exist..
   doppler-test:
     desc: test doppler
     aliases: ["dt"]
