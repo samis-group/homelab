@@ -1,17 +1,8 @@
-resource "kubernetes_namespace" "kube_system" {
-  metadata {
-    annotations = {
-      name = "kube-system"
-    }
-    name = "kube-system"
-  }
-}
-
 # Doppler token to k3s cluster
 resource "kubernetes_secret" "doppler_token_auth_api" {
   metadata {
     name = "doppler-token-auth-api"
-    namespace = "kube-system"
+    namespace = "default"
   }
   data = {
     dopplerToken = data.doppler_secrets.doppler_secrets.map.DOPPLER_TOKEN_AUTH_API
