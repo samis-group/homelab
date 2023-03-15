@@ -6,9 +6,11 @@ metadata:
   name: apps
   namespace: flux-system
 spec:
-  interval: 1m
+  interval: 5m
   path: ./clusters/home/apps
   prune: true
   sourceRef:
     kind: GitRepository
     name: homelab-repo
+  dependsOn:
+    - name: cluster

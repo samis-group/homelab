@@ -5,5 +5,5 @@ metadata:
   name: traefik
   namespace: default
 spec:
-  interval: 1h
+  interval: 2h
   url: https://helm.traefik.io/traefik

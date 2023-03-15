@@ -5,5 +5,5 @@ metadata:
   name: doppler
   namespace: default
 spec:
-  interval: 1h
+  interval: 2h
   url: https://helm.doppler.com
