@@ -94,7 +94,7 @@ tasks:
     aliases: ['a']
     dir: "{{default .TERRAFORM_DIR .TF_DIR_TODO}}"
     cmds:
-      - terraform apply {{.TF_VARS_CMD}} {{.CLI_ARGS}}
+      - terraform apply -auto-approve {{.TF_VARS_CMD}} {{.CLI_ARGS}}
 
 ### Extends ###
 

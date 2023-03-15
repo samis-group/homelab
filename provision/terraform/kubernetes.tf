@@ -1,8 +1,8 @@
 # Doppler token to k3s cluster
 resource "kubernetes_secret" "doppler_kube_token" {
   metadata {
-    name = "doppler-token-auth-api"
-    namespace = "doppler-operator-system"
+    name = "doppler-token-dev"
+    namespace = "default"
   }
   data = {
     dopplerToken = data.doppler_secrets.doppler_secrets.map.DOPPLER_TOKEN
