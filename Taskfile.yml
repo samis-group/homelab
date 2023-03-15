@@ -95,10 +95,13 @@ tasks:
     cmds:
       - task: k3s:main
       - task: terraform:bootstrap
+      - task: flux:install
+      - echo "Sleeping... Seriously, let flux do it's thang.."
+      - sleep 120
       - task: terraform:init
       - task: terraform:apply
-      - task: flux:install
-      - task: terraform:post-tasks
+      - task: internal:deploy-doppler-secrets-to-k8s
+      # - task: terraform:post-tasks
       # - task: terraform:proxmox-init
       # - task: terraform:proxmox-plan
       # - task: terraform:proxmox-apply

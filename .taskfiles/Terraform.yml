@@ -90,6 +90,7 @@ tasks:
   apply:
     desc: Apply the changes
     deps: ['tfvars']
+    interactive: true
     aliases: ['a']
     dir: "{{default .TERRAFORM_DIR .TF_DIR_TODO}}"
     cmds:
@@ -108,17 +109,16 @@ tasks:
     cmds:
       - terraform init {{.TF_VARS_CMD}} {{.CLI_ARGS}}
       - terraform apply -auto-approve {{.TF_VARS_CMD}} {{.CLI_ARGS}}
-
-  post-tasks:
-    desc: Run post tasks due to conflicts with flux
-    aliases: [pt]
-    dir: "provision/terraform/post-tasks"
-    run_once: true
-    vars:
-      TF_VARS_CMD: "-var-file=../myvars.tfvars"
-    cmds:
-      - terraform init {{.TF_VARS_CMD}} {{.CLI_ARGS}}
-      - terraform apply -auto-approve {{.TF_VARS_CMD}} {{.CLI_ARGS}}
+  # post-tasks:
+  #   desc: Run post tasks due to conflicts with flux
+  #   aliases: [pt]
+  #   dir: "provision/terraform/post-tasks"
+  #   run_once: true
+  #   vars:
+  #     TF_VARS_CMD: "-var-file=../myvars.tfvars"
+  #   cmds:
+  #     - terraform init {{.TF_VARS_CMD}} {{.CLI_ARGS}}
+  #     - terraform apply -auto-approve {{.TF_VARS_CMD}} {{.CLI_ARGS}}
 
   # flux-init:
   #   desc: Initialize Proxmox terraform dependencies

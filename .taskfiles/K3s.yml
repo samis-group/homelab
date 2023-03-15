@@ -13,8 +13,6 @@ tasks:
       - task: :doppler:generate-k3s-ansible-inventory
       - "{{.K3S_ANSIBLE_PLAYBOOK_CMD}} site.yml {{.CLI_ARGS}}"
       - task: scp-kubeconfig
-      # - task: :flux:install
-      # - task: discord-secret
 
   reset:
     desc: ☸ Reset k3s stack from beginning of it's inception
@@ -23,7 +21,7 @@ tasks:
     cmds:
       - task: :doppler:generate-k3s-ansible-inventory
       - "{{.K3S_ANSIBLE_PLAYBOOK_CMD}} reset.yml {{.CLI_ARGS}}"
-      - rm -rf ~/.kube/config || true
+      - rm -f ~/.kube/config || true
 
   watch-kustomizations:
     interactive: true
@@ -54,10 +52,11 @@ tasks:
   scp-kubeconfig:
     desc: Copy k3s kube config from single node to local
     aliases: ["s"]
-    status:
-      - "test -f ${HOME}/.kube/config"
+    # status:
+    #   - "test -f ${HOME}/.kube/config"
     cmds:
       - task: :internal:mkdirs-local
+      - rm -f ~/.kube/config
       - scp -o StrictHostKeyChecking=no root@10.10.0.24:~/.kube/config ~/.kube/config
 
   scp-kubeconfig-windows:

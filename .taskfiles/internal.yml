@@ -20,3 +20,8 @@ tasks:
       - "test -d ${HOME}/.terraform.d"
     cmds:
       - "mkdir ${HOME}/.terraform.d"
+
+  deploy-doppler-secret-to-k8s:
+    desc: For some reason, flux + kustomize is not able to adequately deploy this resource, so lets do it here after main tasks.... NFI why
+    cmds:
+      - kubectl apply -f clusters/home/apps/doppler/doppler-secret.yml

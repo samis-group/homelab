@@ -5,3 +5,4 @@ kind: Kustomization
 resources:
   - ./doppler.yaml
   - ./grafana.yaml
+  - ./traefik-charts.yml

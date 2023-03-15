@@ -10,6 +10,12 @@ variable "doppler_project" {
   default     = "homelab"
 }
 
+variable "doppler_project_backup" {
+  description = "Doppler Project Name"
+  type        = string
+  default     = "homelab_backup"
+}
+
 variable "doppler_config" {
   description = "Doppler Config Name"
   type        = string
