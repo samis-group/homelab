@@ -3,28 +3,28 @@
 ###    PLEASE MAKE CHANGES THERE    ###
 #######################################
 
-http:
-  routers:
-    radarr-rtr:
-      rule: "Host(`radarr.{{ domain_name }}`)"
-      entryPoints:
-        - https
-      middlewares:
-        - chain-oauth
-      service: radarr-svc
-      priority: 99
-      # tls:
-      #   certResolver: dns-cloudflare
-    radarr-rtr-bypass:
-      rule: "Host(`radarr.{{ domain_name }}`) && (Headers(`X-Api-Key`, `{{ radarr_api_key }}`) || Query(`apikey`, `{{ radarr_api_key }}`))"
-      entryPoints:
-        - https
-      middlewares:
-        - chain-no-auth
-      service: radarr-svc
-      priority: 100
-  services:
-    radarr-svc:
-      loadBalancer:
-        servers:
-          - url: "http://{{ nas.ip }}:{{ radarr_port }}"
+# http:
+#   routers:
+#     radarr-rtr:
+#       rule: "Host(`radarr.{{ domain_name }}`)"
+#       entryPoints:
+#         - https
+#       middlewares:
+#         - chain-oauth
+#       service: radarr-svc
+#       priority: 99
+#       # tls:
+#       #   certResolver: dns-cloudflare
+#     radarr-rtr-bypass:
+#       rule: "Host(`radarr.{{ domain_name }}`) && (Headers(`X-Api-Key`, `{{ radarr_api_key }}`) || Query(`apikey`, `{{ radarr_api_key }}`))"
+#       entryPoints:
+#         - https
+#       middlewares:
+#         - chain-no-auth
+#       service: radarr-svc
+#       priority: 100
+#   services:
+#     radarr-svc:
+#       loadBalancer:
+#         servers:
+#           - url: "http://{{ nas.ip }}:{{ radarr_port }}"
