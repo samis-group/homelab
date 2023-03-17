@@ -1,43 +1,6 @@
 ---
-- hosts: proxmox
-  name: Configure LXC Configs for k3s LXC's
-  gather_facts: true
-  roles:
-    - role: ../roles/k3s/proxmox_lxc
-
-- hosts: k3s
-  name: Entire k3s cluster
-  gather_facts: true
-  become: true
-  roles:
-    - role: ../roles/k3s/prereq
-    - role: ../roles/k3s/download
-    - role: ../roles/k3s/raspberrypi
-
-- hosts: k3s_master
-  name: K3s/master
-  become: true
-  roles:
-    - role: ../roles/k3s/master
-
-- hosts: k3s_node
-  name: K3s/node
-  become: true
-  roles:
-    - role: ../roles/k3s/node
-
-- hosts: k3s_master
-  name: K3s/post
-  become: true
-  roles:
-    - role: ../roles/k3s/post
-
-# -------------- #
-# Custom entries #
-# -------------- #
-
 - name: Install/configure Helm/kubectl on main nodes
-  hosts: k3sm1
+  hosts: k3s_master
   become: true
 
   roles:
@@ -46,7 +9,7 @@
     - geerlingguy.helm  # Install helm on k3sm nodes to deploy charts in ansible
 
 - name: Custom plays on main..main node
-  hosts: k3sm1
+  hosts: k3s_master
   become: false
 
   tasks:
@@ -65,9 +28,3 @@
 
     # - name: Deploy Helm Charts
     #   import_tasks: ../tasks/k3s/deploy_helm_charts.yml
-
-# End of configuration
-
-    - name: End of config
-      ansible.builtin.debug:
-        msg: "End of config, run `task setup-pb` to setup local machine for connecting to kubernetes environment (run `make reqs` to install reqs if not done)"

@@ -1,9 +1,0 @@
----
-- name: Reboot k3s cluster
-  hosts: k3s
-  gather_facts: true
-  become: true
-  tasks:
-    - name: Reboot the nodes (and Wait upto 5 mins max)
-      reboot:
-        reboot_timeout: 300
