@@ -85,13 +85,13 @@
     - geerlingguy.ntp
     - ../roles/lxc/gitlab-runner
 
-- name: Setup k3s LXC(s)
-  hosts: k3s1
-  tags: ["lxc_k3s1"]
-  become: true
+# - name: Setup k3s LXC(s)
+#   hosts: k3s1
+#   tags: ["lxc_k3s1"]
+#   become: true
 
-  roles:
-    - ../roles/lxc/k3s
+#   roles:
+#     - ../roles/lxc/k3s
 
 ### LDAP turnkey is a WIP
 
