@@ -3,7 +3,7 @@ apiVersion: notification.toolkit.fluxcd.io/v1beta2
 kind: Provider
 metadata:
   name: discord
-  namespace: default
+  namespace: kube-system
 spec:
   channel: homelab
   secretRef:

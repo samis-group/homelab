@@ -2,7 +2,7 @@
 resource "kubernetes_secret" "doppler_token_auth_api" {
   metadata {
     name = "doppler-token-auth-api"
-    namespace = "default"
+    namespace = "kube-system"
   }
   data = {
     dopplerToken = data.doppler_secrets.doppler_secrets.map.DOPPLER_TOKEN_AUTH_API
@@ -13,7 +13,7 @@ resource "kubernetes_secret" "doppler_token_auth_api" {
 resource "kubernetes_secret" "discord_webhook" {
   metadata {
     name = "discord-webhook"
-    namespace = "default"
+    namespace = "kube-system"
   }
   data = {
     address = data.doppler_secrets.doppler_secrets.map.DISCORD_FLUX_WEBHOOK_URL

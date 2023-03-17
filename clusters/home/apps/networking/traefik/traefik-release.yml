@@ -5,6 +5,7 @@ metadata:
   name: traefik
   namespace: default
 spec:
+  interval: 15m
   chart:
     spec:
       chart: traefik
@@ -12,4 +13,4 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: traefik
-  interval: 5m0s
+        namespace: flux-system
