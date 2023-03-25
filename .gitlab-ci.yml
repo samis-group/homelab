@@ -12,7 +12,7 @@ debug vars:
   rules:
     - if: '$DEBUG_PIPELINE =~ /^(y|yes|true|1)$/i'
   script:
-    - doppler run -- ./bin/doppler-test
+    - doppler run -- ./docker/bin/doppler-test
     - env
 
 build docker image:
@@ -28,7 +28,7 @@ build docker image:
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     - changes:
-      - Dockerfile
+      - docker/**/*
       - provision/ansible/requirements.yml
       - provision/ansible/roles/requirements.yml
       - requirements.txt
@@ -45,7 +45,7 @@ build docker image:
         tag=":$CI_COMMIT_REF_SLUG"
         echo "Running on branch '$CI_COMMIT_BRANCH': tag = $tag"
       fi
-    - docker build --pull -t "$CI_REGISTRY_IMAGE" .
+    - docker build --pull -t "$CI_REGISTRY_IMAGE" docker/
     - docker push "$CI_REGISTRY_IMAGE"
 
   after_script:
