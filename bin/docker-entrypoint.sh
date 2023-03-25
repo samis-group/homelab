@@ -28,8 +28,10 @@ find ${HOMELAB_DIR}/ -type d -exec chown ${USER_NAME} {} +
 
 chown ${USER_NAME} ${HOMELAB_DIR}/requirements.*
 chown -R ${USER_NAME} ${HOMELAB_DIR}/roles/
-chown -R ${USER_NAME} /home/${USER_NAME}/.doppler
-chown -R ${USER_NAME}:${USER_NAME} /home/${USER_NAME}/.kube
+chown -R ${USER_NAME} /home/${USER_NAME}/
+# chown -R ${USER_NAME}:${USER_NAME} /home/${USER_NAME}/.doppler
+# chown -R ${USER_NAME}:${USER_NAME} /home/${USER_NAME}/.kube
+# chown -R ${USER_NAME}:${USER_NAME} /home/${USER_NAME}/.terraform.d
 
 # If k3s lxc is deployed, get the config but leave the pipeline as a success if it fails
 gosu ${USER_NAME} task --dir /workspace/homelab/ k3s:scp-kubeconfig > /dev/null || true

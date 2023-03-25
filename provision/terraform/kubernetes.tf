@@ -1,3 +1,7 @@
+provider "kubernetes" {
+  config_path = "~/.kube/config"
+}
+
 # Doppler token to k3s cluster
 resource "kubernetes_secret" "doppler_token_auth_api" {
   metadata {
@@ -5,7 +9,7 @@ resource "kubernetes_secret" "doppler_token_auth_api" {
     namespace = "kube-system"
   }
   data = {
-    dopplerToken = data.doppler_secrets.doppler_secrets.map.DOPPLER_TOKEN_AUTH_API
+    dopplerToken = data.doppler_secrets.dev_container.map.DOPPLER_TOKEN_AUTH_API
   }
 }
 
@@ -16,6 +20,6 @@ resource "kubernetes_secret" "discord_webhook" {
     namespace = "kube-system"
   }
   data = {
-    address = data.doppler_secrets.doppler_secrets.map.DISCORD_FLUX_WEBHOOK_URL
+    address = data.doppler_secrets.dev_container.map.DISCORD_FLUX_WEBHOOK_URL
   }
 }

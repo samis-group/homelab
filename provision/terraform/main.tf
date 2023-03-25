@@ -12,15 +12,6 @@ terraform {
   }
 }
 
-provider "doppler" {
-  # Token can be provided with the environment variable `TF_VAR_doppler_token` instead
-  doppler_token = var.doppler_token
-}
-
-provider "kubernetes" {
-  config_path = "~/.kube/config"
-}
-
 # module "cloudflare" {
 #   source = "./modules/cloudflare"
 # }

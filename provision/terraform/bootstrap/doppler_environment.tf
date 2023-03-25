@@ -20,7 +20,7 @@ resource "doppler_environment" "homelab_gitlab" {
 
 resource "doppler_environment" "homelab_production" {
   project = doppler_project.homelab.name
-  slug = "prd"
+  slug = "prod"
   name = "Production"
 }
 
@@ -52,7 +52,7 @@ resource "doppler_environment" "homelab_backup_gitlab" {
 
 resource "doppler_environment" "homelab_backup_production" {
   project = doppler_project.homelab_backup.name
-  slug = "prd"
+  slug = "prod"
   name = "Production"
 }
 

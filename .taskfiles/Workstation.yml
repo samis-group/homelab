@@ -17,7 +17,6 @@ vars:
     --volume "${HOME}/.ssh/:/home/ubuntu/.ssh"
     --volume "${HOME}/.kube/:/home/ubuntu/.kube"
     --env USER_ID={{.USER_ID}}
-    # --volume "${HOME}/git/personal/others/k3s-ansible:{{.HOMELAB_DIR}}/k3s-ansible"
     # --user={{.USER_ID}}:{{.USER_ID}}
   # DOCKER_GID_ADD:
   #   sh: "[[ $(id -g) -ge 1000 ]] && echo '--env GROUP_ID={{.GROUP_ID}}' || echo ''"
@@ -25,25 +24,30 @@ vars:
   DOCKER_EXEC_CMD: docker exec -u {{.USER_ID}} -it {{.LOCAL_IMAGE_NAME}}
   DOCKER_VOLUME_DOTFILES: --volume "${HOME}/.dotfiles:/home/ubuntu/.dotfiles"
   DOCKER_VOLUME_DOPPLER: --volume "${HOME}/.doppler:/home/ubuntu/.doppler"
-  DOCKER_VOLUME_TERRAFORM: --volume "${HOME}/.terraform.d:/home/ubuntu/.terraform.d"
+  DOCKER_VOLUME_TERRAFORM: --volume "{{.TF_CLI_CONFIG_FILE_DIR}}:/home/ubuntu/.terraform.d"
 
 tasks:
 
   registry-shell:
     desc: 🔨🐳 Download the registry Homelab Workstation image and jump into shell in order to run your automation stuff
-    deps: [':doppler:login', ':terraform:login', ':internal:mkdirs-local']
     aliases: ["s", "rs"]
     interactive: true
     cmds:
+      - task: :internal:mkdirs-local
+      - task: :doppler:login
+      - task: :terraform:login
       - task: run-docker-dotfiles
       - "{{.DOCKER_EXEC_CMD}} bash"
 
   local-shell:
     desc: 🔨🐳 Build the Homelab Workstation container locally and jump into shell in order to run your automation stuff
-    deps: [':doppler:login', ':terraform:login', ':internal:mkdirs-local', build-docker]
     aliases: ["ls"]
     interactive: true
     cmds:
+      - task: :internal:mkdirs-local
+      - task: :doppler:login
+      - task: :terraform:login
+      - task: build-docker
       - task: run-docker-dotfiles
         vars:
           RUN_LOCAL_OR_REGISTRY: "{{.LOCAL_IMAGE_NAME}}"

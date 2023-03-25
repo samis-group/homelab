@@ -11,23 +11,13 @@ tasks:
 
   mkdir-kube:
     status:
-      - "test -d ${HOME}/.kube"
+      - "test -d {{.KUBECONFIG_DIR}}"
     cmds:
-      - "mkdir ${HOME}/.kube"
+      - "mkdir {{.KUBECONFIG_DIR}}"
 
   mkdir-terraform:
     status:
-      - "test -d ${HOME}/.terraform.d"
+      - "test -d {{.TF_CLI_CONFIG_FILE_DIR}}"
     cmds:
-      - "mkdir ${HOME}/.terraform.d"
-
-  # deploy-doppler-secret-to-k8s:
-  #   desc: For some reason, flux + kustomize is not able to adequately deploy this resource, so lets do it here after main tasks.... NFI why
-  #   vars:
-  #     DOPPLER_KUBE_TOKEN: doppler secrets get DOPPLER_TOKEN_AUTH_API --plain
-  #   cmds:
-  #     # - kubectl apply -f clusters/home/apps/doppler/doppler-secret.yml
-  #     - |
-  #       HISTIGNORE='*kubectl*'
-  #       kubectl create secret generic doppler-token-auth-api
-  #       --from-literal dopplerToken="{{.DOPPLER_KUBE_TOKEN}}"
+      - "mkdir {{.TF_CLI_CONFIG_FILE_DIR}}"
+      - "touch ${TF_CLI_CONFIG_FILE}"

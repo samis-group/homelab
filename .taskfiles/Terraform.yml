@@ -17,9 +17,8 @@ tasks:
     internal: true
     interactive: true
     status:
-      - "test -f ${HOME}/.terraform.d/credentials.tfrc.json"
+      - "grep -q 'token' ${TF_CLI_CONFIG_FILE}"
     cmds:
-      - "test -d ${HOME}/.terraform.d || mkdir ${HOME}/.terraform.d"
       - terraform login
 
   output:
@@ -39,18 +38,6 @@ tasks:
       - task: tfvars-doppler-token
       # - task: tfvars-terraform-token
 
-  tfvars-base:
-    desc: Write tfvar to file
-    dir: provision/terraform
-    internal: true
-    status:
-      - grep -q '{{.TFVAR_LOCAL}}' myvars.tfvars
-    cmds:
-      - |
-        echo "{{.TFVAR_LOCAL}} = \"$(doppler secrets get {{.TFVAR_DOPPLER}} --plain)\"" >> myvars.tfvars ||
-        (read -p "Enter the Doppler token to be used in terraform (read/write): " DOPPLER_TODO &&
-        echo "{{.TFVAR_LOCAL}} = \"$DOPPLER_TODO\"" >> myvars.tfvars)
-
   tfvars-doppler-token:
     desc: Write doppler_token tfvar - USE PERSONAL ACCESS TOKEN!
     dir: provision/terraform
@@ -62,6 +49,18 @@ tasks:
       TFVAR_LOCAL: doppler_token
     cmds:
       - 'read -p "Enter the Doppler token to be used in terraform (PAT): " PAT && echo "{{.TFVAR_LOCAL}} = \"${PAT}\"" >> myvars.tfvars'
+
+  # tfvars-base:
+  #   desc: Write tfvar to file
+  #   dir: provision/terraform
+  #   internal: true
+  #   status:
+  #     - grep -q '{{.TFVAR_LOCAL}}' myvars.tfvars
+  #   cmds:
+  #     - |
+  #       echo "{{.TFVAR_LOCAL}} = \"$(doppler secrets get {{.TFVAR_DOPPLER}} --plain)\"" >> myvars.tfvars ||
+  #       (read -p "Enter the Doppler token to be used in terraform (read/write): " DOPPLER_TODO &&
+  #       echo "{{.TFVAR_LOCAL}} = \"$DOPPLER_TODO\"" >> myvars.tfvars)
 
   # tfvars-terraform-token:
   #   desc: Write terraform cloud token tfvar

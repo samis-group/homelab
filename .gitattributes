@@ -1,1 +1,4 @@
 *.sops.* diff=sopsdiffer
+
+# Ensure everything retains LF endings
+* text eol=lf
