@@ -63,12 +63,12 @@ RUN mkdir /root/.ssh ./roles /home/${USER_NAME}/.ssh /home/${USER_NAME}/.kube &&
     echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
 # Installs Ansible, pre-commit-hooks, molecule, along with other pip dependencies.
-COPY --chown=${USER_NAME}:${USER_NAME} ../requirements.txt ${HOMELAB_DIR}/
+COPY --chown=${USER_NAME}:${USER_NAME} requirements.txt ${HOMELAB_DIR}/
 RUN pip3 install --upgrade pip && pip3 install --no-cache-dir -r ${HOMELAB_DIR}/requirements.txt
 
 # Copy ansible requirements and install them
-COPY --chown=${USER_NAME}:${USER_NAME} ../provision/ansible/requirements.yml ${HOMELAB_DIR}/
-COPY --chown=${USER_NAME}:${USER_NAME} ../provision/ansible/roles/requirements.yml ${HOMELAB_DIR}/roles/
+COPY --chown=${USER_NAME}:${USER_NAME} provision/ansible/requirements.yml ${HOMELAB_DIR}/
+COPY --chown=${USER_NAME}:${USER_NAME} provision/ansible/roles/requirements.yml ${HOMELAB_DIR}/roles/
 
 RUN mkdir -p /usr/share/ansible/collections && \
     mkdir -p /usr/share/ansible/roles && \
@@ -76,8 +76,9 @@ RUN mkdir -p /usr/share/ansible/collections && \
     ansible-galaxy role install -r ./roles/requirements.yml --roles-path /usr/share/ansible/roles
 
 # Copy bin files and docker-entrypoint.sh
-COPY bin/ /usr/local/bin
-COPY .bash_aliases /home/${USER_NAME}/.bash_aliases
+COPY docker/bin /usr/local/bin
+COPY docker/docker-entrypoint.sh /usr/local/bin
+COPY docker/.bash_aliases /home/${USER_NAME}/.bash_aliases
 
 # Some plays delegate to localhost, requires access to itself on ssh
 EXPOSE 22
