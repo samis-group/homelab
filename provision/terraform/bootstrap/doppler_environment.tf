@@ -1,3 +1,35 @@
+#################
+# project - K3s #
+#################
+resource "doppler_project" "k3s" {
+  name = var.doppler_project_k3s
+  description = "Homelab Project"
+}
+
+resource "doppler_environment" "k3s_dev" {
+  project = doppler_project.k3s.name
+  slug = "dev"
+  name = "Development"
+}
+
+resource "doppler_environment" "k3s_gitlab" {
+  project = doppler_project.k3s.name
+  slug = "ci"
+  name = "Gitlab CI"
+}
+
+resource "doppler_environment" "k3s_production" {
+  project = doppler_project.k3s.name
+  slug = "prod"
+  name = "Production"
+}
+
+resource "doppler_config" "k3s_dev_container" {
+  project = doppler_project.k3s.name
+  environment = doppler_environment.k3s_dev.slug
+  name = var.doppler_config
+}
+
 #####################
 # project - Homelab #
 #####################

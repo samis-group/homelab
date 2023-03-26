@@ -111,6 +111,7 @@ tasks:
     cmds:
       - terraform init {{.TF_VARS_CMD}} {{.CLI_ARGS}}
       - terraform apply -auto-approve {{.TF_VARS_CMD}} {{.CLI_ARGS}}
+
   # post-tasks:
   #   desc: Run post tasks due to conflicts with flux
   #   aliases: [pt]
