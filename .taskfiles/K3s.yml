@@ -6,8 +6,7 @@ tasks:
   main:
     desc: ☸ Main k3s play
     dir: provision/k3s-ansible
-    deps: [':lxc:k3s1']
-    vars:
+    deps: [':proxmox:provision-k3s']
     aliases: ["m"]
     cmds:
       - task: :doppler:generate-k3s-ansible-inventory
@@ -52,12 +51,10 @@ tasks:
   scp-kubeconfig:
     desc: Copy k3s kube config from single node to local
     aliases: ["s"]
-    # status:
-    #   - "test -f ${HOME}/.kube/config"
     cmds:
       - task: :internal:mkdirs-local
       - rm -f ~/.kube/config
-      - scp -o StrictHostKeyChecking=no root@10.10.0.24:~/.kube/config ~/.kube/config
+      - scp -o StrictHostKeyChecking=no root@10.10.0.24:/root/.kube/config ~/.kube/config
 
   scp-kubeconfig-windows:
     desc: Copy k3s kube config from single node to windows host for Lens to work (must not be run in workstation container)

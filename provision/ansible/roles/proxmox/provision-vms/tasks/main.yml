@@ -24,6 +24,11 @@
     target: "{{ vm_defaults.clone_target | default(omit) }}"
   register: cloned_vm
 
+- name: Pause for 30s to acquire lock
+  pause:
+    prompt: "Pausing for 30s to acquire lock"
+    seconds: 30
+
 - name: Post-clone configuration - update virtual machine resources
   proxmox_kvm:
     update: true

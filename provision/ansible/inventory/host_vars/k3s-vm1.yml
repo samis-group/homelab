@@ -1,0 +1,13 @@
+---
+vm_ip_address: "{{ vm_network }}24"  # Required
+
+vm:
+  # name: k3s-vm1   # Default is ansible magic var `inventory_hostname_short` if omitted
+  ipconfig:
+    ipconfig0: "ip={{ vm_ip_address }}/{{ vm_netmask }},gw={{ vm_gateway }}"
+  id: 106   # Required
+  hdd_size: "30G"
+  cores: 4
+  memory: 12000
+  template: "DebianCloud-bullseye-11"   # Specify a template
+  storage: "SSD"

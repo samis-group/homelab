@@ -60,23 +60,30 @@
 #       when: provision_vms
 #       tags: ["provision_vms"]
 
-# # load vm definition vars defined in each host_vars/host item, but delegate the tasks to proxmox
-# - name: Provision k3s VM's on Proxmox Host
-#   # Currently don't have a server powerful enough to continue building this, hence never tag unless specified with other tag specifically
-#   tags: ["never", "proxmox-provision-k3s"]
-#   hosts: k3s
-#   gather_facts: false   # Because they don't exist yet
-#   become: true
+# load vm definition vars defined in each host_vars/host item, but delegate the tasks to proxmox
+- name: Provision k3s VM's on Proxmox Host
+  # Currently don't have a server powerful enough to continue building this, hence never tag unless specified with other tag specifically
+  tags: ["never", "proxmox-provision-k3s"]
+  hosts: k3s
+  gather_facts: false   # Because they don't exist yet
+  become: true
 
-#   roles:
+  roles:
 
-#     - role: ../roles/proxmox/provision-vms
-#       when: provision_vms
-#       tags: ["provision_vms"]
-#       delegate_to: proxmox1  # The hosts aren't provisioned yet, so no tasks should run on them. Delegate everything to proxmox but use docker inventory.
-#     - role: ../roles/proxmox/vm-post-tasks
-#       when: provision_vms
-#       tags: ["provision_vms"]
+    - role: ../roles/proxmox/provision-vms
+      when: provision_vms
+      tags: ["provision_vms"]
+      delegate_to: proxmox1  # The hosts aren't provisioned yet, so no tasks should run on them. Delegate everything to proxmox but use docker inventory.
+    - role: ../roles/proxmox/vm-post-tasks
+      when: provision_vms
+      tags: ["provision_vms"]
+
+  tasks:
+
+    - name: Add SSH key to root's authorized_keys
+      authorized_key:
+        user: root
+        key: "{{ template_vm_debian_defaults.ssh_key }}"
 
 - name: Gather localhost facts for next play
   hosts: localhost
