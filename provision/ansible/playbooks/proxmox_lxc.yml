@@ -9,4 +9,4 @@
     - role: ../roles/proxmox/provision-lxcs
       tags: ["provision_lxc"]
       when: provision_lxcs
-      delegate_to: proxmox1  # The hosts aren't provisioned yet, so no tasks should run on them. Delegate everything to proxmox but use lxc inventory.
+      delegate_to: dell5820  # The hosts aren't provisioned yet, so no tasks should run on them. Delegate everything to proxmox but use lxc inventory.

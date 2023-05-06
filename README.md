@@ -97,11 +97,24 @@ task wsl:personal
 task windows:main
 ```
 
+Get a list of LXC's from the [generated inventory](provision/ansible/inventory/generated.yml) or [lxc taskfile](.taskfiles/Lxc.yml).
+
+> provision and configure all current LXC's.
+
+```bash
+task lxc:main
+```
+
 > configure gitlab runner LXC.
-> Get these LXC's from the [generated inventory](provision/ansible/inventory/generated.yml)
 
 ```bash
 task lxc:gitlab-runner
+```
+
+> configure dev machine.
+
+```bash
+task lxc:dev
 ```
 
 > If you make changes to the [generated inventory](provision/ansible/inventory/generated.yml), you can save and push it back to doppler

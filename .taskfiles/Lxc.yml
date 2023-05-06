@@ -19,6 +19,8 @@ tasks:
     cmds:
       - task: :doppler:generate-ansible-inventory
       - task: provision-lxc
+      - task: dev
+      - task: gitlab-runner
       - "{{.ANSIBLE_PLAYBOOK_CMD}} {{.ANSIBLE_PLAYBOOK_DIR}}/lxc.yml {{.CLI_ARGS}}"
 
   dev:
@@ -39,11 +41,12 @@ tasks:
       - task: :doppler:generate-ansible-inventory
       - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags lxc_gitlab_runner {{.ANSIBLE_PLAYBOOK_DIR}}/lxc.yml {{.CLI_ARGS}}"
 
-  k3s1:
-    desc: 📦 Make k3s single node cluster
-    dir: provision/ansible
-    deps: [provision-lxc]
-    aliases: ["k"]
-    cmds:
-      - task: :doppler:generate-ansible-inventory
-      - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags lxc_k3s1 {{.ANSIBLE_PLAYBOOK_DIR}}/lxc.yml {{.CLI_ARGS}}"
+  ### Migrated to VM
+  # k3s1:
+  #   desc: 📦 Make k3s single node cluster
+  #   dir: provision/ansible
+  #   deps: [provision-lxc]
+  #   aliases: ["k"]
+  #   cmds:
+  #     - task: :doppler:generate-ansible-inventory
+  #     - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags lxc_k3s1 {{.ANSIBLE_PLAYBOOK_DIR}}/lxc.yml {{.CLI_ARGS}}"
