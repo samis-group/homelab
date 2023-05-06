@@ -1,17 +1,8 @@
 ---
-- name: Add 'gitlab-runner' user to docker group
-  user:
-    name: gitlab-runner
-    groups: docker
-    append: yes
+- name: Install OS updates and required packages
+  import_tasks: install_packages.yml
+  tags: ["install_packages"]
 
-- name: Cron - Prune > 7 day old unused Docker images daily
-  ansible.builtin.cron:
-    name: prune docker images daily ( > 1 day old )
-    minute: "0"
-    hour: "3"
-    user: "{{ main_user }}"
-    job: "/usr/bin/docker system prune -af  --filter 'until=24h'"
-
-- name: Install doppler cli tools
-  ansible.builtin.shell: curl -Ls --tlsv1.2 --proto "=https" --retry 3 https://cli.doppler.com/install.sh | sh
+- name: Configure System
+  import_tasks: configure_system.yml
+  tags: ["configure_system"]
