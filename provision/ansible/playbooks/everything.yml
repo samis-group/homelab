@@ -8,6 +8,10 @@
   tags: ["playbook_docker"]
 
 - name: Setup and configure LXC's
+  import_playbook: proxmox_lxc.yml
+  tags: ["never", "playbook_proxmox_lxc"]
+
+- name: Setup and configure LXC's
   import_playbook: lxc.yml
   tags: ["never", "playbook_lxc"]
 

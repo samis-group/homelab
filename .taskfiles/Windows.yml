@@ -10,12 +10,12 @@ tasks:
       - task: :doppler:generate-ansible-inventory
       - "{{.ANSIBLE_PLAYBOOK_CMD}} {{.ANSIBLE_PLAYBOOK_DIR}}/windows.yml {{.CLI_ARGS}}"
 
-  runtags:
-    desc: 🖥 Run windows play tags
-    dir: provision/ansible
-    cmds:
-      - task: :doppler:generate-ansible-inventory
-      - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags \"{{.CLI_ARGS}}\" -e \"{{.CLI_ARGS}}=true\" {{.ANSIBLE_PLAYBOOK_DIR}}/windows.yml"
+  # runtags:
+  #   desc: 🖥 Run windows play tags
+  #   dir: provision/ansible
+  #   cmds:
+  #     - task: :doppler:generate-ansible-inventory
+  #     - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags \"{{.CLI_ARGS}}\" -e \"{{.CLI_ARGS}}=true\" {{.ANSIBLE_PLAYBOOK_DIR}}/windows.yml"
 
   chocolatey:
     desc: 🖥 Run chocolatey tasks

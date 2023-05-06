@@ -8,8 +8,10 @@ template_vm_ubuntu:
   release: current
   cpu_arch: amd64
 
+# Default proxmox storage location - allows override per proxmox host in host_vars
+default_proxmox_storage: local
+
 # Default VM configs - Each VM has it's overrides specified in it's own host_vars/hostname config file inside the 'vm' mapping
-# Specifying defaults below, but I override this mapping in my own main playbook.
 template_vm_ubuntu_defaults:
   name: "UbuntuCloud-{{ template_vm_ubuntu.version_name }}-{{ template_vm_ubuntu.version_number }}"
   nameservers:  # I use local DNS resolver, so I specify these on all vm's
@@ -28,7 +30,7 @@ template_vm_ubuntu_defaults:
   # serial: socket  # If defined, this will be set
   boot_order: "c"
   boot_disk: "scsi0"
-  storage: "local-lvm" # proxmox storage for VMs and cloudinit disk. Please ensure this matches the `pve_kvm_ide` in all.yml and in host vm definitions. https://docs.ansible.com/ansible/latest/collections/community/general/proxmox_kvm_module.html#parameter-storage
+  storage: "{{ default_proxmox_storage }}" # proxmox storage for VMs and cloudinit disk. Please ensure this matches the `pve_kvm_ide` in all.yml and in host vm definitions. https://docs.ansible.com/ansible/latest/collections/community/general/proxmox_kvm_module.html#parameter-storage
   network_device: 'virtio,bridge=vmbr0' # https://docs.ansible.com/ansible/latest/collections/community/general/proxmox_kvm_module.html#parameter-net
   agent: true
 
@@ -54,7 +56,7 @@ template_vm_debian_defaults:
   scsihw: virtio-scsi-pci   # Not tested changing this
   boot_order: "c"
   boot_disk: "scsi0"
-  storage: "local-lvm" # proxmox storage for VMs and cloudinit disk. Please ensure this matches the `pve_kvm_ide` in all.yml and in host vm definitions. https://docs.ansible.com/ansible/latest/collections/community/general/proxmox_kvm_module.html#parameter-storage
+  storage: "{{ default_proxmox_storage }}" # proxmox storage for VMs and cloudinit disk. Please ensure this matches the `pve_kvm_ide` in all.yml and in host vm definitions. https://docs.ansible.com/ansible/latest/collections/community/general/proxmox_kvm_module.html#parameter-storage
   network_device: 'virtio,bridge=vmbr0' # https://docs.ansible.com/ansible/latest/collections/community/general/proxmox_kvm_module.html#parameter-net
   agent: true
 
@@ -71,7 +73,7 @@ vm_defaults:
   cores: "4"
   memory: "2048"  # ram for each VM in MB - Must be quoted as a string, not an integer
   hdd_size: "16G"
-  storage: "local-lvm"  # proxmox storage for VMs
+  storage: "{{ default_proxmox_storage }}"  # proxmox storage for VMs
   network_device: 'virtio,bridge=vmbr0'
   default_behavior: compatibility
   # for debian images, there's a bug when resizing so need to set a serial port (serial0 below) -> https://forum.proxmox.com/threads/kernel-panic-after-resizing-a-clone.93738/
@@ -92,7 +94,7 @@ lxc_template:
 
 lxc_defaults:
   template: "{{ lxc_template.storage }}:vztmpl/{{ lxc_template.image }}"
-  storage: local-lvm # Location where the container storage will be set to (not the imaage template storage)
+  storage: "{{ default_proxmox_storage }}" # Location where the container storage will be set to (not the imaage template storage)
   ssh_key: "{{ vm_defaults.ssh_key }}"
   password: "{{ main_pass }}"
   cores: "2"

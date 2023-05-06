@@ -3,23 +3,23 @@ version: "3"
 
 tasks:
 
+  provision-lxc:
+    desc: 📦 Provision LXC's on Proxmox
+    dir: provision/ansible
+    deps: [':doppler:login']
+    aliases: ["p"]
+    cmds:
+      - task: :doppler:generate-ansible-inventory
+      - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags provision_lxc {{.ANSIBLE_PLAYBOOK_DIR}}/proxmox_lxc.yml {{.CLI_ARGS}}"
+
   main:
-    desc: 📦 Main LXC configuration playbooks to provision and configure all LXC's
+    desc: 📦 Main LXC configuration playbooks
     dir: provision/ansible
     aliases: ["m"]
     cmds:
       - task: :doppler:generate-ansible-inventory
       - task: provision-lxc
       - "{{.ANSIBLE_PLAYBOOK_CMD}} {{.ANSIBLE_PLAYBOOK_DIR}}/lxc.yml {{.CLI_ARGS}}"
-
-  provision-lxc:
-    desc: 📦 Provision LXC's
-    dir: provision/ansible
-    deps: [':doppler:login']
-    aliases: ["p"]
-    cmds:
-      - task: :doppler:generate-ansible-inventory
-      - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags provision_lxc {{.ANSIBLE_PLAYBOOK_DIR}}/lxc.yml {{.CLI_ARGS}}"
 
   dev:
     desc: 📦 Dev LXC

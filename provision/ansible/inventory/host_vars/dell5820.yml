@@ -1,0 +1,3 @@
+---
+# default_proxmox_storage: local
+# proxmox_node: "{{ lookup('env', 'PROXMOX_NODE') }}"

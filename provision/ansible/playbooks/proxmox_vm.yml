@@ -3,7 +3,7 @@
 # Pre-tasks run before anything else! #
 # ----------------------------------- #
 - name: Download and configure base OS templates from cloud images on proxmox
-  hosts: proxmox1
+  hosts: dell5820
 
   pre_tasks: &pre_tasks   # Anchors to re-use the code later. No point duplicating code.
 
@@ -37,7 +37,7 @@
     - role: ../roles/proxmox/provision-vms
       when: provision_vms
       tags: ["provision_vms"]
-      delegate_to: proxmox1  # The hosts aren't provisioned yet, so no tasks should run on them. Delegate everything to proxmox but use docker inventory.
+      delegate_to: dell5820  # The hosts aren't provisioned yet, so no tasks should run on them. Delegate everything to proxmox but use docker inventory.
     - role: ../roles/proxmox/vm-post-tasks
       when: provision_vms
       tags: ["provision_vms"]
@@ -55,7 +55,7 @@
 #     - role: ../roles/proxmox/provision-vms
 #       when: provision_vms
 #       tags: ["provision_vms"]
-#       delegate_to: proxmox1  # The hosts aren't provisioned yet, so no tasks should run on them. Delegate everything to proxmox but use docker inventory.
+#       delegate_to: dell5820  # The hosts aren't provisioned yet, so no tasks should run on them. Delegate everything to proxmox but use docker inventory.
 #     - role: ../roles/proxmox/vm-post-tasks
 #       when: provision_vms
 #       tags: ["provision_vms"]
@@ -73,7 +73,7 @@
     - role: ../roles/proxmox/provision-vms
       when: provision_vms
       tags: ["provision_vms"]
-      delegate_to: proxmox1  # The hosts aren't provisioned yet, so no tasks should run on them. Delegate everything to proxmox but use docker inventory.
+      delegate_to: dell5820  # The hosts aren't provisioned yet, so no tasks should run on them. Delegate everything to proxmox but use docker inventory.
     - role: ../roles/proxmox/vm-post-tasks
       when: provision_vms
       tags: ["provision_vms"]

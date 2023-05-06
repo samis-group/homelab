@@ -34,7 +34,7 @@
     node: "{{ proxmox_node }}"
     api_user: "{{ proxmox_api_user }}"
     api_password: "{{ proxmox_api_pass }}"
-    api_host: "{{ proxmox_host }}"
+    api_host: "{{ ansible_host | default(proxmox_host) }}"
     name: "{{ template_vm_ubuntu_defaults.name }}"
     vmid: "{{ template_vm_ubuntu.id }}"    # Specifying a high value for my template
     storage: "{{ template_vm_ubuntu_defaults.storage }}"
@@ -55,7 +55,7 @@
 
 - name: Set SCSI controller and add SCSI drive attaching disk
   shell:
-    cmd: qm set {{ template_vm_ubuntu.id }} --scsihw {{ template_vm_ubuntu_defaults.scsihw }} --scsi0 {{ template_vm_ubuntu_defaults.storage }}:vm-{{ template_vm_ubuntu.id }}-disk-0
+    cmd: qm set {{ template_vm_ubuntu.id }} --scsihw {{ template_vm_ubuntu_defaults.scsihw }} --scsi0 /var/lib/vz/images/{{ template_vm_ubuntu.id }}/vm-{{ template_vm_ubuntu.id }}-disk-0.raw
   when: vm_disk_done.stdout | int < 1
 
 - name: Check if cloudinit drive has already been created. If so, Skip creating another

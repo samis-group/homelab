@@ -1,0 +1,3 @@
+---
+default_proxmox_storage: local-lvm
+proxmox_node: "pve1"

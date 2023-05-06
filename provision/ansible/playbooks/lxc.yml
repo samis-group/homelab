@@ -10,19 +10,6 @@
   tasks:
     - ansible.builtin.import_tasks: ../tasks/pre-all.yml
 
-- name: Download and provision LXC templates/containers
-  hosts: lxc
-  tags: ["provision_lxc"]
-  gather_facts: false   # Because they don't exist yet
-
-  roles:
-
-    # Download and configure LXC containers
-    - role: ../roles/proxmox/provision-lxcs
-      when: provision_lxcs
-      tags: ["provision_lxcs"]
-      delegate_to: proxmox1  # The hosts aren't provisioned yet, so no tasks should run on them. Delegate everything to proxmox but use lxc inventory.
-
 - name: Setup and configure dev01 Container
   hosts: dev01
   tags: ["lxc_dev"]
