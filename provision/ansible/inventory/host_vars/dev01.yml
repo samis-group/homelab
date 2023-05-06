@@ -10,3 +10,4 @@ lxc_container:
   features:
     - nesting=1
     - mount=nfs
+  memory: "4096" # ram for each VM in MB
