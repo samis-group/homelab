@@ -1,6 +1,6 @@
 ---
 # Proxmox #
-- src: lae.proxmox  # Setup pve cluster on debian - # Currently Unused
+- src: lae.proxmox  # Setup pve cluster on debian
 - src: udelarinterior.proxmox_create_lxc   # LXC containers provision - # Currently Unused
 - src: ironicbadger.proxmox_nag_removal
 - src: rossmcdonald.telegraf  # Currently Unused -> https://github.com/rossmcdonald/telegraf

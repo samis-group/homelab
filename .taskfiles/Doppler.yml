@@ -34,7 +34,7 @@ tasks:
     aliases: ["g"]
     run: once
     vars:
-      DOPPLER_GET_INVENTORY_CMD: doppler secrets get ANSIBLE_HOSTS_INVENTORY --plain
+      DOPPLER_GET_INVENTORY: '{{default "ANSIBLE_HOSTS_INVENTORY" .DOPPLER_GET_INVENTORY}}'
     # preconditions:
     #   # If file doesn't exist, create it or;
     #   # Check if what is in doppler is different from local inventory file, let user handle it as they could be making changes locally which we do not with to override
@@ -44,7 +44,7 @@ tasks:
     #       If you have made changes to the generated inventory file that was downloaded from doppler locally, then please save the inventory file
     #       and ensure you've pushed this to doppler with command `task dp:p` so that it pulls down the latest inventory before proceeding!
     cmds:
-      - "{{.DOPPLER_GET_INVENTORY_CMD}} > {{.ANSIBLE_INVENTORY_FILENAME}}"
+      - "doppler secrets get {{.DOPPLER_GET_INVENTORY}} --plain > {{.ANSIBLE_INVENTORY_FILENAME}}"
 
   push-k3s-inventory:
     desc: Push file `provision/k3s-ansible/inventory/generated.ini` back to Doppler (i.e. if you modify the file in your IDE, use this task to just push it back, don't need GUI!)

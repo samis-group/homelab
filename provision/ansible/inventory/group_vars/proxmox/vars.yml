@@ -5,3 +5,4 @@ create_debian_vm_template: true
 
 # for role - nununo.proxmox_haos_install
 proxmox_haos_install: true
+ansible_user: root

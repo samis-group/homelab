@@ -6,9 +6,20 @@ tasks:
   main:
     desc: 🖥️ Main Proxmox playbook
     dir: provision/ansible
+    aliases: ["m"]
     cmds:
       - task: :doppler:generate-ansible-inventory
       - "{{.ANSIBLE_PLAYBOOK_CMD}} {{.ANSIBLE_PLAYBOOK_DIR}}/proxmox.yml {{.CLI_ARGS}}"
+
+  provision-hosts:
+    desc: 🖥️ Provision Proxmox on bare metal hosts
+    dir: provision/ansible
+    aliases: ["p"]
+    cmds:
+      - task: :doppler:generate-ansible-inventory
+        vars:
+          DOPPLER_GET_INVENTORY: ANSIBLE_PROXMOX_INVENTORY
+      - "{{.ANSIBLE_PLAYBOOK_CMD}} {{.ANSIBLE_PLAYBOOK_DIR}}/proxmox_hosts.yml {{.CLI_ARGS}}"
 
   run-tags:
     desc: 🖥️ Run only the tags passed in separated by comma

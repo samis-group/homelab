@@ -11,17 +11,6 @@
     - name: Pre-all / Proxmox
       ansible.builtin.import_tasks: ../tasks/pre-all.yml
 
-### WARNING - Needs testing on a throwaway machine first -> https://github.com/lae/ansible-role-proxmox
-# - name: Setup proxmox on bare metal debian machine
-#   hosts: proxmox_nodes
-#   become: True
-
-#   roles:
-
-#     - role: lae.proxmox
-#         - pve_group: all
-#         - pve_reboot_on_kernel_update: true
-
 - name: Configure Proxmox
   hosts: proxmox
 
@@ -67,8 +56,6 @@
 # - name: Setup ssh configs to localhost
 #   tags: ["copy_ssh_configs"]
 #   hosts: proxmox
-#   # hosts: proxmox docker k3s lxc   # Put this back if provisioning k3s as well
-#   become: true
 
 #   pre_tasks: *pre_tasks
 
