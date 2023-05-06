@@ -15,6 +15,8 @@ This repository contains all of my automations to install and configure everythi
 
 ❗ **You need to install Proxmox on the bare metal manually. I use [ventoy](https://www.ventoy.net/en/index.html) as a solution to boot any ISO on any computer from a usb stick and run through steps manually. For me this works and I don't have to do it often.**
 
+❗ **This project makes heavy use of `go-task` in order to run all of the automations in sequence. [Please download it from here](https://taskfile.dev/installation/).**
+
 ❗ **DNS is managed manually for the docker containers, but any VM's will have DNS created for them. There are no current plans for me to automate creating container records, i know there is a container that will do this for you but I haven't looked into it. Soz..**
 
 ❗ **You can skip or reconfigure any variable in any task by [Overriding Defaults](#overriding-defaults).**
