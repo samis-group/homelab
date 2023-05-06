@@ -41,32 +41,32 @@
     net:
       net0: "{{ template_vm_debian_defaults.network_device }}"
 
-- name: Check if the vm disk has already been created. If so, Skip creating another
-  shell:
-    cmd: lvs | grep {{ template_vm_debian.id }}-disk | wc -l
-  register: vm_disk_done
+- name: Check if volume has been created
+  stat:
+    path: /var/lib/vz/images/{{ template_vm_debian.id }}/base-{{ template_vm_debian.id }}-disk-0.raw
+  register: disk_volume_status
 
 # Add disks after creating vm because `qm importdisk` is not supported in the proxmox ansible module, so can only attach it afterwards
 - name: Import cloud image disk into VM
   shell:
     cmd: qm importdisk {{ template_vm_debian.id }} {{ debian_img_template_url | basename }} {{ template_vm_debian_defaults.storage }}
     chdir: "{{ img_dir }}"
-  when: vm_disk_done.stdout | int < 1
+  when: not disk_volume_status.stat.exists
 
 - name: Set SCSI controller and add SCSI drive attaching disk
   shell:
-    cmd: qm set {{ template_vm_debian.id }} --scsihw {{ template_vm_debian_defaults.scsihw }} --scsi0 {{ template_vm_debian_defaults.storage }}:vm-{{ template_vm_debian.id }}-disk-0
-  when: vm_disk_done.stdout | int < 1
+    cmd: qm set {{ template_vm_debian.id }} --scsihw {{ template_vm_debian_defaults.scsihw }} --scsi0 /var/lib/vz/images/{{ template_vm_debian.id }}/vm-{{ template_vm_debian.id }}-disk-0.raw
+  when: not disk_volume_status.stat.exists
 
 - name: Check if cloudinit drive has already been created. If so, Skip creating another
-  shell:
-    cmd: lvs | grep {{ template_vm_debian.id }}-cloudinit | wc -l
-  register: vm_cloudinit_done
+  stat:
+    path: /var/lib/vz/images/{{ template_vm_debian.id }}/vm-{{ template_vm_debian.id }}-cloudinit.qcow2
+  register: cloudinit_volume_status
 
 - name: Add Cloudinit disk
   shell:
     cmd: qm set {{ template_vm_debian.id }} --ide2 {{ template_vm_debian_defaults.storage }}:cloudinit
-  when: vm_cloudinit_done.stdout != '1'
+  when: not cloudinit_volume_status.stat.exists
 
 - name: Set serial console if defined in vars
   shell:

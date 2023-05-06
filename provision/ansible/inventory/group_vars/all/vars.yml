@@ -89,7 +89,7 @@ vm_defaults:
   agent: true   # Enable QEMU guest agent
 
 lxc_template:
-  storage: SSD # Location where the template image will download to (not the container storage)
+  storage: local # Location where the template image will download to (not the container storage)
   image: ubuntu-22.04-standard_22.04-1_amd64.tar.zst # run `pveam available` to list available images to download.
 
 lxc_defaults:

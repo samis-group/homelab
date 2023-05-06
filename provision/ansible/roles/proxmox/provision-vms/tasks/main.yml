@@ -130,7 +130,7 @@
     search_regex: OpenSSH
     # Cloud-init bootstraps by apt updating, and doing other bits and Openssh generally comes up before it finishes.
     # we need to give cloud-init time to populate facts to ansible, otherwise it exists early, hence 60s wait before cloud-init check below.
-    delay: 60
+    delay: 20
   delegate_to: localhost
   when: cloned_vm.changed
 
@@ -140,6 +140,7 @@
   when: cloned_vm.changed
   register: res
   delegate_to: "{{ vm_ip_address | default(inventory_hostname) }}"
+  remote_user: "{{ main_user }}"  # Run as main_user on k3s node
   until: "res.cloud_init_data_facts.status.v1.stage is defined and not res.cloud_init_data_facts.status.v1.stage"
   retries: 100
   delay: 5

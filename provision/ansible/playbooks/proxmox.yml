@@ -35,9 +35,9 @@
     - role: ../roles/proxmox/install-os-packages
       when: install_os_packages
       tags: ["install_os_packages"]
-    - role: ../roles/proxmox/copy-files
-      when: copy_files
-      tags: ["copy_files"]
+    # - role: ../roles/proxmox/copy-files
+    #   when: copy_files
+    #   tags: ["copy_files"]
     - role: nununo.proxmox_haos_install
       when: proxmox_haos_install
       tags: ["proxmox_haos_install"]

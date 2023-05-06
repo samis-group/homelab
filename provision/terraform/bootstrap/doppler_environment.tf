@@ -65,31 +65,34 @@ resource "doppler_config" "homelab_dev_container" {
 ############################
 # project - Homelab_backup #
 ############################
-resource "doppler_project" "homelab_backup" {
-  name = var.doppler_project_backup
-  description = "Homelab Backup Project"
-}
 
-resource "doppler_environment" "homelab_backup_dev" {
-  project = doppler_project.homelab_backup.name
-  slug = "dev"
-  name = "Development"
-}
+# This environment is manually created now
 
-resource "doppler_environment" "homelab_backup_gitlab" {
-  project = doppler_project.homelab_backup.name
-  slug = "ci"
-  name = "Gitlab CI"
-}
+# resource "doppler_project" "homelab_backup" {
+#   name = var.doppler_project_backup
+#   description = "Homelab Backup Project"
+# }
 
-resource "doppler_environment" "homelab_backup_production" {
-  project = doppler_project.homelab_backup.name
-  slug = "prod"
-  name = "Production"
-}
+# resource "doppler_environment" "homelab_backup_dev" {
+#   project = doppler_project.homelab_backup.name
+#   slug = "dev"
+#   name = "Development"
+# }
 
-resource "doppler_config" "homelab_backup_dev_container" {
-  project = doppler_project.homelab_backup.name
-  environment = doppler_environment.homelab_backup_dev.slug
-  name = var.doppler_config
-}
+# resource "doppler_environment" "homelab_backup_gitlab" {
+#   project = doppler_project.homelab_backup.name
+#   slug = "ci"
+#   name = "Gitlab CI"
+# }
+
+# resource "doppler_environment" "homelab_backup_production" {
+#   project = doppler_project.homelab_backup.name
+#   slug = "prod"
+#   name = "Production"
+# }
+
+# resource "doppler_config" "homelab_backup_dev_container" {
+#   project = doppler_project.homelab_backup.name
+#   environment = doppler_environment.homelab_backup_dev.slug
+#   name = var.doppler_config
+# }

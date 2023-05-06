@@ -11,17 +11,35 @@
 ![Docker](https://avatars.githubusercontent.com/u/38573177?s=200&v=4)
 ![kubernetes](https://avatars.githubusercontent.com/u/13629408?s=200&v=4)
 
-This repository contains all of my automations to install and configure everything in my homelab, from scratch. You are able to completely tear this down and rebuild it from debian base on bare metal.
+This repository contains all of my automations to install and configure everything in my homelab, from scratch. You are able to completely tear this down and rebuild it from Proxmox on bare metal.
+
+❗ **You need to install Proxmox on the bare metal manually. I use [ventoy](https://www.ventoy.net/en/index.html) as a solution to boot any ISO on any computer from a usb stick and run through steps manually. For me this works and I don't have to do it often.**
 
 ❗ **DNS is managed manually for the docker containers, but any VM's will have DNS created for them. There are no current plans for me to automate creating container records, i know there is a container that will do this for you but I haven't looked into it. Soz..**
 
 ❗ **You can skip or reconfigure any variable in any task by [Overriding Defaults](#overriding-defaults).**
 
-❗ **You need to install debian on the bare metal manually. I use [ventoy](https://www.ventoy.net/en/index.html) as a solution to boot any ISO on any computer from a usb stick and run through steps manually.**
-
 ❗ **Ensure you already have docker installed and working on your local PC**. This pulls an image, sets it up and drops you in shell to run any task you want.
 
 ## TL;DR
+
+### Proxmox host setup
+
+#### SSH Key Copy
+
+Copy your public ssh key over to your proxmox hosts by logging in and putting the key inside `/root/.ssh/authorized_keys` file.
+
+#### Resize Main Partition
+
+Resize your `local` volume [like so in this video](https://youtu.be/_u8qTN3cCnQ?t=887) to reclaim full space of your disk for use with vm's etc. Essentially the steps are:
+
+1. Remove local-lvm disk.
+2. lvremove /dev/pve/data
+   1. y
+3. lvresize -l +100%FREE /dev/pve/root
+4. resize2fs /dev/mapper/pve-root
+
+Also ensure that `local` disk can store disk images by going into Datacenter > Storage > Edit local > Content > Ensure Disk Image is one of the selected items.
 
 ### Workstation Docker Image
 
@@ -47,6 +65,12 @@ task ws:s
 
 ```bash
 task all
+```
+
+> Setup Proxmox Hosts for workloads
+
+```bash
+task proxmox:main
 ```
 
 > Setup k3s HA vm's

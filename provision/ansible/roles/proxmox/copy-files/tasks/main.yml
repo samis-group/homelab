@@ -25,6 +25,12 @@
         {%- endfor -%}
       ]
 
+- name: Ensure file exists before copying
+  file:
+    path: "/{{ item }}"
+    state: touch
+  with_items: "{{ proxmox_templates }}"
+
 - name: Copy proxmox templates
   template:
     src: "../templates/proxmox/{{ item }}"
