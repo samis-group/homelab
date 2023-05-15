@@ -38,13 +38,13 @@
 - name: Write custom line in fstab to denote mounts managed by ansible
   lineinfile:
     path: /etc/fstab
-    insertbefore: '^{{nas.ip}}.*'
+    insertbefore: '^{{nas_ip}}.*'
     firstmatch: true
     line: "### Ansible managed mounts ###"
 
 - name: Mount NFS volumes from NAS
   ansible.posix.mount:
-    src: "{{ nas.ip }}:{{ item.value.remote_mapping }}"
+    src: "{{ nas_ip }}:{{ item.value.remote_mapping }}"
     path: "{{ item.value.local_mapping }}"
     opts: wsize=65536,rsize=65536,hard,timeo=60,intr
     state: mounted

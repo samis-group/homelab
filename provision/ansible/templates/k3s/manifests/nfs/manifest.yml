@@ -6,6 +6,6 @@ metadata:
   name: nas-nfs
 provisioner: example.com/external-nfs
 parameters:
-  server: "{{ nas.ip }}"
+  server: "{{ nas_ip }}"
   path: "{{ nas.mounts.k3s_appdata.remote_mapping }}"
   readOnly: "false"

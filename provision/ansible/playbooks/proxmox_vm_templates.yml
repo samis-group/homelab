@@ -1,0 +1,24 @@
+---
+# ----------------------------------- #
+# Pre-tasks run before anything else! #
+# ----------------------------------- #
+- name: Download and configure base OS templates from cloud images on proxmox
+  hosts: dell5820
+
+  pre_tasks: &pre_tasks   # Anchors to re-use the code later. No point duplicating code.
+
+    # This is to get the PUID and PGID variables to use later in multiple areas
+    - name: Get user info or create a user if one doesn't exist
+      ansible.builtin.import_tasks: ../tasks/linux/pre_tasks.yml
+      tags: ["always"]
+
+  roles:
+
+    # Create Ubuntu VM Template from public cloud image
+    - role: ../roles/proxmox/vm-template-from-ubuntu-cloud-image
+      when: create_ubuntu_vm_template
+      tags: ["create_ubuntu_vm_template"]
+    # Create Debian VM Template from public cloud image
+    - role: ../roles/proxmox/vm-template-from-debian-cloud-image
+      when: create_debian_vm_template
+      tags: ["create_debian_vm_template"]

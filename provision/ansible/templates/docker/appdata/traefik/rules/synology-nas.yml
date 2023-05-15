@@ -24,4 +24,4 @@ http:
     synology-svc:
       loadBalancer:
         servers:
-          - url: "http://{{ nas.ip }}:{{ nas.port }}"  # or whatever your external host's IP:port is
+          - url: "http://{{ nas_ip }}:{{ nas.port }}"  # or whatever your external host's IP:port is

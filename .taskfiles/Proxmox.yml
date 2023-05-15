@@ -32,35 +32,28 @@ tasks:
     dir: provision/ansible
     cmds:
       - task: :doppler:generate-ansible-inventory
-      - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags \"create_ubuntu_vm_template\" -e \"create_ubuntu_vm_template=true\" {{.ANSIBLE_PLAYBOOK_DIR}}/proxmox_vm.yml {{.CLI_ARGS}}"
+      - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags \"create_ubuntu_vm_template\" -e \"create_ubuntu_vm_template=true\" {{.ANSIBLE_PLAYBOOK_DIR}}/proxmox_vm_templates.yml {{.CLI_ARGS}}"
 
   force-ubuntu-vm-template:
     desc: 🖥️ Force (re)create/(re)download Ubuntu VM Template in Proxmox from public ubuntu cloud-init image. Essentially if you want to remake the image from scratch, make this target.
     dir: provision/ansible
     cmds:
       - task: :doppler:generate-ansible-inventory
-      - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags \"create_ubuntu_vm_template\" -e \"create_ubuntu_vm_template=true force_template_rebuild=true\" {{.ANSIBLE_PLAYBOOK_DIR}}/proxmox_vm.yml {{.CLI_ARGS}}"
+      - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags \"create_ubuntu_vm_template\" -e \"create_ubuntu_vm_template=true force_template_rebuild=true\" {{.ANSIBLE_PLAYBOOK_DIR}}/proxmox_vm_templates.yml {{.CLI_ARGS}}"
 
   debian-vm-template:
     desc: 🖥️ Create Debian VM Template in Proxmox.
     dir: provision/ansible
     cmds:
       - task: :doppler:generate-ansible-inventory
-      - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags \"create_debian_vm_template\" -e \"create_debian_vm_template=true\" {{.ANSIBLE_PLAYBOOK_DIR}}/proxmox_vm.yml {{.CLI_ARGS}}"
+      - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags \"create_debian_vm_template\" -e \"create_debian_vm_template=true\" {{.ANSIBLE_PLAYBOOK_DIR}}/proxmox_vm_templates.yml {{.CLI_ARGS}}"
 
   force-debian-vm-template:
     desc: 🖥️ Force (re)create/(re)download Debian VM Template in Proxmox from public debian cloud-init image. Essentially if you want to remake the image from scratch, make this target.
     dir: provision/ansible
     cmds:
       - task: :doppler:generate-ansible-inventory
-      - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags \"create_debian_vm_template\" -e \"create_debian_vm_template=true force_template_rebuild=true\" {{.ANSIBLE_PLAYBOOK_DIR}}/proxmox_vm.yml {{.CLI_ARGS}}"
-
-  provision-tags:
-    desc: 🖥️ Provision based on tags passed in. Check tags on the plays in `playbooks/proxmox_vm.yml` for more info. e.g. `make proxmox-provision-blah`
-    dir: provision/ansible
-    cmds:
-      - task: :doppler:generate-ansible-inventory
-      - "{{.ANSIBLE_PLAYBOOK_CMD}} -e \"provision_vms=true\" --tags {{.CLI_ARGS}} {{.ANSIBLE_PLAYBOOK_DIR}}/proxmox_vm.yml"
+      - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags \"create_debian_vm_template\" -e \"create_debian_vm_template=true force_template_rebuild=true\" {{.ANSIBLE_PLAYBOOK_DIR}}/proxmox_vm_templates.yml {{.CLI_ARGS}}"
 
   provision-docker:
     desc: 🖥️ Provision docker vm.

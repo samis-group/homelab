@@ -98,6 +98,7 @@ tasks:
     cmds:
       - task: internal:mkdirs-local
       - task: proxmox:main
+      - task: lxc:main
       - task: k3s:main
       - task: terraform:bootstrap
       - task: terraform:init

@@ -16,4 +16,4 @@ http:
     qbittorrent-svc:
       loadBalancer:
         servers:
-          - url: "http://{{ nas.ip }}:{{ qbittorrent_port }}"
+          - url: "http://{{ nas_ip }}:{{ qbittorrent_port }}"

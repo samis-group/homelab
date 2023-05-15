@@ -1,0 +1,11 @@
+---
+- name: Add NFS storage to storage.cfg
+  blockinfile:
+    path: /etc/pve/storage.cfg
+    block: |
+      nfs: NAS
+        export /volume1/proxmox
+        path /mnt/pve/NAS
+        server {{ nas_ip }}
+        content rootdir,snippets,images,backup,iso,vztmpl
+        prune-backups keep-all=1

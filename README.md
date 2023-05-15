@@ -13,8 +13,6 @@
 
 This repository contains all of my automations to install and configure everything in my homelab, from scratch. You are able to completely tear this down and rebuild it from Proxmox on bare metal.
 
-❗ **You need to install Proxmox on the bare metal manually. I use [ventoy](https://www.ventoy.net/en/index.html) as a solution to boot any ISO on any computer from a usb stick and run through steps manually. For me this works and I don't have to do it often.**
-
 ❗ **This project makes heavy use of `go-task` in order to run all of the automations in sequence. [Please download it from here](https://taskfile.dev/installation/) as you will need to use it to run the workstation.**
 
 ❗ **DNS is managed manually for the docker containers, but any VM's will have DNS created for them. There are no current plans for me to automate creating container records, i know there is a container that will do this for you but I haven't looked into it. Soz..**
@@ -27,19 +25,37 @@ This repository contains all of my automations to install and configure everythi
 
 ### Proxmox host setup
 
-#### SSH Key Copy
+❗ **You need to install Proxmox on the bare metal manually. I use [ventoy](https://www.ventoy.net/en/index.html) as a solution to boot any ISO on any computer from a usb stick and run through steps manually. For me this works and I don't have to do it often.**
 
-Copy your public ssh key over to your proxmox hosts by logging in and putting the key inside `/root/.ssh/authorized_keys` file.
+#### Copy SSH Key to proxmox host
 
-#### Resize Main Partition
+Copy your public ssh key(s) over to your proxmox hosts by logging in and putting the key inside `/root/.ssh/authorized_keys` file.
+
+First, let's define a few variables in your environment. I use my public github keys.
+
+```bash
+GITHUB_USER="your-github-username"
+PROXMOX_HOST="10.10.0.11"
+```
+
+Let's deploy them to proxmox
+
+```bash
+PUBLIC_KEYS=$(curl -s "https://github.com/$GITHUB_USER.keys")
+while IFS= read -r line; do
+    echo "$line" | ssh root@$PROXMOX_HOST "cat >> ~/.ssh/authorized_keys"
+done <<< "$PUBLIC_KEYS"
+```
+
+#### Resize Main ('local') Partition
 
 Resize your `local` volume [like so in this video](https://youtu.be/_u8qTN3cCnQ?t=887) to reclaim full space of your disk for use with vm's etc. Essentially the steps are:
 
-1. Remove local-lvm disk.
-2. lvremove /dev/pve/data
-   1. y
-3. lvresize -l +100%FREE /dev/pve/root
-4. resize2fs /dev/mapper/pve-root
+1. Remove local-lvm disk in gui.
+2. in cli: `lvremove /dev/pve/data`
+   1. `y`
+3. `lvresize -l +100%FREE /dev/pve/root`
+4. `resize2fs /dev/mapper/pve-root`
 
 Also ensure that `local` disk can store disk images by going into Datacenter > Storage > Edit local > Content > Ensure Disk Image is one of the selected items.
 

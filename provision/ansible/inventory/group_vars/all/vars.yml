@@ -20,9 +20,9 @@ template_vm_ubuntu_defaults:
   user: "{{ main_user | default('root') }}" # Change this if this isn't set outside the role.
   password: "{{ main_pass | default(omit) }}"
   ssh_key: "ssh-rsa AAAAB3NzaC1yc2EAAAABJQAAAQEAiwG7uO5R8EzOLvoQEBc9TGyBMMEYlQf7NfwF3JH687WElHLc7bY1HTZ+VcEt+l7kvJfISAeJHdthpCT46ecPirLvz5oIOI1meXRPYXg5fKSJ+itAsfSupjg2/kRUHzI+NJjJap+KU21zEUxCqbTreJ3kSV58F/947uRDyMa0Ofammkx7LY8Kohsr99NtVsHXI71gSTngw/cIe5OR0F1qfxpsBwWw8daN+SYLe0tEtOHVZvGDVDbJhv1GW9PjQxSjx/8QEdi7FMT4ahwHxEcyG5+NhUg+DAo1RKoPYPAM5wwk9O7w+Y31EBP5wYc3FSiOPObcmIoBWxnUrZuD74dtaQ== Sami-id_rsa_personal"
-  ip_address: "{{ vm_network | default('10.10.0.') }}200"
-  netmask: "{{ vm_netmask | default('24') }}" # network mask ## NOT VM VAR
-  gateway: "{{ vm_gateway | default('10.10.0.1') }}" # gateway ### NOT VM var
+  ip_address: "{{ vm_network }}200"
+  netmask: "{{ vm_netmask }}"
+  gateway: "{{ vm_gateway }}"
   cores: "2"
   memory: "2048" # ram for each VM in MB
   scsihw: virtio-scsi-pci   # Not tested changing this
@@ -48,9 +48,9 @@ template_vm_debian_defaults:
   user: "{{ main_user | default('root') }}" # Change this if this isn't set outside the role.
   password: "{{ main_pass | default(omit) }}"
   ssh_key: "ssh-rsa AAAAB3NzaC1yc2EAAAABJQAAAQEAiwG7uO5R8EzOLvoQEBc9TGyBMMEYlQf7NfwF3JH687WElHLc7bY1HTZ+VcEt+l7kvJfISAeJHdthpCT46ecPirLvz5oIOI1meXRPYXg5fKSJ+itAsfSupjg2/kRUHzI+NJjJap+KU21zEUxCqbTreJ3kSV58F/947uRDyMa0Ofammkx7LY8Kohsr99NtVsHXI71gSTngw/cIe5OR0F1qfxpsBwWw8daN+SYLe0tEtOHVZvGDVDbJhv1GW9PjQxSjx/8QEdi7FMT4ahwHxEcyG5+NhUg+DAo1RKoPYPAM5wwk9O7w+Y31EBP5wYc3FSiOPObcmIoBWxnUrZuD74dtaQ== Sami-id_rsa_personal"
-  ip_address: "{{ vm_network | default('10.10.0.') }}201"
-  netmask: "{{ vm_netmask | default('24') }}" # network mask ## NOT VM VAR
-  gateway: "{{ vm_gateway | default('10.10.0.1') }}" # gateway ### NOT VM var
+  ip_address: "{{ vm_network }}201"
+  netmask: "{{ vm_netmask }}"
+  gateway: "{{ vm_gateway }}"
   cores: "2"
   memory: "2048" # ram for each VM in MB
   scsihw: virtio-scsi-pci   # Not tested changing this
@@ -126,7 +126,6 @@ configure_hostname: false
 nas:
   user: "{{ main_user }}"
   password: "{{ services_password }}"   # Make sure your nas password is up to date with the services password.
-  ip: 10.10.0.2  # Synology NAS IP
   port: '5000'  # Synology NAS Port
   mounts:   # NFS Mounts from the Synology NAS
     docker_backups:
@@ -239,7 +238,8 @@ k3s_token: "{{ lookup('env', 'K3S_TOKEN') }}"   # Generate one randomly
 name_servers: "{{ lookup('env', 'NAME_SERVERS') }}"
 watchtower_interval: "{{ lookup('env', 'WATCHTOWER_INTERVAL') }}"
 docker_ip: "{{ lookup('env', 'DOCKER_IP') }}"   # This is a default, each host should override this in host_vars
-pfsense_ip: "{{ lookup('env', 'PFSENSE_IP') }}"  # pfsense router IP
+pfsense_ip: "{{ lookup('env', 'PFSENSE_IP') }}" # pfsense router IP
+nas_ip: "{{ lookup('env', 'NAS_IP') }}"         # Synology NAS IP
 proxmox_port: "{{ lookup('env', 'PROXMOX_PORT') }}"
 influxdb_port: "{{ lookup('env', 'INFLUXDB_PORT') }}"
 ssh_key_file_prefix: "{{ lookup('env', 'SSH_KEY_FILE_PREFIX') }}"

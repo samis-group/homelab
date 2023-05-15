@@ -27,4 +27,4 @@ http:
     sonarr-svc:
       loadBalancer:
         servers:
-          - url: "http://{{ nas.ip }}:{{ sonarr_port }}"
+          - url: "http://{{ nas_ip }}:{{ sonarr_port }}"

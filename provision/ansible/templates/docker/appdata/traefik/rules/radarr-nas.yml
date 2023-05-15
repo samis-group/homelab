@@ -27,4 +27,4 @@
 #     radarr-svc:
 #       loadBalancer:
 #         servers:
-#           - url: "http://{{ nas.ip }}:{{ radarr_port }}"
+#           - url: "http://{{ nas_ip }}:{{ radarr_port }}"

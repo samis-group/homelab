@@ -16,4 +16,4 @@ http:
     transmission-vpn-svc:
       loadBalancer:
         servers:
-          - url: "http://{{ nas.ip }}:{{ transmission_port }}"
+          - url: "http://{{ nas_ip }}:{{ transmission_port }}"
