@@ -100,3 +100,10 @@ tasks:
     cmds:
       - task: :doppler:generate-ansible-inventory
       - "{{.ANSIBLE_PLAYBOOK_CMD}} {{.ANSIBLE_PLAYBOOK_DIR}}/wsl.yml {{.ANSIBLE_PLAYBOOK_DIR}}/wsl_personal.yml {{.CLI_ARGS}}"
+
+  nuc:
+    desc: Setup/Configure Intel Nuc
+    dir: provision/ansible
+    cmds:
+      - task: :doppler:generate-ansible-inventory
+      - "{{.ANSIBLE_PLAYBOOK_CMD}} {{.ANSIBLE_PLAYBOOK_DIR}}/nuc.yml {{.CLI_ARGS}}"

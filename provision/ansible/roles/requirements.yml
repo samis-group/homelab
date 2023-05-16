@@ -12,6 +12,7 @@
 
 # k3s #
 - src: geerlingguy.k8s_manifests
+- src: xanmanning.k3s
 
 # Docker #
 - src: arillso.logrotate

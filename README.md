@@ -31,7 +31,15 @@ This repository contains all of my automations to install and configure everythi
 
 Copy your public ssh key(s) over to your proxmox hosts by logging in and putting the key inside `/root/.ssh/authorized_keys` file.
 
-First, let's define a few variables in your environment. I use my public github keys.
+Prereq: Ensure you can ssh as root to your machine
+
+```bash
+su
+sed -i 's/.*PermitRootLogin.*/PermitRootLogin yes/g' /etc/ssh/sshd_config
+systemctl restart sshd
+```
+
+Now, let's define a few variables in your environment. I use my public github keys.
 
 ```bash
 GITHUB_USER="your-github-username"
@@ -42,6 +50,7 @@ Let's deploy them to proxmox
 
 ```bash
 PUBLIC_KEYS=$(curl -s "https://github.com/$GITHUB_USER.keys")
+ssh root@$PROXMOX_HOST "mkdir -p ~/.ssh && touch ~/.ssh/authorized_keys"
 while IFS= read -r line; do
     echo "$line" | ssh root@$PROXMOX_HOST "cat >> ~/.ssh/authorized_keys"
 done <<< "$PUBLIC_KEYS"
