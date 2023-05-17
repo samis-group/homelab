@@ -13,13 +13,13 @@
 
 This repository contains all of my automations to install and configure everything in my homelab, from scratch. You are able to completely tear this down and rebuild it from Proxmox on bare metal.
 
+❗ **Ensure you already have docker installed and working on your local PC**. This pulls an image, sets it up and drops you in shell to run any task you want.
+
 ❗ **This project makes heavy use of `go-task` in order to run all of the automations in sequence. [Please download it from here](https://taskfile.dev/installation/) as you will need to use it to run the workstation.**
 
-❗ **DNS is managed manually for the docker containers, but any VM's will have DNS created for them. There are no current plans for me to automate creating container records, i know there is a container that will do this for you but I haven't looked into it. Soz..**
+❗ **DNS is managed manually for the docker containers (WIP), but any VM's will have DNS created for them.**
 
 ❗ **You can skip or reconfigure any variable in any task by [Overriding Defaults](#overriding-defaults).**
-
-❗ **Ensure you already have docker installed and working on your local PC**. This pulls an image, sets it up and drops you in shell to run any task you want.
 
 ## TL;DR
 
@@ -29,24 +29,31 @@ This repository contains all of my automations to install and configure everythi
 
 #### Copy SSH Key to proxmox host
 
-Copy your public ssh key(s) over to your proxmox hosts by logging in and putting the key inside `/root/.ssh/authorized_keys` file.
-
-Prereq: Ensure you can ssh as root to your machine
-
-```bash
-su
-sed -i 's/.*PermitRootLogin.*/PermitRootLogin yes/g' /etc/ssh/sshd_config
-systemctl restart sshd
-```
-
-Now, let's define a few variables in your environment. I use my public github keys.
+Let's define a few variables in your environment. I deploy my public github keys to all/most of my machines as I have the private key in my password manager and can generally always put it where it's needed. **Security concerns be damned**, this isn't a production environment for a hospital...
 
 ```bash
 GITHUB_USER="your-github-username"
 PROXMOX_HOST="10.10.0.11"
 ```
 
-Let's deploy them to proxmox
+Prereq: Ensure you can ssh as root to your machine
+
+```bash
+ssh root@$PROXMOX_HOST
+```
+
+If you can not:
+
+```bash
+ssh user@$PROXMOX_HOST
+su
+sed -i 's/.*PermitRootLogin.*/PermitRootLogin yes/g' /etc/ssh/sshd_config
+systemctl restart sshd
+exit
+exit
+```
+
+Finally, copy your public ssh key(s) from github over to your proxmox hosts:
 
 ```bash
 PUBLIC_KEYS=$(curl -s "https://github.com/$GITHUB_USER.keys")
@@ -70,14 +77,14 @@ Also ensure that `local` disk can store disk images by going into Datacenter > S
 
 ### Workstation Docker Image
 
-You can build this repo and run any of its tasks inside a pre-built docker image with the tools to do all the work, so it doesn't mess with your environment. Ephemeral workspaces be the future?!
+You can build this repo and run any of its tasks inside a pre-built docker image with all the tools to do the work, so it doesn't mess with your local environment.
 
 ```bash
-git clone https://username:glpat-xxxxxxxxxx@gitlab.com/sami-group/homelab.git ~/git/personal/homelab
+git clone https://gitlab.com/sami-group/homelab.git ~/git/personal/homelab
 cd ~/git/personal/homelab
 ```
 
-> Build and run the public registry image (this also mounts the cloned dir, local ssh folder, and a bunch of others). start the container and drop you in a shell already setup to go.
+Build and run the public registry image, start the container and drop you in a shell already setup to go. This also mounts the cloned dir, local users '.ssh' folder, and a bunch of others. Comment out the ones you don't need [in 'DOCKER_RUN_CMD' here](.taskfiles\Workstation.yml).
 
 ```bash
 task ws:s
