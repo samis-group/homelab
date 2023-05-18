@@ -20,7 +20,7 @@ spec:
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: cluster-apps-traefik-issuers
+  name: cluster-apps-traefik-dashboard
   namespace: flux-system
 spec:
   dependsOn:
