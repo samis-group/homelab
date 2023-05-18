@@ -10,7 +10,7 @@ spec:
   entryPoints:
     - websecure
   routes:
-    - match: Host(`nginx.shaklab.com`)
+    - match: Host(`nginx.shaklab.com`, `shaklab.com`)
       kind: Rule
       middlewares:
         - name: default-headers
@@ -18,4 +18,4 @@ spec:
         - name: nginx
           port: 80
   tls:
-    secretName: shaklab-com-tls
+    secretName: shaklab-com-tls-certs

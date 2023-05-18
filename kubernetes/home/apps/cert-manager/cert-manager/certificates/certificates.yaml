@@ -6,7 +6,7 @@ metadata:
   name: shaklab-com
   namespace: default
 spec:
-  secretName: shaklab-com-tls
+  secretName: shaklab-com-tls-certs
   issuerRef:
     name: letsencrypt-staging
     kind: ClusterIssuer
