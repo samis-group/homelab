@@ -1,3 +1,5 @@
 alias ll='ls -alh'
 alias t='task'
 alias k='kubectl'
+alias kcaf='kubectl apply -f '
+alias kcdf='kubectl delete -f '

@@ -19,5 +19,5 @@
 # variable "target_path" {
 #   description = "flux sync target path"
 #   type        = string
-#   default     = "clusters/home"
+#   default     = "kubernetes/home"
 # }

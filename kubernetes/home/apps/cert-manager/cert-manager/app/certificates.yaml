@@ -1,0 +1,16 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.devbu.io/cert-manager.io/certificate_v1.json
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: shaklab-com
+  namespace: default
+spec:
+  secretName: shaklab-com-tls
+  issuerRef:
+    name: letsencrypt-staging
+    kind: ClusterIssuer
+  commonName: "*.shaklab.com"
+  dnsNames:
+    - shaklab.com
+    - "*.shaklab.com"

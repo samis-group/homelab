@@ -30,7 +30,6 @@
 
   roles:
     - andrewrothstein.kubectl
-    - gantsign.minikube
     - geerlingguy.helm    # Install helm on minikube nodes to deploy charts in ansible
     - geerlingguy.docker
     - geerlingguy.ntp
