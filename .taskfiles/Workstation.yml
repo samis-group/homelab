@@ -13,7 +13,7 @@ vars:
     --volume "{{.PROJECT_DIR}}/.git:{{.HOMELAB_DIR}}/.git"
     --volume "{{.PROJECT_DIR}}/Taskfile.yml:{{.HOMELAB_DIR}}/Taskfile.yml"
     --volume "{{.PROJECT_DIR}}/.taskfiles:{{.HOMELAB_DIR}}/.taskfiles"
-    --volume "{{.PROJECT_DIR}}/clusters:{{.HOMELAB_DIR}}/clusters"
+    --volume "{{.PROJECT_DIR}}/kubernetes:{{.HOMELAB_DIR}}/kubernetes"
     --volume "${HOME}/.ssh/:/home/ubuntu/.ssh"
     --volume "${HOME}/.kube/:/home/ubuntu/.kube"
     --env USER_ID={{.USER_ID}}

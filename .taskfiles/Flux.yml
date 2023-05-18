@@ -2,7 +2,7 @@
 version: "3"
 
 vars:
-  CLUSTER_DIR: "{{.PROJECT_DIR}}/clusters/home"
+  CLUSTER_DIR: "{{.PROJECT_DIR}}/kubernetes/home"
 
 tasks:
 
@@ -17,7 +17,7 @@ tasks:
     cmds:
       - kubectl apply --server-side --kustomize {{.CLUSTER_DIR}}/flux/bootstrap # Load the resources required for installing flux
       - kubectl apply --server-side --kustomize {{.CLUSTER_DIR}}/flux/config
-      # - flux bootstrap gitlab --components-extra=image-reflector-controller,image-automation-controller --owner=sami-group --repository=homelab --branch=main --path=clusters/home --token-auth --personal
+      # - flux bootstrap gitlab --components-extra=image-reflector-controller,image-automation-controller --owner=sami-group --repository=homelab --branch=main --path=kubernetes/home --token-auth --personal
       # - kubectl apply --kustomize {{.CLUSTER_DIR}}/home/default/doppler
       # - kubectl apply --kustomize {{.CLUSTER_DIR}}/bootstrap/
       # - kubectl apply -f {{.CLUSTER_DIR}}/flux/vars/cluster-settings.yaml

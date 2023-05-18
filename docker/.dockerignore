@@ -2,7 +2,7 @@
 .git*
 .pre-commit*
 .sourceignore
-clusters
+kubernetes
 Dockerfile
 docs
 linters

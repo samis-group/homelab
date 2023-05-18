@@ -1,0 +1,45 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: GitRepository
+metadata:
+  name: homelab
+  namespace: flux-system
+spec:
+  interval: 30m
+  url: https://gitlab.com/sami-group/homelab
+  ref:
+    branch: main
+  ignore: |
+    # exclude all
+    /*
+    # include kubernetes directory
+    !/kubernetes
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: flux-cluster
+  namespace: flux-system
+spec:
+  interval: 30m
+  path: ./kubernetes/home/flux
+  prune: true
+  wait: false
+  sourceRef:
+    kind: GitRepository
+    name: homelab
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: apps-cluster
+  namespace: flux-system
+spec:
+  interval: 5m
+  path: ./kubernetes/home/apps
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: homelab
+  dependsOn:
+    - name: flux-cluster

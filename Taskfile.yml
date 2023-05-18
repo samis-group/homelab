@@ -67,7 +67,6 @@ includes:
   lxc:
     taskfile: .taskfiles/Lxc.yml
     aliases: ["l"]
-  # minikube: .taskfiles/Minikube.yml
   molecule:
     taskfile: .taskfiles/Molecule.yml
     aliases: ["m"]
@@ -104,10 +103,6 @@ tasks:
       - task: terraform:init
       - task: terraform:apply
       - task: flux:install
-      # - task: terraform:post-tasks
-      # - task: terraform:proxmox-init
-      # - task: terraform:proxmox-plan
-      # - task: terraform:proxmox-apply
 
 #---------#
 # Linters #
