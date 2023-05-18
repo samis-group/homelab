@@ -8,7 +8,7 @@ metadata:
 spec:
   dependsOn:
     - name: cluster-apps-external-secrets-stores
-    - name: traefik
+    - name: cluster-apps-traefik
   path: ./kubernetes/home/apps/default/nginx/app
   prune: true
   sourceRef:
