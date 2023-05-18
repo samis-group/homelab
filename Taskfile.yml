@@ -94,6 +94,7 @@ tasks:
 
   all:
     desc: My current entire automation for k3s stack with LXC containers on proxmox w/ flux + tf + ansible etc.
+    aliases: ["a"]
     cmds:
       - task: internal:mkdirs-local
       - task: proxmox:main
@@ -103,6 +104,16 @@ tasks:
       - task: terraform:init
       - task: terraform:apply
       - task: flux:install
+
+  recreate-k3s:
+    desc: Recreate my entire k3s stack
+    aliases: ["r"]
+    cmds:
+      - task: k3s:reset
+      - task: k3s:main
+      - task: terraform:apply
+      - task: flux:install
+      - cat ~/.kube/config
 
 #---------#
 # Linters #

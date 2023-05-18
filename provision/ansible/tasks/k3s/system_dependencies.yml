@@ -10,6 +10,7 @@
     state: present
     pkg:
       - python3-pip
+      - nfs-common
 
 - name: pip self-update
   pip:
