@@ -4,3 +4,7 @@ kind: Kustomization
 resources:
   - ./namespace.yaml
   - ./traefik/release.yaml
+  - ./traefik/default-headers.yaml
+  - ./traefik/dashboard/ingress.yaml
+  - ./traefik/dashboard/middleware.yaml
+  - ./traefik/dashboard/secret-dashboard.yaml
