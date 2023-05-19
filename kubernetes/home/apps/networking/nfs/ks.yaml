@@ -6,7 +6,7 @@ metadata:
   name: cluster-apps-nfs
   namespace: flux-system
 spec:
-  path: ./kubernetes/home/apps/networking/nfs/pvs
+  path: ./kubernetes/home/apps/networking/nfs/pv
   prune: true
   sourceRef:
     kind: GitRepository

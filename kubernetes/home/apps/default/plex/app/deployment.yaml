@@ -26,11 +26,9 @@ spec:
       - name: nfs-movies
         persistentVolumeClaim:
           claimName: plex-nfs-movies
-      # - name: nfs-tv
-      #   nfs:
-      #     server: 10.10.0.2
-      #     path: /volume1/docker/data/media/tv
-      #     readOnly: true
+      - name: nfs-tv
+        persistentVolumeClaim:
+          claimName: plex-nfs-tv
       containers:
       - env:                       # < environment variables. See https://hub.docker.com/r/linuxserver/plex
         # - name: PLEX_CLAIM
@@ -84,6 +82,8 @@ spec:
         stdin: true
         tty: true
         volumeMounts:            # < the volume mount in the container. Look at the relation volumelabel->pvc->pv
-        - mountPath: /data
+        - mountPath: /data/movies
           name: nfs-movies
+        - mountPath: /data/tv
+          name: nfs-tv
       restartPolicy: Always

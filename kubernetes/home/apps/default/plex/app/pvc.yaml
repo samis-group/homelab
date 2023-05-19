@@ -13,3 +13,18 @@ spec:
   resources:
     requests:
       storage: 1T
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: plex-nfs-tv
+  namespace: default
+spec:
+  storageClassName: ""
+  volumeName: pv-nfs-tv
+  accessModes:
+    - ReadWriteMany
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 1T
