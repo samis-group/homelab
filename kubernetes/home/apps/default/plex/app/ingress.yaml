@@ -15,7 +15,7 @@ spec:
       middlewares:
         - name: default-headers
       services:
-        - name: plex-tcp
+        - name: plex
           port: 32400
   tls:
     secretName: shaklab-com-tls-certs

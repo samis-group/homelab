@@ -10,4 +10,4 @@ vm:
   cores: 4
   memory: 12000
   template: "DebianCloud-bullseye-11"   # Specify a template
-  storage: "local"
+  storage: "nvme"
