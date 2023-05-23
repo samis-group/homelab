@@ -10,11 +10,11 @@ resources:
   # - ./jellyfin/ks.yaml
   # - ./mosquitto/ks.yaml
   # - ./overseerr/ks.yaml
-  # - ./plex/ks.yaml
+  - ./plex/ks.yaml
   # - ./prowlarr/ks.yaml
   # - ./qbittorrent/ks.yaml
   # - ./radarr/ks.yaml
   # - ./redis/ks.yaml
   # - ./sonarr/ks.yaml
-  # - ./tautulli/ks.yaml
+  - ./tautulli/ks.yaml
   # - ./zigbee2mqtt/ks.yaml
