@@ -11,7 +11,16 @@ tasks:
     cmds:
       - task: :doppler:generate-k3s-ansible-inventory
       - "{{.K3S_ANSIBLE_PLAYBOOK_CMD}} site.yml {{.CLI_ARGS}}"
+      - task: extra
       - task: scp-kubeconfig
+
+  extra:
+    desc: ☸ Extra k3s play
+    dir: provision/ansible
+    internal: true
+    cmds:
+      - task: :doppler:generate-k3s-ansible-inventory
+      - "{{.ANSIBLE_PLAYBOOK_CMD}} {{.ANSIBLE_PLAYBOOK_DIR}}/k3s.yml {{.CLI_ARGS}}"
 
   reset:
     desc: ☸ Reset k3s stack from beginning of it's inception

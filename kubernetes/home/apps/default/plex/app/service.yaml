@@ -4,6 +4,8 @@ apiVersion: v1
 metadata:
   name: plex                  # < name of the service
   namespace: default          # < namespace where to place service
+  annotations:
+    metallb.io/load-balancer-ip: 10.10.0.82
 spec:
   selector:
     app: plex                 # < reference to the deployment (connects the service with the deployment)

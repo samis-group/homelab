@@ -8,7 +8,7 @@ metadata:
 spec:
   secretName: shaklab-com-tls-certs
   issuerRef:
-    name: letsencrypt-staging
+    name: letsencrypt-production
     kind: ClusterIssuer
   commonName: "*.shaklab.com"
   dnsNames:

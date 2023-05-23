@@ -31,11 +31,11 @@ spec:
           claimName: plex-nfs-tv
       containers:
       - env:                       # < environment variables. See https://hub.docker.com/r/linuxserver/plex
-        # - name: PLEX_CLAIM
-        #   valueFrom:
-        #     secretKeyRef:
-        #       name: dev-all
-        #       key: PLEX_CLAIM
+        - name: PLEX_CLAIM
+          valueFrom:
+            secretKeyRef:
+              name: plex-secrets
+              key: PLEX_CLAIM
         - name: PGID
           value: "\x31\x30\x30\x30"    # < ASCII code for '1000'
         - name: PUID
@@ -44,9 +44,13 @@ spec:
           value: latest
         - name: TZ
           value: Australia/Sydney  # < Timezone
-        image: ghcr.io/linuxserver/plex   # < the name of the docker image we will use
+        - name: ADVERTISE_IP
+          value: http://10.10.0.82:32400/
+        - name: ALLOWED_NETWORKS
+          value: 10.0.0.0/24,10.10.0.0/24,10.4.0.0/24,192.168.90.0/24,192.168.91.0/24,10.43.0.0/16
+        image: ghcr.io/linuxserver/plex
         imagePullPolicy: Always    # < always use the latest image when creating container/pod
-        name: plex           # < name of container
+        name: plex
         ports:
         - containerPort: 32400     # < required network portnumber. See https://hub.docker.com/r/linuxserver/plex
           name: pms-web            # < reference name from the port in the service yaml
