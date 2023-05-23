@@ -14,3 +14,6 @@ spec:
   dnsNames:
     - shaklab.com
     - "*.shaklab.com"
+  # ipAddresses:
+  #   - 10.10.0.81
+  #   - 10.10.0.82

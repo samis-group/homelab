@@ -1,0 +1,13 @@
+---
+http:
+  routers:
+    traefik-k3s-router:
+      rule: "Host(`nginx.shaklab.com`)"
+      service: traefik-k3s-service
+      middlewares:
+        - chain-oauth
+  services:
+    traefik-k3s-service:
+      loadBalancer:
+        servers:
+          - url: "http://10.10.0.81:80"
