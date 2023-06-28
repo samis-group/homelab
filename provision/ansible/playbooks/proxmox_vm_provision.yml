@@ -1,5 +1,5 @@
 ---
-- name: Provision VM(s) on Proxmox Host
+- name: Provision VM(s) on Proxmox Host From Template
   hosts: "{{ target_host_group }}"
   gather_facts: false   # Because they don't exist yet
   become: true

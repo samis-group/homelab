@@ -28,21 +28,21 @@ tasks:
       - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags {{.CLI_ARGS}} -e \"{{.CLI_ARGS}}=true\" {{.ANSIBLE_PLAYBOOK_DIR}}/proxmox.yml -vvvv"
 
   ubuntu-vm-template:
-    desc: 🖥️ Create Ubuntu VM Template in Proxmox.
+    desc: 🖥️ Create Ubuntu VM Template in Proxmox
     dir: provision/ansible
     cmds:
       - task: :doppler:generate-ansible-inventory
       - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags \"create_ubuntu_vm_template\" -e \"create_ubuntu_vm_template=true\" {{.ANSIBLE_PLAYBOOK_DIR}}/proxmox_vm_templates.yml {{.CLI_ARGS}}"
 
   force-ubuntu-vm-template:
-    desc: 🖥️ Force (re)create/(re)download Ubuntu VM Template in Proxmox from public ubuntu cloud-init image. Essentially if you want to remake the image from scratch, make this target.
+    desc: 🖥️ Force (re)create/(re)download Ubuntu VM Template in Proxmox from public ubuntu cloud-init image. Essentially if you want to remake the image from scratch, make this target
     dir: provision/ansible
     cmds:
       - task: :doppler:generate-ansible-inventory
       - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags \"create_ubuntu_vm_template\" -e \"create_ubuntu_vm_template=true force_template_rebuild=true\" {{.ANSIBLE_PLAYBOOK_DIR}}/proxmox_vm_templates.yml {{.CLI_ARGS}}"
 
   debian-vm-template:
-    desc: 🖥️ Create Debian VM Template in Proxmox.
+    desc: 🖥️ Create Debian VM Template in Proxmox
     dir: provision/ansible
     cmds:
       - task: :doppler:generate-ansible-inventory
@@ -56,15 +56,22 @@ tasks:
       - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags \"create_debian_vm_template\" -e \"create_debian_vm_template=true force_template_rebuild=true\" {{.ANSIBLE_PLAYBOOK_DIR}}/proxmox_vm_templates.yml {{.CLI_ARGS}}"
 
   provision-docker:
-    desc: 🖥️ Provision docker vm.
+    desc: 🖥️ Provision docker vm
     dir: provision/ansible
     cmds:
       - task: :doppler:generate-ansible-inventory
       - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags proxmox-provision-docker {{.ANSIBLE_PLAYBOOK_DIR}}/proxmox_vm.yml {{.CLI_ARGS}}"
 
   provision-k3s:
-    desc: 🖥️ Provision k3s vm(s).
+    desc: 🖥️ Provision k3s vm(s)
     dir: provision/ansible
     cmds:
       - task: :doppler:generate-ansible-inventory
       - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags proxmox-provision-k3s {{.ANSIBLE_PLAYBOOK_DIR}}/proxmox_vm.yml {{.CLI_ARGS}}"
+
+  provision-truenas:
+    desc: 🖥️ Provision TrueNAS vm
+    dir: provision/ansible
+    cmds:
+      - task: :doppler:generate-ansible-inventory
+      - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags proxmox-provision-truenas {{.ANSIBLE_PLAYBOOK_DIR}}/proxmox_vm.yml {{.CLI_ARGS}}"

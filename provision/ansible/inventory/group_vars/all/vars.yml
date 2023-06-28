@@ -119,6 +119,7 @@ install_docker: true
 git: true   # Docker and WSL
 provision_vms: true   # Provision VM's
 provision_lxcs: true  # Provision LXC's
+provision_truenas: true  # Provision TrueNAS VM
 copy_ssh_configs: true  # Copy SSH configs to localhost (usually WSL for me) for provisioned LXCs/VMs
 tz: 'Australia/Sydney'          # Timezone setting
 configure_hostname: false

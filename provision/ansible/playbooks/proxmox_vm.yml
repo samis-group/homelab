@@ -6,6 +6,13 @@
     target_proxmox_host: dell5820
   import_playbook: proxmox_vm_provision.yml
 
+- name: Provision TrueNAS VM on Proxmox Host
+  hosts: dell5820
+  tags: ["proxmox-provision-truenas"]
+  roles:
+    - role: ../roles/proxmox/truenas-vm
+      when: provision_truenas
+
 - name: Provision k3s VM's on Proxmox Host - Part one
   tags: ["never", "proxmox-provision-k3s"]
   vars:

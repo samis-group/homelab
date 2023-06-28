@@ -1,0 +1,36 @@
+---
+- name: Download TrueNAS image
+  get_url:
+    url: "{{ truenas_iso_url }}"
+    dest: "{{ img_dir }}/{{ truenas_iso_url | basename }}"
+  when: ansible_mounts | selectattr('mount', 'equalto', nas_dir) | list | length > 0  # Only when NAS is mounted
+
+# We attach the scsi and cloudinit disks afterwards (manual qm commands) because the ansible module doesn't allow us to update them with `update: yes`
+- name: Create TrueNAS VM
+  proxmox_kvm:
+    node: "{{ proxmox_node }}"
+    api_user: "{{ proxmox_api_user }}"
+    api_password: "{{ proxmox_api_pass }}"
+    api_host: "{{ ansible_host | default(proxmox_host) }}"
+    name: "{{ truenas_vm.name }}"
+    vmid: "{{ truenas_vm.id }}"    # Specifying a high value for my template
+    storage: "{{ truenas_vm.storage }}"
+    memory: "{{ truenas_vm.memory }}"
+    cores: 2
+    vcpus: 2
+    scsihw: virtio-scsi-pci
+    scsi:
+      scsi0: "{{ truenas_vm.storage }}:{{ truenas_vm.id }},size=50G"  # Disk to install OS on
+    ide:
+      ide2: "NAS:iso/{{ truenas_iso_url | basename }},media=cdrom"  # Mount ISO
+    net:
+      net0: "{{ vm_defaults.network_device }}"
+  when: ansible_mounts | selectattr('mount', 'equalto', nas_dir) | list | length > 0  # Only when NAS is mounted
+
+- name: Add passthrough disk(s)
+  shell:
+    cmd: qm set {{ truenas_vm.id }} --scsi{{ item.key }} /dev/disk/by-id/{{ item.value }}
+  loop: "{{ passthrough_disks | dict2items }}"
+  loop_control:
+    loop_var: item
+  when: ansible_mounts | selectattr('mount', 'equalto', nas_dir) | list | length > 0  # Only when NAS is mounted
