@@ -58,8 +58,8 @@ ENV HOMELAB_DIR=/workspace/homelab
 WORKDIR ${HOMELAB_DIR}
 
 # Make required directories and chown them
-RUN mkdir /root/.ssh ./roles /home/${USER_NAME}/.ssh /home/${USER_NAME}/.kube && \
 # Also ensure sudo group users are not asked for a password when using sudo command
+RUN mkdir /root/.ssh ./roles /home/${USER_NAME}/.ssh /home/${USER_NAME}/.kube && \
     echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
 # Installs Ansible, pre-commit-hooks, molecule, along with other pip dependencies.
