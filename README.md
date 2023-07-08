@@ -84,7 +84,7 @@ git clone https://gitlab.com/sami-group/homelab.git ~/git/personal/homelab
 cd ~/git/personal/homelab
 ```
 
-Build and run the public registry image, start the container and drop you in a shell already setup to go. This also mounts the cloned dir, local users '.ssh' folder, and a bunch of others. Comment out the ones you don't need [in 'DOCKER_RUN_CMD' here](.taskfiles\Workstation.yml).
+Build and run the public registry image, start the container and drop you in a shell already setup to go. This also mounts the cloned dir, local users '.ssh' folder, and a bunch of others. Comment out the ones you don't need in ['DOCKER_RUN_CMD' here](https://gitlab.com/sami-group/homelab/-/blob/main/.taskfiles/Workstation.yml#L9).
 
 ```bash
 task ws:s
