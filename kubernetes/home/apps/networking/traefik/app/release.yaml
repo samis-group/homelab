@@ -17,40 +17,76 @@ spec:
   values:
     # image:
     #   name: ghcr.io/k8s-at-home/traefik
+
     globalArguments:
-      - "--api.insecure=true"
+      # - "--api=true"
+      ##############################################
+      ### COMMENT THIS OUT AFTER AUTH IS WORKING ###
+      ##############################################
+      # - "--api.insecure=true"
+      # - "--api.dashboard=true"
       - "--global.sendanonymoususage=false"
       - "--global.checknewversion=false"
+      # This is enabled for my proxmox gui - I use self-signed certs and it doesn't have an http endpoint.
+      # I also want to ensure everything is behind oauth and using a TCP traefik router doesn't allow for middlewares.
+      # Skipping cert verification checks behind traefik is a better option than disabling oauth imo as it requires a man in the middle attack from behind traefik/oauth.
       - "--serverstransport.insecureskipverify=true"
       # - "--providers.kubernetesingress.ingressclass=traefik"
       # - "--metrics.prometheus=true"
       # - "--metrics.prometheus.entryPoint=metrics"
+      # - "--entryPoints.web.address=:80"
+      # - "--entryPoints.websecure.address=:443"
       # - "--entryPoints.websecure.forwardedHeaders.trustedIPs=10.0.0.0/8,192.168.0.0/16,172.16.0.0/12,103.21.244.0/22,103.22.200.0/22,103.31.4.0/22,104.16.0.0/13,104.24.0.0/14,108.162.192.0/18,131.0.72.0/22,141.101.64.0/18,162.158.0.0/15,172.64.0.0/13,173.245.48.0/20,188.114.96.0/20,190.93.240.0/20,197.234.240.0/22,198.41.128.0/17,2400:cb00::/32,2606:4700::/32,2803:f800::/32,2405:b500::/32,2405:8100::/32,2a06:98c0::/29,2c0f:f248::/32"
+      # - "--entryPoints.dashboard.address=:9000"
+
     additionalArguments:
-      - "--log.level=DEBUG"
+      # - "--log=true"
+      # - "--log.format=json"
+      # - "--log.filePath=/var/log/traefik.log"
+      - "--log.level=DEBUG" # (Default: error) DEBUG, INFO, WARN, ERROR, FATAL, PANIC"
+      - "--accessLog=true"
+      # - "--accessLog.format=json"
+      # - "--accessLog.filePath=/var/log/access.log"
+      # - "--accessLog.bufferingSize=100 # Configuring a buffer of 100 lines"
+      # - "--accessLog.filters.statusCodes=400-499"
       # - "--providers.kubernetesingress.ingressendpoint.ip=${SVC_TRAEFIK_ADDR}"
       # - "--providers.kubernetesingress.allowexternalnameservices=true"
       # - "--providers.kubernetescrd.allowexternalnameservices=true"
+
+      # Add cloudflare as default certresolver for all services. Also enables TLS and no need to specify on individual services
+      # - "--entrypoints.websecure.http.tls.certresolver=cloudflare"
+      # - "--entrypoints.websecure.http.tls.domains[0].main=shaklab.com"
+      # - "--entrypoints.websecure.http.tls.domains[0].sans=*.shaklab.com"
+
     deployment:
       # kind: Deployment
       enabled: true
       replicas: 1
+
     ports:
       web:
+        # expose: true
+        # port: 80
+        # exposedPort: 80
         redirectTo: websecure
       websecure:
+        # expose: true
+        # port: 443
+        # exposedPort: 443
         tls:
           enabled: true
-          options: "default"
+          # options: "default"
       # traefik:
       #   expose: true
+      #   port: 9000
       # metrics:
-      #   port: 8082
+      #   port: 9100
       #   expose: true
-      #   exposedPort: 8082
+
     ingressRoute:
       dashboard:
         enabled: false
+
     providers:
       kubernetesCRD:
         enabled: true
@@ -59,8 +95,10 @@ spec:
         enabled: true
         publishedService:
           enabled: false
+
     rbac:
       enabled: true
+
     service:
       enabled: true
       type: LoadBalancer
