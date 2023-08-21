@@ -10,7 +10,7 @@ spec:
   entryPoints:
     - websecure
   routes:
-    - match: Host(`nginx.shaklab.com`, `shaklab.com`)
+    - match: Host(`nginx.shaklab.com`, `shaklab.com`, `docs.shaklab.com`, `personal-docs.shaklab.com`)
       kind: Rule
       # middlewares:
       #   - name: default-headers

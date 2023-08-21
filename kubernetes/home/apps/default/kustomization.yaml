@@ -6,6 +6,7 @@ resources:
   - ./nginx/ks.yaml
   # - ./authelia/ks.yaml
   # - ./bazarr/ks.yaml
+  - ./common-secrets.yaml
   # - ./home-assistant/ks.yaml
   # - ./jellyfin/ks.yaml
   # - ./mosquitto/ks.yaml

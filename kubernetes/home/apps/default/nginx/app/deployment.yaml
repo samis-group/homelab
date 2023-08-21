@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: nginx
-          image: nginx:alpine
+          image: registry.gitlab.com/sami-group/docker/containers/nginx:latest
           resources:
             limits:
               memory: 512Mi
@@ -26,3 +26,15 @@ spec:
             requests:
               memory: 256Mi
               cpu: "0.2"
+          env:                       # < environment variables. See https://hub.docker.com/r/linuxserver/plex
+            - name: TZ
+              valueFrom:
+                secretKeyRef:
+                  name: common-secrets
+                  key: TZ
+            - name: NGINX_HOST
+              value: shaklab.com
+            - name: NGINX_PORT
+              value: "80"
+      imagePullSecrets:
+        - name: registry-credentials
