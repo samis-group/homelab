@@ -18,3 +18,5 @@ spec:
       services:
         - name: pfsense
           port: 80
+  tls:
+    secretName: shaklab-com-tls-certs
