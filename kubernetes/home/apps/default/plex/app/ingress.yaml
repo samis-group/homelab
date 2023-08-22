@@ -12,8 +12,8 @@ spec:
   routes:
     - match: Host(`plex.shaklab.com`)
       kind: Rule
-      middlewares:
-        - name: default-headers
+      # middlewares:
+      #   - name: default-headers
       services:
         - name: plex
           port: 32400

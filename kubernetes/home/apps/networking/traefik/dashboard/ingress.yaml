@@ -12,9 +12,9 @@ spec:
   routes:
     - match: Host(`traefik.shaklab.com`)
       kind: Rule
-      middlewares:
-        - name: traefik-dashboard-basicauth
-          namespace: default
+      # middlewares:
+      #   - name: traefik-dashboard-basicauth
+      #     namespace: default
       services:
         - name: api@internal
           kind: TraefikService
