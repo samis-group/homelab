@@ -11,6 +11,7 @@ resources:
   - ./namespace.yaml
   - ./nginx/ks.yaml
   # - ./overseerr/ks.yaml
+  - ./ozbargain/app.yaml
   - ./plex/ks.yaml
   # - ./prowlarr/ks.yaml
   # - ./qbittorrent/ks.yaml

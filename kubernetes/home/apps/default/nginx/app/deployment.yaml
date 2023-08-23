@@ -26,7 +26,7 @@ spec:
             requests:
               memory: 256Mi
               cpu: "0.2"
-          env:                       # < environment variables. See https://hub.docker.com/r/linuxserver/plex
+          env:
             - name: TZ
               valueFrom:
                 secretKeyRef:

@@ -1,0 +1,88 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.devbu.io/external-secrets.io/externalsecret_v1beta1.json
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: ozbargain-secrets
+  namespace: default
+spec:
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: doppler-auth-api
+  target:
+    name: ozbargain-secrets
+    creationPolicy: Owner
+  dataFrom:
+    - find:
+        name:
+          regexp: "OZBARGAIN"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ozbargain-volume-claim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ozbargain
+  namespace: default
+  labels:
+    app: ozbargain
+spec:
+  selector:
+    matchLabels:
+      app: ozbargain
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: ozbargain
+    spec:
+      containers:
+        - name: ozbargain
+          image: registry.gitlab.com/sami-group/ozbargain_bot:latest
+          resources:
+            limits:
+              memory: 512Mi
+              cpu: "1"
+            requests:
+              memory: 256Mi
+              cpu: "0.2"
+          env:
+            - name: TZ
+              valueFrom:
+                secretKeyRef:
+                  name: common-secrets
+                  key: TZ
+            - name: OZBARGAIN_DISCORD_WEBHOOK
+              valueFrom:
+                secretKeyRef:
+                  name: ozbargain-secrets
+                  key: OZBARGAIN_DISCORD_WEBHOOK
+            - name: OZBARGAIN_DISCORD_WEBHOOK_FRONTPAGE
+              valueFrom:
+                secretKeyRef:
+                  name: ozbargain-secrets
+                  key: OZBARGAIN_DISCORD_WEBHOOK_FRONTPAGE
+            - name: RUN_ON_BOOT
+              value: 'yes'
+            - name: PUID
+              value: '1000'
+            - name: PGID
+              value: '1000'
+            # - name: OZBARGAIN_TIMESTAMP_OVERRIDE
+            #   value: '1'
+          volumeMounts:
+            - mountPath: /config
+              name: ozbargain-config
+      volumes:
+        - name: ozbargain-config
+          persistentVolumeClaim:
+            claimName: ozbargain-volume-claim
