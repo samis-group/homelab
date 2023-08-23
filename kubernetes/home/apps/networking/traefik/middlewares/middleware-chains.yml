@@ -1,0 +1,51 @@
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: middlewares-chain-no-auth
+spec:
+  chain:
+    middlewares:
+      - middlewares-rate-limit
+      - middlewares-https-redirectscheme
+      - middlewares-secure-headers
+      - middlewares-compress
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: middlewares-chain-basic-auth
+spec:
+  chain:
+    middlewares:
+      - middlewares-rate-limit
+      - middlewares-https-redirectscheme
+      - middlewares-secure-headers
+      - middlewares-basic-auth
+      - middlewares-compress
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: middlewares-chain-oauth
+spec:
+  chain:
+    middlewares:
+      - middlewares-rate-limit
+      - middlewares-https-redirectscheme
+      - middlewares-secure-headers
+      - middlewares-oauth
+      - middlewares-compress
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: middlewares-chain-authelia
+spec:
+  chain:
+    middlewares:
+      - middlewares-rate-limit
+      - middlewares-https-redirectscheme
+      - middlewares-secure-headers
+      - middlewares-authelia
+      - middlewares-compress

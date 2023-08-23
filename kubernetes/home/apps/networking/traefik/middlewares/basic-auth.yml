@@ -1,0 +1,13 @@
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: middlewares-basic-auth
+spec:
+  basicAuth:
+    # Add users below if you wish, but i do it in htpasswd file (usersFile below)
+    # users:
+    #   - "user:$apsdfs.$EntPC0w3FtswWvC/6fTVJ7IUVtX1"
+    realm: "Traefik2 Basic Auth"
+    usersFile: "/run/secrets/htpasswd"
+    # usersFile: "/shared/.htpasswd" # be sure to mount the volume through docker-compose.yml

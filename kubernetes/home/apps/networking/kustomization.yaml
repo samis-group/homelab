@@ -5,3 +5,4 @@ resources:
   - ./namespace.yaml
   - ./traefik/ks.yaml
   - ./nfs/ks.yaml
+  - ./traefik-forward-auth/ks.yaml

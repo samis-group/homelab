@@ -1,0 +1,13 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ./authelia.yaml
+  - ./basic-auth.yml
+  - ./buffering.yaml
+  - ./compress.yaml
+  - ./https-redirectscheme.yaml
+  - ./middleware-chains.yml
+  - ./oauth.yaml
+  - ./rate-limit.yml
+  - ./secure-headers.yaml

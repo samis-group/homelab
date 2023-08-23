@@ -1,0 +1,11 @@
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: middlewares-oauth
+spec:
+  forwardAuth:
+    address: "http://traefik-forward-auth:4181" # Make sure you have the OAuth service in docker-compose.yml
+    trustForwardHeader: true
+    authResponseHeaders:
+      - "X-Forwarded-User"

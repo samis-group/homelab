@@ -1,22 +1,45 @@
 ---
-apiVersion: traefik.containo.us/v1alpha1
-kind: IngressRoute
-metadata:
-  name: traefik-dashboard
-  namespace: default
-  annotations:
-    kubernetes.io/ingress.class: traefik-external
-spec:
-  entryPoints:
-    - websecure
-  routes:
-    - match: Host(`pfsense.shaklab.com`)
-      kind: Rule
-      middlewares:
-        - name: traefik-dashboard-basicauth
-          namespace: default
-      services:
-        - name: pfsense
-          port: 80
-  tls:
-    secretName: shaklab-com-tls-certs
+# http:
+#   routers:
+#     pfsense-rtr:
+#       rule: "Host(`pfsense.{{ domain_name }}`)"
+#       entryPoints:
+#         - https
+#       middlewares:
+#         - chain-oauth
+#         # - pfsense-add-admin  # Uncomment if you need the path prefix addition below
+#       service: pfsense-svc
+#       tls:
+#         certResolver: dns-cloudflare
+#   # Add this section if you need a prefix (remember to uncomment the middleware in the router above as well)
+#   # middlewares:
+#   #   pfsense-add-admin:
+#   #     addPrefix:
+#   #       prefix: "/index.php"
+#   services:
+#     pfsense-svc:
+#       loadBalancer:
+#         servers:
+#           - url: "http://{{ pfsense_ip }}:{{ pfsense_port }}"  # or whatever your external host's IP:port is
+
+# apiVersion: traefik.containo.us/v1alpha1
+# kind: IngressRoute
+# metadata:
+#   name: traefik-dashboard
+#   namespace: default
+#   annotations:
+#     kubernetes.io/ingress.class: traefik-external
+# spec:
+#   entryPoints:
+#     - websecure
+#   routes:
+#     - match: Host(`pfsense.shaklab.com`)
+#       kind: Rule
+#       middlewares:
+#         - name: traefik-dashboard-basicauth
+#           namespace: default
+#       # services:
+#       #   - name: pfsense
+#       #     port: 80
+#   tls:
+#     secretName: shaklab-com-tls-certs

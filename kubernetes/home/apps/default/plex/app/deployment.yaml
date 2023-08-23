@@ -30,7 +30,10 @@ spec:
         persistentVolumeClaim:
           claimName: plex-nfs-tv
       containers:
-      - env:                       # < environment variables. See https://hub.docker.com/r/linuxserver/plex
+      - image: ghcr.io/linuxserver/plex
+        name: plex
+        imagePullPolicy: Always    # < always use the latest image when creating container/pod
+        env:                       # < environment variables. See https://hub.docker.com/r/linuxserver/plex
         - name: PLEX_CLAIM
           valueFrom:
             secretKeyRef:
@@ -48,9 +51,6 @@ spec:
           value: http://10.10.0.82:32400/
         - name: ALLOWED_NETWORKS
           value: 10.0.0.0/24,10.10.0.0/24,10.4.0.0/24,192.168.90.0/24,192.168.91.0/24,10.43.0.0/16,10.42.0.0/16
-        image: ghcr.io/linuxserver/plex
-        imagePullPolicy: Always    # < always use the latest image when creating container/pod
-        name: plex
         ports:
         - containerPort: 32400     # < required network portnumber. See https://hub.docker.com/r/linuxserver/plex
           name: pms-web            # < reference name from the port in the service yaml

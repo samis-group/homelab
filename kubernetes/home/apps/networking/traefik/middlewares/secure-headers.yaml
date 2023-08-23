@@ -1,0 +1,36 @@
+---
+######## Available Header Options:
+##### https://github.com/unrolled/secure#available-options
+##### https://docs.traefik.io/middlewares/headers/
+# A great resource for these headers is your preferred browser's docs. Firefox: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers
+# https://developers.google.com/search/reference/robots_meta_tag
+# https://github.com/OWASP/CheatSheetSeries/blob/master/cheatsheets/Clickjacking_Defense_Cheat_Sheet.md
+# CSP for VNC: https://github.com/cockpit-project/cockpit/pull/5932
+# Check headers here, don't include OAuth when checking headers, otherwise you are checking google's headers: https://securityheaders.com
+# or check them here: https://observatory.mozilla.org/
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: middlewares-secure-headers
+spec:
+  headers:
+    accessControlAllowMethods:
+      - GET
+      - OPTIONS
+      - PUT
+    accessControlMaxAge: 100
+    hostsProxyHeaders:
+      - "X-Forwarded-Host"
+    stsSeconds: 63072000
+    stsIncludeSubdomains: true
+    stsPreload: true
+    forceSTSHeader: true
+    # customFrameOptionsValue: "allow-from https:{{ domain_name }}" #CSP takes care of this but may be needed for organizr.
+    # Sniffing will happen regardless of whether the content is trusted or untrusted. See security.stackexchange.com/a/11761/2379 . It will break your site in subtle ways. Always disable sniffing if you do not like surprises
+    contentTypeNosniff: true
+    # browserXssFilter: true
+    referrerPolicy: "same-origin"
+    PermissionsPolicy: "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=(), vr=()" # fullscreen=*
+    customResponseHeaders:
+      X-Robots-Tag: "none,noarchive,nosnippet,notranslate,noimageindex"
+      server: ""

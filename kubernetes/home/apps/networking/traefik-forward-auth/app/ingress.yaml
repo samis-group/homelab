@@ -2,20 +2,20 @@
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
 metadata:
-  name: nginx
+  name: traefik-forward-auth
   namespace: default
+  # labels:
+  #   app: traefik
   annotations:
     kubernetes.io/ingress.class: traefik-external
 spec:
   entryPoints:
     - websecure
   routes:
-    - match: Host(`nginx.shaklab.com`, `shaklab.com`, `docs.shaklab.com`, `personal-docs.shaklab.com`)
+    - match: Host(`oauth.shaklab.com`)
       kind: Rule
-      # middlewares:
-      #   - name: middlewares-chain-oauth
       services:
-        - name: nginx
-          port: 80
+      - name: traefik-forward-auth
+        port: 4181
   tls:
     secretName: shaklab-com-tls-certs
