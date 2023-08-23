@@ -8,7 +8,7 @@
 # CSP for VNC: https://github.com/cockpit-project/cockpit/pull/5932
 # Check headers here, don't include OAuth when checking headers, otherwise you are checking google's headers: https://securityheaders.com
 # or check them here: https://observatory.mozilla.org/
-apiVersion: traefik.io/v1alpha1
+apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
 metadata:
   name: middlewares-secure-headers

@@ -1,6 +1,6 @@
 ---
 # https://stackoverflow.com/questions/49717670/how-to-config-upload-body-size-restriction-in-traefik
-apiVersion: traefik.io/v1alpha1
+apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
 metadata:
   name: middlewares-buffering

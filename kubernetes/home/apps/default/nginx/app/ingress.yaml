@@ -12,8 +12,8 @@ spec:
   routes:
     - match: Host(`nginx.shaklab.com`, `shaklab.com`, `docs.shaklab.com`, `personal-docs.shaklab.com`)
       kind: Rule
-      # middlewares:
-      #   - name: middlewares-chain-oauth
+      middlewares:
+        - name: middlewares-chain-oauth
       services:
         - name: nginx
           port: 80
