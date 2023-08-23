@@ -2,20 +2,19 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  - ./namespace.yaml
-  - ./nginx/ks.yaml
   # - ./authelia/ks.yaml
   # - ./bazarr/ks.yaml
   - ./common-secrets.yaml
   # - ./home-assistant/ks.yaml
   # - ./jellyfin/ks.yaml
   # - ./mosquitto/ks.yaml
+  - ./namespace.yaml
+  - ./nginx/ks.yaml
   # - ./overseerr/ks.yaml
   - ./plex/ks.yaml
   # - ./prowlarr/ks.yaml
   # - ./qbittorrent/ks.yaml
   # - ./radarr/ks.yaml
-  # - ./redis/ks.yaml
   # - ./sonarr/ks.yaml
   - ./tautulli/ks.yaml
   # - ./zigbee2mqtt/ks.yaml
