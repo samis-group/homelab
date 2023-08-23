@@ -13,6 +13,10 @@ tasks:
       - "{{.K3S_ANSIBLE_PLAYBOOK_CMD}} site.yml {{.CLI_ARGS}}"
       - task: extra
       - task: scp-kubeconfig
+      - task: :terraform:bootstrap
+      - task: :terraform:init
+      - task: :terraform:apply
+      - task: :flux:install
 
   extra:
     desc: ☸ Extra k3s play

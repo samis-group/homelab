@@ -100,10 +100,6 @@ tasks:
       - task: proxmox:main
       - task: lxc:main
       - task: k3s:main
-      - task: terraform:bootstrap
-      - task: terraform:init
-      - task: terraform:apply
-      - task: flux:install
 
   recreate-k3s:
     desc: Recreate my entire k3s stack
