@@ -4,7 +4,7 @@ kind: Service
 metadata:
   name: traefik-forward-auth
   labels:
-    app: traefik
+    app: traefik-forward-auth
 spec:
   type: ClusterIP
   selector:

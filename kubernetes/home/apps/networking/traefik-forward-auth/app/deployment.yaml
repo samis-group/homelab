@@ -30,6 +30,9 @@ spec:
           value: "shaklab.com"
         - name: COOKIE_DOMAIN
           value: "shaklab.com"
+        # INSECURE_COOKIE is required unless using https entrypoint
+        - name: INSECURE_COOKIE
+          value: "true"
         - name: AUTH_HOST
           value: "oauth.shaklab.com"
         - name: LOG_LEVEL

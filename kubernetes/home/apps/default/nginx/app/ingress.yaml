@@ -2,7 +2,7 @@
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
 metadata:
-  name: nginx
+  name: nginx-noauth
   namespace: default
   annotations:
     kubernetes.io/ingress.class: traefik-external
@@ -10,7 +10,28 @@ spec:
   entryPoints:
     - websecure
   routes:
-    - match: Host(`nginx.shaklab.com`, `shaklab.com`, `docs.shaklab.com`, `personal-docs.shaklab.com`)
+    - match: Host(`nginx.shaklab.com`, `shaklab.com`, `docs.shaklab.com`)
+      kind: Rule
+      middlewares:
+        - name: middlewares-chain-no-auth
+      services:
+        - name: nginx
+          port: 80
+  tls:
+    secretName: shaklab-com-tls-certs
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: nginx-oauth
+  namespace: default
+  annotations:
+    kubernetes.io/ingress.class: traefik-external
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`personal-docs.shaklab.com`)
       kind: Rule
       middlewares:
         - name: middlewares-chain-oauth

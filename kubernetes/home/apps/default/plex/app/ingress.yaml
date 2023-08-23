@@ -12,27 +12,10 @@ spec:
   routes:
     - match: Host(`plex.shaklab.com`)
       kind: Rule
-      # middlewares:
-      #   - name: default-headers
+      middlewares:
+        - name: middlewares-chain-no-auth
       services:
         - name: plex
           port: 32400
   tls:
     secretName: shaklab-com-tls-certs
-# ---
-# apiVersion: traefik.containo.us/v1alpha1
-# kind: Ingress
-# metadata:
-#   name: plexserver            # < name of ingress entry
-#   namespace: default          # < namespace where place the ingress enty
-# spec:
-#   rules:
-#   - host: plexserver.shaklab.com
-#     http:
-#       paths:
-#       - path: /
-#         backend:
-#           serviceName: plex-tcp
-#           servicePort: pms-web   # < same label as the port in the service tcp file
-#   tls:
-#     secretName: shaklab-com-tls-certs

@@ -6,10 +6,10 @@ metadata:
 spec:
   chain:
     middlewares:
-      - middlewares-rate-limit
-      - middlewares-https-redirectscheme
-      - middlewares-secure-headers
-      - middlewares-compress
+      - name: middlewares-rate-limit
+      - name: middlewares-https-redirectscheme
+      - name: middlewares-secure-headers
+      - name: middlewares-compress
 ---
 apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
@@ -18,11 +18,11 @@ metadata:
 spec:
   chain:
     middlewares:
-      - middlewares-rate-limit
-      - middlewares-https-redirectscheme
-      - middlewares-secure-headers
-      - middlewares-basic-auth
-      - middlewares-compress
+      - name: middlewares-rate-limit
+      - name: middlewares-https-redirectscheme
+      - name: middlewares-secure-headers
+      - name: middlewares-basic-auth
+      - name: middlewares-compress
 ---
 apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
@@ -31,11 +31,11 @@ metadata:
 spec:
   chain:
     middlewares:
-      - middlewares-rate-limit
-      - middlewares-https-redirectscheme
-      - middlewares-secure-headers
-      - middlewares-oauth
-      - middlewares-compress
+      - name: middlewares-rate-limit
+      - name: middlewares-https-redirectscheme
+      - name: middlewares-secure-headers
+      - name: middlewares-oauth
+      - name: middlewares-compress
 ---
 apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
@@ -44,8 +44,8 @@ metadata:
 spec:
   chain:
     middlewares:
-      - middlewares-rate-limit
-      - middlewares-https-redirectscheme
-      - middlewares-secure-headers
-      - middlewares-authelia
-      - middlewares-compress
+      - name: middlewares-rate-limit
+      - name: middlewares-https-redirectscheme
+      - name: middlewares-secure-headers
+      - name: middlewares-authelia
+      - name: middlewares-compress

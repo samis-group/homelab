@@ -21,6 +21,7 @@ spec:
     accessControlMaxAge: 100
     hostsProxyHeaders:
       - "X-Forwarded-Host"
+      - "X-Forwarded-Proto"
     stsSeconds: 63072000
     stsIncludeSubdomains: true
     stsPreload: true
@@ -30,7 +31,7 @@ spec:
     contentTypeNosniff: true
     # browserXssFilter: true
     referrerPolicy: "same-origin"
-    PermissionsPolicy: "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=(), vr=()" # fullscreen=*
+    permissionsPolicy: "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=(), vr=()" # fullscreen=*
     customResponseHeaders:
       X-Robots-Tag: "none,noarchive,nosnippet,notranslate,noimageindex"
       server: ""
