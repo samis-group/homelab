@@ -1,0 +1,68 @@
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: file-browser
+  namespace: default
+  annotations:
+    kubernetes.io/ingress.class: traefik-external
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`files.shaklab.com`)
+      kind: Rule
+      middlewares:
+        - name: middlewares-chain-oauth
+      services:
+        - name: file-browser
+          port: 30044
+  tls:
+    secretName: shaklab-com-tls-certs
+---
+# NOT WORKING
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: file-browser-shares
+  namespace: default
+  annotations:
+    kubernetes.io/ingress.class: traefik-external
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`files.shaklab.com`) && PathPrefix(`/share/{.*}`) # https://files.example.com/share/XXX-XXXX
+      kind: Rule
+      # middlewares:
+      #   - name: middlewares-chain-no-auth
+      services:
+        - name: file-browser
+          port: 30044
+  tls:
+    secretName: shaklab-com-tls-certs
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: file-browser
+  namespace: default
+spec:
+  type: ClusterIP
+  ports:
+    - name: https
+      port: 30044
+      protocol: TCP
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: file-browser
+  namespace: default
+subsets:
+  - addresses:
+    - ip: 10.10.0.3
+    ports:
+      - name: https
+        port: 30044
+        protocol: TCP
