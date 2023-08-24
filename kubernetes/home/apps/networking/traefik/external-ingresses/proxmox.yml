@@ -1,0 +1,46 @@
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: proxmox
+  namespace: default
+  annotations:
+    kubernetes.io/ingress.class: traefik-external
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`proxmox.shaklab.com`, `pve.shaklab.com`)
+      kind: Rule
+      middlewares:
+        - name: middlewares-chain-oauth
+      services:
+        - name: proxmox
+          port: 8006
+  tls:
+    secretName: shaklab-com-tls-certs
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: proxmox
+  namespace: default
+spec:
+  type: ClusterIP
+  ports:
+    - name: https # Use 'https' for https url in the service
+      port: 8006
+      protocol: TCP
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: proxmox
+  namespace: default
+subsets:
+  - addresses:
+    - ip: 10.10.0.11
+    ports:
+      - name: https # Use 'https' for https url in the service
+        port: 8006
+        protocol: TCP

@@ -4,3 +4,4 @@ kind: Kustomization
 resources:
   - ./release.yaml
   - ./default-headers.yaml
+  - ./default-tls-cert.yaml

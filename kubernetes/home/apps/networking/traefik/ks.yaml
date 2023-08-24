@@ -46,7 +46,7 @@ spec:
   dependsOn:
     - name: cluster-apps-traefik
     - name: cluster-apps-external-secrets-stores
-  path: ./kubernetes/home/apps/networking/traefik/ingresses
+  path: ./kubernetes/home/apps/networking/traefik/external-ingresses
   prune: true
   sourceRef:
     kind: GitRepository

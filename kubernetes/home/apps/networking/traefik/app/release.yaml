@@ -32,6 +32,8 @@ spec:
       # Skipping cert verification checks behind traefik is a better option than disabling oauth imo as it requires a man in the middle attack from behind traefik/oauth.
       - "--serverstransport.insecureskipverify=true"
       - "--providers.kubernetesingress.ingressclass=traefik"
+      # - "--providers.file.directory=/data"
+      # - "--providers.file.watch=true"
       # - "--metrics.prometheus=true"
       # - "--metrics.prometheus.entryPoint=metrics"
       # - "--entryPoints.web.address=:80"

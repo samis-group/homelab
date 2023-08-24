@@ -1,0 +1,46 @@
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: pfsense
+  namespace: default
+  annotations:
+    kubernetes.io/ingress.class: traefik-external
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`pfsense.shaklab.com`)
+      kind: Rule
+      middlewares:
+        - name: middlewares-chain-oauth
+      services:
+        - name: pfsense
+          port: 50000
+  tls:
+    secretName: shaklab-com-tls-certs
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pfsense
+  namespace: default
+spec:
+  type: ClusterIP
+  ports:
+    - name: web
+      port: 50000
+      protocol: TCP
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: pfsense
+  namespace: default
+subsets:
+  - addresses:
+    - ip: 10.10.0.1
+    ports:
+      - name: web
+        port: 50000
+        protocol: TCP
