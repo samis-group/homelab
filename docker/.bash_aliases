@@ -1,5 +1,5 @@
 alias ll='ls -alh'
 alias t='task'
 alias k='kubectl'
-alias kcaf='kubectl apply -f '
-alias kcdf='kubectl delete -f '
+alias kcaf='doppler run -- kubectl apply -f '
+alias kcdf='doppler run -- kubectl delete -f '

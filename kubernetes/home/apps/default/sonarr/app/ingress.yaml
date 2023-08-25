@@ -1,0 +1,21 @@
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: sonarr
+  namespace: default
+  annotations:
+    kubernetes.io/ingress.class: traefik-external
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`sonarr.shaklab.com`)
+      kind: Rule
+      middlewares:
+        - name: middlewares-chain-oauth
+      services:
+        - name: sonarr
+          port: 8989
+  tls:
+    secretName: shaklab-com-tls-certs

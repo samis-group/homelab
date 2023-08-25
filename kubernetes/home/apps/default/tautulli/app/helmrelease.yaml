@@ -15,17 +15,17 @@ spec:
         kind: HelmRepository
         name: bjw-s
         namespace: flux-system
-  maxHistory: 2
-  install:
-    createNamespace: true
-    remediation:
-      retries: 3
-  upgrade:
-    cleanupOnFail: true
-    remediation:
-      retries: 3
-  uninstall:
-    keepHistory: false
+  # maxHistory: 2
+  # install:
+  #   createNamespace: true
+  #   remediation:
+  #     retries: 3
+  # upgrade:
+  #   cleanupOnFail: true
+  #   remediation:
+  #     retries: 3
+  # uninstall:
+  #   keepHistory: false
   values:
     controller:
       type: statefulset
@@ -33,7 +33,11 @@ spec:
       repository: ghcr.io/onedr0p/tautulli
       tag: 2.12.3@sha256:6049e9877a7ac505a33c134ad58ca5b29dfbc34c1505e5df7d7784428942a9d0
     env:
-      TZ: Australia/Sydney
+      TZ:
+        valueFrom:
+          secretKeyRef:
+            name: common-secrets
+            key: TZ
     service:
       main:
         ports:
@@ -50,9 +54,16 @@ spec:
     #     accessMode: ReadWriteOnce
     #     size: 5Gi
     #     storageClass: ceph-block
-    resources:
-      requests:
-        cpu: 10m
-        memory: 250Mi
-      limits:
-        memory: 500Mi
+    # resources:
+    #   requests:
+    #     cpu: 10m
+    #     memory: 250Mi
+    #   limits:
+    #     memory: 500Mi
+
+    volumeClaimTemplates:
+      - name: config
+        mountPath: /config
+        accessMode: ReadWriteOnce
+        size: 5Gi
+        storageClass: local-path

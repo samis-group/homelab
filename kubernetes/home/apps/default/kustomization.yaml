@@ -2,6 +2,7 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
+  - ./api/ks.yaml
   # - ./authelia/ks.yaml
   # - ./bazarr/ks.yaml
   - ./common-secrets.yaml
@@ -10,12 +11,12 @@ resources:
   # - ./mosquitto/ks.yaml
   - ./namespace.yaml
   - ./nginx/ks.yaml
-  # - ./overseerr/ks.yaml
+  - ./overseerr/ks.yaml
   - ./ozbargain/app.yaml
   - ./plex/ks.yaml
-  # - ./prowlarr/ks.yaml
+  - ./prowlarr/ks.yaml
   # - ./qbittorrent/ks.yaml
-  # - ./radarr/ks.yaml
-  # - ./sonarr/ks.yaml
+  - ./radarr/ks.yaml
+  - ./sonarr/ks.yaml
   - ./tautulli/ks.yaml
   # - ./zigbee2mqtt/ks.yaml

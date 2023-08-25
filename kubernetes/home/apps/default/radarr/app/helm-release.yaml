@@ -1,0 +1,127 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: radarr
+  namespace: default
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: app-template
+      version: 1.5.1
+      interval: 30m
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  # install:
+  #   createNamespace: true
+  #   remediation:
+  #     retries: 3
+  # upgrade:
+  #   remediation:
+  #     retries: 3
+  # See https://github.com/bjw-s/helm-charts/blob/main/charts/library/common/values.yaml
+  values:
+    controller:
+      type: statefulset
+      # annotations:
+      #   reloader.stakater.com/auto: "true"
+    image:
+      repository: ghcr.io/onedr0p/radarr
+      tag: '4.7.5.7809'
+
+    env:
+      TZ:
+        valueFrom:
+          secretKeyRef:
+            name: common-secrets
+            key: TZ
+      RADARR__INSTANCE_NAME: Radarr
+      RADARR__PORT: &port 7878
+      RADARR__APPLICATION_URL: "https://radarr.shaklab.com"
+      RADARR__LOG_LEVEL: info
+
+    # dnsConfig:
+    #   options:
+    #     - name: ndots
+    #       value: "1"
+
+    service:
+      main:
+        ports:
+          http:
+            port: *port
+
+    # ingress:
+    #   main:
+    #     enabled: true
+    #     ingressClassName: "traefik"
+    #     annotations:
+    #       traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
+    #       traefik.ingress.kubernetes.io/router.middlewares: "networking-rfc1918-ips@kubernetescrd"
+    #       hajimari.io/enable: "true"
+    #       hajimari.io/group: "Media"
+    #       hajimari.io/icon: "movie-open"
+    #     hosts:
+    #       - host: &host "radarr.home.${SECRET_DOMAIN}"
+    #         paths:
+    #           - path: /
+    #             pathType: Prefix
+    #     tls:
+    #       - secretName: "wildcard-internal-${SECRET_DOMAIN/./-}-tls"
+    #         hosts:
+    #           - *host
+
+    persistence:
+      config:
+        enabled: true
+        existingClaim: radarr-config
+      nfs-nas-movies:
+        enabled: true
+        mountPath: /media/movies
+        type: nfs
+        server: 10.10.0.2
+        path: /volume1/docker/data/media/movies
+      downloads:
+        enabled: true
+        mountPath: /downloads
+        type: nfs
+        server: 10.10.0.2
+        path: /volume1/docker/data/torrents
+      # backups:
+      #   enabled: true
+      #   mountPath: /config/Backups
+      #   type: nfs
+      #   server: "${PRIMARY_NFS_SERVER}"
+      #   path: "${NFS_KUBERNETES_PATH}/backups/radarr"
+
+    # podSecurityContext:
+    #   runAsUser: 568
+    #   runAsGroup: 568
+    #   fsGroup: 568
+    #   fsGroupChangePolicy: "OnRootMismatch"
+
+    # resources:
+    #   requests:
+    #     cpu: 15m
+    #     memory: 1312M
+    #   limits:
+    #     memory: 4655M
+
+    # metrics:
+    #   enabled: true
+    #   serviceMonitor:
+    #     interval: 3m
+    #     scrapeTimeout: 1m
+    #   prometheusRule:
+    #     enabled: true
+    #   exporter:
+    #     image:
+    #       repository: ghcr.io/onedr0p/exportarr
+    #       tag: v1.1.0
+    #     env:
+    #       port: 9794
+    #       additionalMetrics: true
+    #       unknownQueueItems: true
