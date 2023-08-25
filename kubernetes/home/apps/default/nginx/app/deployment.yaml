@@ -19,6 +19,7 @@ spec:
       containers:
         - name: nginx
           image: registry.gitlab.com/sami-group/docker/containers/nginx:latest
+          imagePullPolicy: Always # Always grab latest when pipeline finishes building
           resources:
             limits:
               memory: 512Mi
