@@ -13,7 +13,7 @@ spec:
     - match: Host(`overseerr.shaklab.com`, `tv.shaklab.com`)
       kind: Rule
       middlewares:
-        - name: middlewares-chain-oauth
+        - name: middlewares-chain-no-auth
       services:
         - name: overseerr
           port: 5055
