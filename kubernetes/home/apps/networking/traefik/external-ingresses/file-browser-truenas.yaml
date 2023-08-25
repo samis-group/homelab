@@ -32,10 +32,8 @@ spec:
   entryPoints:
     - websecure
   routes:
-    - match: Host(`files.shaklab.com`) && PathPrefix(`/share/{.*}`) # https://files.example.com/share/XXX-XXXX
+    - match: Host(`files.shaklab.com`) && PathPrefix(`/share`, `/static`, `/api/public/{share|dl}`) # Allow share publicly
       kind: Rule
-      # middlewares:
-      #   - name: middlewares-chain-no-auth
       services:
         - name: file-browser
           port: 30044
