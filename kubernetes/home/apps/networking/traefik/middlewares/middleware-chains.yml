@@ -40,6 +40,18 @@ spec:
 apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
 metadata:
+  name: middlewares-chain-oauth-no-ratelimit
+spec:
+  chain:
+    middlewares:
+      - name: middlewares-https-redirectscheme
+      - name: middlewares-secure-headers
+      - name: middlewares-oauth
+      - name: middlewares-compress
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
   name: middlewares-chain-authelia
 spec:
   chain:

@@ -105,7 +105,7 @@ spec:
       enabled: true
       type: LoadBalancer
       spec:
-        loadBalancerIP: 10.10.0.81
+        loadBalancerIP: 10.10.0.80
         # externalTrafficPolicy: Local
       # annotations:
       #   metallb.universe.tf/address-pool: dev-infra

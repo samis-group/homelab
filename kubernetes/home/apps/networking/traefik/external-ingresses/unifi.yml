@@ -2,7 +2,7 @@
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
 metadata:
-  name: synology-nas
+  name: unifi
   namespace: default
   annotations:
     kubernetes.io/ingress.class: traefik-external
@@ -10,37 +10,37 @@ spec:
   entryPoints:
     - websecure
   routes:
-    - match: Host(`nas.shaklab.com`)
+    - match: Host(`unifi.shaklab.com`)
       kind: Rule
       middlewares:
         - name: middlewares-chain-oauth-no-ratelimit
       services:
-        - name: synology-nas
-          port: 5000
+        - name: unifi
+          port: 8443
   tls:
     secretName: shaklab-com-tls-certs
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: synology-nas
+  name: unifi
   namespace: default
 spec:
   type: ClusterIP
   ports:
-    - name: web
-      port: 5000
+    - name: https
+      port: 8443
       protocol: TCP
 ---
 apiVersion: v1
 kind: Endpoints
 metadata:
-  name: synology-nas
+  name: unifi
   namespace: default
 subsets:
   - addresses:
-    - ip: 10.10.0.2
+    - ip: 10.0.0.1
     ports:
-      - name: web
-        port: 5000
+      - name: https
+        port: 8443
         protocol: TCP
