@@ -20,11 +20,3 @@
 
     - name: Setup user dependencies
       ansible.builtin.import_tasks: ../tasks/k3s/user_dependencies.yml
-
-    # - name: deploy k8s manifests
-    #   import_role:
-    #     name: geerlingguy.k8s_manifests # Deploys everything inside file - `group_vars/all.yml` lines starting - `k8s_*`
-    #   tags: ['nfs', 'k8s_manifests']
-
-    # - name: Deploy Helm Charts
-    #   import_tasks: ../tasks/k3s/deploy_helm_charts.yml
