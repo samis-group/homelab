@@ -25,19 +25,7 @@ spec:
       enabled: true
       existingClaim: grafana-config
     # env:
-    #   - GF_EXPLORE_ENABLED: true
-    #   - GF_PANELS_DISABLE_SANITIZE_HTML: true
     #   - GF_LOG_FILTERS: rendering:debug
-    #   - GF_DATE_FORMATS_USE_BROWSER_LOCALE: true
-    #   - GF_DATE_FORMATS_FULL_DATE: "MMM Do, YYYY hh:mm:ss a"
-    #   - GF_DATE_FORMATS_INTERVAL_SECOND: "hh:mm:ss a"
-    #   - GF_DATE_FORMATS_INTERVAL_MINUTE: "hh:mm a"
-    #   - GF_DATE_FORMATS_INTERVAL_HOUR: "DD/MM hh:mm a"
-    #   - GF_DATE_FORMATS_INTERVAL_DAY: "DD/MM"
-    #   - GF_DATE_FORMATS_INTERVAL_MONTH: "MM-YYYY"
-    #   - GF_DATE_FORMATS_INTERVAL_YEAR: "YYYY"
-    #   - GF_SECURITY_ALLOW_EMBEDDING: true
-    #   - GF_SECURITY_COOKIE_SAMESITE: grafana
     #   # Using Gmail SMTP for alerts
     #   - GF_SMTP_ENABLED: "true"
     #   - GF_SMTP_HOST: "smtp.gmail.com:587"
@@ -73,9 +61,17 @@ spec:
       analytics:
         check_for_updates: false
         check_for_plugin_updates: false
-      # security:
-      #   admin_user: admin
-      #   admin_password: admin
+      explore:
+        enabled: true
+      panels:
+        disable_sanitize_html: true
+      date_formats:
+        use_browser_locale: true
+      security:
+        allow_embedding: true
+        cookie_samesite: grafana
+      # smtp:
+      #   enabled: true
       # auth:
       #   oauth_auto_login: true
       #   oauth_allow_insecure_email_lookup: true
@@ -190,3 +186,12 @@ spec:
       datasources:
         enabled: true
         searchNamespace: ALL
+    # Administrator credentials when not using an existing secret (see below)
+    adminUser: admin
+    adminPassword: password
+    # smtp:
+    #   # `existingSecret` is a reference to an existing secret containing the smtp configuration
+    #   # for Grafana.
+    #   existingSecret: ""
+    #   userKey: "user"
+    #   passwordKey: "password"
