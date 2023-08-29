@@ -2,10 +2,10 @@
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
 metadata:
-  name: traefik-forward-auth
+  name: traefik-oauth
   namespace: default
   labels:
-    app: traefik-forward-auth
+    app: traefik-oauth
   annotations:
     kubernetes.io/ingress.class: traefik-external
 spec:
@@ -17,7 +17,7 @@ spec:
       middlewares:
         - name: middlewares-chain-oauth
       services:
-      - name: traefik-forward-auth
+      - name: traefik-oauth
         port: 4181
   tls:
     secretName: shaklab-com-tls-certs
