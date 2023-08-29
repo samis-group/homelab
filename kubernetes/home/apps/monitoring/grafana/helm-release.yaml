@@ -1,0 +1,192 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.devbu.io/helm.toolkit.fluxcd.io/helmrelease_v2beta1.json
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: grafana
+  namespace: default
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: grafana
+      version: 6.59.0
+      sourceRef:
+        kind: HelmRepository
+        name: grafana-charts
+        namespace: flux-system
+      interval: 30m
+  values:
+    deploymentStrategy:
+      type: Recreate
+    # rbac:
+    #   pspEnabled: false
+    persistence:
+      enabled: true
+      existingClaim: grafana-config
+    # env:
+    #   - GF_EXPLORE_ENABLED: true
+    #   - GF_PANELS_DISABLE_SANITIZE_HTML: true
+    #   - GF_LOG_FILTERS: rendering:debug
+    #   - GF_DATE_FORMATS_USE_BROWSER_LOCALE: true
+    #   - GF_DATE_FORMATS_FULL_DATE: "MMM Do, YYYY hh:mm:ss a"
+    #   - GF_DATE_FORMATS_INTERVAL_SECOND: "hh:mm:ss a"
+    #   - GF_DATE_FORMATS_INTERVAL_MINUTE: "hh:mm a"
+    #   - GF_DATE_FORMATS_INTERVAL_HOUR: "DD/MM hh:mm a"
+    #   - GF_DATE_FORMATS_INTERVAL_DAY: "DD/MM"
+    #   - GF_DATE_FORMATS_INTERVAL_MONTH: "MM-YYYY"
+    #   - GF_DATE_FORMATS_INTERVAL_YEAR: "YYYY"
+    #   - GF_SECURITY_ALLOW_EMBEDDING: true
+    #   - GF_SECURITY_COOKIE_SAMESITE: grafana
+    #   # Using Gmail SMTP for alerts
+    #   - GF_SMTP_ENABLED: "true"
+    #   - GF_SMTP_HOST: "smtp.gmail.com:587"
+    #   - GF_SMTP_SKIP_VERIFY: "true"
+    #   - GF_SMTP_FROM_NAME: "Grafana"
+    #   - GF_SMTP_FROM_ADDRESS: "admin@grafana.shaklab.com"
+    #   - name: GF_SMTP_USER
+    #     valueFrom:
+    #       secretKeyRef:
+    #         name: grafana-secrets
+    #         key: GMAIL_ADDRESS
+    #   - name: GF_SMTP_PASSWORD
+    #     valueFrom:
+    #       secretKeyRef:
+    #         name: grafana-secrets
+    #         key: GMAIL_APP_PASS
+    #   # Grafana 8 alerting enable
+    #   - GF_UNIFIED_ALERTING_ENABLED: "true"
+    #   - GF_ALERTING_ENABLED: "false"
+    #   - name: GF_SECURITY_ADMIN_USER
+    #     valueFrom:
+    #       secretKeyRef:
+    #         name: grafana-secrets
+    #         key: SERVICES_USERNAME
+    #   - name: GF_SECURITY_ADMIN_PASSWORD
+    #     valueFrom:
+    #       secretKeyRef:
+    #         name: grafana-secrets
+    #         key: SERVICES_PASSWORD
+    grafana.ini:
+      server:
+        root_url: https://grafana.shaklab.com
+      analytics:
+        check_for_updates: false
+        check_for_plugin_updates: false
+      # security:
+      #   admin_user: admin
+      #   admin_password: admin
+      # auth:
+      #   oauth_auto_login: true
+      #   oauth_allow_insecure_email_lookup: true
+      # auth.generic_oauth:
+      #   enabled: true
+      #   allow_sign_up: true
+      #   name: Dex
+      #   client_id: grafana
+      #   client_secret: ${DEX_GRAFANA_AUTHENTICATOR_CLIENT_SECRET}
+      #   scopes: openid profile email groups
+      #   auth_url: https://dex.shaklab.com/auth
+      #   token_url: https://dex.shaklab.com/token
+      #   api_url: https://dex.shaklab.com/userinfo
+      # auth.generic_oauth.group_mapping:
+      #   role_attribute_path: "contains(groups[*], 'russhome:cluster-admin') && 'Admin' || 'Viewer'"
+      #   org_id: 1
+      paths:
+        data: /var/lib/grafana/data
+        logs: /var/log/grafana
+        plugins: /var/lib/grafana/plugins
+        provisioning: /etc/grafana/provisioning
+      log:
+        mode: console
+      grafana_net:
+        url: https://grafana.net
+    datasources:
+      datasources.yaml:
+        apiVersion: 1
+        deleteDatasources:
+          - name: loki
+            orgId: 1
+          # - name: home_assistant
+          #   orgId: 1
+        datasources:
+          - name: Prometheus
+            type: prometheus
+            access: proxy
+            url: http://prometheus:9090/
+            isDefault: true
+          - name: Loki
+            type: loki
+            access: proxy
+            url: http://loki:80
+    plugins:
+      - natel-discrete-panel
+      - grafana-piechart-panel
+      - grafana-worldmap-panel
+      - grafana-clock-panel
+      - grafana-simple-json-datasource
+    dashboardProviders:
+      dashboardproviders.yaml:
+        apiVersion: 1
+        providers:
+          - name: "default"
+            orgId: 1
+            folder: ""
+            type: file
+            disableDeletion: false
+            editable: true
+            options:
+              path: /var/lib/grafana/dashboards/default
+    dashboards:
+      default:
+        # Ref: https://grafana.com/grafana/dashboards/11315-unifi-poller-client-insights-prometheus
+        unifi-client-insights:
+          gnetId: 11315
+          revision: 9
+          datasource: Prometheus
+        # Ref: https://grafana.com/grafana/dashboards/11311-unifi-poller-network-sites-prometheus
+        unifi-network-sites:
+          gnetId: 11311
+          revision: 5
+          datasource: Prometheus
+        # Ref: https://grafana.com/grafana/dashboards/11314-unifi-poller-uap-insights-prometheus
+        unifi-uap-insights:
+          gnetId: 11314
+          revision: 10
+          datasource: Prometheus
+        # Ref: https://grafana.com/grafana/dashboards/11312-unifi-poller-usw-insights-prometheus
+        unifi-usw-insights:
+          gnetId: 11312
+          revision: 9
+          datasource: Prometheus
+        cert-manager:
+          url: https://raw.githubusercontent.com/monitoring-mixins/website/master/assets/cert-manager/dashboards/cert-manager.json
+          datasource: Prometheus
+        kubernetes-api-server:
+          url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-system-api-server.json
+          datasource: Prometheus
+        kubernetes-coredns:
+          url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-system-coredns.json
+          datasource: Prometheus
+        kubernetes-global:
+          url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-views-global.json
+          datasource: Prometheus
+        kubernetes-namespaces:
+          url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-views-namespaces.json
+          datasource: Prometheus
+        kubernetes-nodes:
+          url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-views-nodes.json
+          datasource: Prometheus
+        kubernetes-pods:
+          url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-views-pods.json
+          datasource: Prometheus
+    sidecar:
+      dashboards:
+        enabled: true
+        searchNamespace: ALL
+        # folderAnnotation: grafana_folder
+        # provider:
+        #   foldersFromFilesStructure: true
+      datasources:
+        enabled: true
+        searchNamespace: ALL
