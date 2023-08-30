@@ -1,0 +1,33 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: traefik-metrics-service
+  labels:
+    app: traefik-metrics
+  namespace: default
+spec:
+  selector:
+    app.kubernetes.io/name: traefik
+  ports:
+  - name: metrics
+    port: 9100
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    app: traefik
+    release: kube-prometheus-stack
+  name: traefik
+  namespace: default
+spec:
+  endpoints:
+  - port: metrics
+    path: /metrics
+  namespaceSelector:
+    matchNames:
+    - default
+  selector:
+    matchLabels:
+      app: traefik-metrics

@@ -102,6 +102,22 @@ spec:
         publishedService:
           enabled: false
 
+    metrics:
+      prometheus:
+        # -- Entry point used to expose metrics.
+        entryPoint: metrics
+        ## Enable metrics on entry points. Default=true
+        # addEntryPointsLabels: false
+        ## Enable metrics on routers. Default=false
+        addRoutersLabels: true
+        ## Enable metrics on services. Default=true
+        # addServicesLabels: false
+        ## Buckets for latency metrics. Default="0.1,0.3,1.2,5.0"
+        # buckets: "0.5,1.0,2.5"
+        ## When manualRouting is true, it disables the default internal router in
+        ## order to allow creating a custom router for prometheus@internal service.
+        # manualRouting: true
+
     # rbac:
     #   enabled: true
 
