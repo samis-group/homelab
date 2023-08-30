@@ -97,6 +97,8 @@ spec:
         mode: console
       grafana_net:
         url: https://grafana.net
+    imageRenderer:
+      enabled: true
     datasources:
       datasources.yaml:
         apiVersion: 1
@@ -109,7 +111,7 @@ spec:
           - name: Prometheus
             type: prometheus
             access: proxy
-            url: http://prometheus:9090/
+            url: http://prometheus-prometheus:9090/
             isDefault: true
           - name: Loki
             type: loki
@@ -186,6 +188,8 @@ spec:
       datasources:
         enabled: true
         searchNamespace: ALL
+    serviceMonitor:
+      enabled: true
     # Administrator credentials when not using an existing secret (see below)
     adminUser: admin
     adminPassword: password

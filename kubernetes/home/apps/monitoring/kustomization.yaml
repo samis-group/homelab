@@ -5,3 +5,4 @@ resources:
   - ./namespace.yaml
   - ./grafana/ks.yaml
   - ./unifi-poller/ks.yaml
+  - ./kube-prometheus-stack/ks.yaml

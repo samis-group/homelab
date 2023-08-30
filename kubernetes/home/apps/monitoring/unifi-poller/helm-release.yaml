@@ -33,10 +33,18 @@ spec:
             name: common-secrets
             key: TZ
       UP_UNIFI_DEFAULT_ROLE: "homelab-controller"
-      UP_UNIFI_DEFAULT_URL: "https://10.10.0.81:8443"
+      UP_UNIFI_DEFAULT_URL: "https://unifi:8443"
       UP_UNIFI_DEFAULT_VERIFY_SSL: false
-      UP_UNIFI_DEFAULT_USER: "admin"
-      UP_UNIFI_DEFAULT_PASS: "admin"
+      UP_UNIFI_DEFAULT_USER:
+        valueFrom:
+          secretKeyRef:
+            name: unifi-poller-secrets
+            key: UNIFI_POLLER_USER
+      UP_UNIFI_DEFAULT_PASS:
+        valueFrom:
+          secretKeyRef:
+            name: unifi-poller-secrets
+            key: UNIFI_POLLER_PASS
       UP_INFLUXDB_DISABLE: true
     service:
       main:

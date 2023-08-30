@@ -1,5 +1,5 @@
 ---
-# yaml-language-server: $schema=https://kubernetes-schemas.zinn.ca/helm.toolkit.fluxcd.io/helmrelease_v2beta1.json
+# yaml-language-server: $schema=https://kubernetes-schemas.devbu.io/helm.toolkit.fluxcd.io/helmrelease_v2beta1.json
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
@@ -10,7 +10,7 @@ spec:
   chart:
     spec:
       chart: kube-prometheus-stack
-      version: 49.0.0
+      version: 49.2.0
       sourceRef:
         kind: HelmRepository
         name: prometheus-community-charts
@@ -29,43 +29,48 @@ spec:
     keepHistory: false
   values:
     fullnameOverride: prometheus
+
     crds:
       enabled: true
-    defaultRules:
-      create: true
-      rules:
-        alertmanager: true
-        etcd: true
-        configReloaders: true
-        general: true
-        k8s: true
-        kubeApiserver: true
-        kubeApiserverAvailability: true
-        kubeApiserverSlos: true
-        kubelet: true
-        kubeProxy: false
-        kubePrometheusGeneral: true
-        kubePrometheusNodeRecording: true
-        kubernetesApps: true
-        kubernetesResources: true
-        kubernetesStorage: true
-        kubernetesSystem: true
-        kubeScheduler: false
-        kubeStateMetrics: true
-        network: true
-        node: true
-        nodeExporterAlerting: true
-        nodeExporterRecording: true
-        prometheus: true
-        prometheusOperator: true
+
+    # defaultRules:
+    #   create: true
+    #   rules:
+    #     alertmanager: true
+    #     etcd: true
+    #     configReloaders: true
+    #     general: true
+    #     k8s: true
+    #     kubeApiserver: true
+    #     kubeApiserverAvailability: true
+    #     kubeApiserverSlos: true
+    #     kubelet: true
+    #     kubeProxy: false
+    #     kubePrometheusGeneral: true
+    #     kubePrometheusNodeRecording: true
+    #     kubernetesApps: true
+    #     kubernetesResources: true
+    #     kubernetesStorage: true
+    #     kubernetesSystem: true
+    #     kubeScheduler: false
+    #     kubeStateMetrics: true
+    #     network: true
+    #     node: true
+    #     nodeExporterAlerting: true
+    #     nodeExporterRecording: true
+    #     prometheus: true
+    #     prometheusOperator: true
+
     kubeControllerManager:
-      enabled: true
-      endpoints: &cp
-        - 10.11.0.16
-        - 10.11.0.17
-        - 10.11.0.18
+      enabled: false
+      # endpoints: &cp
+      #   - 10.11.0.16
+      #   - 10.11.0.17
+      #   - 10.11.0.18
+
     kubeEtcd:
       enabled: false
+
     kubelet:
       enabled: true
       serviceMonitor:
@@ -74,16 +79,21 @@ spec:
             sourceLabels:
               - node
             targetLabel: instance
+
     kubeApiServer:
       enabled: true
-      endpoints: *cp
+      # endpoints: *cp
+
     kubeProxy:
       enabled: false
+
     kubeScheduler:
       enabled: true
-      endpoints: *cp
+      # endpoints: *cp
+
     kubeStateMetrics:
       enabled: true
+
     kube-state-metrics:
       fullnameOverride: kube-state-metrics
       metricLabelsAllowlist:
@@ -100,50 +110,52 @@ spec:
               sourceLabels:
                 - __meta_kubernetes_pod_node_name
               targetLabel: kubernetes_node
-    alertmanager:
-      ingress:
-        enabled: true
-        annotations:
-          kubernetes.io/ingress.class: nginx
-          ingress.home.arpa/type: "internal"
-        hosts:
-          - "alerts.${SECRET_DOMAIN_NAME}"
-        path: /
-        pathType: Prefix
-      config:
-        global:
-          resolve_timeout: 5m
-        route:
-          group_by: ["alertname", "job"]
-          group_wait: 30s
-          group_interval: 5m
-          repeat_interval: 6h
-          receiver: "discord"
-          routes:
-            - receiver: "null"
-              matchers:
-                - alertname =~ "InfoInhibitor|Watchdog|CPUThrottlingHigh"
-              continue: false
-            - receiver: "discord"
-        receivers:
-          - name: "null"
-          - name: "discord"
-            webhook_configs:
-              - url: "http://alertmanager-discord:9094"
-        inhibit_rules:
-          - source_matchers: ["severity = 'critical'"]
-            target_matchers: ["severity = 'warning'"]
-            equal: ["alertname", "namespace"]
-        templates:
-          - /etc/alertmanager/config/*.tmpl
-      alertmanagerSpec:
-        storage:
-          volumeClaimTemplate:
-            spec:
-              storageClassName: local-hostpath
-              resources:
-                requests:
-                  storage: 1Gi
+
+    # alertmanager:
+    #   ingress:
+    #     enabled: true
+    #     annotations:
+    #       kubernetes.io/ingress.class: nginx
+    #       ingress.home.arpa/type: "internal"
+    #     hosts:
+    #       - "alerts.${SECRET_DOMAIN_NAME}"
+    #     path: /
+    #     pathType: Prefix
+    #   config:
+    #     global:
+    #       resolve_timeout: 5m
+    #     route:
+    #       group_by: ["alertname", "job"]
+    #       group_wait: 30s
+    #       group_interval: 5m
+    #       repeat_interval: 6h
+    #       receiver: "discord"
+    #       routes:
+    #         - receiver: "null"
+    #           matchers:
+    #             - alertname =~ "InfoInhibitor|Watchdog|CPUThrottlingHigh"
+    #           continue: false
+    #         - receiver: "discord"
+    #     receivers:
+    #       - name: "null"
+    #       - name: "discord"
+    #         webhook_configs:
+    #           - url: "http://alertmanager-discord:9094"
+    #     inhibit_rules:
+    #       - source_matchers: ["severity = 'critical'"]
+    #         target_matchers: ["severity = 'warning'"]
+    #         equal: ["alertname", "namespace"]
+    #     templates:
+    #       - /etc/alertmanager/config/*.tmpl
+    #   alertmanagerSpec:
+    #     storage:
+    #       volumeClaimTemplate:
+    #         spec:
+    #           storageClassName: local-hostpath
+    #           resources:
+    #             requests:
+    #               storage: 1Gi
+
     prometheus-node-exporter:
       fullnameOverride: node-exporter
       prometheus:
@@ -156,6 +168,7 @@ spec:
               sourceLabels:
                 - __meta_kubernetes_pod_node_name
               targetLabel: kubernetes_node
+
     prometheusOperator:
       resources:
         requests:
@@ -172,27 +185,29 @@ spec:
             memory: 32M
       serviceMonitor:
         sampleLimit: 0
+
     prometheus:
-      ingress:
-        enabled: true
-        annotations:
-          kubernetes.io/ingress.class: nginx
-          ingress.home.arpa/type: "internal"
-        hosts:
-          - "prometheus.${SECRET_DOMAIN_NAME}"
-        path: /
-        pathType: Prefix
+      # ingress:
+      #   enabled: true
+      #   annotations:
+      #     kubernetes.io/ingress.class: nginx
+      #     ingress.home.arpa/type: "internal"
+      #   hosts:
+      #     - "prometheus.${SECRET_DOMAIN_NAME}"
+      #   path: /
+      #   pathType: Prefix
       thanosService:
-        enabled: true
+        enabled: false
       thanosServiceMonitor:
-        enabled: true
+        enabled: false
       prometheusSpec:
         replicas: 1
         replicaExternalLabelName: "__replica__"
         externalLabels:
-          cluster: ${CONFIG_CLUSTER_NAME}
+          cluster: home
         scrapeInterval: 1m
-        podAntiAffinity: hard
+        # scrape_timeout: 10s
+        # podAntiAffinity: hard
         ruleSelectorNilUsesHelmValues: false
         serviceMonitorSelectorNilUsesHelmValues: false
         podMonitorSelectorNilUsesHelmValues: false
@@ -210,44 +225,49 @@ spec:
         storageSpec:
           volumeClaimTemplate:
             spec:
-              storageClassName: local-hostpath
+              storageClassName: local-path
               resources:
                 requests:
                   storage: 10Gi
-        thanos:
-          image: quay.io/thanos/thanos:v0.32.1
-          objectStorageConfig:
-            name: thanos-objstore-secret
-            key: objstore.yml
-        additionalScrapeConfigs:
-          - job_name: minio-job
-            metrics_path: /minio/v2/metrics/cluster
-            scheme: http
-            static_configs:
-              - targets:
-                  - atlas.${SECRET_TECH_DOMAIN_NAME}:9000
-          - job_name: node-exporter
-            scrape_interval: 1m
-            scrape_timeout: 10s
-            honor_timestamps: true
-            static_configs:
-              - targets:
-                  - "ragnar.${SECRET_TECH_DOMAIN_NAME}:9100"
-                  - "gateway.${SECRET_TECH_DOMAIN_NAME}:9100"
-          - job_name: speedtest-exporter
-            scrape_interval: 240m
-            scrape_timeout: 120s
-            honor_timestamps: true
-            static_configs:
-              - targets:
-                  - gateway.${SECRET_TECH_DOMAIN_NAME}:9798
-          - job_name: vyos
-            scrape_interval: 1m
-            scrape_timeout: 10s
-            honor_timestamps: true
-            static_configs:
-              - targets:
-                  - gateway.${SECRET_TECH_DOMAIN_NAME}:9273
+        # thanos:
+        #   image: quay.io/thanos/thanos:v0.32.1
+        #   objectStorageConfig:
+        #     name: thanos-objstore-secret
+        #     key: objstore.yml
+        # additionalScrapeConfigs:
+        #   - job_name: minio-job
+        #     metrics_path: /minio/v2/metrics/cluster
+        #     scheme: http
+        #     static_configs:
+        #       - targets:
+        #           - atlas.${SECRET_TECH_DOMAIN_NAME}:9000
+        #   - job_name: node-exporter
+        #     scrape_interval: 1m
+        #     scrape_timeout: 10s
+        #     honor_timestamps: true
+        #     static_configs:
+        #       - targets:
+        #           - "ragnar.${SECRET_TECH_DOMAIN_NAME}:9100"
+        #           - "gateway.${SECRET_TECH_DOMAIN_NAME}:9100"
+        #   - job_name: speedtest-exporter
+        #     scrape_interval: 240m
+        #     scrape_timeout: 120s
+        #     honor_timestamps: true
+        #     static_configs:
+        #       - targets:
+        #           - gateway.${SECRET_TECH_DOMAIN_NAME}:9798
+        #   - job_name: vyos
+        #     scrape_interval: 1m
+        #     scrape_timeout: 10s
+        #     honor_timestamps: true
+        #     static_configs:
+        #       - targets:
+        #           - gateway.${SECRET_TECH_DOMAIN_NAME}:9273
+        # alertingEndpoints:
+        #   - namespace: monitoring
+        #     name: alertmanager
+        #     port: 9093
+        #     apiVersion: v2
 
     grafana:
       enabled: false
@@ -256,7 +276,9 @@ spec:
         dashboards:
           annotations:
             grafana_folder: Prometheus
+
     nodeExporter:
       enabled: true
+
     serviceMonitor:
       scrapeTimeout: 60s
