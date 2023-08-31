@@ -10,7 +10,7 @@
     group: "{{ ansible_user }}"
     mode: 0644
 
-- name: Copy bashrc_contents to hosts .bashrc file
+- name: Copy bash aliases
   blockinfile:
     path: "{{ ansible_env.HOME }}/.bash_aliases"
     block: |
@@ -20,6 +20,7 @@
       alias la='ls -A'
       alias l='ls -CF'
       alias kc='kubectl'
+      alias kcnginx='sudo kubectl rollout restart deployment --selector=app=nginx'
       alias kclf='kubectl logs --tail=200  -f'
       alias kcgs='kubectl get service -o wide'
       alias kcgd='kubectl get deployment -o wide'
@@ -165,3 +166,9 @@
                       echo -e "$(kubectl describe node $node | grep  "Ready")\n";
               done
       }
+
+- name: Add Gitlab Deploy public key to authorized_keys
+  authorized_key:
+    user: "{{ ansible_user }}"  # Replace with the remote user on the VM
+    state: present
+    key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGs6jpez/5o2R5tEGEVDsr2QS7yv+B9nKQpxbRmW4oLt Gitlab key to deploy workloads via CD"  # Replace with your public key
