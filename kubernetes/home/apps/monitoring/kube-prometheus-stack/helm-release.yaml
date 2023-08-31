@@ -62,7 +62,7 @@ spec:
     #     prometheusOperator: true
 
     kubeControllerManager:
-      enabled: false
+      enabled: true
       # endpoints: &cp
       #   - 10.11.0.16
       #   - 10.11.0.17
@@ -96,10 +96,10 @@ spec:
 
     kube-state-metrics:
       fullnameOverride: kube-state-metrics
-      metricLabelsAllowlist:
-        - pods=[*]
-        - deployments=[*]
-        - persistentvolumeclaims=[*]
+      # metricLabelsAllowlist:
+      #   - pods=[*]
+      #   - deployments=[*]
+      #   - persistentvolumeclaims=[*]
       prometheus:
         monitor:
           enabled: true

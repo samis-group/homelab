@@ -15,15 +15,15 @@ spec:
         kind: HelmRepository
         name: bjw-s
         namespace: flux-system
-  # install:
-  #   createNamespace: true
-  #   remediation:
-  #     retries: 3
-  # upgrade:
-  #   remediation:
-  #     retries: 3
-  # uninstall:
-  #   keepHistory: false
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
   values:
     controller:
       type: statefulset
@@ -31,7 +31,7 @@ spec:
       #   reloader.stakater.com/auto: "true"
     image:
       repository: ghcr.io/onedr0p/sonarr-develop
-      tag: '4.0.0.646'
+      tag: '4.0.0.651'
 
     # podSecurityContext:
     #   runAsUser: 568
@@ -62,21 +62,21 @@ spec:
           http:
             port: *port
 
-    # probes:
-    #   liveness: &probes
-    #     enabled: true
-    #     custom: true
-    #     spec:
-    #       httpGet:
-    #         path: /ping
-    #         port: *port
-    #       initialDelaySeconds: 0
-    #       periodSeconds: 10
-    #       timeoutSeconds: 1
-    #       failureThreshold: 3
-    #   readiness: *probes
-    #   startup:
-    #     enabled: false
+    probes:
+      liveness: &probes
+        enabled: true
+        custom: true
+        spec:
+          httpGet:
+            path: /ping
+            port: *port
+          initialDelaySeconds: 0
+          periodSeconds: 10
+          timeoutSeconds: 1
+          failureThreshold: 3
+      readiness: *probes
+      startup:
+        enabled: false
 
     # ingress:
     #   main:
@@ -128,18 +128,18 @@ spec:
       #   server: "${PRIMARY_NFS_SERVER}"
       #   path: "${NFS_KUBERNETES_PATH}/backups/sonarr"
 
-    # metrics:
-    #   enabled: true
-    #   serviceMonitor:
-    #     interval: 3m
-    #     scrapeTimeout: 1m
-    #   prometheusRule:
-    #     enabled: true
-    #   exporter:
-    #     image:
-    #       repository: ghcr.io/onedr0p/exportarr
-    #       tag: v1.1.0
-    #     env:
-    #       port: 9794
-    #       additionalMetrics: false
-    #       unknownQueueItems: true
+    metrics:
+      enabled: true
+      serviceMonitor:
+        interval: 3m
+        scrapeTimeout: 1m
+      prometheusRule:
+        enabled: true
+      exporter:
+        image:
+          repository: ghcr.io/onedr0p/exportarr
+          tag: v1.1.0
+        env:
+          port: 9794
+          additionalMetrics: false
+          unknownQueueItems: true
