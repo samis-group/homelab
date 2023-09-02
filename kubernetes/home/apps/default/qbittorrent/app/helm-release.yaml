@@ -1,0 +1,166 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: &app qbittorrent
+  namespace: default
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: app-template
+      version: 1.5.1
+      interval: 1h
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+
+  upgrade:
+    remediation:
+      retries: 3
+
+  # See https://github.com/bjw-s/helm-charts/blob/main/charts/library/common/values.yaml
+  values:
+    controller:
+      type: statefulset
+      # annotations:
+      #   reloader.stakater.com/auto: "true"
+
+    image:
+      repository: ghcr.io/onedr0p/qbittorrent
+      tag: '4.5.5'
+
+    # podAnnotations:
+    #   setGateway: "true"
+
+    # podSecurityContext:
+    #   runAsUser: 568
+    #   runAsGroup: 568
+    #   fsGroup: 568
+    #   fsGroupChangePolicy: "OnRootMismatch"
+    #   supplementalGroups:
+    #     - 100
+
+    env:
+      TZ:
+        valueFrom:
+          secretKeyRef:
+            name: common-secrets
+            key: TZ
+      UMASK: "022"
+      QBITTORRENT__PORT: &port 80
+      QBITTORRENT__BT_PORT: &port-bt 61144
+
+    # hostname: qbittorrent-0
+
+    service:
+      main:
+        ports:
+          http:
+            port: *port
+          xseed:
+            port: 2468
+      bittorrent:
+        enabled: true
+        type: LoadBalancer
+        loadBalancerIP: "10.10.0.89"
+        # annotations:
+        #   io.cilium/lb-ipam-ips: 10.10.0.89
+        ports:
+          bittorrent:
+            enabled: true
+            port: *port-bt
+            protocol: TCP
+            targetPort: *port-bt
+        externalTrafficPolicy: Local
+
+    # ingress:
+    #   main:
+    #     enabled: true
+    #     ingressClassName: "traefik"
+    #     annotations:
+    #       traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
+    #       traefik.ingress.kubernetes.io/router.middlewares: "networking-rfc1918-ips@kubernetescrd"
+    #       hajimari.io/enable: "true"
+    #       hajimari.io/group: "Media"
+    #       hajimari.io/icon: "movie-open"
+    #     hosts:
+    #       - host: &host "qbittorrent.home.${SECRET_DOMAIN}"
+    #         paths:
+    #           - path: /
+    #             pathType: Prefix
+    #     tls:
+    #       - secretName: "wildcard-internal-${SECRET_DOMAIN/./-}-tls"
+    #         hosts:
+    #           - *host
+
+    persistence:
+      nfs-nas-media:
+        enabled: true
+        mountPath: /media
+        path: /volume1/docker/data/media
+        server: 10.10.0.2
+        type: nfs
+      downloads:
+        enabled: true
+        mountPath: /downloads/torrents
+        type: nfs
+        server: 10.10.0.2
+        path: /volume1/docker/data/downloads/torrents
+      scripts:
+        enabled: true
+        type: configMap
+        name: qbittorrent-scripts
+        mountPath: /scripts/xseed.sh
+        subPath: xseed.sh
+        defaultMode: 0775
+        readOnly: true
+      xseed:
+        enabled: true
+        type: secret
+        name: cross-seed-secret
+        mountPath: /config/config.js
+        subPath: config.js
+        readOnly: true
+      # backups:
+      #   enabled: true
+      #   mountPath: /config/Backups
+      #   type: nfs
+      #   server: "${PRIMARY_NFS_SERVER}"
+      #   path: "${NFS_KUBERNETES_PATH}/backups/qbittorrent"
+
+    volumeClaimTemplates:
+      - name: config
+        mountPath: /config
+        accessMode: ReadWriteOnce
+        size: 1Gi
+        storageClass: local-path
+
+    # resources:
+    #   requests:
+    #     memory: 250Mi
+    #     cpu: 500m
+    #   limits:
+    #     memory: 10Gi
+
+    sidecars:
+      xseed:
+        image: ghcr.io/cross-seed/cross-seed:5.4.2@sha256:66fd47aba319c7239e7ab87086ad82edae03d53719d1009b1af4ed93594e994b
+        imagePullPolicy: IfNotPresent
+        args:
+          - daemon
+        volumeMounts:
+          - name: config
+            mountPath: /config
+          - name: xseed
+            mountPath: /config/config.js
+            subPath: config.js
+            readOnly: true
+          - name: nfs-nas-media
+            mountPath: /media
