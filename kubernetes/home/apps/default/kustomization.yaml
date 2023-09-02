@@ -15,7 +15,7 @@ resources:
   - ./ozbargain/app.yaml
   - ./plex/ks.yaml
   - ./prowlarr/ks.yaml
-  # - ./qbittorrent/ks.yaml
+  - ./qbittorrent/ks.yaml
   - ./radarr/ks.yaml
   - ./sonarr/ks.yaml
   - ./tautulli/ks.yaml

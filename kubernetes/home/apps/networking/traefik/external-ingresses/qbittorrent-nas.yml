@@ -2,7 +2,7 @@
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
 metadata:
-  name: qbittorrent
+  name: qbittorrent-nas
   namespace: default
   annotations:
     kubernetes.io/ingress.class: traefik-external
@@ -10,12 +10,12 @@ spec:
   entryPoints:
     - websecure
   routes:
-    - match: Host(`qbittorrent.shaklab.com`, `qbit.shaklab.com`)
+    - match: Host(`qbittorrent-nas.shaklab.com`, `qbit-nas.shaklab.com`)
       kind: Rule
       middlewares:
         - name: middlewares-chain-oauth
       services:
-        - name: qbittorrent
+        - name: qbittorrent-nas
           port: 8787
   tls:
     secretName: shaklab-com-tls-certs
@@ -23,7 +23,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: qbittorrent
+  name: qbittorrent-nas
   namespace: default
 spec:
   type: ClusterIP
@@ -35,7 +35,7 @@ spec:
 apiVersion: v1
 kind: Endpoints
 metadata:
-  name: qbittorrent
+  name: qbittorrent-nas
   namespace: default
 subsets:
   - addresses:
