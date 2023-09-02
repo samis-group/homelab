@@ -115,12 +115,18 @@ spec:
         path: /volume1/docker/data/media/tv
         server: 10.10.0.2
         type: nfs
-      downloads:
+      downloads-torrents:
         enabled: true
-        mountPath: /downloads
+        mountPath: /downloads/torrents
         type: nfs
         server: 10.10.0.2
         path: /volume1/docker/data/torrents
+      downloads-nzb:
+        enabled: true
+        mountPath: /downloads/nzb
+        type: nfs
+        server: 10.10.0.2
+        path: /volume1/docker/data/downloads/nzb
       # backups:
       #   enabled: true
       #   mountPath: /config/Backups
