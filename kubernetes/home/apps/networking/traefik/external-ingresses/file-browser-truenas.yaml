@@ -48,7 +48,7 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-    - name: https
+    - name: http
       port: 30044
       protocol: TCP
 ---
@@ -61,6 +61,6 @@ subsets:
   - addresses:
     - ip: 10.10.0.3
     ports:
-      - name: https
+      - name: http
         port: 30044
         protocol: TCP
