@@ -13,16 +13,19 @@
       - watch
       - sudo
       - python3-pip
+      - python3-proxmoxer
+      - python3-requests
       - parted
       # - lm-sensors
       # - nvme-cli
       # - telegraf
   # notify: restart pvestatd
 
-- name: Install required pip modules on proxmox host(s)
-  pip:
-    name: "{{ item }}"
-    state: present
-  with_items:
-    - proxmoxer
-    - requests
+# - name: Install required pip modules on proxmox host(s)
+#   pip:
+#     name: "{{ item }}"
+#     state: present
+#     extra_args: ""
+#   with_items:
+#     - proxmoxer
+#     - requests

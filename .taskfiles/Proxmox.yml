@@ -69,6 +69,13 @@ tasks:
       - task: :doppler:generate-ansible-inventory
       - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags proxmox-provision-k3s {{.ANSIBLE_PLAYBOOK_DIR}}/proxmox_vm.yml {{.CLI_ARGS}}"
 
+  provision-k3s-dev:
+    desc: 🖥️ Provision k3s-dev vm(s)
+    dir: provision/ansible
+    cmds:
+      - task: :doppler:generate-ansible-inventory
+      - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags proxmox-provision-k3s-dev {{.ANSIBLE_PLAYBOOK_DIR}}/proxmox_vm.yml {{.CLI_ARGS}}"
+
   provision-truenas:
     desc: 🖥️ Provision TrueNAS vm
     dir: provision/ansible

@@ -60,17 +60,17 @@ tasks:
   generate-k3s-ansible-inventory:
     desc: Copy plain yaml inventory file from doppler and output/overwrite generated inventory
     dir: provision/k3s-ansible/inventory
-    run: once
+    # run: once
     internal: true
     vars:
-      DOPPLER_GET_K3S_INVENTORY_CMD: doppler secrets get K3S_ANSIBLE_HOSTS_INVENTORY --plain
+      DOPPLER_K3S_HOSTS_INVENTORY_VAR: '{{default "K3S_ANSIBLE_HOSTS_INVENTORY" .DOPPLER_K3S_HOSTS_INVENTORY_VAR}}'
     # preconditions:
     #   # If file doesn't exist, create it or;
     #   # Check if what is in doppler is different from local inventory file, let user handle it as they could be making changes locally which we do not with to override
-    #   - sh: "[[ -f {{.K3S_ANSIBLE_INVENTORY_FILENAME}} ]] || diff -q {{.K3S_ANSIBLE_INVENTORY_FILENAME}} <({{.DOPPLER_GET_K3S_INVENTORY_CMD}})"
+    #   - sh: "[[ -f {{.K3S_ANSIBLE_INVENTORY_FILENAME}} ]] || diff -q {{.K3S_ANSIBLE_INVENTORY_FILENAME}} <({{.DOPPLER_K3S_HOSTS_INVENTORY_VAR}})"
     #     msg: |
     #       Inventory file '{{.K3S_ANSIBLE_INVENTORY_DIR}}/{{.K3S_ANSIBLE_INVENTORY_FILENAME}}' and doppler secret K3S_ANSIBLE_HOSTS_INVENTORY have diverged.
     #       If you have made changes to the generated inventory file that was downloaded from doppler locally, then please save the inventory file
     #       and ensure you've pushed this to doppler with command `task dp:pk` so that it pulls down the latest inventory before proceeding!
     cmds:
-      - "{{.DOPPLER_GET_K3S_INVENTORY_CMD}} > {{.K3S_ANSIBLE_INVENTORY_FILENAME}}"
+      - "doppler secrets get {{.DOPPLER_K3S_HOSTS_INVENTORY_VAR}} --plain > {{.K3S_ANSIBLE_INVENTORY_FILENAME}}"

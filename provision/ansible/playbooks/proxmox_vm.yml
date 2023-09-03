@@ -30,3 +30,21 @@
       authorized_key:
         user: root
         key: "{{ template_vm_debian_defaults.ssh_key }}"
+
+- name: Provision k3s-dev VM's on Proxmox Host - Part one
+  tags: ["never", "proxmox-provision-k3s-dev"]
+  vars:
+    target_host_group: k3s-dev
+    target_proxmox_host: dell5820
+  import_playbook: proxmox_vm_provision.yml
+
+- name: Provision k3s-dev VM's on Proxmox Host - Part two
+  tags: ["never", "proxmox-provision-k3s-dev"]
+  hosts: k3s-dev
+  become: true
+  gather_facts: false   # Because they don't exist yet
+  tasks:
+    - name: Add SSH key to root's authorized_keys
+      authorized_key:
+        user: root
+        key: "{{ template_vm_debian_defaults.ssh_key }}"

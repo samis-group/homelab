@@ -18,12 +18,43 @@ tasks:
       - task: :terraform:apply
       - task: :flux:install
 
+  dev:
+    desc: ☸ Dev k3s play
+    dir: provision/k3s-ansible
+    deps: [':proxmox:provision-k3s-dev']
+    aliases: ["m"]
+    cmds:
+      - task: :doppler:generate-k3s-ansible-inventory
+        vars:
+          DOPPLER_K3S_HOSTS_INVENTORY_VAR: "K3S_ANSIBLE_HOSTS_INVENTORY_DEV"
+      - "{{.K3S_ANSIBLE_PLAYBOOK_CMD}} site.yml {{.CLI_ARGS}}"
+      - task: extra-dev
+      - task: scp-kubeconfig
+        vars:
+          K3S_HOST: "10.10.0.34"
+          KUBECONFIG_FILE: "config-dev"
+      # - task: :terraform:bootstrap
+      # - task: :terraform:init
+      # - task: :terraform:apply
+      # - task: :flux:install
+
+  extra-dev:
+    desc: ☸ Extra k3s play
+    dir: provision/ansible
+    internal: true
+    aliases: ["ed"]
+    cmds:
+      - task: :doppler:generate-ansible-inventory
+        vars:
+          DOPPLER_K3S_HOSTS_INVENTORY_VAR: "K3S_ANSIBLE_HOSTS_INVENTORY_DEV"
+      - "{{.ANSIBLE_PLAYBOOK_CMD}} {{.ANSIBLE_PLAYBOOK_DIR}}/k3s.yml --limit 'k3s-vm1-dev' {{.CLI_ARGS}}"
+
   extra:
     desc: ☸ Extra k3s play
     dir: provision/ansible
     aliases: ["e"]
     cmds:
-      - task: :doppler:generate-k3s-ansible-inventory
+      - task: :doppler:generate-ansible-inventory
       - "{{.ANSIBLE_PLAYBOOK_CMD}} {{.ANSIBLE_PLAYBOOK_DIR}}/k3s.yml {{.CLI_ARGS}}"
 
   reset:
@@ -64,10 +95,13 @@ tasks:
   scp-kubeconfig:
     desc: Copy k3s kube config from single node to local
     aliases: ["s"]
+    vars:
+      K3S_HOST: '{{default "10.10.0.24" .K3S_HOST}}'
+      KUBECONFIG_FILE: '{{default "config" .KUBECONFIG_FILE}}'
     cmds:
       - task: :internal:mkdirs-local
       - rm -f ~/.kube/config
-      - scp -o StrictHostKeyChecking=no root@10.10.0.24:/root/.kube/config ~/.kube/config
+      - scp -o StrictHostKeyChecking=no root@{{ .K3S_HOST }}:/root/.kube/config ~/.kube/{{ .KUBECONFIG_FILE }}
 
   scp-kubeconfig-windows:
     desc: Copy k3s kube config from single node to windows host for Lens to work (must not be run in workstation container)
