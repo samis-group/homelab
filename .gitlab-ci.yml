@@ -23,14 +23,14 @@ build docker image:
   services:
     - docker:dind
 
-  # Only run build if Dockerfile changes
+  # Only run build if Dockerfile changes on main branch
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-    - changes:
-      - docker/**/*
-      - provision/ansible/requirements.yml
-      - provision/ansible/roles/requirements.yml
-      - requirements.txt
+      changes:
+        - docker/**/*
+        - provision/ansible/requirements.yml
+        - provision/ansible/roles/requirements.yml
+        - requirements.txt
 
   before_script:
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
