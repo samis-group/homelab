@@ -1,0 +1,21 @@
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: photoprism
+  namespace: default
+  annotations:
+    kubernetes.io/ingress.class: traefik-external
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`photoprism.shaklab.com`, `photos.shaklab.com`, `photo.shaklab.com`)
+      kind: Rule
+      middlewares:
+        - name: middlewares-chain-oauth
+      services:
+        - name: photoprism
+          port: 2342
+  tls:
+    secretName: shaklab-com-tls-certs

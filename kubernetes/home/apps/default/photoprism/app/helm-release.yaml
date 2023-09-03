@@ -1,0 +1,116 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: photoprism
+  namespace: media
+spec:
+  interval: 15m
+  chart:
+    spec:
+      chart: app-template
+      version: 1.5.1
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+      interval: 15m
+  values:
+    image:
+      repository: docker.io/photoprism/photoprism
+      tag: latest
+    env:
+      TZ:
+        valueFrom:
+          secretKeyRef:
+            name: common-secrets
+            key: TZ
+      PHOTOPRISM_ADMIN_PASSWORD:
+        valueFrom:
+          secretKeyRef:
+            name: photoprism-secrets
+            key: PHOTOPRISM_ADMIN_PASSWORD
+      PHOTOPRISM_DEFAULT_THEME: Vanta
+      # PHOTOPRISM_LOG_LEVEL: debug # default is info
+      # -- Photoprism storage path
+      PHOTOPRISM_STORAGE_PATH: /photoprism/storage
+      # -- Photoprism originals path
+      PHOTOPRISM_ORIGINALS_PATH: /photoprism/originals
+      # -- Disable authentication / password protection
+      PHOTOPRISM_PUBLIC: "true"
+      PHOTOPRISM_SITE_URL: "https://photos.shaklab.com/"
+      PHOTOPRISM_SITE_TITLE: "Sami's Photos"
+      PHOTOPRISM_SITE_AUTHOR: "Sami"
+      PHOTOPRISM_APP_NAME: Photos
+      PHOTOPRISM_ORIGINALS_LIMIT: 4000 # in MB (default 1000)
+      # PHOTOPRISM_DATABASE_DRIVER: mysql
+      # PHOTOPRISM_DATABASE_SERVER: photoprism-mariadb:3306
+      # PHOTOPRISM_DATABASE_NAME:
+      #   valueFrom:
+      #     secretKeyRef:
+      #       name: photoprism-secrets
+      #       key: PHOTOPRISM_DATABASE_NAME
+      # PHOTOPRISM_DATABASE_USER:
+      #   valueFrom:
+      #     secretKeyRef:
+      #       name: photoprism-secrets
+      #       key: PHOTOPRISM_DATABASE_USER
+      # PHOTOPRISM_DATABASE_PASSWORD:
+      #   valueFrom:
+      #     secretKeyRef:
+      #       name: photoprism-secrets
+      #       key: PHOTOPRISM_DATABASE_PASSWORD
+      # # You may optionally set user, group and/or file permissions using environment variables:
+      # UID: 1000
+      # GID: 1000
+      # UMASK: 0000
+      # PHOTOPRISM_AUTH_MODE: public
+
+    service:
+      main:
+        ports:
+          http:
+            port: 2342
+
+    # ingress:
+    #   main:
+    #     enabled: true
+    #     annotations:
+    #       kubernetes.io/ingress.class: nginx-internal
+    #       nginx.ingress.kubernetes.io/proxy-body-size: 2G
+    #       hajimari.io/enable: "true"
+    #       hajimari.io/appName: "Photos"
+    #       hajimari.io/info: "Photo library"
+    #       hajimari.io/icon: "image-multiple"
+    #       # authentik.sparks.codes/enabled: "true"
+    #     hosts:
+    #       - host: photos.sparks.codes
+    #         paths:
+    #           - path: "/"
+    #             pathType: "Prefix"
+    #     tls:
+    #       - hosts:
+    #           - photos.sparks.codes
+    #         secretName: acme-crt-secret-sparks-codes
+
+    persistence:
+      config:
+        enabled: true
+        mountPath: /photoprism/storage
+        storageClass: local-path
+        accessMode: ReadWriteOnce
+        size: 35Gi
+        retain: true
+      nfs-nas-photos-originals:
+        enabled: true
+        mountPath: /photoprism/originals
+        path: /volume1/docker/data/media/photos
+        server: 10.10.0.2
+        type: nfs
+
+      # import:
+      #   enabled: false
+      #   mountPath: /photoprism/import
+      #   accessMode: ReadWriteOnce
+      #   existingClaim: local-photoprism-imports
+      #   size: 55Gi
