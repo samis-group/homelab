@@ -3,7 +3,7 @@ apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
   name: photoprism
-  namespace: media
+  namespace: default
 spec:
   interval: 15m
   chart:
@@ -61,8 +61,8 @@ spec:
       #       name: photoprism-secrets
       #       key: PHOTOPRISM_DATABASE_PASSWORD
       # # You may optionally set user, group and/or file permissions using environment variables:
-      # UID: 1000
-      # GID: 1000
+      UID: 568
+      GID: 568
       # UMASK: 0000
       # PHOTOPRISM_AUTH_MODE: public
 
@@ -99,12 +99,12 @@ spec:
         mountPath: /photoprism/storage
         storageClass: local-path
         accessMode: ReadWriteOnce
-        size: 35Gi
+        size: 50Gi
         retain: true
       nfs-nas-photos-originals:
         enabled: true
         mountPath: /photoprism/originals
-        path: /volume1/docker/data/media/photos
+        path: /volume1/docker/data/media/photos/Sami
         server: 10.10.0.2
         type: nfs
 
