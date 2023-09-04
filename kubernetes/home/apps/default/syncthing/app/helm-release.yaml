@@ -51,6 +51,10 @@ spec:
         loadBalancerIP: "10.10.0.88"
         enabled: true
         ports:
+          main:
+            enabled: true
+            port: 8384
+            protocol: TCP
           discovery:
             enabled: true
             port: 21027
