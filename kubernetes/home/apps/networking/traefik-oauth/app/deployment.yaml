@@ -42,7 +42,7 @@ spec:
         - name: URL_PATH
           value: "/_oauth"
         - name: LIFETIME
-          value: "86400" # 1 day
+          value: "604800" # 1 week
         - name: DEFAULT_ACTION
           value: "auth"
         - name: DEFAULT_PROVIDER
