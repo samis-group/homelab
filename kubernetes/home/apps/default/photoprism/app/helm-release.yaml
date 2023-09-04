@@ -5,7 +5,7 @@ metadata:
   name: photoprism
   namespace: default
 spec:
-  interval: 15m
+  interval: 1h
   chart:
     spec:
       chart: app-template
@@ -14,7 +14,7 @@ spec:
         kind: HelmRepository
         name: bjw-s
         namespace: flux-system
-      interval: 15m
+      interval: 1h
   values:
     image:
       repository: docker.io/photoprism/photoprism
