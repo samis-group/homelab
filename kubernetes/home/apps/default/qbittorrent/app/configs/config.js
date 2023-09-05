@@ -19,18 +19,18 @@ module.exports = {
 
   matchMode: "safe",
   skipRecheck: true,
-  linkType: "symlink",
-  linkDir: "/media/downloads/xseeds",
+  // linkType: "symlink",
+  // linkDir: "/media/downloads/xseeds",
 
   // I have sonarr, radarr, and prowlarr categories set in qBittorrent
   // The save paths for them are set to the following:
-  dataDirs: [
-    "/media/downloads/sonarr",
-    "/media/downloads/radarr",
-    "/media/downloads/prowlarr",
-    "/media/downloads/torrents",
-  ],
+  // dataDirs: [
+  //   "/media/downloads/sonarr",
+  //   "/media/downloads/radarr",
+  //   "/media/downloads/prowlarr",
+  //   "/media/downloads/torrents",
+  // ],
 
-  outputDir: "/config/xseeds",
+  outputDir: "/downloads/complete/xseeds",
   torrentDir: "/config/qBittorrent/BT_backup",
 };
