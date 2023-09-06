@@ -10,7 +10,7 @@ spec:
   entryPoints:
     - websecure
   routes:
-    - match: Host(`nginx.shaklab.com`, `shaklab.com`, `docs.shaklab.com`, `www.shaklab.com`)
+    - match: Host(`nginx.shaklab.com`, `shaklab.com`, `docs.shaklab.com`, `www.shaklab.com`, `home.shaklab.com`)
       kind: Rule
       middlewares:
         - name: middlewares-chain-no-auth
@@ -31,7 +31,7 @@ spec:
   entryPoints:
     - websecure
   routes:
-    - match: Host(`personal-docs.shaklab.com`, `home.shaklab.com`)
+    - match: Host(`personal-docs.shaklab.com`)
       kind: Rule
       middlewares:
         - name: middlewares-chain-oauth
