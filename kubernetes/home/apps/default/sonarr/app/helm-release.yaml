@@ -115,12 +115,6 @@ spec:
         path: /volume1/docker/data/media/tv
         server: 10.10.0.2
         type: nfs
-      downloads-torrents-nas:
-        enabled: true
-        mountPath: /downloads/torrents-nas
-        type: nfs
-        server: 10.10.0.2
-        path: /volume1/docker/data/torrents
       downloads-torrents:
         enabled: true
         mountPath: /downloads/torrents

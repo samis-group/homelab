@@ -64,12 +64,22 @@ spec:
             port: 22000
             protocol: TCP
     persistence:
-      nfs-nas-syncthing:
+      config:
         enabled: true
-        type: nfs
-        mountPath: /data
-        path: /volume1/docker/data/media/syncthing
+        existingClaim: syncthing-config
+        mountPath: /var/syncthing/config
+      nfs-nas-syncthing-data:
+        enabled: true
         server: 10.10.0.2
+        type: nfs
+        mountPath: /var/syncthing/nfs-data
+        path: /volume1/docker/data/media/syncthing
+      nfs-nas-syncthing-photos:
+        enabled: true
+        server: 10.10.0.2
+        type: nfs
+        mountPath: /var/syncthing/photos
+        path: /volume1/docker/data/media/photos/Sami/Syncthing
     resources:
       requests:
         cpu: 15m
