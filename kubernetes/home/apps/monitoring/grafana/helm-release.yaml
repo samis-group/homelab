@@ -223,8 +223,8 @@ spec:
     serviceMonitor:
       enabled: true
     # Administrator credentials when not using an existing secret (see below)
-    adminUser: admin
-    adminPassword: password
+    # adminUser: admin
+    # adminPassword: password
     # smtp:
     #   # `existingSecret` is a reference to an existing secret containing the smtp configuration
     #   # for Grafana.

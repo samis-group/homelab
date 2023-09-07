@@ -1,0 +1,341 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: hajimari
+  namespace: default
+spec:
+  interval: 15m
+  chart:
+    spec:
+      chart: hajimari
+      version: 2.0.2
+      sourceRef:
+        kind: HelmRepository
+        name: hajimari-charts
+        namespace: flux-system
+      interval: 15m
+  install:
+    createNamespace: true
+    remediation: # perform remediation when helm install fails
+      retries: 3
+  upgrade:
+    remediation: # perform remediation when helm upgrade fails
+      retries: 3
+      remediateLastFailure: true # remediate the last failure, when no retries remain
+    cleanupOnFail: true
+  values:
+    env:
+      TZ:
+        valueFrom:
+          secretKeyRef:
+            name: common-secrets
+            key: TZ
+    controller:
+      replicas: 1
+      strategy: RollingUpdate
+    hajimari:
+      title: Home
+      name: Sami
+      # lightTheme: tron
+      darkTheme: tron
+      alwaysTargetBlank: true
+      showGreeting: false
+      showAppGroups: true
+      showAppStatus: true
+      # showBookmarkGroups: false
+      # showGlobalBookmarks: false
+      showAppUrls: false
+      showAppInfo: true
+      defaultEnable: true
+      defaultAppIcon: mdi:application
+      defaultSearchProvider: DuckDuckGo
+      namespaceSelector:
+        any: true
+        matchNames:
+          - default
+          # - frigate
+          # - home-automation
+          # - monitoring
+          # - downloads
+          # - organizarrs
+          # - media
+          # - security
+          # - network-system
+          # - services
+          # - databases
+      customApps:
+        - group: Media
+          apps:
+            - name: Plex
+              url: "https://plex.shaklab.com"
+              icon: mdi:plex
+              info: Media Player
+            - name: Photoprism
+              url: "https://photos.shaklab.com"
+              icon: arcticons:photoprism
+              info: Photo Library
+            - name: Overseerr
+              url: "https://tv.shaklab.com"
+              icon: arcticons:overseerr
+              info: Media Requests
+            - name: Tautulli
+              url: "https://tautulli.shaklab.com"
+              icon: arcticons:tautulli-remote
+              info: Plex Statistics
+            - name: Sonarr
+              url: "https://sonarr.shaklab.com"
+              icon: mdi:tv
+              info: Movie Indexer
+            - name: Radarr
+              url: "https://radarr.shaklab.com"
+              icon: icomoon-free:film
+              info: Movie Indexer
+            - name: Bazarr
+              url: "https://bazarr.shaklab.com"
+              icon: mdi:subtitles-outline
+              info: Subtitles Indexer
+            - name: Prowlarr
+              url: "https://prowlarr.shaklab.com"
+              icon: twemoji:card-index
+              info: Indexer Manager/Proxy
+            - name: Sabnzbd
+              url: "https://nzb.shaklab.com"
+              icon: mdi:download
+              info: Usenet Downloader
+            - name: Qbittorrent
+              url: "https://qbit.shaklab.com"
+              icon: arcticons:qbittorrent-remote
+              info: Torrent Downloader
+        - group: Cloud
+          apps:
+            - name: Traefik
+              url: "https://traefik.shaklab.com"
+              icon: devicon:traefikproxy
+              info: Reverse Proxy UI
+            - name: Pfsense
+              url: "https://pfsense.shaklab.com"
+              icon: simple-icons:pfsense
+              info: Firewall
+            - name: Unifi
+              url: "https://unifi.shaklab.com"
+              icon: simple-icons:ubiquiti
+              info: Network Management UI
+            - name: Proxmox
+              url: "https://proxmox.shaklab.com"
+              icon: simple-icons:proxmox
+              info: Hypervisor UI
+            - name: Synology NAS
+              url: "https://nas.shaklab.com"
+              icon: arcticons:synology-assistant
+              info: Synology NAS UI
+            - name: TrueNAS
+              url: "https://truenas.shaklab.com"
+              icon: simple-icons:truenas
+              info: TrueNAS UI
+            - name: Home Assistant
+              url: "https://hass.shaklab.com"
+              icon: vscode-icons:file-type-homeassistant
+              info: Home Automations
+            - name: Syncthing
+              url: "https://syncthing.shaklab.com"
+              icon: sync
+              info: File Synchronization
+            - name: File Browser
+              url: "https://files.shaklab.com"
+              icon: mdi-light:file
+              info: File Browser UI
+        - group: Data
+          apps:
+            - name: Prometheus
+              url: "https://prometheus.shaklab.com"
+              icon: logos:prometheus
+              info: Metrics GUI
+            - name: Grafana
+              url: "https://grafana.shaklab.com"
+              icon: logos:grafana
+              info: Observability & Monitoring
+        - group: Web
+          apps:
+            - name: Public Docs
+              url: "https://docs.shaklab.com"
+              icon: simple-icons:readthedocs
+              info: Public Documentation
+            - name: Personal Docs
+              url: "https://personal-docs.shaklab.com"
+              icon: file-icons:readthedocs
+              info: Personal Documentation
+            - name: API
+              url: "https://api.shaklab.com"
+              icon: mdi:api
+              info: API
+            - name: Website
+              url: "https://shaklab.com"
+              icon: fluent-mdl2:website
+              info: Website
+      globalBookmarks:
+        - group: Communicate
+          bookmarks:
+            - name: Discord
+              icon: simple-icons:discord
+              url: 'https://discord.com'
+            - name: Gmail
+              icon: simple-icons:gmail
+              url: 'http://gmail.com'
+            - name: Gmail - that.chaldo
+              icon: simple-icons:gmail
+              url: 'ext+container:name=that.chaldo&url=https://mail.google.com/mail/u/0/?tab=cm1#inbox'
+            - name: Gmail - sami.shakir
+              icon: simple-icons:gmail
+              url: 'ext+container:name=sami.shakir90&url=https://mail.google.com/mail/u/0/?tab=cm1#inbox'
+            - name: Proton Mail
+              icon: simple-icons:proton
+              url: 'https://mail.proton.me/u/0/inbox'
+            - name: Calendar
+              icon: mdi:calendar
+              url: 'https://calendar.google.com/calendar/u/0/r#main_7'
+            - name: Reddit
+              icon: logos:reddit-icon
+              url: 'https://www.reddit.com/'
+            # - name: Slack
+            #   url: 'https://slack.com/signin'
+            # - name: Messenger
+            #   url: "https://facebook.com/messages"
+        - group: Dev
+          bookmarks:
+            - name: Gitlab
+              icon: simple-icons:gitlab
+              url: "https://gitlab.com"
+            - name: CyberChef
+              icon: arcticons:recipe-keeper
+              url: "https://gchq.github.io/CyberChef"
+            - name: Codepen
+              icon: simple-icons:codepen
+              url: 'https://codepen.io/'
+            - name: Devdocs
+              icon: simple-icons:readthedocs
+              url: 'https://devdocs.io'
+            - name: Devhints
+              icon: simple-icons:devdotto
+              url: 'https://devhints.io'
+        - group: Cloud
+          bookmarks:
+            - name: Google Drive
+              icon: simple-icons:googledrive
+              url: "https://drive.google.com"
+            - name: Cloudflare
+              icon: simple-icons:cloudflare
+              url: "https://dash.cloudflare.com"
+        # - group: Games
+        #   bookmarks:
+        #     - name: Lichess
+        #       url: "https://lichess.org"
+        - group: Kubernetes
+          bookmarks:
+            - name: Homelab Repo
+              icon: simple-icons:gitlab
+              url: "https://gitlab.com/sami-group/homelab"
+            - name: Docker Images
+              icon: simple-icons:docker
+              url: "https://gitlab.com/sami-group/docker/containers"
+            - name: Doppler
+              icon: vscode-icons:file-type-doppler
+              url: "https://dashboard.doppler.com/workplace/94d619f30ca04a070fda/projects"
+            - name: k8s-at-home-search
+              icon: simple-icons:kubernetes
+              url: "https://whazor.github.io/k8s-at-home-search/"
+            - name: Syncthing Windows PC
+              icon: fa-solid:sync
+              url: "http://localhost:8384/"
+        - group: Shopping
+          bookmarks:
+            - name: eBay AU
+              icon: simple-icons:ebay
+              url: "https://ebay.com.au/"
+            - name: Gumtree
+              icon: simple-icons:gumtree
+              url: "https://www.gumtree.com/"
+            - name: FB Marketplace
+              icon: simple-icons:facebook
+              url: "https://facebook.com/marketplace"
+            - name: "Amazon Australia"
+              icon: simple-icons:amazon
+              url: "https://amazon.com.au/"
+        - group: Media
+          bookmarks:
+            - name: Spotify
+              icon: simple-icons:spotify
+              url: 'https://open.spotify.com'
+            - name: YouTube
+              icon: simple-icons:youtube
+              url: 'https://youtube.com/feed/subscriptions'
+            - name: Trakt
+              icon: simple-icons:trakt
+              url: 'http://trakt.tv'
+      searchProviders:
+        # - name: Whoogle
+        #   token: w
+        #   icon: ci:search
+        #   searchUrl: https:/search.${EXTERNAL_DOMAIN}/search?q={query}
+        #   url: https://search.${EXTERNAL_DOMAIN}
+        - name: Google
+          token: g
+          icon: simple-icons:google
+          searchUrl: https://www.google.com/search?q={query}
+          url: https://www.google.com
+        - name: DuckDuckGo
+          token: d
+          icon: simple-icons:duckduckgo
+          searchUrl: https://duckduckgo.com/?q={query}
+          url: https://duckduckgo.com
+        - name: IMDB
+          token: i
+          icon: simple-icons:imdb
+          searchUrl: https://www.imdb.com/find?q={query}
+          url: https://www.imdb.com
+        - name: Reddit
+          token: r
+          icon: simple-icons:reddit
+          searchUrl: https://www.reddit.com/search?q={query}
+          url: https://www.reddit.com
+        - name: YouTube
+          token: "y"
+          icon: simple-icons:youtube
+          searchUrl: https://www.youtube.com/results?search_query={query}
+          url: https://www.youtube.com
+        - name: Spotify
+          token: s
+          icon: simple-icons:spotify
+          searchUrl: https://open.spotify.com/search/{query}
+          url: https://open.spotify.com
+        - name: WolframAlpha
+          token: w
+          icon: simple-icons:wolfram
+          searchUrl: https://www.wolframalpha.com/input?i={query}
+          url: https://www.wolframalpha.com
+    # ingress:
+    #   main:
+    #     enabled: true
+    #     ingressClassName: "internal-nginx"
+    #     annotations:
+    #       hajimari.io/enable: "false"
+    #     hosts:
+    #       - host: "hajimari.${EXTERNAL_DOMAIN}"
+    #         paths:
+    #           - path: /
+    #             pathType: Prefix
+    #     tls:
+    #       - hosts:
+    #           - "hajimari.${EXTERNAL_DOMAIN}"
+    podAnnotations:
+      configmap.reloader.stakater.com/reload: "hajimari-settings"
+    persistence:
+      data:
+        enabled: true
+        type: emptyDir
+    resources:
+      requests:
+        cpu: 15m
+        memory: 64M
+      limits:
+        memory: 64M

@@ -1,0 +1,22 @@
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: hajimari
+  namespace: default
+  annotations:
+    kubernetes.io/ingress.class: traefik-external
+    hajimari.io/enable: "true"
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`hajimari.shaklab.com`)
+      kind: Rule
+      middlewares:
+        - name: middlewares-chain-no-auth
+      services:
+        - name: hajimari
+          port: 3000
+  tls:
+    secretName: shaklab-com-tls-certs
