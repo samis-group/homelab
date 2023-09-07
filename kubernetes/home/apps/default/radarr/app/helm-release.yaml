@@ -24,10 +24,12 @@ spec:
       retries: 3
   # See https://github.com/bjw-s/helm-charts/blob/main/charts/library/common/values.yaml
   values:
+    podAnnotations:
+      secret.reloader.stakater.com/reload: radarr-secrets
     controller:
       type: statefulset
-      # annotations:
-      #   reloader.stakater.com/auto: "true"
+      annotations:
+        reloader.stakater.com/auto: "true"
     image:
       repository: ghcr.io/onedr0p/radarr-develop
       tag: '5.0.0.7952'

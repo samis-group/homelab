@@ -16,6 +16,8 @@ spec:
         namespace: flux-system
       interval: 1h
   values:
+    podAnnotations:
+      secret.reloader.stakater.com/reload: photoprism-secrets
     image:
       repository: docker.io/photoprism/photoprism
       tag: latest

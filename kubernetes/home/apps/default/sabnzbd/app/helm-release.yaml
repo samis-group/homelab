@@ -34,13 +34,15 @@ spec:
     keepHistory: false
 
   values:
+    podAnnotations:
+      secret.reloader.stakater.com/reload: sabnzbd-secrets
     image:
       repository: ghcr.io/onedr0p/sabnzbd
       tag: 4.0.3
     controller:
       type: statefulset
-      # annotations:
-      #   reloader.stakater.com/auto: "true"
+      annotations:
+        reloader.stakater.com/auto: "true"
 
     # podSecurityContext:
     #   runAsUser: 1000

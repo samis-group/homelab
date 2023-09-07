@@ -16,6 +16,8 @@ spec:
         namespace: flux-system
   interval: 30m
   values:
+    podAnnotations:
+      secret.reloader.stakater.com/reload: plex-secrets
     controller:
       strategy: RollingUpdate
 

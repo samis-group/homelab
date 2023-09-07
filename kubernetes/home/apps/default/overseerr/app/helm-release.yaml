@@ -24,8 +24,8 @@ spec:
   values:
     controller:
       type: statefulset
-      # annotations:
-      #   reloader.stakater.com/auto: "true"
+      annotations:
+        reloader.stakater.com/auto: "true"
     image:
       repository: ghcr.io/sct/overseerr
       tag: 1.33.2

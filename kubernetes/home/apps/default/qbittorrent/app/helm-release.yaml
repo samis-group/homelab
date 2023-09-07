@@ -27,10 +27,12 @@ spec:
 
   # See https://github.com/bjw-s/helm-charts/blob/main/charts/library/common/values.yaml
   values:
+    podAnnotations:
+      secret.reloader.stakater.com/reload: cross-seed-secret
     controller:
       type: statefulset
-      # annotations:
-      #   reloader.stakater.com/auto: "true"
+      annotations:
+        reloader.stakater.com/auto: "true"
 
     image:
       repository: ghcr.io/onedr0p/qbittorrent
