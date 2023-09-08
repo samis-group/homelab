@@ -110,44 +110,14 @@ git clone --recurse-submodules git@gitlab.com:th3cookie/dotfiles.git
 
 ```bash
 cd git/personal/
-git clone git@gitlab.com:th3cookie/windows-playbook.git
-cd windows-playbook
+git clone https://gitlab.com/sami-group/homelab.git
+cd homelab
 ```
 
-3. Run the following command substituting your ansible vault password as required (skip inputting the password argument if you don't use ansible-vault or inventory is not encrypted). This will [install ansible](https://docs.ansible.com/ansible/latest/installation_guide/index.html), upgrade pip and store your password inside of the file located in `~/.ansible/password` for use with `ansible-vault`:
+1. Run the following commands to enter a container that goes through setup and allows running windows task.
 
 ```bash
-# Use single quotes only!
-export VAULT_PASS='super_secret_password'
-sudo make setup
-# The following may not run automagically, do them manually
-make store-password
-make githook
-```
-
-| :exclamation:  IMPORTANT!  |
-|----------------------------|
-
-There is a ***very small*** chance that your password will not have exported into the file correctly as `make` and `bash` don't handle special characters well, as much as I tried to make it. It will be fine if you have a normal password with no successive backslashes like '\\\\' for example. The script will warn you if it failed and will tell you to use [this python script instead](./bin/parse_pass.py):
-
-```bash
-./bin/parse_pass.py 'super_secret_password'
-```
-
-4. Copy the [inventory.example](./inventory.example) file and fill it in with your host IP address and local admin account credentials:
-
-```bash
-cp inventory.example inventory
-```
-
-❗ **Please also update the `main.yml` file with the host you will be running it from the inventory file.**
-
-:information_source: **If you want to encrypt/decrypt your files, just issue these commands**:
-
-```bash
-make decrypt
-# or
-make encrypt
+task ws:s
 ```
 
 ## Setup the Windows Host (where ansible playbook will be run on)
@@ -226,26 +196,18 @@ Get-ChildItem ‘HKLM:\SOFTWARE\Microsoft\NET Framework Setup\NDP’ -Recurse | 
 
 ## Running the Playbook
 
-If you have setup your vault password and ran the `make setup` task successfully, just run the following to execute the playbook in it's entirety:
+If you have setup the container successfully, just run the following to execute the playbook in it's entirety:
 
 ```bash
-make
-# or
-make run
+task windows:main
 ```
 
-If it does not run successfully, first check the `hosts: winXXXX` line in `main/yml`, to see which host in the `inventory` file is being used. Check the `inventory` file now for that host, and ensure the details such as the IP address, user and even the variables are correct, e.g. For SSH connections, you need to use the variable `ansible_ssh_user` instead of `ansible_user` otherwise it throws a `permission denied` error.
-
-*Alternatively*:
-
-```bash
-ansible-playbook --vault-password-file ~/.ansible/password main.yml
-```
+If it does not run successfully, first check the `hosts: winXXXX` line in inventory, to see which host is being used, and ensure the details such as the IP address, user and even the variables are correct, e.g. For SSH connections, you need to use the variable `ansible_ssh_user` instead of `ansible_user` otherwise it throws a `permission denied` error.
 
 The PC will likely reboot a couple of times. I suggest you pin this repo to you browser. The following command resumes the make once you're back, just type them in your WSL instance:
 
 ```bash
-cd git/personal/windows-playbook/ && make
+cd git/personal/homelab/ && task windows:main
 ```
 
 :exclamation: Here are a few variables and their location that you may wish to lookup and change:
@@ -254,35 +216,9 @@ cd git/personal/windows-playbook/ && make
 | ------------- | ------------- | ------------- |
 | wsl2_distribution | vars/default.config.yml  | 37 |
 
-### Running a specific set of tagged tasks
-
-You can also filter which part of the provisioning process to run by specifying a set of tags using the `--tags` flag.
-
-Example usage:
-
-```bash
-make run-tags choco,wsl
-```
-
-*Alternatively*:
-
-```bash
-ansible-playbook --vault-password-file ~/.ansible/password main.yml --tags "choco,wsl"
-```
-
-The tags available can be listed by running this command:
-
-```bash
-make list-tags
-```
-
-## Included Applications / Configuration (Defaults)
-
-Packages (installed with Chocolatey) [can be found in the config file.](./default.config.yml#37)
-
 ## Overriding Defaults
 
-You can override any of the defaults configured in `default.config.yml` by creating a `config.yml` file in the root of the repo, and setting the overrides in that file. For example, you can customize the installed packages and enable/disable specific tasks with something like:
+You can override any of the defaults configured in `provision/ansible/vars.yml`. For example, you can customize the installed packages and enable/disable specific tasks with something like:
 
 ```yaml
 configure_hostname: true

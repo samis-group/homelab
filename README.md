@@ -13,13 +13,31 @@
 
 This repository contains all of my automations to install and configure everything in my homelab, from scratch. You are able to completely tear this down and rebuild it from Proxmox on bare metal.
 
+![Homelab Diagram](docs/assets/Homelab.svg)
+
 ❗ **Ensure you already have docker installed and working on your local PC**. This pulls an image, sets it up and drops you in shell to run any task you want.
 
-❗ **This project makes heavy use of `go-task` in order to run all of the automations in sequence. [Please download it from here](https://taskfile.dev/installation/) as you will need to use it to run the workstation.**
-
-❗ **DNS is managed manually for the docker containers (WIP), but any VM's will have DNS created for them.**
+❗ **This project makes heavy use of `go-task` in order to run all of the automations in sequence. [Please download it from here](https://taskfile.dev/installation/) as you will need to use it to run the docker image workstation where the automations are applied from.**
 
 ❗ **You can skip or reconfigure any variable in any task by [Overriding Defaults](#overriding-defaults).**
+
+❗ **I've provided an example of all my [doppler secrets here](docs/doppler_secrets_example.md).**
+
+## Workstation Docker Image
+
+You can build this repo and run any of its tasks inside a pre-built docker image with all the tools to do the work, so it doesn't mess with your local environment. The steps are as follows:
+
+```bash
+mkdir -p ~/git/personal/
+git clone https://gitlab.com/sami-group/homelab.git ~/git/personal/homelab
+cd ~/git/personal/homelab
+```
+
+Build and run the public registry image, start the container and drop you in a shell already setup to go. This also mounts the repository directory, local users '~/.ssh' folder, doppler config located at '~/.doppler', the users kubeconfig located at '~/.kube' and perhaps a few others depending on the task that is being run. Comment out the ones you don't need in ['DOCKER_RUN_CMD' here](https://gitlab.com/sami-group/homelab/-/blob/main/.taskfiles/Workstation.yml#L9).
+
+```bash
+task ws:s
+```
 
 ## TL;DR
 
@@ -74,21 +92,6 @@ Resize your `local` volume [like so in this video](https://youtu.be/_u8qTN3cCnQ?
 4. `resize2fs /dev/mapper/pve-root`
 
 Also ensure that `local` disk can store disk images by going into Datacenter > Storage > Edit local > Content > Ensure Disk Image is one of the selected items.
-
-### Workstation Docker Image
-
-You can build this repo and run any of its tasks inside a pre-built docker image with all the tools to do the work, so it doesn't mess with your local environment.
-
-```bash
-git clone https://gitlab.com/sami-group/homelab.git ~/git/personal/homelab
-cd ~/git/personal/homelab
-```
-
-Build and run the public registry image, start the container and drop you in a shell already setup to go. This also mounts the cloned dir, local users '.ssh' folder, and a bunch of others. Comment out the ones you don't need in ['DOCKER_RUN_CMD' here](https://gitlab.com/sami-group/homelab/-/blob/main/.taskfiles/Workstation.yml#L9).
-
-```bash
-task ws:s
-```
 
 ### Common tasks with examples
 

@@ -1,4 +1,21 @@
 ---
+# ------------ #
+# DNS For Host #
+# ------------ #
+- name: Cloudflare DNS for Proxmox host
+  hosts: localhost
+  # Special tag "always" -> https://docs.ansible.com/ansible/latest/user_guide/playbooks_tags.html#special-tags-always-and-never
+  tags: ["always"]
+  gather_facts: false
+  tasks:
+    - name: Setup cloudflare DNS for Proxmox Host
+      community.general.cloudflare_dns:
+        zone: "{{ domain_name }}"
+        record: "{{ groups['pve01'][0] | default('dell5820') }}"
+        type: A
+        value: "{{ proxmox_host }}"
+        api_token: "{{ cloudflare_api_token }}"
+
 # ----------------------------------- #
 # Pre-tasks run before anything else! #
 # ----------------------------------- #
@@ -39,14 +56,14 @@
     # - role: ../roles/proxmox/copy-files
     #   when: copy_files
     #   tags: ["copy_files"]
-    - role: nununo.proxmox_haos_install
-      when: proxmox_haos_install
-      tags: ["proxmox_haos_install"]
-      vars:
-        haos_proxmox_api_user: "{{ proxmox_api_user }}"
-        haos_proxmox_api_password: "{{ proxmox_api_pass }}"
-        haos_proxmox_description: "Home Assistant"
-        # haos_proxmox_mac_address: 'AB:CD:EF:12:34:56'
-        haos_proxmox_name: HomeAssistsant
-        haos_proxmox_node: "{{ proxmox_node }}"
-        haos_proxmox_storage: local
+    # - role: nununo.proxmox_haos_install
+    #   when: proxmox_haos_install
+    #   tags: ["proxmox_haos_install"]
+    #   vars:
+    #     haos_proxmox_api_user: "{{ proxmox_api_user }}"
+    #     haos_proxmox_api_password: "{{ proxmox_api_pass }}"
+    #     haos_proxmox_description: "Home Assistant"
+    #     # haos_proxmox_mac_address: 'AB:CD:EF:12:34:56'
+    #     haos_proxmox_name: HomeAssistsant
+    #     haos_proxmox_node: "{{ proxmox_node }}"
+    #     haos_proxmox_storage: local
