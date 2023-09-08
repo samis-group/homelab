@@ -46,6 +46,10 @@ spec:
         loadBalancerIP: "10.10.0.81"
         # externalTrafficPolicy: Local
         # primary: true
+        annotations:
+          external-dns.alpha.kubernetes.io/hostname: unifi-lb.shaklab.com
+          external-dns.alpha.kubernetes.io/target: 10.10.0.81
+          external-dns.alpha.kubernetes.io/cloudflare-proxied: "false"
         ports:
           http:
             port: 8443

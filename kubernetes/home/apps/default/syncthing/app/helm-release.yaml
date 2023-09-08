@@ -42,6 +42,9 @@ spec:
       PGID: '568'
     service:
       main:
+        annotations:
+          external-dns.alpha.kubernetes.io/hostname: syncthing.shaklab.com, sync.shaklab.com
+          external-dns.alpha.kubernetes.io/target: ipv4.shaklab.com
         ipFamilyPolicy: PreferDualStack
         ports:
           http:
@@ -50,6 +53,10 @@ spec:
         type: LoadBalancer
         loadBalancerIP: "10.10.0.88"
         enabled: true
+        annotations:
+          external-dns.alpha.kubernetes.io/hostname: sync-lb.shaklab.com, syncthing-lb.shaklab.com
+          external-dns.alpha.kubernetes.io/target: 10.10.0.88
+          external-dns.alpha.kubernetes.io/cloudflare-proxied: "false"
         ports:
           main:
             enabled: true

@@ -3,10 +3,10 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: cluster-apps-traefik-oauth
+  name: cluster-apps-unifi
   namespace: flux-system
 spec:
-  path: ./kubernetes/home/apps/networking/traefik-oauth/app
+  path: ./kubernetes/home/apps/networking/unifi/app
   prune: true
   sourceRef:
     kind: GitRepository

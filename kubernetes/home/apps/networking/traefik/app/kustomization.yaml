@@ -5,4 +5,5 @@ resources:
   - ./default-headers.yaml
   - ./default-tls-cert.yaml
   - ./ingress.yaml
+  - ./metrics.yaml
   - ./release.yaml

@@ -70,6 +70,9 @@ spec:
 
     service:
       main:
+        annotations:
+          external-dns.alpha.kubernetes.io/hostname: photoprism.shaklab.com, photo.shaklab.com, photos.shaklab.com
+          external-dns.alpha.kubernetes.io/target: ipv4.shaklab.com
         ports:
           http:
             port: 2342

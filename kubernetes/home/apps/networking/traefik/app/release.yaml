@@ -64,8 +64,11 @@ spec:
       spec:
         loadBalancerIP: 10.10.0.80
         # externalTrafficPolicy: Local
-      # annotations:
-      #   metallb.universe.tf/address-pool: dev-infra
+      annotations:
+        # metallb.universe.tf/address-pool: dev-infra
+        external-dns.alpha.kubernetes.io/hostname: traefik-lb.shaklab.com
+        external-dns.alpha.kubernetes.io/target: 10.10.0.80
+        external-dns.alpha.kubernetes.io/cloudflare-proxied: "false"
     ports:
       web:
         expose: true
@@ -100,7 +103,7 @@ spec:
         enabled: true
         allowExternalNameServices: true
         publishedService:
-          enabled: false
+          enabled: true
 
     metrics:
       prometheus:
