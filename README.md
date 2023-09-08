@@ -98,7 +98,7 @@ Also ensure that `local` disk can store disk images by going into Datacenter > S
 - Most common actions can be performed by issuing the associated `task` command. Go to the [Taskfile](Taskfile.yml) and associated [taskfiles](.taskfiles/) to see what it can do.
   - Most of these task commands that run plays where you need verbose output (-vvv), simply pass the ' -v' argument (including leading space) to the task and it will run it verbosely, e.g. `task k3s ' -v'`.
 
-> Build my current stack
+> Build my entire current stack
 
 ```bash
 task all
@@ -110,7 +110,7 @@ task all
 task proxmox:main
 ```
 
-> Setup k3s HA vm's
+> Setup k3s vm(s)
 
 ```bash
 task k3s:main
@@ -148,13 +148,13 @@ task lxc:main
 task lxc:gitlab-runner
 ```
 
-> configure dev machine.
+> configure dev LXC.
 
 ```bash
 task lxc:dev
 ```
 
-> If you make changes to the [generated inventory](provision/ansible/inventory/generated.yml), you can save and push it back to doppler
+> If you make changes to the [generated inventory](provision/ansible/inventory/generated.yml), you can save and push it back to doppler.
 
 ```bash
 task doppler:push-inventory
@@ -162,7 +162,7 @@ task doppler:push-inventory
 
 ## Overriding Defaults
 
-You can override any of the defaults configured in these playbooks by adding your entries to the `vars/config.yml` file. For example, you can tell it to configure the hostname, and pass in the hostname value to configure it to with something like:
+You can override any of the defaults configured in these playbooks by adding your entries to [this vars file](provision/ansible/vars.yml). For example, you can tell it to configure the hostname, and pass in the hostname value to configure it to with something like:
 
 ```yaml
 configure_hostname: true
