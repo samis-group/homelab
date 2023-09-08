@@ -33,7 +33,15 @@ git clone https://gitlab.com/sami-group/homelab.git ~/git/personal/homelab
 cd ~/git/personal/homelab
 ```
 
-Build and run the public registry image, start the container and drop you in a shell already setup to go. This also mounts the repository directory, local users '~/.ssh' folder, doppler config located at '~/.doppler', the users kubeconfig located at '~/.kube' and perhaps a few others depending on the task that is being run. Comment out the ones you don't need in ['DOCKER_RUN_CMD' here](https://gitlab.com/sami-group/homelab/-/blob/main/.taskfiles/Workstation.yml#L9).
+Build and run the public registry image, start the container and drop you in a shell already setup to go.
+
+This also mounts the following directories from your host to the container:
+
+- Repository directory - `${PWD}`
+- Local users ssh folder - `${HOME}/.ssh`
+- Doppler config located at `${HOME}/.doppler`
+- Users kubeconfig file located at `${HOME}/.kube`
+- Perhaps a few others depending on the task that is being run. Comment out the ones you don't need in ['DOCKER_RUN_CMD' here](https://gitlab.com/sami-group/homelab/-/blob/main/.taskfiles/Workstation.yml#L9).
 
 ```bash
 task ws:s
