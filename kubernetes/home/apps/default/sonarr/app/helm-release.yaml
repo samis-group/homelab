@@ -60,6 +60,9 @@ spec:
 
     service:
       main:
+        annotations:
+          external-dns.alpha.kubernetes.io/hostname: sonarr.shaklab.com
+          external-dns.alpha.kubernetes.io/target: ipv4.shaklab.com
         ports:
           http:
             port: *port

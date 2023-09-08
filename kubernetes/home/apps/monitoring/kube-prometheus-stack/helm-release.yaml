@@ -196,6 +196,10 @@ spec:
       #     - "prometheus.${SECRET_DOMAIN_NAME}"
       #   path: /
       #   pathType: Prefix
+      service:
+        annotations:
+          external-dns.alpha.kubernetes.io/hostname: prom.shaklab.com, prometheus.shaklab.com
+          external-dns.alpha.kubernetes.io/target: ipv4.shaklab.com
       thanosService:
         enabled: false
       thanosServiceMonitor:

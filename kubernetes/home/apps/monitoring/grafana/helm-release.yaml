@@ -24,6 +24,10 @@ spec:
     persistence:
       enabled: true
       existingClaim: grafana-config
+    service:
+      annotations:
+        external-dns.alpha.kubernetes.io/hostname: grafana.shaklab.com
+        external-dns.alpha.kubernetes.io/target: ipv4.shaklab.com
     # env:
     #   - GF_LOG_FILTERS: rendering:debug
     #   # Using Gmail SMTP for alerts

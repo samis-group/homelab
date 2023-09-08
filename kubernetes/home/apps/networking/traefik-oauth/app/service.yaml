@@ -5,6 +5,9 @@ metadata:
   name: traefik-oauth
   labels:
     app: traefik-oauth
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: oauth.shaklab.com
+    external-dns.alpha.kubernetes.io/target: ipv4.shaklab.com
 spec:
   type: ClusterIP
   selector:

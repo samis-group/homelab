@@ -27,8 +27,6 @@ spec:
     keepHistory: false
   values:
     interval: 2m
-    serviceMonitor:
-      enabled: true
     # logLevel: debug
     provider: cloudflare
     env:
@@ -48,7 +46,7 @@ spec:
     policy: sync
     sources: ["service"]
     # txtPrefix: k8s.
-    txtOwnerId: default
+    # txtOwnerId: default
     domainFilters: ["shaklab.com"]
     serviceMonitor:
       enabled: true

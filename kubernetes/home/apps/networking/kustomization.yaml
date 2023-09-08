@@ -2,7 +2,10 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
+  - ./cloudflare-ddns/ks.yaml
+  - ./external-dns/ks.yaml
   - ./namespace.yaml
-  - ./traefik/ks.yaml
   # - ./nfs/ks.yaml
+  - ./traefik/ks.yaml
   - ./traefik-oauth/ks.yaml
+  - ./unifi/ks.yaml

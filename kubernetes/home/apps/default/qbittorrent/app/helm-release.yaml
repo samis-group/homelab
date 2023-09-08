@@ -63,6 +63,9 @@ spec:
 
     service:
       main:
+        annotations:
+          external-dns.alpha.kubernetes.io/hostname: qbit.shaklab.com, qbittorrent.shaklab.com
+          external-dns.alpha.kubernetes.io/target: ipv4.shaklab.com
         ports:
           http:
             port: *port
@@ -72,8 +75,11 @@ spec:
         enabled: true
         type: LoadBalancer
         loadBalancerIP: "10.10.0.89"
-        # annotations:
-        #   io.cilium/lb-ipam-ips: 10.10.0.89
+        annotations:
+          external-dns.alpha.kubernetes.io/hostname: qbit-lb.shaklab.com, qbittorrent-lb.shaklab.com
+          external-dns.alpha.kubernetes.io/target: 10.10.0.89
+          external-dns.alpha.kubernetes.io/cloudflare-proxied: "false"
+          # io.cilium/lb-ipam-ips: 10.10.0.89
         ports:
           bittorrent:
             enabled: true
