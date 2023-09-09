@@ -22,7 +22,7 @@ tasks:
     desc: ☸ Dev k3s play
     dir: provision/k3s-ansible
     deps: [':proxmox:provision-k3s-dev']
-    aliases: ["m"]
+    aliases: ["md"]
     cmds:
       - task: :doppler:generate-k3s-ansible-inventory
         vars:
