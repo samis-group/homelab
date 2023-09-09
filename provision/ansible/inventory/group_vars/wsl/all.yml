@@ -3,31 +3,7 @@ hostname: "wsl.{{ domain_name }}"
 ansible_ssh_user: "{{ main_user }}"
 ansible_sudo_pass: "{{ main_pass }}"
 
-# brew_cask_packages:
-#   - atom
-#   - docker
-#   - dropbox
-#   - firefox
-#   - google-chrome
-#   - google-drive
-#   - google-hangouts
-#   - iterm2
-#   - keepassx
-#   - kodi
-#   - lastpass
-#   - macvim
-#   - royal-tsx
-#   - skype
-#   - slack
-#   - sling
-#   - spotify
-#   - sublime-text
-#   - vagrant
-#   - vagrant-manager
-#   - virtualbox
-#   - virtualbox-extension-pack
-#   - visual-studio-code
-#   - vmware-fusion
+stow_dotfiles: false
 
 brew_packages:
   # - autoconf
@@ -60,3 +36,29 @@ brew_packages:
   # - wget
   # - zsh
   # - zsh-syntax-highlighting
+
+# brew_cask_packages:
+#   - atom
+#   - docker
+#   - dropbox
+#   - firefox
+#   - google-chrome
+#   - google-drive
+#   - google-hangouts
+#   - iterm2
+#   - keepassx
+#   - kodi
+#   - lastpass
+#   - macvim
+#   - royal-tsx
+#   - skype
+#   - slack
+#   - sling
+#   - spotify
+#   - sublime-text
+#   - vagrant
+#   - vagrant-manager
+#   - virtualbox
+#   - virtualbox-extension-pack
+#   - visual-studio-code
+#   - vmware-fusion

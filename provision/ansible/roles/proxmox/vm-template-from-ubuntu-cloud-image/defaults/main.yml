@@ -1,4 +1,33 @@
 ---
+# Default VM configs - Each VM has it's overrides specified in it's own host_vars/hostname config file inside the 'vm' mapping
+template_vm_ubuntu:
+  id: 8000  # Iterate this to create a new template
+  version_number: 22.04
+  version_name: jammy
+  release: current
+  cpu_arch: amd64
+template_vm_ubuntu_defaults:
+  name: "UbuntuCloud-{{ template_vm_ubuntu.version_name }}-{{ template_vm_ubuntu.version_number }}"
+  nameservers:  # I use local DNS resolver, so I specify these on all vm's
+    - "{{ vm_gateway | default('1.1.1.1') }}"  # vm_gateway is declared elsewhere in the main playbook - My Primary DNS is the router, it recursively resolves upstream to cloudflare + google, but all requests through it.
+    - "8.8.4.4"
+  user: "{{ main_user | default('root') }}" # Change this if this isn't set outside the role.
+  password: "{{ main_pass | default(omit) }}"
+  ssh_key: "ssh-rsa AAAAB3NzaC1yc2EAAAABJQAAAQEAiwG7uO5R8EzOLvoQEBc9TGyBMMEYlQf7NfwF3JH687WElHLc7bY1HTZ+VcEt+l7kvJfISAeJHdthpCT46ecPirLvz5oIOI1meXRPYXg5fKSJ+itAsfSupjg2/kRUHzI+NJjJap+KU21zEUxCqbTreJ3kSV58F/947uRDyMa0Ofammkx7LY8Kohsr99NtVsHXI71gSTngw/cIe5OR0F1qfxpsBwWw8daN+SYLe0tEtOHVZvGDVDbJhv1GW9PjQxSjx/8QEdi7FMT4ahwHxEcyG5+NhUg+DAo1RKoPYPAM5wwk9O7w+Y31EBP5wYc3FSiOPObcmIoBWxnUrZuD74dtaQ== Sami-id_rsa_personal"
+  ip_address: "{{ vm_network }}200"
+  netmask: "{{ vm_netmask }}"
+  gateway: "{{ vm_gateway }}"
+  cores: "2"
+  memory: "2048" # ram for each VM in MB
+  scsihw: virtio-scsi-pci   # Not tested changing this
+  # vga: serial0    # If defined, this will be set
+  # serial: socket  # If defined, this will be set
+  boot_order: "c"
+  boot_disk: "scsi0"
+  storage: "{{ default_proxmox_storage }}" # proxmox storage for VMs and cloudinit disk. Please ensure this matches the `pve_kvm_ide` in all.yml and in host vm definitions. https://docs.ansible.com/ansible/latest/collections/community/general/proxmox_kvm_module.html#parameter-storage
+  network_device: 'virtio,bridge=vmbr0' # https://docs.ansible.com/ansible/latest/collections/community/general/proxmox_kvm_module.html#parameter-net
+  agent: true
+
 img_dir: "/tmp/cloud_images"
 force_template_rebuild: false   # This will delete the current template and build a new one
 ubuntu_img_template_url: https://cloud-images.ubuntu.com/releases/{{ template_vm_ubuntu.version_number }}/release/ubuntu-{{ template_vm_ubuntu.version_number }}-server-cloudimg-{{ template_vm_ubuntu.cpu_arch }}.img

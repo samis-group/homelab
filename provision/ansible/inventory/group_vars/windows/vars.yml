@@ -16,7 +16,6 @@ chocolatey: true
 hass: false    # Install and configure home assistant service - it's not working currently, maybe due to unknown publisher
 install_telegraf: true
 schedule_tasks: true
-test_task: false    # Do not change this. If you want to run the test task, use `make test` instead.
 download_wsl_instance: false   # Download and create a new WSL instance from Ubuntu cloud-image
 firefox_setup: true
 install_wsl2: true
@@ -89,6 +88,18 @@ update_categories:
   # - Updates
   # - Upgrades
 
+install_fonts: false
+installed_nerdfonts:
+  - FiraCode
+  - FantasqueSansMono
+
+firefox:
+  profiles:
+    - work
+    - personal
+    - default-release
+    - default
+
 remove_bloatware: true
 bloatware:
   - Microsoft.BingNews
@@ -129,15 +140,3 @@ bloatware:
   - Microsoft.ZuneMusic
   - Microsoft.ZuneVideo
   - MicrosoftTeams
-
-install_fonts: false
-installed_nerdfonts:
-  - FiraCode
-  - FantasqueSansMono
-
-firefox:
-  profiles:
-    - work
-    - personal
-    - default-release
-    - default

@@ -1,17 +1,15 @@
 # Test suites for `k3s-ansible`
 
-This folder contains the [molecule](https://molecule.rtfd.io/)-based test setup for this playbook.
+This folder contains the [molecule](https://molecule.rtfd.io/)-based test setup for a docker vm.
+
+If you want k3s molecules, go to `k3s-ansible` dir.
 
 ## Scenarios
 
-I have these scenarios:
+I have a docker scenario:
 
 - **default**:
-  A docker VM that runs my docker containers
-- **k3s**:
-  A 3 control + 2 worker node k3s cluster.
-- **k3s_single**:
-  Very similar to the `k3s` scenario, but uses only a single node for all cluster functionality. Quik-Kubes-Brah!
+  A docker VM for running docker containers
 
 ### tl;dr
 
@@ -25,24 +23,8 @@ I have these scenarios:
   molecule converge
   ```
 
-- k3s:
-
   ```bash
-  molecule create -s k3s
-  ```
-
-  ```bash
-  molecule converge -s k3s
-  ```
-
-- k3s_single:
-
-  ```bash
-  molecule create -s k3s_single
-  ```
-
-  ```bash
-  molecule converge -s k3s_single
+  molecule destroy
   ```
 
 ## How to execute
@@ -97,34 +79,3 @@ Interesting commands are:
 - `molecule create`: Create virtual machines for the test cluster nodes.
 - `molecule destroy`: Delete the virtual machines for the test cluster nodes.
 - `molecule converge`: Run the relevant ansible playbook on the nodes of the virtual machine(s) created.
-- `molecule side_effect`: *k3s only*. Run the `reset` playbook on the nodes of the test cluster.
-- `molecule verify`: *k3s only*. Verify that the cluster works correctly.
-- `molecule test`: *k3s only*. The "all-in-one" sequence of steps that is executed in CI.
-  This includes the `create`, `converge`, `verify`, `side_effect` and `destroy` steps.
-  See [`molecule.yml`](default/molecule.yml) for more details.
-
-### Copy kube config
-
-This is done in make, run `make setup-pb`. Manual steps below:
-
-```bash
-mkdir ~/.kube
-```
-
-Then for k3s cluster (k3sm1):
-
-```bash
-scp vagrant@192.168.30.38:~/.kube/config ~/.kube/config
-```
-
-or if single (k3s-single):
-
-```bash
-task k3s:scp-kubeconfig
-```
-
-alternatively manual command:
-
-```bash
-scp vagrant@192.168.30.50:~/.kube/config ~/.kube/config
-```

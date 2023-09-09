@@ -29,7 +29,7 @@
     - name: Add SSH key to root's authorized_keys
       authorized_key:
         user: root
-        key: "{{ template_vm_debian_defaults.ssh_key }}"
+        key: "{{ vm_defaults.ssh_key }}"
 
 - name: Provision k3s-dev VM's on Proxmox Host - Part one
   tags: ["never", "proxmox-provision-k3s-dev"]
@@ -47,4 +47,4 @@
     - name: Add SSH key to root's authorized_keys
       authorized_key:
         user: root
-        key: "{{ template_vm_debian_defaults.ssh_key }}"
+        key: "{{ vm_defaults.ssh_key }}"

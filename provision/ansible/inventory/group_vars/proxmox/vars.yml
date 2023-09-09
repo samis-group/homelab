@@ -1,8 +1,7 @@
 ---
-influxdb_setup: true
+ansible_user: root
 create_ubuntu_vm_template: true
 create_debian_vm_template: true
 
 # for role - nununo.proxmox_haos_install
-proxmox_haos_install: true
-ansible_user: root
+proxmox_haos_install: false

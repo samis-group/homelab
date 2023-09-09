@@ -1,10 +1,3 @@
 ---
-# Overrides go here. The default configuration should be able to entirely deploy AND configure proxmox/docker or k3s/wsl/windows etc.
-# ALL WITH JUST THE ISSUE OF COMMAND `make`
-# So let's track overrides here so that we can easily rename this file and deploy fresh.
-create_ubuntu_vm_template: false
-create_debian_vm_template: true
-provision_vms: false   # Provision VM's
+# Overrides go here.
 # provision_lxcs: false  # Provision LXC's
-stow_dotfiles: false
-proxmox_haos_install: false

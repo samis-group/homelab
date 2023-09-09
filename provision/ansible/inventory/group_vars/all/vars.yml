@@ -1,69 +1,23 @@
 ---
-# Overwrite role template default mappings here as this is what we will use to deploy templates and iterate.
-# Have to do the whole mapping because it won't work otherwise.
-template_vm_ubuntu:
-  id: 8000  # Iterate this to create a new template
-  version_number: 22.04
-  version_name: jammy
-  release: current
-  cpu_arch: amd64
-
+# Playbook run tasks default actions:
+install_os_packages: true
+# Run `make copy-files` whenever it needs updating.
+copy_files: true
+install_docker: true
+git: true   # Docker and WSL
+provision_vms: true   # Provision VM's
+provision_lxcs: true  # Provision LXC's
+provision_truenas: true  # Provision TrueNAS VM
+copy_ssh_configs: true  # Copy SSH configs to localhost (usually WSL for me) for provisioned LXCs/VMs
+tz: 'Australia/Sydney'          # Timezone setting
+configure_hostname: false
 # Default proxmox storage location - allows override per proxmox host in host_vars
 default_proxmox_storage: local
 
 # Default VM configs - Each VM has it's overrides specified in it's own host_vars/hostname config file inside the 'vm' mapping
-template_vm_ubuntu_defaults:
-  name: "UbuntuCloud-{{ template_vm_ubuntu.version_name }}-{{ template_vm_ubuntu.version_number }}"
-  nameservers:  # I use local DNS resolver, so I specify these on all vm's
-    - "{{ vm_gateway | default('1.1.1.1') }}"  # vm_gateway is declared elsewhere in the main playbook - My Primary DNS is the router, it recursively resolves upstream to cloudflare + google, but all requests through it.
-    - "8.8.4.4"
-  user: "{{ main_user | default('root') }}" # Change this if this isn't set outside the role.
-  password: "{{ main_pass | default(omit) }}"
-  ssh_key: "ssh-rsa AAAAB3NzaC1yc2EAAAABJQAAAQEAiwG7uO5R8EzOLvoQEBc9TGyBMMEYlQf7NfwF3JH687WElHLc7bY1HTZ+VcEt+l7kvJfISAeJHdthpCT46ecPirLvz5oIOI1meXRPYXg5fKSJ+itAsfSupjg2/kRUHzI+NJjJap+KU21zEUxCqbTreJ3kSV58F/947uRDyMa0Ofammkx7LY8Kohsr99NtVsHXI71gSTngw/cIe5OR0F1qfxpsBwWw8daN+SYLe0tEtOHVZvGDVDbJhv1GW9PjQxSjx/8QEdi7FMT4ahwHxEcyG5+NhUg+DAo1RKoPYPAM5wwk9O7w+Y31EBP5wYc3FSiOPObcmIoBWxnUrZuD74dtaQ== Sami-id_rsa_personal"
-  ip_address: "{{ vm_network }}200"
-  netmask: "{{ vm_netmask }}"
-  gateway: "{{ vm_gateway }}"
-  cores: "2"
-  memory: "2048" # ram for each VM in MB
-  scsihw: virtio-scsi-pci   # Not tested changing this
-  # vga: serial0    # If defined, this will be set
-  # serial: socket  # If defined, this will be set
-  boot_order: "c"
-  boot_disk: "scsi0"
-  storage: "{{ default_proxmox_storage }}" # proxmox storage for VMs and cloudinit disk. Please ensure this matches the `pve_kvm_ide` in all.yml and in host vm definitions. https://docs.ansible.com/ansible/latest/collections/community/general/proxmox_kvm_module.html#parameter-storage
-  network_device: 'virtio,bridge=vmbr0' # https://docs.ansible.com/ansible/latest/collections/community/general/proxmox_kvm_module.html#parameter-net
-  agent: true
-
-template_vm_debian:
-  id: 8001  # Iterate this to create a new template
-  version_number: 11
-  version_name: bullseye
-  cpu_arch: amd64
-
-template_vm_debian_defaults:
-  name: "DebianCloud-{{ template_vm_debian.version_name }}-{{ template_vm_debian.version_number }}"
-  nameservers:  # I use local DNS resolver, so I specify these on all vm's
-    - "{{ vm_gateway | default('1.1.1.1') }}"  # vm_gateway is declared elsewhere in the main playbook - My Primary DNS is the router, it recursively resolves upstream to cloudflare + google, but all requests through it.
-    - "8.8.4.4"
-  user: "{{ main_user | default('root') }}" # Change this if this isn't set outside the role.
-  password: "{{ main_pass | default(omit) }}"
-  ssh_key: "ssh-rsa AAAAB3NzaC1yc2EAAAABJQAAAQEAiwG7uO5R8EzOLvoQEBc9TGyBMMEYlQf7NfwF3JH687WElHLc7bY1HTZ+VcEt+l7kvJfISAeJHdthpCT46ecPirLvz5oIOI1meXRPYXg5fKSJ+itAsfSupjg2/kRUHzI+NJjJap+KU21zEUxCqbTreJ3kSV58F/947uRDyMa0Ofammkx7LY8Kohsr99NtVsHXI71gSTngw/cIe5OR0F1qfxpsBwWw8daN+SYLe0tEtOHVZvGDVDbJhv1GW9PjQxSjx/8QEdi7FMT4ahwHxEcyG5+NhUg+DAo1RKoPYPAM5wwk9O7w+Y31EBP5wYc3FSiOPObcmIoBWxnUrZuD74dtaQ== Sami-id_rsa_personal"
-  ip_address: "{{ vm_network }}201"
-  netmask: "{{ vm_netmask }}"
-  gateway: "{{ vm_gateway }}"
-  cores: "2"
-  memory: "2048" # ram for each VM in MB
-  scsihw: virtio-scsi-pci   # Not tested changing this
-  boot_order: "c"
-  boot_disk: "scsi0"
-  storage: "{{ default_proxmox_storage }}" # proxmox storage for VMs and cloudinit disk. Please ensure this matches the `pve_kvm_ide` in all.yml and in host vm definitions. https://docs.ansible.com/ansible/latest/collections/community/general/proxmox_kvm_module.html#parameter-storage
-  network_device: 'virtio,bridge=vmbr0' # https://docs.ansible.com/ansible/latest/collections/community/general/proxmox_kvm_module.html#parameter-net
-  agent: true
-
-# Default VM configs - Each VM has it's overrides specified in it's own host_vars/hostname config file inside the 'vm' mapping
 vm_defaults:
   update: true  # Allow vm to update hardware below after full clone
-  template: "{{ template_vm_ubuntu_defaults.name }}"   # VM or template to clone - Default to currently used ubuntu template name
+  template: "UbuntuCloud-jammy-22.04" # Name is known after it is provisioned by the role (e.g. roles/proxmox/vm-template-from-ubuntu-cloud-image)
   user: "{{ main_user }}" # Change this if this isn't set outside the role.
   password: "{{ main_pass }}"
   ssh_key: "ssh-rsa AAAAB3NzaC1yc2EAAAABJQAAAQEAiwG7uO5R8EzOLvoQEBc9TGyBMMEYlQf7NfwF3JH687WElHLc7bY1HTZ+VcEt+l7kvJfISAeJHdthpCT46ecPirLvz5oIOI1meXRPYXg5fKSJ+itAsfSupjg2/kRUHzI+NJjJap+KU21zEUxCqbTreJ3kSV58F/947uRDyMa0Ofammkx7LY8Kohsr99NtVsHXI71gSTngw/cIe5OR0F1qfxpsBwWw8daN+SYLe0tEtOHVZvGDVDbJhv1GW9PjQxSjx/8QEdi7FMT4ahwHxEcyG5+NhUg+DAo1RKoPYPAM5wwk9O7w+Y31EBP5wYc3FSiOPObcmIoBWxnUrZuD74dtaQ== Sami-id_rsa_personal"
@@ -106,24 +60,6 @@ lxc_defaults:
   default_behavior: compatibility
   network_device: 'vmbr0'
 
-# the unique proxmox ids for all of the containers in the cluster, both worker and master nodes
-proxmox_lxc_ct_ids:
-  - 105
-
-# Playbook run tasks default actions:
-install_os_packages: true
-# Run `make copy-files` whenever it needs updating.
-copy_files: true
-test_task: false    # Do not change this. If you want to run the test task, use `make test` instead.
-install_docker: true
-git: true   # Docker and WSL
-provision_vms: true   # Provision VM's
-provision_lxcs: true  # Provision LXC's
-provision_truenas: true  # Provision TrueNAS VM
-copy_ssh_configs: true  # Copy SSH configs to localhost (usually WSL for me) for provisioned LXCs/VMs
-tz: 'Australia/Sydney'          # Timezone setting
-configure_hostname: false
-
 nas:
   user: "{{ main_user }}"
   password: "{{ services_password }}"   # Make sure your nas password is up to date with the services password.
@@ -159,213 +95,3 @@ nas:
     family_pictures:
       local_mapping: "{{ user_dir }}/mount/photos/family"
       remote_mapping: "/volume1/docker/data/media/photos"
-
-###########################################
-### geerlingguy.k8s_manifests variables ###
-###########################################
-
-k8s_kubeconfig: ~/.kube/config
-k8s_manifests_base_dir: templates/k3s/manifests/
-k8s_resource_namespace: 'default'
-k8s_manifests:  # Maybe just do a jinja lookup for filenames and create a list from that? make it dynamic
-  - nfs
-
-#######################
-### Helm Chart Data ###
-#######################
-
-helm_charts:
-  - name: nginx
-    chart_ref: bitnami/nginx
-    release_namespace: default
-    release_values:
-      service:
-        type: LoadBalancer
-        ports:
-          http: 80
-          https: 443
-        targetPort:
-          http: http
-          https: https
-  - name: grafana
-    chart_ref: bitnami/grafana
-    release_namespace: default
-    release_values:
-      replicas: 2
-      service:
-        type: LoadBalancer
-        ports:
-          grafana: 3000
-  - name: grafana-loki
-    chart_ref: bitnami/grafana-loki
-    release_namespace: default
-
-####################
-### Doppler vars ###
-####################
-
-main_user: "{{ lookup('env', 'MAIN_USER') }}"  # User that will be created and will manage the systems/containers
-main_pass: "{{ lookup('env', 'MAIN_PASS') }}"  # Password for the above user
-docker_group: "{{ lookup('env', 'DOCKER_GROUP') }}"            # Leave this as 'docker', the user will need to be added to this group to run docker
-domain_name: "{{ lookup('env', 'DOMAIN_NAME') }}"     # Domain name that traefik resides
-services_username: "{{ lookup('env', 'SERVICES_USERNAME') }}"         # Username to login to services
-services_password: "{{ lookup('env', 'SERVICES_PASSWORD') }}"     # Password to login to services
-gmail_address: "{{ lookup('env', 'GMAIL_ADDRESS') }}"  # Your main gmail address that will be used to send mail from
-gmail_pass: "{{ lookup('env', 'GMAIL_PASS') }}"                # This is your normal gmail password
-gmail_app_pass: "{{ lookup('env', 'GMAIL_APP_PASS') }}"    # This is the app password you generate here -> https://myaccount.google.com/apppasswords. Hint: Check password manager.
-microsoft_account_user: "{{ lookup('env', 'MICROSOFT_ACCOUNT_USER') }}"  # Microsoft account username
-microsoft_account_pass: "{{ lookup('env', 'MICROSOFT_ACCOUNT_PASS') }}"  # Microsoft account password
-eufy_addon_email: "{{ lookup('env', 'EUFY_ADDON_EMAIL') }}"   # Your secondary eufy account with devices shared to it (Don't use your primary account for security reasons)
-eufy_addon_password: "{{ lookup('env', 'EUFY_ADDON_PASSWORD') }}"      # Password of this secondary eufy account with shared devices
-cloudflare_email: "{{ lookup('env', 'CLOUDFLARE_EMAIL') }}"                            # Search "API" in your password manager
-cloudflare_api_token: "{{ lookup('env', 'CLOUDFLARE_API_TOKEN') }}"   # Search "Cloudflare API key - cf-ddns" in your password manager
-cloudflare_api_key: "{{ lookup('env', 'CLOUDFLARE_API_KEY') }}"        # This is the "Global API Key" (same entry as above in your password manager)
-vpn_user: "{{ lookup('env', 'VPN_USER') }}"   # VPN Provider username
-vpn_pass: "{{ lookup('env', 'VPN_PASS') }}"       # VPN Provider password
-# The nordvpn_private_key can be obtained using `docker run --rm --cap-add=NET_ADMIN -e USER=${VPN_USER} -e PASS=${VPN_PASS} bubuntux/nordvpn nord_private_key`
-nordvpn_private_key: "{{ lookup('env', 'NORDVPN_PRIVATE_KEY') }}"   # For nordlynx
-google_client_id: "{{ lookup('env', 'GOOGLE_CLIENT_ID') }}"  # For oauth container
-google_client_secret: "{{ lookup('env', 'GOOGLE_CLIENT_SECRET') }}"    # For oauth container
-oauth_secret: "{{ lookup('env', 'OAUTH_SECRET') }}"    # This is randomly generated with `openssl rand -hex 16`
-radarr_api_key: "{{ lookup('env', 'RADARR_API_KEY') }}"  # Radarr API Key taken from the UI once logged in
-sonarr_api_key: "{{ lookup('env', 'SONARR_API_KEY') }}"  # Sonarr API Key taken from the UI once logged in
-bazarr_api_key: "{{ lookup('env', 'BAZARR_API_KEY') }}"  # Bazarr API Key taken from the UI once logged in
-prowlarr_api_key: "{{ lookup('env', 'PROWLARR_API_KEY') }}"  # Prowlarr API Key taken from the UI once logged in
-tautulli_api_key: "{{ lookup('env', 'TAUTULLI_API_KEY') }}"  # Tautulli API Key taken from the UI once logged in
-plex_claim: "{{ lookup('env', 'PLEX_CLAIM') }}"              # Grab claim from -> https://www.plex.tv/claim/
-plex_token: "{{ lookup('env', 'PLEX_TOKEN') }}"                    # Find yours -> https://support.plex.tv/articles/204059436-finding-an-authentication-token-x-plex-token/
-traefik_pilot_token: "{{ lookup('env', 'TRAEFIK_PILOT_TOKEN') }}"  # traefik pilot token to connect to traefik pilot
-k3s_token: "{{ lookup('env', 'K3S_TOKEN') }}"   # Generate one randomly
-name_servers: "{{ lookup('env', 'NAME_SERVERS') }}"
-watchtower_interval: "{{ lookup('env', 'WATCHTOWER_INTERVAL') }}"
-docker_ip: "{{ lookup('env', 'DOCKER_IP') }}"   # This is a default, each host should override this in host_vars
-pfsense_ip: "{{ lookup('env', 'PFSENSE_IP') }}" # pfsense router IP
-nas_ip: "{{ lookup('env', 'NAS_IP') }}"         # Synology NAS IP
-proxmox_port: "{{ lookup('env', 'PROXMOX_PORT') }}"
-influxdb_port: "{{ lookup('env', 'INFLUXDB_PORT') }}"
-ssh_key_file_prefix: "{{ lookup('env', 'SSH_KEY_FILE_PREFIX') }}"
-ssh_key_file_personal: "{{ lookup('env', 'SSH_KEY_FILE_PERSONAL') }}"
-ssh_key_file_personal_pub: "{{ lookup('env', 'SSH_KEY_FILE_PERSONAL_PUB') }}"
-ssh_key_file_git: "{{ lookup('env', 'SSH_KEY_FILE_GIT') }}"
-ssh_key_file_git_public: "{{ lookup('env', 'SSH_KEY_FILE_GIT_PUBLIC') }}"
-main_user_ssh_key_prefix: "{{ main_user }}-{{ ssh_key_file_prefix }}"
-vm_network: "{{ lookup('env', 'VM_NETWORK') }}" # Network WITHOUT the last digit ## NOT VM VAR
-vm_netmask: "{{ lookup('env', 'VM_NETMASK') }}" # network mask ## NOT VM VAR
-vm_gateway: "{{ lookup('env', 'VM_GATEWAY') }}" # gateway ### NOT VM var
-local_network_lan: "{{ lookup('env', 'LOCAL_NETWORK_LAN') }}"      # Your local LAN subnet that will be used to whitelist certain aceess to resources
-local_network_iot: "{{ lookup('env', 'LOCAL_NETWORK_IOT') }}"      # Your local IOT subnet that will be used to whitelist certain aceess to resources
-local_network_homelab: "{{ lookup('env', 'LOCAL_NETWORK_HOMELAB') }}"   # Your local homelab subnet that will be used to whitelist certain aceess to resources
-
-# Proxmox bits for one host in cluster where tasks will be run
-proxmox_api_user: "{{ lookup('env', 'PROXMOX_API_USER') }}"
-proxmox_api_pass: "{{ lookup('env', 'PROXMOX_API_PASS') }}"
-proxmox_node: "{{ lookup('env', 'PROXMOX_NODE') }}"
-proxmox_host: "{{ lookup('env', 'PROXMOX_HOST') }}"
-proxmox_clone_timeout: "{{ lookup('env', 'PROXMOX_CLONE_TIMEOUT') }}" #seconds that clone job spend change based on logs
-proxmox_mac: "{{ lookup('env', 'PROXMOX_MAC') }}" # MAC address of the proxmox server for WOL
-proxmox_broadcast: "{{ lookup('env', 'PROXMOX_BROADCAST') }}" # broadcast network parameter for WOL
-
-github_username: "{{ lookup('env', 'GITHUB_USERNAME') }}"
-github_token: "{{ lookup('env', 'GITHUB_TOKEN') }}"
-
-gitlab_username: "{{ lookup('env', 'GITLAB_USERNAME') }}"
-gitlab_personal_access_token: "{{ lookup('env', 'GITLAB_PERSONAL_ACCESS_TOKEN') }}" # API token for docker vm to login and access gitlab registry and api and clone repos
-gitlab_runner_token: "{{ lookup('env', 'GITLAB_RUNNER_TOKEN') }}" # From your GROUP runner page -> https://gitlab.com/groups/sami-shakir/-/runners
-gitlab_git_dir: "{{ lookup('env', 'GITLAB_GIT_DIR') }}"
-gitlab_api_url: "{{ lookup('env', 'GITLAB_API_URL') }}"
-gitlab_repos_container_hass_url: "{{ lookup('env', 'GITLAB_REPOS_CONTAINER_HASS_URL') }}"
-gitlab_repos_container_nginx_url: "{{ lookup('env', 'GITLAB_REPOS_CONTAINER_NGINX_URL') }}"
-gitlab_repos_container_docs_url: "{{ lookup('env', 'GITLAB_REPOS_CONTAINER_DOCS_URL') }}"
-gitlab_repos_container_api_url: "{{ lookup('env', 'GITLAB_REPOS_CONTAINER_API_URL') }}"
-gitlab_clone_container_repos: # Map the above containers to a dict for easily passing to plays
-  hass: "{{ gitlab_repos_container_hass_url }}"
-  nginx: "{{ gitlab_repos_container_nginx_url }}"
-  docs: "{{ gitlab_repos_container_docs_url }}"
-  api: "{{ gitlab_repos_container_api_url }}"
-gitlab_repos_dotfiles_base_url: "{{ lookup('env', 'GITLAB_REPOS_DOTFILES_BASE_URL') }}"
-gitlab_repos_dotfiles_base_branch: "{{ lookup('env', 'GITLAB_REPOS_DOTFILES_BASE_BRANCH') }}"
-gitlab_repos_dotfiles_extras_url: "{{ lookup('env', 'GITLAB_REPOS_DOTFILES_EXTRAS_URL') }}"
-gitlab_repos_dotfiles_extra_branch: "{{ lookup('env', 'GITLAB_REPOS_DOTFILES_EXTRA_BRANCH') }}"
-gitlab_repos_homelab_url: "{{ lookup('env', 'GITLAB_REPOS_HOMELAB_URL') }}"
-gitlab_repos_homelab_host_vars_url: "{{ lookup('env', 'GITLAB_REPOS_HOMELAB_HOST_VARS_URL') }}"
-
-mariadb_hostname: "{{ lookup('env', 'MARIADB_HOSTNAME') }}"   # Mariadb hostname (usually the container name, it's on the default network so any containers on this network can use this hostname to communicate with it)
-mariadb_root_password: "{{ lookup('env', 'MARIADB_ROOT_PASSWORD') }}"   # optional - Initial mysql root user password
-mariadb_database: "{{ lookup('env', 'MARIADB_DATABASE') }}"   # Specify the name of a database to be created on image startup. Home-assistant for my case
-mariadb_user: "{{ lookup('env', 'MARIADB_USER') }}"   # optional - Initial mysql username with below password
-mariadb_password: "{{ lookup('env', 'MARIADB_PASSWORD') }}"   # optional - Initial mysql user password with above user
-
-redis_host: "{{ lookup('env', 'REDIS_HOST') }}"   # Hostname of the redis container
-redis_password: "{{ lookup('env', 'REDIS_PASSWORD') }}"   # Password to use redis
-
-authelia_jwt_secret: "{{ lookup('env', 'AUTHELIA_JWT_SECRET') }}"    # Randomly generated string
-authelia_session_secret: "{{ lookup('env', 'AUTHELIA_SESSION_SECRET') }}"         # Randomly generated string - The secret key used to encrypt session data in Redis - https://www.authelia.com/docs/configuration/session/#secret
-authelia_storage_encryption_key: "{{ lookup('env', 'AUTHELIA_STORAGE_ENCRYPTION_KEY') }}"         # Randomly generated string - used to encrypt data in the database - https://www.authelia.com/docs/configuration/storage/#encryption_key
-# MariaDB details - Please create this DB/user/pass manually
-# CREATE DATABASE '{{ authelia_database_name }}';
-# CREATE USER '{{ authelia_database_username }}'@'%' IDENTIFIED BY '{{ authelia_database_password }}';
-# GRANT ALL PRIVILEGES ON {{ authelia_database_name }}.* TO '{{ authelia_database_username }}'@'%';
-# FLUSH PRIVILEGES;
-authelia_database_name: "{{ lookup('env', 'AUTHELIA_DATABASE_NAME') }}"
-authelia_database_username: "{{ lookup('env', 'AUTHELIA_DATABASE_USERNAME') }}"
-authelia_database_password: "{{ lookup('env', 'AUTHELIA_DATABASE_PASSWORD') }}"
-
-# SMTP settings to connect to an external SMTP server to send forgotten password emails
-authelia_smtp_sender: "{{ lookup('env', 'AUTHELIA_SMTP_SENDER') }}" # What you want the sender email to be (this can be different to the authentication address to connect to SMTP server)
-authelia_smtp_host: "{{ lookup('env', 'AUTHELIA_SMTP_HOST') }}"     # SMTP hostname - e.g. smtp.gmail.com
-authelia_smtp_port: "{{ lookup('env', 'AUTHELIA_SMTP_PORT') }}"     # port for remote SMTP server - e.g. 465 for google
-
-authelia_users: "{{ lookup('env', 'AUTHELIA_USERS') | from_yaml }}"
-
-mqtt_logins: "{{ lookup('env', 'MQTT_LOGINS') | from_yaml }}" # mqtt users that can authenticate and pub/sub to mqtt - key,val = user,pass
-
-zigbe2mqtt_user: "{{ lookup('env', 'ZIGBE2MQTT_USER') }}"   # MQTT user for zigbee2mqtt container - Must match one of the mqtt users above
-
-hass_port: "{{ lookup('env', 'HASS_PORT') }}"
-# To find this zigbee_adapter_tty, on the docker host type `ls -l /dev/serial/by-id`
-# Resource -> https://www.zigbee2mqtt.io/guide/installation/20_zigbee2mqtt-fails-to-start.html#which-port-should-i-use-for-texas-instruments-launchxl-cc26x2r1-cc1352p-2-dev-ttyacm0-or-dev-ttyacm1
-hass_zigbee_adapter_tty: "{{ lookup('env', 'HASS_ZIGBEE_ADAPTER_TTY') }}"
-# These are the git api URL's to pull facts about version and download url for custom_components
-# The heys serve as the component name that will be unzipped into "custom_components" dir. The zip file you download must contain this name inside it at a maximum 4 depth
-# the 'github_repo' should be in the format "user/repo"
-hass_custom_components: "{{ lookup('env', 'HASS_CUSTOM_COMPONENTS') | from_yaml }}"
-
-# home assistant secrets config
-hass_http_trusted_proxies: "{{ lookup('env', 'HASS_HTTP_TRUSTED_PROXIES') }}"
-
-# My PC static IP address for openhwmonitor and other integration to hass
-hass_pc_host: "{{ lookup('env', 'HASS_PC_HOST') }}"
-hass_home_name: "{{ lookup('env', 'HASS_HOME_NAME') }}"
-hass_latitude_home: "{{ lookup('env', 'HASS_LATITUDE_HOME') }}"
-hass_longitude_home: "{{ lookup('env', 'HASS_LONGITUDE_HOME') }}"
-hass_elevation: "{{ lookup('env', 'HASS_ELEVATION') }}"
-hass_currency: "{{ lookup('env', 'HASS_CURRENCY') }}"
-
-# Entities in glob format that you want to store data for in influxdb
-hass_influxdb_glob_entities: "{{ lookup('env', 'HASS_INFLUXDB_GLOB_ENTITIES') }}"
-
-hass_mqtt_username: "{{ lookup('env', 'HASS_MQTT_USERNAME') }}"
-hass_mqtt_password: "{{ lookup('env', 'HASS_MQTT_PASSWORD') }}"
-
-hass_google_service_account: "{{ lookup('env', 'HASS_GOOGLE_SERVICE_ACCOUNT') }}"
-
-influxdb_org_name: "{{ lookup('env', 'INFLUXDB_ORG_NAME') }}"
-influxdb_org_id: "{{ lookup('env', 'INFLUXDB_ORG_ID') }}" # This is in the URL after /orgs
-influxdb_hass_bucket_name: "{{ lookup('env', 'INFLUXDB_HASS_BUCKET_NAME') }}"
-influxdb_hass_token: "{{ lookup('env', 'INFLUXDB_HASS_TOKEN') }}"
-influxdb_windows_bucket_name: "{{ lookup('env', 'INFLUXDB_WINDOWS_BUCKET_NAME') }}"
-influxdb_windows_pc_token: "{{ lookup('env', 'INFLUXDB_WINDOWS_PC_TOKEN') }}"
-influxdb_proxmox_bucket_name: "{{ lookup('env', 'INFLUXDB_PROXMOX_BUCKET_NAME') }}"
-influxdb_proxmox_token: "{{ lookup('env', 'INFLUXDB_PROXMOX_TOKEN') }}"
-
-ozbargain_slack_webhook: "{{ lookup('env', 'OZBARGAIN_SLACK_WEBHOOK') }}"
-ozbargain_slack_webhook_frontpage: "{{ lookup('env', 'OZBARGAIN_SLACK_WEBHOOK_FRONTPAGE') }}"
-
-# MariaDB details - Please create this DB/user/pass manually
-# CREATE DATABASE '{{ photoprism_database_name }}';
-# CREATE USER '{{ photoprism_database_username }}'@'%' IDENTIFIED BY '{{ photoprism_database_password }}';
-# GRANT ALL PRIVILEGES ON {{ photoprism_database_name }}.* TO '{{ photoprism_database_username }}'@'%';
-# FLUSH PRIVILEGES;
-photoprism_database_name: "{{ lookup('env', 'PHOTOPRISM_DATABASE_NAME') }}"
-photoprism_database_username: "{{ lookup('env', 'PHOTOPRISM_DATABASE_USERNAME') }}"
-photoprism_database_password: "{{ lookup('env', 'PHOTOPRISM_DATABASE_PASSWORD') }}"
