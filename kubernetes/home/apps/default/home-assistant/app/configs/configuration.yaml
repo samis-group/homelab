@@ -1,0 +1,73 @@
+---
+# This is heavily based off this HA config -> https://github.com/frenck/home-assistant-config
+#
+# My system is very modular and thus structured differently
+# to other configurations you'll find online. This is done to
+# break up a monolithic config into smaller pieces.
+#
+# Basically, each file in the repository does 1
+# thing only! Click through it, you'll get it pretty fast.
+#
+# The configuration.yaml is only used for basic settings and 
+# then bootstrap the system.
+#
+
+# Load frontend themes from the themes folder
+# frontend:
+#   themes: !include_dir_merge_named themes
+
+homeassistant:
+  # Name of the location where Home Assistant is running
+  name: !secret home_name
+  # Location required to calculate the time the sun rises and sets
+  latitude: !secret latitude_home
+  longitude: !secret longitude_home
+  elevation: !secret elevation
+  unit_system: metric
+  time_zone: !secret time_zone
+  currency: !secret currency
+  external_url: !secret external_url
+  internal_url: !secret internal_url
+
+  # customize: !include customize.yaml
+  # customize_glob: !include customize_glob.yaml
+
+  # Load packages - This is the main folder containing all of the broken up configuration.
+  packages: !include_dir_named integrations
+
+  auth_providers:
+    - type: homeassistant
+    - type: trusted_networks
+      trusted_networks:
+        - !secret local_network_lan
+        # - !secret grafana_ip  # If you want to integrate grafana dashboard into hass, or you can do the whole homelab subnet below
+        - !secret local_network_homelab
+
+# Some required ones
+sun:
+person:
+
+# Scenes includes
+scene: !include scenes.yaml
+# scene split: !include_dir_merge_list scenes
+
+# Automations includes
+automation: !include automations.yaml
+# automation split: !include_dir_merge_list automations
+
+# Script includes
+script: !include scripts.yaml
+# script split: !include_dir_merge_list scripts
+
+# Group includes
+# group: !include_dir_merge_named entities/group
+
+# The light component allows you to track and control various light bulbs.
+# This loads up my light configurations.
+#
+# https://www.home-assistant.io/integrations/light/
+#
+# light: !include_dir_merge_named entities/lights
+
+# Media Player Entities
+# media_player: !include_dir_merge_named entities/media_players

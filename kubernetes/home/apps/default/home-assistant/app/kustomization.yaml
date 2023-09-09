@@ -1,0 +1,31 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - helm-release.yaml
+  - ingress.yaml
+  - secrets/gcp-sa.yaml
+  - secrets/secrets-config.yaml
+  - secrets/secrets.yaml
+configMapGenerator:
+  - name: home-assistant-config-secrets-tpl
+    files:
+      - ./configs/secrets.yaml
+  - name: home-assistant-config-configuration
+    files:
+      - ./configs/configuration.yaml
+  - name: home-assistant-config-integrations-http
+    files:
+      - ./configs/integrations/http.yaml
+  - name: home-assistant-config-integrations-default-config
+    files:
+      - ./configs/integrations/default_config.yaml
+  - name: home-assistant-config-integrations-zone
+    files:
+      - ./configs/integrations/zone.yaml
+generatorOptions:
+  disableNameSuffixHash: true
+commonLabels:
+  app.kubernetes.io/name: home-assistant
+  app.kubernetes.io/instance: home-assistant
+  # app.kubernetes.io/component: app

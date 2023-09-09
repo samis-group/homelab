@@ -1,0 +1,17 @@
+---
+zone:
+  - name: Home
+    latitude: !secret latitude_home
+    longitude: !secret longitude_home
+    radius: 200
+    icon: mdi:home
+  # - name: Sydney CBD
+  #   latitude: !secret latitude_sydney_cbd
+  #   longitude: !secret longitude_sydney_cbd
+  #   radius: 200
+  #   icon: mdi:school
+  # - name: school
+  #   latitude: !secret latitude_downtown
+  #   longitude: !secret longitude_downtown
+  #   radius: 200
+  #   icon: mdi:school

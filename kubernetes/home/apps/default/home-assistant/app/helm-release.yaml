@@ -1,0 +1,207 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.devbu.io/helm.toolkit.fluxcd.io/helmrelease_v2beta1.json
+
+###########################################
+# ONCE THE RELEASE IS DEPLOYED, JUMP INTO #
+# THE HASS CONTAINER AND COPY THE CONFIGS #
+#   cp -rf /config/templates/* /config/   #
+###########################################
+
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: home-assistant
+  namespace: default
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: app-template
+      version: 1.5.1
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+      interval: 15m
+  maxHistory: 3
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+    # timeout: 10m
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+    # timeout: 10m
+  uninstall:
+    keepHistory: false
+  # dependsOn:
+  #   - name: rook-ceph-cluster
+  #     namespace: rook-ceph
+  #   - name: volsync
+  #     namespace: volsync
+  values:
+    controller:
+      type: statefulset
+    image:
+      repository: ghcr.io/onedr0p/home-assistant
+      tag: 2023.9.0
+    # initContainers:
+    #   init-db:
+    #     image: ghcr.io/onedr0p/postgres-initdb:14.8
+    #     imagePullPolicy: IfNotPresent
+    #     envFrom:
+    #       - secretRef:
+    #           name: home-assistant-secrets
+    # initContainers:
+    #   config-generator:
+    #     image: busybox
+    #     command: ['sh', '-c', 'cp -rf /config/templates/* /config/']
+    #     # command: ['sh', '-c', 'ls /config']
+    #     volumeMounts:
+    #       - name: config
+    #         mountPath: /config
+    env:
+      TZ:
+        valueFrom:
+          secretKeyRef:
+            name: common-secrets
+            key: TZ
+    envFrom:
+      - secretRef:
+          name: home-assistant-secrets
+    # hostNetwork: true
+    # dnsPolicy: ClusterFirstWithHostNet
+    service:
+      main:
+        type: LoadBalancer
+        loadBalancerIP: 10.10.0.83
+        annotations:
+          external-dns.alpha.kubernetes.io/hostname: home-assistant-lb.shaklab.com, hass-lb.shaklab.com
+          external-dns.alpha.kubernetes.io/target: 10.10.0.83
+          external-dns.alpha.kubernetes.io/cloudflare-proxied: "false"
+        ports:
+          http:
+            port: 8123
+    # ingress:
+    #   main:
+    #     enabled: true
+    #     ingressClassName: "nginx"
+    #     hosts:
+    #       - host: "hass.eviljungle.com"
+    #         paths:
+    #           - path: /
+    #     tls:
+    #       - hosts:
+    #           - hass.eviljungle.com
+    probes:
+      liveness:
+        enabled: false
+      readiness:
+        enabled: false
+      startup:
+        enabled: false
+    podSecurityContext:
+      runAsUser: 0
+      runAsGroup: 0
+      fsGroup: 0
+      fsGroupChangePolicy: OnRootMismatch
+    persistence:
+      config:
+        enabled: true
+        storageClass: local-path
+        accessMode: ReadWriteOnce
+        size: "10Gi"
+        retain: true
+      home-assistant-gcp-sa-json:
+        enabled: true
+        type: secret
+        name: home-assistant-config-gcp-sa-secret
+        subPath: home-assistant-service-account.json
+        mountPath: /config/templates/home-assistant-service-account.json
+        readOnly: true
+      home-assistant-config-secrets:
+        enabled: true
+        type: secret
+        name: home-assistant-config-secrets-secret
+        subPath: secrets.yaml
+        mountPath: /config/templates/secrets.yaml
+        readOnly: true
+      home-assistant-config-configuration:
+        enabled: true
+        type: configMap
+        name: home-assistant-config-configuration
+        subPath: configuration.yaml
+        mountPath: /config/templates/configuration.yaml
+        readOnly: true
+        # defaultMode: 0775
+      home-assistant-config-integrations-http:
+        enabled: true
+        type: configMap
+        name: home-assistant-config-integrations-http
+        subPath: http.yaml
+        mountPath: /config/templates/integrations/http.yaml
+        readOnly: true
+        # defaultMode: 0775
+      home-assistant-config-integrations-zone:
+        enabled: true
+        type: configMap
+        name: home-assistant-config-integrations-zone
+        subPath: zone.yaml
+        mountPath: /config/templates/integrations/zone.yaml
+        readOnly: true
+        # defaultMode: 0775
+      home-assistant-config-integrations-default-config:
+        enabled: true
+        type: configMap
+        name: home-assistant-config-integrations-default-config
+        subPath: default_config.yaml
+        mountPath: /config/templates/integrations/default_config.yaml
+        readOnly: true
+        # defaultMode: 0775
+    resources:
+      requests:
+        cpu: 100m
+        memory: 512M
+      limits:
+        memory: 2048M
+    # tolerations:
+    # - key: "arm"
+    #   operator: "Exists"
+    addons:
+      codeserver:
+        enabled: true
+        image:
+          repository: codercom/code-server
+          tag: 4.16.1
+        workingDir: "/config"
+        args:
+          - --user-data-dir
+          - "/config/.vscode"
+          - --auth
+          - "none"
+        env:
+          TZ:
+            valueFrom:
+              secretKeyRef:
+                name: common-secrets
+                key: TZ
+          HASS_SERVER: http://localhost:8123
+        # ingress:
+        #   enabled: true
+        #   ingressClassName: nginx
+        #   annotations:
+        #     nginx.ingress.kubernetes.io/auth-url: "https://auth.eviljungle.com/oauth2/auth"
+        #     nginx.ingress.kubernetes.io/auth-signin: https://auth.eviljungle.com/oauth2/start
+        #   hosts:
+        #     - host: hass-vscode.eviljungle.com
+        #       paths:
+        #         - path: /
+        #           pathType: Prefix
+        #   tls:
+        #     - hosts:
+        #         - hass-vscode.eviljungle.com
+        volumeMounts:
+        - name: config
+          mountPath: /config
