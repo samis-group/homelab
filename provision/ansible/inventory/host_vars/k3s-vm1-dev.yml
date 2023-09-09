@@ -9,5 +9,5 @@ vm:
   hdd_size: "20G"
   cores: 2
   memory: 8000
-  template: "DebianCloud-bullseye-11"   # Specify a template
+  template: "UbuntuCloud-jammy-22.04"   # Specify a template
   storage: "local"
