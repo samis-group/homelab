@@ -55,7 +55,7 @@ tasks:
     aliases: ["e"]
     cmds:
       - task: :doppler:generate-ansible-inventory
-      - "{{.ANSIBLE_PLAYBOOK_CMD}} {{.ANSIBLE_PLAYBOOK_DIR}}/k3s.yml {{.CLI_ARGS}}"
+      - "{{.ANSIBLE_PLAYBOOK_CMD}} {{.ANSIBLE_PLAYBOOK_DIR}}/k3s.yml --limit 'k3s-vm1' {{.CLI_ARGS}}"
 
   reset:
     desc: ☸ Reset k3s stack from beginning of it's inception

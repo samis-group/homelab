@@ -16,13 +16,13 @@
 - name: Provision k3s VM's on Proxmox Host - Part one
   tags: ["never", "proxmox-provision-k3s"]
   vars:
-    target_host_group: k3s
+    target_host_group: k3s-vm1
     target_proxmox_host: dell5820
   import_playbook: proxmox_vm_provision.yml
 
 - name: Provision k3s VM's on Proxmox Host - Part two
   tags: ["never", "proxmox-provision-k3s"]
-  hosts: k3s
+  hosts: k3s-vm1
   become: true
   gather_facts: false   # Because they don't exist yet
   tasks:
@@ -34,13 +34,13 @@
 - name: Provision k3s-dev VM's on Proxmox Host - Part one
   tags: ["never", "proxmox-provision-k3s-dev"]
   vars:
-    target_host_group: k3s-dev
+    target_host_group: k3s-vm1-dev
     target_proxmox_host: dell5820
   import_playbook: proxmox_vm_provision.yml
 
 - name: Provision k3s-dev VM's on Proxmox Host - Part two
   tags: ["never", "proxmox-provision-k3s-dev"]
-  hosts: k3s-dev
+  hosts: k3s-vm1-dev
   become: true
   gather_facts: false   # Because they don't exist yet
   tasks:
