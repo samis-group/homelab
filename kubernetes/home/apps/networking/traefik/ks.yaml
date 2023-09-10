@@ -3,19 +3,38 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: cluster-apps-traefik-app
+  name: cluster-apps-traefik-release
   namespace: flux-system
 spec:
   dependsOn:
     - name: cluster-apps-cert-manager-certificates
     - name: cluster-apps-external-secrets-stores
+  path: ./kubernetes/home/apps/networking/traefik/release
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: homelab
+  wait: true
+  interval: 1h
+  retryInterval: 1m
+  timeout: 5m
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.devbu.io/kustomize.toolkit.fluxcd.io/kustomization_v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: cluster-apps-traefik-app
+  namespace: flux-system
+spec:
+  dependsOn:
+    - name: cluster-apps-traefik-release
   path: ./kubernetes/home/apps/networking/traefik/app
   prune: true
   sourceRef:
     kind: GitRepository
     name: homelab
   wait: true
-  interval: 30m
+  interval: 1h
   retryInterval: 1m
   timeout: 5m
 ---
@@ -35,7 +54,7 @@ spec:
     kind: GitRepository
     name: homelab
   wait: true
-  interval: 30m
+  interval: 1h
   retryInterval: 1m
   timeout: 5m
 ---
@@ -55,7 +74,7 @@ spec:
     kind: GitRepository
     name: homelab
   wait: true
-  interval: 30m
+  interval: 1h
   retryInterval: 1m
   timeout: 5m
 # ---
@@ -75,6 +94,6 @@ spec:
 #     kind: GitRepository
 #     name: homelab
 #   wait: true
-#   interval: 30m
+#   interval: 1h
 #   retryInterval: 1m
 #   timeout: 5m

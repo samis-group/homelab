@@ -6,4 +6,3 @@ resources:
   - ./default-tls-cert.yaml
   - ./ingress.yaml
   - ./metrics.yaml
-  - ./release.yaml
