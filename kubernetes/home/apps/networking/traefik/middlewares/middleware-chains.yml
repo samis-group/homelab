@@ -3,6 +3,7 @@ apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
 metadata:
   name: middlewares-chain-no-auth
+  namespace: default
 spec:
   chain:
     middlewares:
@@ -15,6 +16,7 @@ apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
 metadata:
   name: middlewares-chain-basic-auth
+  namespace: default
 spec:
   chain:
     middlewares:
@@ -28,6 +30,7 @@ apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
 metadata:
   name: middlewares-chain-oauth
+  namespace: default
 spec:
   chain:
     middlewares:
@@ -41,6 +44,7 @@ apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
 metadata:
   name: middlewares-chain-oauth-no-ratelimit
+  namespace: default
 spec:
   chain:
     middlewares:
@@ -53,6 +57,7 @@ apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
 metadata:
   name: middlewares-chain-authelia
+  namespace: default
 spec:
   chain:
     middlewares:
