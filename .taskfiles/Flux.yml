@@ -25,12 +25,18 @@ tasks:
       # - task: reconcile
 
   reconcile:
-    desc: Force update Flux to pull in changes from your Git repository
+    desc: Force update Flux to pull in changes from your Git repository for flux changes
     aliases: ["r"]
     cmds:
       - flux reconcile -n flux-system source git homelab
       - flux reconcile -n flux-system kustomization flux-cluster
-      # - flux reconcile -n flux-system kustomization flux
+      - flux reconcile -n flux-system kustomization flux
+
+  reconcile-apps:
+    desc: Force update Flux to pull in changes from your Git repository for apps changes
+    aliases: ["ra"]
+    cmds:
+      - flux reconcile -n flux-system source git homelab
       - flux reconcile -n flux-system kustomization apps-cluster
 
   hr-restart:
