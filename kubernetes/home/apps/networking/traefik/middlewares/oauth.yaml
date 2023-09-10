@@ -3,6 +3,7 @@ apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
 metadata:
   name: middlewares-oauth
+  namespace: default
 spec:
   forwardAuth:
     address: "http://traefik-oauth:4181" # Make sure you have the OAuth service in docker-compose.yml
