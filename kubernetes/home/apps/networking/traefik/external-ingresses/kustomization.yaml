@@ -5,7 +5,7 @@ resources:
   - ./file-browser-truenas.yaml
   - ./pfsense.yaml
   - ./proxmox.yml
-  - ./qbittorrent-nas.yml
+  # - ./qbittorrent-nas.yml
   - ./synology-nas.yml
-  - ./transmission-nas.yml
+  # - ./transmission-nas.yml
   - ./truenas.yml
