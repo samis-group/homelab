@@ -3,9 +3,12 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: cluster-apps-traefik
+  name: cluster-apps-traefik-app
   namespace: flux-system
 spec:
+  dependsOn:
+    - name: cluster-apps-cert-manager-certificates
+    - name: cluster-apps-external-secrets-stores
   path: ./kubernetes/home/apps/networking/traefik/app
   prune: true
   sourceRef:
@@ -24,7 +27,7 @@ metadata:
   namespace: flux-system
 spec:
   dependsOn:
-    - name: cluster-apps-traefik
+    - name: cluster-apps-traefik-app
     - name: cluster-apps-external-secrets-stores
   path: ./kubernetes/home/apps/networking/traefik/external-ingresses
   prune: true
@@ -44,7 +47,7 @@ metadata:
   namespace: flux-system
 spec:
   dependsOn:
-    - name: cluster-apps-traefik
+    - name: cluster-apps-traefik-app
     - name: cluster-apps-external-secrets-stores
   path: ./kubernetes/home/apps/networking/traefik/middlewares
   prune: true
@@ -64,7 +67,7 @@ spec:
 #   namespace: flux-system
 # spec:
 #   dependsOn:
-#     - name: cluster-apps-traefik
+#     - name: cluster-apps-traefik-app
 #     - name: cluster-apps-external-secrets-stores
 #   path: ./kubernetes/home/apps/networking/traefik/dashboard
 #   prune: true

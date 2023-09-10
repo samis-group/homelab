@@ -6,6 +6,9 @@ metadata:
   name: cluster-apps-unifi
   namespace: flux-system
 spec:
+  dependsOn:
+    - name: cluster-apps-external-secrets-stores
+    - name: cluster-apps-traefik-app
   path: ./kubernetes/home/apps/networking/unifi/app
   prune: true
   sourceRef:

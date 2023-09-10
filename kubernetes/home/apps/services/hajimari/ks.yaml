@@ -6,12 +6,15 @@ metadata:
   name: cluster-apps-hajimari
   namespace: flux-system
 spec:
+  dependsOn:
+    - name: cluster-apps-external-secrets-stores
+    - name: cluster-apps-traefik-app
   path: ./kubernetes/home/apps/services/hajimari/app
   prune: true
   sourceRef:
     kind: GitRepository
     name: homelab
   wait: true
-  interval: 30m
+  interval: 1h
   retryInterval: 1m
   timeout: 5m
