@@ -5,7 +5,6 @@ namespace: kube-system
 resources:
   - ./all-secrets.yaml
   - ./clustersecretstore.yaml
-  - ./common-secrets.yaml
   # - ./secret.sops.yaml
 labels:
   - pairs:
