@@ -27,8 +27,10 @@ tasks:
   reconcile:
     desc: Force update Flux to pull in changes from your Git repository
     cmds:
-      - flux reconcile -n flux-system source git flux-cluster
+      # - flux reconcile -n flux-system source git homelab
       # - flux reconcile -n flux-system kustomization flux-cluster
+      # - flux reconcile -n flux-system kustomization flux
+      - flux reconcile -n flux-system kustomization apps-cluster
 
   hr-restart:
     desc: Restart all failed Helm Releases
