@@ -24,11 +24,17 @@ tasks:
       # - kubectl apply --kustomize {{.CLUSTER_DIR}}/flux/config
       # - task: reconcile
 
+  reconcile-git:
+    desc: Update git repository for flux changes
+    internal: true
+    cmds:
+      - flux reconcile -n flux-system source git homelab
+
   reconcile:
     desc: Force update Flux to pull in changes from your Git repository for flux changes
     aliases: ["r"]
     cmds:
-      - flux reconcile -n flux-system source git homelab
+      - task: reconcile-git
       - flux reconcile -n flux-system kustomization flux-cluster
       - flux reconcile -n flux-system kustomization flux
 
@@ -36,7 +42,7 @@ tasks:
     desc: Force update Flux to pull in changes from your Git repository for apps changes
     aliases: ["ra"]
     cmds:
-      - flux reconcile -n flux-system source git homelab
+      - task: reconcile-git
       - flux reconcile -n flux-system kustomization apps-cluster
 
   hr-restart:
