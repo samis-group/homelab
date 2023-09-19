@@ -1,0 +1,80 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: xteve
+  namespace: default
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: app-template
+      version: 1.5.1
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+      interval: 1h
+  install:
+    createNamespace: true
+  values:
+    image:
+      repository: alturismo/xteve
+      tag: latest
+      # pullPolicy: Always
+    env:
+      TZ:
+        valueFrom:
+          secretKeyRef:
+            name: common-secrets
+            key: TZ
+    # podSecurityContext:
+    #   runAsUser: 1000
+    #   runAsGroup: 1000
+    #   fsGroup: 1000
+    #   fsGroupChangePolicy: "OnRootMismatch"
+    service:
+      main:
+        annotations:
+          external-dns.alpha.kubernetes.io/hostname: xteve.shaklab.com
+          external-dns.alpha.kubernetes.io/target: ipv4.shaklab.com
+        ports:
+          http:
+            port: &port 34400
+      # This service is mainly for DNS and LB but can also be used to route to from container to container
+      web:
+        type: LoadBalancer
+        loadBalancerIP: "10.10.0.84"
+        annotations:
+          external-dns.alpha.kubernetes.io/hostname: xteve-lb.shaklab.com
+          external-dns.alpha.kubernetes.io/target: 10.10.0.84
+          external-dns.alpha.kubernetes.io/cloudflare-proxied: "false"
+        ports:
+          web:
+            port: *port
+
+    # ingress:
+    #   main:
+    #     enabled: true
+    #     ingressClassName: "internal"
+    #     hosts:
+    #       - host: &host "xteve.${SECRET_DOMAIN}"
+    #         paths:
+    #           - path: /
+    #             pathType: Prefix
+    #     tls:
+    #       - hosts:
+    #           - *host
+    persistence:
+      data:
+        enabled: true
+        storageClass: local-path
+        accessMode: ReadWriteOnce
+        size: "10Gi"
+        retain: true
+        type: custom
+        volumeSpec:
+          hostPath:
+            type: DirectoryOrCreate
+            path: /root/k3s-volumes/xteve/data
+        mountPath: /data

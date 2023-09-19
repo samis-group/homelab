@@ -1,0 +1,21 @@
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: xteve
+  namespace: default
+  annotations:
+    kubernetes.io/ingress.class: traefik-external
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`xteve.shaklab.com`)
+      kind: Rule
+      middlewares:
+        - name: middlewares-chain-oauth-no-ratelimit
+      services:
+        - name: xteve
+          port: 34400
+  tls:
+    secretName: shaklab-com-tls-certs
