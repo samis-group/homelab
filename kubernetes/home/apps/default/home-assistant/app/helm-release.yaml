@@ -76,10 +76,10 @@ spec:
     service:
       main:
         type: LoadBalancer
-        loadBalancerIP: 10.10.0.83
+        loadBalancerIP: 10.10.0.87
         annotations:
           external-dns.alpha.kubernetes.io/hostname: home-assistant-lb.shaklab.com, hass-lb.shaklab.com
-          external-dns.alpha.kubernetes.io/target: 10.10.0.83
+          external-dns.alpha.kubernetes.io/target: 10.10.0.87
           external-dns.alpha.kubernetes.io/cloudflare-proxied: "false"
         ports:
           http:

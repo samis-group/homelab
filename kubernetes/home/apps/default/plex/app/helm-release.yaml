@@ -5,26 +5,24 @@ metadata:
   name: plex
   namespace: default
 spec:
+  interval: 1h
   chart:
     spec:
       chart: app-template
       version: 1.5.1
-      interval: 30m
+      interval: 1h
       sourceRef:
         kind: HelmRepository
         name: bjw-s
         namespace: flux-system
-  interval: 30m
   values:
+    image:
+      repository: ghcr.io/onedr0p/plex
+      tag: 1.32.5.7349-8f4248874@sha256:805ad80226d54f03c21efe84979558e7c3d0b07f345b9c929ff11de8cc216151
     podAnnotations:
       secret.reloader.stakater.com/reload: plex-secrets
     controller:
       strategy: RollingUpdate
-
-    image:
-      repository: ghcr.io/onedr0p/plex
-      tag: 1.32.5.7349-8f4248874@sha256:805ad80226d54f03c21efe84979558e7c3d0b07f345b9c929ff11de8cc216151
-
     env:
       TZ:
         valueFrom:
@@ -101,24 +99,6 @@ spec:
             enabled: true
             port: 8324
             protocol: TCP
-    # ingress:
-    #   main:
-    #     enabled: true
-    #     annotations:
-    #       nginx.ingress.kubernetes.io/backend-protocol: HTTPS
-    #       external-dns.alpha.kubernetes.io/target: "ingress.skylab.fi"
-    #       external-dns.target/enabled: "true"
-    #       external-dns-cf/is-public: "true"
-    #       external-dns-cf/is-dns-public: "true"
-    #     ingressClassName: nginx
-    #     hosts:
-    #       - host: &host plex.skylab.fi
-    #         paths:
-    #           - path: /
-    #             pathType: Prefix
-    #     tls:
-    #       - hosts:
-    #           - *host
 
     persistence:
       config:
@@ -144,11 +124,11 @@ spec:
       #   type: emptyDir
       #   mountPath: /.local
 
-    # podSecurityContext:
-    #   runAsUser: 568
-    #   runAsGroup: 568
-    #   fsGroup: 568
-    #   fsGroupChangePolicy: "OnRootMismatch"
+    podSecurityContext:
+      runAsUser: 568
+      runAsGroup: 568
+      fsGroup: 568
+      fsGroupChangePolicy: "OnRootMismatch"
     #   supplementalGroups:
     #     - 44 # video
     #     - 109 # render
@@ -184,3 +164,22 @@ spec:
     #     accessMode: ReadWriteOnce
     #     size: 20Gi
     #     storageClass: longhorn
+
+    # ingress:
+    #   main:
+    #     enabled: true
+    #     annotations:
+    #       nginx.ingress.kubernetes.io/backend-protocol: HTTPS
+    #       external-dns.alpha.kubernetes.io/target: "ingress.skylab.fi"
+    #       external-dns.target/enabled: "true"
+    #       external-dns-cf/is-public: "true"
+    #       external-dns-cf/is-dns-public: "true"
+    #     ingressClassName: nginx
+    #     hosts:
+    #       - host: &host plex.skylab.fi
+    #         paths:
+    #           - path: /
+    #             pathType: Prefix
+    #     tls:
+    #       - hosts:
+    #           - *host
