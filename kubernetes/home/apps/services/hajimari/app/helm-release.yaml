@@ -76,6 +76,10 @@ spec:
               url: "https://plex.shaklab.com"
               icon: mdi:plex
               info: Media Player
+            - name: Jellyfin
+              url: "https://jellyfin.shaklab.com"
+              icon: openmoji:jellyfin
+              info: Media Player Mostly for Live TV
             - name: Photoprism
               url: "https://photos.shaklab.com"
               icon: arcticons:photoprism
@@ -112,6 +116,10 @@ spec:
               url: "https://qbit.shaklab.com"
               icon: arcticons:qbittorrent-remote
               info: Torrent Downloader
+            - name: Xteve
+              url: "https://xteve.shaklab.com/web/"
+              icon: solar:stream-linear
+              info: IPTV M3U Proxy for Plex/Jellyfin
         - group: Cloud
           apps:
             - name: Traefik
