@@ -63,32 +63,32 @@
       ansible.builtin.import_tasks: ../tasks/linux/configure_hostname.yml
       when: configure_hostname
 
-    - name: Configure gitlab registry and clone git repos
-      ansible.builtin.import_tasks: ../tasks/docker/git.yml
-      when: git
+    # - name: Configure gitlab registry and clone git repos
+    #   ansible.builtin.import_tasks: ../tasks/docker/git.yml
+    #   when: git
 
     - name: Run Post docker install tasks
       ansible.builtin.import_tasks: ../tasks/docker/run_post_tasks.yml
       when: run_post_tasks
 
-    - name: Updating docker-compose and related files
-      ansible.builtin.import_tasks: ../tasks/docker/copy_files.yml
-      when: copy_files
-      tags: ["copy_files"]
+    # - name: Updating docker-compose and related files
+    #   ansible.builtin.import_tasks: ../tasks/docker/copy_files.yml
+    #   when: copy_files
+    #   tags: ["copy_files"]
 
-    - name: Updating docker-compose and related files
-      ansible.builtin.import_tasks: ../tasks/docker/update_compose.yml
-      when: update_compose
-      tags: ["update_compose"]
+    # - name: Updating docker-compose and related files
+    #   ansible.builtin.import_tasks: ../tasks/docker/update_compose.yml
+    #   when: update_compose
+    #   tags: ["update_compose"]
 
-    - name: Setup container directories and copy files
-      ansible.builtin.import_tasks: ../tasks/docker/setup_containers.yml
-      when: setup_containers
-      tags: ["setup_containers"]
+    # - name: Setup container directories and copy files
+    #   ansible.builtin.import_tasks: ../tasks/docker/setup_containers.yml
+    #   when: setup_containers
+    #   tags: ["setup_containers"]
 
-    - name: Write logrotate files to host
-      ansible.builtin.import_tasks: ../tasks/docker/logrotate.yml
-      when: logrotate
+    # - name: Write logrotate files to host
+    #   ansible.builtin.import_tasks: ../tasks/docker/logrotate.yml
+    #   when: logrotate
 
     # - name: Setup NAS mounts
     #   ansible.builtin.import_tasks: ../tasks/docker/setup_nas_mounts.yml
@@ -102,7 +102,7 @@
     #   ansible.builtin.import_tasks: ../tasks/docker/hass_config.yml
     #   when: hass_config
 
-    - name: Restore docker data from NFS mount on NAS? (optional)
-      ansible.builtin.import_tasks: ../tasks/docker/restore_docker_data.yml
-      when: restore_docker_data
-      tags: ["restore_docker_data"]
+    # - name: Restore docker data from NFS mount on NAS? (optional)
+    #   ansible.builtin.import_tasks: ../tasks/docker/restore_docker_data.yml
+    #   when: restore_docker_data
+    #   tags: ["restore_docker_data"]

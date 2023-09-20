@@ -13,7 +13,7 @@ ENV HISTIGNORE='*doppler secrets set*'
 
 # Ubuntu OS dependencies
 RUN apt-get update \
-    && apt-get install -y curl wget unzip tzdata vim openssh-server bash-completion sudo gosu sshpass jq \
+    && apt-get install -y curl wget unzip tzdata vim openssh-server bash-completion sudo gosu sshpass jq gettext-base \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 

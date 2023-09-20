@@ -25,6 +25,9 @@ kind: Service
 metadata:
   name: pfsense
   namespace: default
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: pfsense.shaklab.com
+    external-dns.alpha.kubernetes.io/target: ipv4.shaklab.com
 spec:
   type: ClusterIP
   ports:

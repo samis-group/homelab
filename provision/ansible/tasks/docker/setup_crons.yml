@@ -3,12 +3,12 @@
 ### Root Crontab ###
 ####################
 
-- name: Cron - Mount check
-  ansible.builtin.cron:
-    name: mount check
-    minute: "*/10"
-    user: root
-    job: "if [ $(grep '{{ user_dir }}/mount/' /proc/mounts | wc -l) -lt 3 ]; then mount -a; logger 'mounted NAS'; fi"
+# - name: Cron - Mount check
+#   ansible.builtin.cron:
+#     name: mount check
+#     minute: "*/10"
+#     user: root
+#     job: "if [ $(grep '{{ user_dir }}/mount/' /proc/mounts | wc -l) -lt 3 ]; then mount -a; logger 'mounted NAS'; fi"
 
 #########################
 ### main_user Crontab ###
@@ -32,13 +32,13 @@
 #     job: "bash -ic \"dcpull all; dstopall; drmcont; dcup all\" 2>&1 | logger -t dockerlogs"
 #    # job: "cd {{ docker_dir }}; /usr/local/bin/docker-compose pull; /usr/local/bin/docker-compose up -d --remove-orphans"
 
-- name: Cron - Start Docker containers at boot
-  ansible.builtin.cron:
-    name: start docker containers at boot
-    special_time: reboot
-    user: "{{ main_user }}"
-    job: "bash -ic \"dcup all\" 2>&1 | logger -t dockerlogs"
-    # job: "cd {{ docker_dir }}; /usr/local/bin/docker-compose up -d --remove-orphans"
+# - name: Cron - Start Docker containers at boot
+#   ansible.builtin.cron:
+#     name: start docker containers at boot
+#     special_time: reboot
+#     user: "{{ main_user }}"
+#     job: "bash -ic \"dcup all\" 2>&1 | logger -t dockerlogs"
+#     # job: "cd {{ docker_dir }}; /usr/local/bin/docker-compose up -d --remove-orphans"
 
 - name: Cron - Prune > 7 day old unused Docker images daily
   ansible.builtin.cron:

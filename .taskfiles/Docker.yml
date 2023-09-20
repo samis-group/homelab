@@ -7,6 +7,7 @@ tasks:
     desc: 🐳 Main docker play
     dir: provision/ansible
     deps: [':proxmox:provision-docker']
+    aliases: ["m"]
     cmds:
       - task: :doppler:generate-ansible-inventory
       - "{{.ANSIBLE_PLAYBOOK_CMD}} {{.ANSIBLE_PLAYBOOK_DIR}}/docker.yml {{.CLI_ARGS}}"

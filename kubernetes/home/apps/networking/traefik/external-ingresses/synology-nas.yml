@@ -25,6 +25,9 @@ kind: Service
 metadata:
   name: synology-nas
   namespace: default
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: nas.shaklab.com
+    external-dns.alpha.kubernetes.io/target: ipv4.shaklab.com
 spec:
   type: ClusterIP
   ports:

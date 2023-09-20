@@ -2,7 +2,7 @@
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
 metadata:
-  name: proxmox
+  name: home-assistant
   namespace: default
   annotations:
     kubernetes.io/ingress.class: traefik-external
@@ -10,40 +10,40 @@ spec:
   entryPoints:
     - websecure
   routes:
-    - match: Host(`proxmox.shaklab.com`, `pve.shaklab.com`)
+    - match: Host(`hass.shaklab.com`, `home-assistant.shaklab.com`)
       kind: Rule
       middlewares:
         - name: middlewares-chain-oauth
       services:
-        - name: proxmox
-          port: 8006
+        - name: home-assistant
+          port: 8123
   tls:
     secretName: shaklab-com-tls-certs
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: proxmox
+  name: home-assistant
   namespace: default
   annotations:
-    external-dns.alpha.kubernetes.io/hostname: proxmox.shaklab.com, pve.shaklab.com
+    external-dns.alpha.kubernetes.io/hostname: hass.shaklab.com, home-assistant.shaklab.com
     external-dns.alpha.kubernetes.io/target: ipv4.shaklab.com
 spec:
   type: ClusterIP
   ports:
-    - name: https # Use 'https' for https url in the service
-      port: 8006
+    - name: web
+      port: 8123
       protocol: TCP
 ---
 apiVersion: v1
 kind: Endpoints
 metadata:
-  name: proxmox
+  name: home-assistant
   namespace: default
 subsets:
   - addresses:
-    - ip: 10.10.0.11
+    - ip: 10.10.0.5
     ports:
-      - name: https # Use 'https' for https url in the service
-        port: 8006
+      - name: web
+        port: 8123
         protocol: TCP

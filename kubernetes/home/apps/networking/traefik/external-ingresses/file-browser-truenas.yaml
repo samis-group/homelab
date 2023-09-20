@@ -10,7 +10,7 @@ spec:
   entryPoints:
     - websecure
   routes:
-    - match: Host(`files.shaklab.com`)
+    - match: Host(`files.shaklab.com`, `file-browser.shaklab.com`)
       kind: Rule
       middlewares:
         - name: middlewares-chain-oauth
@@ -32,7 +32,7 @@ spec:
   entryPoints:
     - websecure
   routes:
-    - match: Host(`files.shaklab.com`) && PathPrefix(`/share`, `/static`, `/api/public/{share|dl}`) # Allow share publicly
+    - match: Host(`files.shaklab.com`, `file-browser.shaklab.com`) && PathPrefix(`/share`, `/static`, `/api/public/{share|dl}`) # Allow share publicly
       kind: Rule
       services:
         - name: file-browser
@@ -45,6 +45,9 @@ kind: Service
 metadata:
   name: file-browser
   namespace: default
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: files.shaklab.com, file-browser.shaklab.com
+    external-dns.alpha.kubernetes.io/target: ipv4.shaklab.com
 spec:
   type: ClusterIP
   ports:

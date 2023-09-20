@@ -49,7 +49,7 @@ includes:
     aliases: ["a", "ans"]
   docker:
     taskfile: .taskfiles/Docker.yml
-    aliases: ["dc"]
+    aliases: ["d"]
   doppler:
     taskfile: .taskfiles/Doppler.yml
     aliases: ["dp"]
