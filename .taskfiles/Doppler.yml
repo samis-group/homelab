@@ -77,3 +77,14 @@ tasks:
       DOPPLER_K3S_HOSTS_INVENTORY_VAR: '{{default "K3S_ANSIBLE_HOSTS_INVENTORY" .DOPPLER_K3S_HOSTS_INVENTORY_VAR}}'
     cmds:
       - "doppler secrets get {{.DOPPLER_K3S_HOSTS_INVENTORY_VAR}} --plain > {{.ANSIBLE_INVENTORY_FILENAME}}"
+
+  # This task is required by multiple other taskfiles, call it with `:doppler:generate-ansible-inventory`
+  test:
+    desc: Test doppler gets secret
+    vars:
+      DOPPLER_VAR_TO_TEST: '{{default "DOMAIN_NAME" .DOPPLER_VAR_TO_TEST}}'
+    cmds:
+      - |
+        SECRET_NAME="{{ .DOPPLER_VAR_TO_TEST }}"
+        SECRET_VALUE=$(doppler secrets get $SECRET_NAME --plain)
+        echo $SECRET_VALUE
