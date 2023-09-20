@@ -8,6 +8,6 @@ vm:
   id: 106   # Required
   hdd_size: "100G"
   cores: 4
-  memory: 12000
+  memory: 24000
   template: "UbuntuCloud-jammy-22.04"   # Specify a template
   storage: "local"
