@@ -1,0 +1,17 @@
+---
+# ------------ #
+# DNS For Host #
+# ------------ #
+- name: Cloudflare DNS for Home Assistant VM
+  hosts: localhost
+  # Special tag "always" -> https://docs.ansible.com/ansible/latest/user_guide/playbooks_tags.html#special-tags-always-and-never
+  tags: ["always"]
+  gather_facts: false
+  tasks:
+    - name: Setup cloudflare DNS for Home Assistant VM
+      community.general.cloudflare_dns:
+        zone: "{{ domain_name }}"
+        record: "hass-lb"
+        type: A
+        value: "{{ hass_ip }}"
+        api_token: "{{ cloudflare_api_token }}"

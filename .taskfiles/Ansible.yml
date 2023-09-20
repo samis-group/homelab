@@ -107,3 +107,11 @@ tasks:
     cmds:
       - task: :doppler:generate-ansible-inventory
       - "{{.ANSIBLE_PLAYBOOK_CMD}} {{.ANSIBLE_PLAYBOOK_DIR}}/nuc.yml {{.CLI_ARGS}}"
+
+  home-assistant:
+    desc: Setup/Configure Home Assistant
+    dir: provision/ansible
+    aliases: ["ha"]
+    cmds:
+      - task: :doppler:generate-ansible-inventory
+      - "{{.ANSIBLE_PLAYBOOK_CMD}} {{.ANSIBLE_PLAYBOOK_DIR}}/home_assistant_vm.yml {{.CLI_ARGS}}"

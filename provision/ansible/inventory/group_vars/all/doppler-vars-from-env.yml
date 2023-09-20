@@ -120,6 +120,7 @@ mqtt_logins: "{{ lookup('env', 'MQTT_LOGINS') | from_yaml }}" # mqtt users that 
 
 zigbe2mqtt_user: "{{ lookup('env', 'ZIGBE2MQTT_USER') }}"   # MQTT user for zigbee2mqtt container - Must match one of the mqtt users above
 
+hass_ip: "{{ lookup('env', 'HASS_IP') }}"
 hass_port: "{{ lookup('env', 'HASS_PORT') }}"
 # To find this zigbee_adapter_tty, on the docker host type `ls -l /dev/serial/by-id`
 # Resource -> https://www.zigbee2mqtt.io/guide/installation/20_zigbee2mqtt-fails-to-start.html#which-port-should-i-use-for-texas-instruments-launchxl-cc26x2r1-cc1352p-2-dev-ttyacm0-or-dev-ttyacm1
