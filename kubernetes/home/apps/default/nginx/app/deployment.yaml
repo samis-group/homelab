@@ -38,4 +38,4 @@ spec:
             - name: NGINX_PORT
               value: "80"
       imagePullSecrets:
-        - name: registry-credentials
+        - name: gitlab-registry-credentials

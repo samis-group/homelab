@@ -25,6 +25,27 @@ resource "kubernetes_secret" "discord_webhook" {
 }
 
 # Gitlab Registry Credentials for pulling private images
+resource "kubernetes_secret" "gitlab_registry_credentials" {
+  metadata {
+    name      = "gitlab-registry-credentials"
+    namespace = "default"
+  }
+  data = {
+    ".dockerconfigjson" = jsonencode({
+      auths = {
+        "https://registry.gitlab.com" = {
+          username = data.doppler_secrets.dev_container.map.GITLAB_USERNAME
+          password = data.doppler_secrets.dev_container.map.GITLAB_PERSONAL_ACCESS_TOKEN
+          email    = data.doppler_secrets.dev_container.map.GMAIL_ADDRESS
+          auth     = base64encode("${data.doppler_secrets.dev_container.map.GITLAB_USERNAME}:${data.doppler_secrets.dev_container.map.GITLAB_PERSONAL_ACCESS_TOKEN}")
+        }
+      }
+    })
+  }
+  type = "kubernetes.io/dockerconfigjson"
+}
+
+# Gitlab Registry Credentials for pulling private images
 resource "kubernetes_secret" "registry_credentials" {
   metadata {
     name      = "registry-credentials"
