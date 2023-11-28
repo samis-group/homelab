@@ -5,9 +5,8 @@ kind: Kustomization
 resources:
   - ./api/ks.yaml
   # - ./authelia/ks.yaml
-  # - ./bazarr/ks.yaml
+  - ./bazarr/ks.yaml
   # - ./home-assistant/ks.yaml
-  # - ./jellyfin/ks.yaml
   # - ./mosquitto/ks.yaml
   - ./namespace.yaml
   - ./nginx/ks.yaml
