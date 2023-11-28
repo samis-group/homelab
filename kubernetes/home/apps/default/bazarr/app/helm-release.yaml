@@ -79,29 +79,37 @@ spec:
         enabled: true
         existingClaim: bazarr-config
       nfs-nas-movies:
-        enabled: true
-        mountPath: /media/movies
+        type: nfs
+        server: 10.10.0.2
         path: /volume1/docker/data/media/movies
-        server: 10.10.0.2
-        type: nfs
+        advancedMounts:
+          main:
+            main:
+              - path: /media/movies
       nfs-nas-tv:
-        enabled: true
-        mountPath: /media/tv
-        path: /volume1/docker/data/media/tv
-        server: 10.10.0.2
         type: nfs
+        server: 10.10.0.2
+        path: /volume1/docker/data/media/tv
+        advancedMounts:
+          main:
+            main:
+              - path: /media/tv
       downloads-torrents:
-        enabled: true
-        mountPath: /downloads/torrents
         type: nfs
         server: 10.10.0.2
         path: /volume1/docker/data/downloads/torrents
+        advancedMounts:
+          main:
+            main:
+              - path: /downloads/torrents
       downloads-nzb:
-        enabled: true
-        mountPath: /downloads/nzb
         type: nfs
         server: 10.10.0.2
         path: /volume1/docker/data/downloads/nzb
+        advancedMounts:
+          main:
+            main:
+              - path: /downloads/nzb
 
     # ingress:
     #   main:
