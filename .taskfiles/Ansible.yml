@@ -29,28 +29,28 @@ tasks:
     cmds:
       - "grep 'tags:' *.yml | grep -v always | awk -F 'tags: ' '{print $2}'"
 
-  prepare:
-    desc: Prepare all the k8s nodes for running k3s
-    dir: provision/ansible
-    cmds:
-      - task: :doppler:generate-ansible-inventory
-      - "{{.ANSIBLE_PLAYBOOK_CMD}} {{.ANSIBLE_PLAYBOOK_DIR}}/cluster-prepare.yml {{.CLI_ARGS}}"
+  # prepare:
+  #   desc: Prepare all the k8s nodes for running k3s
+  #   dir: provision/ansible
+  #   cmds:
+  #     - task: :doppler:generate-ansible-inventory
+  #     - "{{.ANSIBLE_PLAYBOOK_CMD}} {{.ANSIBLE_PLAYBOOK_DIR}}/cluster-prepare.yml {{.CLI_ARGS}}"
 
-  install:
-    desc: Install Kubernetes on the nodes
-    dir: provision/ansible
-    cmds:
-      - task: :doppler:generate-ansible-inventory
-      - "{{.ANSIBLE_PLAYBOOK_CMD}} {{.ANSIBLE_PLAYBOOK_DIR}}/cluster-installation.yml {{.CLI_ARGS}}"
+  # install:
+  #   desc: Install Kubernetes on the nodes
+  #   dir: provision/ansible
+  #   cmds:
+  #     - task: :doppler:generate-ansible-inventory
+  #     - "{{.ANSIBLE_PLAYBOOK_CMD}} {{.ANSIBLE_PLAYBOOK_DIR}}/cluster-installation.yml {{.CLI_ARGS}}"
 
-  nuke:
-    desc: Uninstall Kubernetes on the nodes
-    dir: provision/ansible
-    interactive: true
-    cmds:
-      - task: :doppler:generate-ansible-inventory
-      - "{{.ANSIBLE_PLAYBOOK_CMD}} {{.ANSIBLE_PLAYBOOK_DIR}}/cluster-nuke.yml {{.CLI_ARGS}}"
-      - task: reboot
+  # nuke:
+  #   desc: Uninstall Kubernetes on the nodes
+  #   dir: provision/ansible
+  #   interactive: true
+  #   cmds:
+  #     - task: :doppler:generate-ansible-inventory
+  #     - "{{.ANSIBLE_PLAYBOOK_CMD}} {{.ANSIBLE_PLAYBOOK_DIR}}/cluster-nuke.yml {{.CLI_ARGS}}"
+  #     - task: reboot
 
   ping:
     desc: Ping all the hosts
@@ -66,12 +66,12 @@ tasks:
       - task: :doppler:generate-ansible-inventory
       - ansible all {{.ANSIBLE_INVENTORY_CMD}} --one-line -a 'uptime'
 
-  reboot:
-    desc: Reboot all the k8s nodes
-    dir: provision/ansible
-    cmds:
-      - task: :doppler:generate-ansible-inventory
-      - "{{.ANSIBLE_PLAYBOOK_CMD}} {{.ANSIBLE_PLAYBOOK_DIR}}/cluster-reboot.yml {{.CLI_ARGS}}"
+  # reboot:
+  #   desc: Reboot all the k8s nodes
+  #   dir: provision/ansible
+  #   cmds:
+  #     - task: :doppler:generate-ansible-inventory
+  #     - "{{.ANSIBLE_PLAYBOOK_CMD}} {{.ANSIBLE_PLAYBOOK_DIR}}/cluster-reboot.yml {{.CLI_ARGS}}"
 
   poweroff:
     desc: Shutdown all the k8s nodes
