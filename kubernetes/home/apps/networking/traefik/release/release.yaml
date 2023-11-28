@@ -74,7 +74,8 @@ spec:
         expose: true
         port: 80
         exposedPort: 80
-        redirectTo: websecure
+        redirectTo:
+          port: websecure
       websecure:
         expose: true
         port: 443
