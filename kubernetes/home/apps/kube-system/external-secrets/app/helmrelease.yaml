@@ -9,7 +9,7 @@ spec:
   chart:
     spec:
       chart: external-secrets
-      version: 0.7.2  # https://github.com/external-secrets/external-secrets/releases
+      version: 0.9.9  # https://github.com/external-secrets/external-secrets/releases
       sourceRef:
         kind: HelmRepository
         name: external-secrets

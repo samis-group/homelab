@@ -10,7 +10,7 @@ spec:
   chart:
     spec:
       chart: kube-prometheus-stack
-      version: 49.2.0
+      version: 54.2.2 # https://artifacthub.io/packages/helm/prometheus-community/kube-prometheus-stack
       sourceRef:
         kind: HelmRepository
         name: prometheus-community-charts

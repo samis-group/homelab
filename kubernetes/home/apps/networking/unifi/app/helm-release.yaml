@@ -25,7 +25,7 @@ spec:
   values:
     image:
       repository: jacobalberty/unifi
-      tag: v7
+      tag: v7 # https://hub.docker.com/r/jacobalberty/unifi/tags
 
     env:
       RUNAS_UID0: "false"

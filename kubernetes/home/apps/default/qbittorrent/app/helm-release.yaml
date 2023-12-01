@@ -36,7 +36,7 @@ spec:
 
     image:
       repository: ghcr.io/onedr0p/qbittorrent
-      tag: '4.5.5'
+      tag: '4'
 
     # podAnnotations:
     #   setGateway: "true"

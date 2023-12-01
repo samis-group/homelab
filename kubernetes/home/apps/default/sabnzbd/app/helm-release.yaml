@@ -7,9 +7,9 @@ metadata:
 spec:
   interval: 1h
 
-  dependsOn:
-    - name: traefik
-      namespace: default
+  # dependsOn:
+  #   - name: traefik
+  #     namespace: default
 
   chart:
     spec:
@@ -38,7 +38,7 @@ spec:
       secret.reloader.stakater.com/reload: sabnzbd-secrets
     image:
       repository: ghcr.io/onedr0p/sabnzbd
-      tag: 4.0.3
+      tag: "4"
     controller:
       type: statefulset
       annotations:

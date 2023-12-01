@@ -9,7 +9,7 @@ spec:
   chart:
     spec:
       chart: traefik
-      reconcileStrategy: ChartVersion
+      version: 25.0.0 # https://github.com/traefik/traefik-helm-chart/releases
       sourceRef:
         kind: HelmRepository
         name: traefik
