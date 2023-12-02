@@ -70,8 +70,6 @@ spec:
             enabled: true
             port: 22000
             protocol: TCP
-          http:
-            port: 8384
     persistence:
       config:
         enabled: true

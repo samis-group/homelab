@@ -216,6 +216,9 @@ spec:
             #   url: "https://facebook.com/messages"
         - group: Dev
           bookmarks:
+            - name: Github
+              icon: simple-icons:github
+              url: "https://github.com"
             - name: Gitlab
               icon: simple-icons:gitlab
               url: "https://gitlab.com"
@@ -246,8 +249,8 @@ spec:
         - group: Kubernetes
           bookmarks:
             - name: Homelab Repo
-              icon: simple-icons:gitlab
-              url: "https://gitlab.com/sami-group/homelab"
+              icon: simple-icons:github
+              url: "https://github.com/samis-group/homelab"
             - name: Docker Images
               icon: simple-icons:docker
               url: "https://gitlab.com/sami-group/docker/containers"
