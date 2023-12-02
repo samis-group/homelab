@@ -100,7 +100,7 @@ tasks:
       KUBECONFIG_FILE: '{{default "config" .KUBECONFIG_FILE}}'
     cmds:
       - task: :internal:mkdirs-local
-      - rm -f ~/.kube/config
+      - rm -f ~/.kube/{{ .KUBECONFIG_FILE }}
       - scp -o StrictHostKeyChecking=no root@{{ .K3S_HOST }}:/root/.kube/config ~/.kube/{{ .KUBECONFIG_FILE }}
 
   scp-kubeconfig-windows:

@@ -1,6 +1,6 @@
 ---
 - name: Provision Docker VM on Proxmox Host
-  tags: ["proxmox-provision-docker"]
+  tags: ["docker"]
   vars:
     target_host_group: docker
     target_proxmox_host: dell5820
@@ -8,20 +8,20 @@
 
 - name: Provision TrueNAS VM on Proxmox Host
   hosts: dell5820
-  tags: ["proxmox-provision-truenas"]
+  tags: ["truenas"]
   roles:
     - role: ../roles/proxmox/truenas-vm
       when: provision_truenas
 
 - name: Provision k3s VM's on Proxmox Host - Part one
-  tags: ["never", "proxmox-provision-k3s"]
+  tags: ["never", "k3s"]
   vars:
     target_host_group: k3s-vm1
     target_proxmox_host: dell5820
   import_playbook: proxmox_vm_provision.yml
 
 - name: Provision k3s VM's on Proxmox Host - Part two
-  tags: ["never", "proxmox-provision-k3s"]
+  tags: ["never", "k3s"]
   hosts: k3s-vm1
   become: true
   gather_facts: false   # Because they don't exist yet
@@ -32,14 +32,14 @@
         key: "{{ vm_defaults.ssh_key }}"
 
 - name: Provision k3s-dev VM's on Proxmox Host - Part one
-  tags: ["never", "proxmox-provision-k3s-dev"]
+  tags: ["never", "k3s-dev"]
   vars:
     target_host_group: k3s-vm1-dev
     target_proxmox_host: dell5820
   import_playbook: proxmox_vm_provision.yml
 
 - name: Provision k3s-dev VM's on Proxmox Host - Part two
-  tags: ["never", "proxmox-provision-k3s-dev"]
+  tags: ["never", "k3s-dev"]
   hosts: k3s-vm1-dev
   become: true
   gather_facts: false   # Because they don't exist yet

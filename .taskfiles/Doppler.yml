@@ -71,7 +71,7 @@ tasks:
   generate-k3s-ansible-inventory:
     desc: Copy plain yaml inventory file from doppler and output/overwrite generated inventory
     dir: provision/k3s-ansible/inventory
-    # run: once
+    run: once
     internal: true
     vars:
       DOPPLER_K3S_HOSTS_INVENTORY_VAR: '{{default "K3S_ANSIBLE_HOSTS_INVENTORY" .DOPPLER_K3S_HOSTS_INVENTORY_VAR}}'
