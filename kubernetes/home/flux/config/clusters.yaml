@@ -7,7 +7,7 @@ metadata:
   namespace: flux-system
 spec:
   interval: 30m
-  url: https://gitlab.com/sami-group/homelab
+  url: https://github.com/samis-group/homelab
   ref:
     branch: main
   ignore: |
