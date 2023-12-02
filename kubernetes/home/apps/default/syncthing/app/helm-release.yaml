@@ -1,67 +1,67 @@
 ---
-# yaml-language-server: $schema=https://kubernetes-schemas.haraldkoch.ca/helm.toolkit.fluxcd.io/helmrelease_v2beta1.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2beta1.json
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
-  name: &app syncthing
-  namespace: default
+  name: syncthing
 spec:
   interval: 1h
   chart:
     spec:
       chart: app-template
-      version: 1.5.1
+      version: 2.3.0
       sourceRef:
         kind: HelmRepository
         name: bjw-s
         namespace: flux-system
       interval: 1h
-  maxHistory: 2
   install:
+    createNamespace: true
     remediation:
-      retries: 3
+      retries: 5
   upgrade:
-    cleanupOnFail: true
     remediation:
-      retries: 3
-  uninstall:
-    keepHistory: false
+      retries: 5
   values:
-    global:
-      nameOverride: *app
-    image:
-      repository: syncthing/syncthing
-      tag: "1.26.1" # https://github.com/syncthing/syncthing/releases
-    env:
-      TZ:
-        valueFrom:
-          secretKeyRef:
-            name: common-secrets
-            key: TZ
-      PUID: '568'
-      PGID: '568'
+    controllers:
+      main:
+        containers:
+          main:
+            image:
+              repository: syncthing/syncthing
+              tag: 1.26.1 # https://github.com/syncthing/syncthing/releases
+            resources:
+              requests:
+                cpu: 15m
+                memory: 249Mi
+              limits:
+                memory: 265Mi
+            env:
+              TZ:
+                valueFrom:
+                  secretKeyRef:
+                    name: common-secrets
+                    key: TZ
+              PUID: '568'
+              PGID: '568'
     service:
       main:
         annotations:
           external-dns.alpha.kubernetes.io/hostname: syncthing.shaklab.com, sync.shaklab.com
           external-dns.alpha.kubernetes.io/target: ipv4.shaklab.com
-        ipFamilyPolicy: PreferDualStack
         ports:
-          main:
+          http:
             port: 8384
-      listen-discovery:
+      listdisc:
+        enabled: true
+        controller: main
         type: LoadBalancer
         loadBalancerIP: "10.10.0.88"
-        enabled: true
         annotations:
           external-dns.alpha.kubernetes.io/hostname: sync-lb.shaklab.com, syncthing-lb.shaklab.com
           external-dns.alpha.kubernetes.io/target: 10.10.0.88
           external-dns.alpha.kubernetes.io/cloudflare-proxied: "false"
         ports:
-          http:
-            enabled: true
-            port: 8384
-            protocol: TCP
           discovery:
             enabled: true
             port: 21027
@@ -74,23 +74,19 @@ spec:
       config:
         enabled: true
         existingClaim: syncthing-config
-        mountPath: /var/syncthing/config
+        globalMounts:
+          - path: /var/syncthing/config
       nfs-nas-syncthing-data:
         enabled: true
         server: 10.10.0.2
         type: nfs
-        mountPath: /var/syncthing/nfs-data
         path: /volume1/docker/data/media/syncthing
+        globalMounts:
+          - path: /var/syncthing/nfs-data
       nfs-nas-syncthing-photos:
         enabled: true
         server: 10.10.0.2
         type: nfs
-        mountPath: /var/syncthing/photos
         path: /volume1/docker/data/media/photos/Sami/Syncthing
-    resources:
-      requests:
-        cpu: 15m
-        memory: 64M
-      limits:
-        cpu: 100m
-        memory: 128M
+        globalMounts:
+          - path: /var/syncthing/photos
