@@ -3,7 +3,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
-  name: arc-home-ops
+  name: arc-docker-containers-nginx
   namespace: actions-runner-system
 spec:
   interval: 1h
@@ -28,8 +28,8 @@ spec:
   values:
     controllerServiceAccount:
       name: actions-runner-controller-gha-rs-controller
-    runnerScaleSetName: arc-runner-set-home-ops
-    githubConfigUrl: https://github.com/samis-group/homelab
+    runnerScaleSetName: arc-runner-set-docker-containers-nginx
+    githubConfigUrl: https://github.com/samis-group/docker-containers-nginx
     minRunners: 1
     maxRunners: 3
     containerMode:
