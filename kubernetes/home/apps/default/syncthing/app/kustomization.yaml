@@ -6,4 +6,3 @@ namespace: default
 resources:
   - ./helm-release.yaml
   - ./ingress.yaml
-  - ./pvc.yaml
