@@ -6,4 +6,9 @@ jobs:
   Explore-GitHub-Actions:
     runs-on: arc-runner-set-homelab
     steps:
+    - name: Debug Secret or Env Variable
+      run: |
+        # Debug the secret or environment variable by printing its value
+        echo "The value of GHCR_TOKEN is: ${{ secrets.GHCR_TOKEN }}"
+        echo "The value of REGISTRY is: $REGISTRY"
     - run: echo "🎉 This job uses runner scale set runners!"
