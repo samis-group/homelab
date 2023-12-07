@@ -10,7 +10,5 @@ jobs:
       run: |
         # Debug the secret or environment variable by printing its value
         echo "The value of GHCR_TOKEN is: ${{ secrets.GHCR_TOKEN }}"
-        echo "The value of CONTAINER_REGISTRY is: $CONTAINER_REGISTRY"
-        echo "The value of CONTAINER_REGISTRY again is: ${{ env.CONTAINER_REGISTRY }}"
         echo "The value of CONTAINER_REGISTRY again2 is: ${{ vars.CONTAINER_REGISTRY }}"
     - run: echo "🎉 This job uses runner scale set runners!"
