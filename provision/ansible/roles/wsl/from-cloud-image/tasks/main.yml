@@ -45,7 +45,7 @@
         sudo apt update
         sudo apt upgrade
         sudo apt install make
-        git clone https://gitlab.com/sami-group/homelab.git
+        git clone https://github.com/samis-group/homelab
         cd homelab
         make setup
           * Copy vault password

@@ -51,10 +51,10 @@
     - name: Copy Files
       ansible.builtin.import_tasks: ../tasks/wsl/configure_wsl.yml
 
-    - name: Copy git repos
-      ansible.builtin.import_tasks: ../tasks/wsl/git.yml
-      when: git
-      tags: ["git"]
+    # - name: Copy git repos
+    #   ansible.builtin.import_tasks: ../tasks/wsl/git.yml
+    #   when: git
+    #   tags: ["git"]
 
     - name: Clone dotfiles and stow them
       ansible.builtin.import_tasks: ../tasks/wsl/stow_dotfiles.yml

@@ -8,5 +8,5 @@ collections:
   - name: community.sops
   - name: kubernetes.core
   - name: sami_shakir.public_collection
-    source: https://gitlab.com/sami-group/ansible/collections/public.git
+    source: https://github.com/samis-group/ansible-collections-public
     type: git

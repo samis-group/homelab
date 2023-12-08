@@ -1,19 +1,19 @@
 ---
 ### Ensure you have gitlab repos to clone! If you aren't me, do you want to run this?
-- name: Copy git credentials in credentials store file from template
-  template:
-    src: ../templates/wsl/.git-credentials.j2
-    dest: "{{ user_dir }}/.git-credentials"
+# - name: Copy git credentials in credentials store file from template
+#   template:
+#     src: ../templates/wsl/.git-credentials.j2
+#     dest: "{{ user_dir }}/.git-credentials"
 
-- name: Checkout containers source code
-  git:
-    repo: "https://{{ gitlab_username }}:{{ gitlab_personal_access_token }}@{{ item.value }}"
-    dest: "{{ user_dir }}/git/personal/containers/{{ item.key }}"
-  with_dict: "{{ gitlab_clone_container_repos }}"
-  # register: git_checkout_code_containers
-  ignore_errors: true   # Because Home assistant gets changed to, and realistically, this only needs to be run initially anyway.
-  become: false
-  no_log: true  # Don't spew out my token
+# - name: Checkout containers source code
+#   git:
+#     repo: "https://{{ gitlab_username }}:{{ gitlab_personal_access_token }}@{{ item.value }}"
+#     dest: "{{ user_dir }}/git/personal/containers/{{ item.key }}"
+#   with_dict: "{{ github_clone_container_repos }}"
+#   # register: git_checkout_code_containers
+#   ignore_errors: true   # Because Home assistant gets changed to, and realistically, this only needs to be run initially anyway.
+#   become: false
+#   no_log: true  # Don't spew out my token
 
 # - name: Checkout homelab repo
 #   git:

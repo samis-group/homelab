@@ -5,7 +5,7 @@
     name: safe.directory
     scope: global
     value: "{{ docker_dir }}/appdata/{{ item.key }}"
-  with_dict: "{{ gitlab_clone_container_repos }}"
+  with_dict: "{{ github_clone_container_repos }}"
 
 # Let's assert that the last command is a success when certain things exist - Needs work
 # There is no success_when variable that I can use the loop above so I have to assert something after the fact.
@@ -31,7 +31,7 @@
     group: "{{ docker_group }}"
     mode: '0755'
     recurse: true
-  with_dict: "{{ gitlab_clone_container_repos }}"
+  with_dict: "{{ github_clone_container_repos }}"
 
 #####################################################################
 ###          Old way was to push ssh keys, now I'm using          ###

@@ -167,8 +167,8 @@
               done
       }
 
-- name: Add Gitlab Deploy public key to authorized_keys
-  authorized_key:
-    user: "{{ main_user }}"  # Replace with the remote user on the VM
-    state: present
-    key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGs6jpez/5o2R5tEGEVDsr2QS7yv+B9nKQpxbRmW4oLt Gitlab key to deploy workloads via CD"  # Replace with your public key
+# - name: Add Gitlab Deploy public key to authorized_keys
+#   authorized_key:
+#     user: "{{ main_user }}"  # Replace with the remote user on the VM
+#     state: present
+#     key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGs6jpez/5o2R5tEGEVDsr2QS7yv+B9nKQpxbRmW4oLt Gitlab key to deploy workloads via CD"  # Replace with your public key

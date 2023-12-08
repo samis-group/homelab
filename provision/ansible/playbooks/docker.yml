@@ -63,7 +63,7 @@
       ansible.builtin.import_tasks: ../tasks/linux/configure_hostname.yml
       when: configure_hostname
 
-    # - name: Configure gitlab registry and clone git repos
+    # - name: Configure github registry and clone git repos
     #   ansible.builtin.import_tasks: ../tasks/docker/git.yml
     #   when: git
 

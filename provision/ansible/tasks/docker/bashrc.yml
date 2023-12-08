@@ -2,7 +2,7 @@
 ##############
 ### bashrc ###
 ##############
-- name: Copy bashrc_contents to hosts .bashrc file
+- name: Copy aliases to hosts .bashrc file
   blockinfile:
     path: "{{ ansible_env.HOME }}/.bashrc"
     block: |
@@ -31,13 +31,10 @@
       alias dclogs='sudo docker logs -tf --tail="50" '
       alias fixsecrets='sudo chown -R root:root ~/docker/secrets ; sudo chmod -R 600 ~/docker/secrets'
 
-      # Extras
-      alias dcgitlabregister='cd ~/docker/compose-files && docker compose -f unused/gitlab-register.yml --env-file ~/docker/.env up -d && dclogs gitlab-register'
-
-      ##################
-      ### OLD METHOD ###
-      ##################
-      # Here for reference
+      ######################
+      #     OLD STUFF      #
+      # Here for reference #
+      ######################
 
       # DOCKER STACK SETUP COMMANDS
       alias dcrundev='cd ~/docker && sudo docker-compose -f ~/docker/docker-compose-dev.yml '

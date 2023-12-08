@@ -7,7 +7,7 @@
   git:
     repo: "https://{{ gitlab_username }}:{{ gitlab_personal_access_token }}@{{ item.value }}"
     dest: "{{ docker_dir }}/appdata/{{ item.key }}"
-  with_dict: "{{ gitlab_clone_container_repos }}"
+  with_dict: "{{ github_clone_container_repos }}"
   register: git_checkout_code
   ignore_errors: true   # Because Home assistant gets changed to, and realistically, this only needs to be run initially anyway.
   become: false

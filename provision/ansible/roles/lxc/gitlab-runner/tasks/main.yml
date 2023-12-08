@@ -1,8 +1,0 @@
----
-- name: Install OS updates and required packages
-  import_tasks: install_packages.yml
-  tags: ["install_packages"]
-
-- name: Configure System
-  import_tasks: configure_system.yml
-  tags: ["configure_system"]
