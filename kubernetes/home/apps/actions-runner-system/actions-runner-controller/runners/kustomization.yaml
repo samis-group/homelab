@@ -6,3 +6,11 @@ namespace: actions-runner-system
 resources:
   - ./homelab.yaml
   - ./nginx.yaml
+configMapGenerator:
+  - name: docker-daemon-config
+    files:
+      - ./config/docker-daemon-config.json
+generatorOptions:
+  disableNameSuffixHash: true
+  annotations:
+    kustomize.toolkit.fluxcd.io/substitute: disabled

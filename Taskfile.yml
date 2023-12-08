@@ -62,6 +62,9 @@ includes:
   k3s:
     taskfile: .taskfiles/K3s.yml
     aliases: ["k"]
+  kubectl:
+    taskfile: .taskfiles/Kubectl.yml
+    aliases: ["kc"]
   lxc:
     taskfile: .taskfiles/Lxc.yml
     aliases: ["l"]
