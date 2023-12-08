@@ -12,7 +12,6 @@ remove_desktop_icons: false
 set_sound_scheme: true
 power_plan: true
 power_plan_set: "Ultimate Performance"
-chocolatey: true
 hass: false    # Install and configure home assistant service - it's not working currently, maybe due to unknown publisher
 install_telegraf: true
 schedule_tasks: true

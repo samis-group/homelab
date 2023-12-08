@@ -49,11 +49,6 @@
       when: install_windows_features
       tags: ["install_windows_features"]
 
-    - name: Install Chocolatey Packages
-      ansible.builtin.import_tasks: ../tasks/windows/chocolatey.yml
-      when: chocolatey
-      tags: ["chocolatey"]
-
     - name: Configure Firefox Profiles
       ansible.builtin.import_tasks: ../tasks/windows/firefox_setup.yml
       when: firefox_setup

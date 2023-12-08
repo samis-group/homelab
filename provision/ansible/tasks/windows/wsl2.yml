@@ -10,10 +10,3 @@
 - name: Restart the machine to complete the WSL install.
   ansible.windows.win_reboot:
   when: wsl_status.reboot_required
-
-- name: Ensure Linux kernel update package installed.
-  win_chocolatey:
-    name: wsl2
-    ignore_checksums: true
-    state: present
-  ignore_errors: true  # Choco isn't behaving as expected...
