@@ -80,6 +80,8 @@ jobs:
             type=ref,event=branch
             # tag event
             type=ref,event=tag
+            # pull request event
+            type=ref,event=pr
 
       - name: Build, tag, and push the image to GHCR
         id: build-and-push-ghcr
