@@ -69,7 +69,6 @@ github_token: "{{ lookup('env', 'GITHUB_TOKEN') }}"
 
 gitlab_username: "{{ lookup('env', 'GITLAB_USERNAME') }}"
 gitlab_personal_access_token: "{{ lookup('env', 'GITLAB_PERSONAL_ACCESS_TOKEN') }}" # API token for docker vm to login and access gitlab registry and api and clone repos
-gitlab_runner_token: "{{ lookup('env', 'GITLAB_RUNNER_TOKEN') }}" # From your GROUP runner page -> https://gitlab.com/groups/sami-shakir/-/runners
 gitlab_git_dir: "{{ lookup('env', 'GITLAB_GIT_DIR') }}"
 gitlab_api_url: "{{ lookup('env', 'GITLAB_API_URL') }}"
 gitlab_repos_container_hass_url: "{{ lookup('env', 'GITLAB_REPOS_CONTAINER_HASS_URL') }}"

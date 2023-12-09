@@ -11,7 +11,7 @@ tasks:
       - task: :doppler:generate-ansible-inventory
       - task: provision-lxc
       - task: dev
-      - task: gitlab-runner
+      - task: github-runner
       - "{{.ANSIBLE_PLAYBOOK_CMD}} {{.ANSIBLE_PLAYBOOK_DIR}}/lxc.yml {{.CLI_ARGS}}"
 
   provision-lxc:
@@ -30,16 +30,16 @@ tasks:
     aliases: ["d"]
     cmds:
       - task: :doppler:generate-ansible-inventory
-      - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags lxc_dev {{.ANSIBLE_PLAYBOOK_DIR}}/lxc.yml {{.CLI_ARGS}}"
+      - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags dev {{.ANSIBLE_PLAYBOOK_DIR}}/lxc.yml {{.CLI_ARGS}}"
 
-  gitlab-runner:
-    desc: 📦 Make Gitlab Runner LXC. Ensure 'gitlab_runner_token' in doppler is updated with your group runners. Mine is here -> https://gitlab.com/groups/sami-group/-/runners.
+  github-runner:
+    desc: 📦 Make Github Runner LXC. Ensure 'github_token' in doppler is updated with your group runners. Mine are here -> https://github.com/organizations/samis-group/settings/actions/runners.
     dir: provision/ansible
     deps: [provision-lxc]
     aliases: ["g"]
     cmds:
       - task: :doppler:generate-ansible-inventory
-      - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags lxc_gitlab_runner {{.ANSIBLE_PLAYBOOK_DIR}}/lxc.yml {{.CLI_ARGS}}"
+      - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags github_runner {{.ANSIBLE_PLAYBOOK_DIR}}/lxc.yml {{.CLI_ARGS}}"
 
   ### Migrated to VM
   # k3s1:
@@ -49,4 +49,4 @@ tasks:
   #   aliases: ["k"]
   #   cmds:
   #     - task: :doppler:generate-ansible-inventory
-  #     - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags lxc_k3s1 {{.ANSIBLE_PLAYBOOK_DIR}}/lxc.yml {{.CLI_ARGS}}"
+  #     - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags k3s1 {{.ANSIBLE_PLAYBOOK_DIR}}/lxc.yml {{.CLI_ARGS}}"

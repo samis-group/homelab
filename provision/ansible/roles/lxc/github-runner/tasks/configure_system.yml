@@ -1,0 +1,33 @@
+---
+# - name: Add 'runner' user to docker group
+#   user:
+#     name: runner
+#     groups: docker
+#     append: yes
+
+- name: Cron - Prune > 7 day old unused Docker images daily
+  ansible.builtin.cron:
+    name: prune docker images daily ( > 1 day old )
+    minute: "0"
+    hour: "3"
+    user: "{{ main_user }}"
+    job: "/usr/bin/docker system prune -af  --filter 'until=24h'"
+
+- name: Check if token exists in Doppler config
+  command: "grep -q '\\s\\+token' {{ ansible_env.HOME }}/.doppler/.doppler.yaml"
+  register: doppler_result
+  ignore_errors: true
+
+- name: Ask user to login to doppler
+  debug:
+    msg: "Please run the following command to login to doppler: `doppler login`"
+  when: doppler_result.rc != 0
+
+- name: Pause and wait for user input
+  pause:
+    prompt: "Press Enter to continue"
+  when: doppler_result.rc != 0
+
+- name: Set the timezone
+  timezone:
+    name: "{{ tz }}"

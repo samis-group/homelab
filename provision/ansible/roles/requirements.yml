@@ -5,6 +5,7 @@
 - src: ironicbadger.proxmox_nag_removal
 - src: rossmcdonald.telegraf  # Currently Unused -> https://github.com/rossmcdonald/telegraf
 - src: nununo.proxmox_haos_install
+- src: MonolithProjects.github_actions_runner
 
 # Linux #
 - src: hedii.youtube-dl
@@ -23,3 +24,6 @@
 - name: markosamuli.pyenv
   src: https://github.com/markosamuli/ansible-pyenv.git
   scm: git
+
+# Others #
+- src: bertiewils.doppler_cli

@@ -12,7 +12,7 @@
 
 - name: Setup and configure dev01 Container
   hosts: dev01
-  tags: ["lxc_dev"]
+  tags: ["dev"]
   become: true
 
   pre_tasks: &pre_tasks
@@ -49,9 +49,30 @@
     #   ansible.builtin.import_tasks: ../tasks/k3s/system_dependencies.yml
     #   become: true
 
+- name: Setup Github Runner LXC(s)
+  hosts: github-runner1
+  tags: ["github_runner"]
+  become: true
+  vars:
+    - github_account: samis-group
+    - runner_org: yes
+    - access_token: "{{ github_token }}"
+    - runner_user: 'root'
+    # - runner_on_ghes: yes
+
+  pre_tasks: *pre_tasks
+
+  roles:
+
+    - MonolithProjects.github_actions_runner
+    - geerlingguy.docker
+    - geerlingguy.ntp
+    - bertiewils.doppler_cli
+    - ../roles/lxc/github-runner
+
 # - name: Setup k3s LXC(s)
 #   hosts: k3s1
-#   tags: ["lxc_k3s1"]
+#   tags: ["k3s1"]
 #   become: true
 
 #   roles:
