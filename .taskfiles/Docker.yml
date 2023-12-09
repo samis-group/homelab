@@ -1,13 +1,6 @@
 ---
 version: "3"
 
-vars:
-  RUNNER_IMAGE_NAME: gha-runner
-  DOCKER_BUILD_CMD: docker build -t {{.RUNNER_IMAGE_NAME}} -f docker/runner/Dockerfile
-  DOCKER_RUN_CMD:
-    docker container inspect {{.RUNNER_IMAGE_NAME}} > /dev/null 2>&1 || docker run -d -it --rm 
-  DOCKER_EXEC_CMD: docker exec -it {{.RUNNER_IMAGE_NAME}}
-
 tasks:
 
   main:
@@ -60,37 +53,3 @@ tasks:
   #   cmds:
   #     - echo "WARNING - This is going to restore the containers in place of whatever is there currently. Press any key to continue..."; read break;
   #     - doppler run -- ansible-playbook -i inventory/hosts.ini --tags "restore_docker_data" -e "restore_docker_data=true" playbooks/docker.yml --limit {{.CLI_ARGS}}
-
-  runner:
-    desc: Build and run the runner container locally
-    cmds:
-      - task: build-runner
-      - task: run-runner
-      - task: exec-runner
-
-  build-runner:
-    desc: Builds the runner image locally
-    internal: true
-    status:
-      - "docker images | grep -q '{{.RUNNER_IMAGE_NAME}}'"
-    cmds:
-      - "{{.DOCKER_BUILD_CMD}} ."
-
-  build-runner-no-cache:
-    desc: Rebuild the image without using cache
-    cmds:
-      - "{{.DOCKER_BUILD_CMD}} --no-cache ."
-
-  run-runner:
-    desc: Run the runner from the locally built image (also builds the image)
-    internal: true
-    run: once
-    cmds:
-      - "{{.DOCKER_RUN_CMD}} --name {{.RUNNER_IMAGE_NAME}} {{.RUNNER_IMAGE_NAME}}"
-
-  exec-runner:
-    desc: Get shell of the runner container
-    internal: true
-    run: once
-    cmds:
-      - "{{.DOCKER_EXEC_CMD}} bash"
