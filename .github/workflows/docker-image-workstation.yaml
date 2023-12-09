@@ -86,6 +86,7 @@ jobs:
             type=sha,format=long
             # type=semver,pattern={{version}}
             # type=semver,pattern={{major}}.{{minor}}
+            # type=schedule
 
       - name: Build, tag, and push the image to GHCR
         id: build-and-push-ghcr
