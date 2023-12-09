@@ -1,0 +1,7 @@
+---
+area/provision:
+  - "provision/**/*"
+area/github:
+  - ".github/**/*"
+area/kubernetes:
+  - "kubernetes/**/*"
