@@ -28,7 +28,7 @@ spec:
   values:
     controllerServiceAccount:
       name: actions-runner-controller-gha-rs-controller
-    runnerScaleSetName: arc-runner-set-homelab
+    runnerScaleSetName: [self-hosted, linux, x64]
     githubConfigUrl: https://github.com/samis-group/homelab
     minRunners: 1
     maxRunners: 3
