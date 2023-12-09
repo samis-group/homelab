@@ -84,4 +84,4 @@ COPY docker/workstation/.bash_aliases /home/${USER_NAME}/.bash_aliases
 EXPOSE 22
 
 # Parse the password from ENV and give us shell as default so we can do whatever
-ENTRYPOINT [ "docker-entrypoint.sh" ]
+ENTRYPOINT [ "/usr/local/bin/docker-entrypoint.sh" ]

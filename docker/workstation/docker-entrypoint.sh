@@ -1,7 +1,4 @@
-#!/bin/bash
-
-# Exit immediately if a pipeline returns a non-zero status
-set -e
+#!/bin/bash -e
 
 # Set the user and group IDs at container runtime based on host system
 # This will allow us to mount content from our FS without perms issues inside the container
