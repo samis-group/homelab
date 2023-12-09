@@ -101,7 +101,8 @@ tasks:
     cmds:
       - task: :internal:mkdirs-local
       - rm -f ~/.kube/{{ .KUBECONFIG_FILE }}
-      - scp -o StrictHostKeyChecking=no root@{{ .K3S_HOST }}:/root/.kube/config ~/.kube/{{ .KUBECONFIG_FILE }}
+      - scp -v -o StrictHostKeyChecking=no root@{{ .K3S_HOST }}:/root/.kube/config ~/.kube/{{ .KUBECONFIG_FILE }}
+      # - test -f /mnt/c/.kube/config || $(sudo mkdir -p /mnt/c/.kube && scp root@10.10.0.24:~/.kube/config /mnt/c/.kube/config)
 
   scp-kubeconfig-windows:
     desc: Copy k3s kube config from single node to windows host for Lens to work (must not be run in workstation container)

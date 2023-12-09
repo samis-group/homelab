@@ -20,7 +20,7 @@ vars:
     # --user={{.USER_ID}}:{{.USER_ID}}
   # DOCKER_GID_ADD:
   #   sh: "[[ $(id -g) -ge 1000 ]] && echo '--env GROUP_ID={{.GROUP_ID}}' || echo ''"
-  DOCKER_BUILD_CMD: docker build -t {{.LOCAL_IMAGE_NAME}} -f docker/Dockerfile
+  DOCKER_BUILD_CMD: docker build -t {{.LOCAL_IMAGE_NAME}} -f docker/workstation/Dockerfile
   DOCKER_EXEC_CMD: docker exec -u {{.USER_ID}} -it {{.LOCAL_IMAGE_NAME}}
   DOCKER_VOLUME_DOTFILES: --volume "${HOME}/.dotfiles:/home/ubuntu/.dotfiles"
   DOCKER_VOLUME_DOPPLER: --volume "${HOME}/.doppler:/home/ubuntu/.doppler"
