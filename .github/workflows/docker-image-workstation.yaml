@@ -8,8 +8,8 @@ on:
       - 'provision/ansible/requirements.yml'
       - 'provision/ansible/roles/requirements.yml'
       - 'requirements.txt'
-    branches:
-      - 'main'
+    # branches:
+    #   - 'main'
     tags:
       - 'v*'
   # pull_request:
@@ -76,19 +76,22 @@ jobs:
             type=raw,value=latest.{{sha}},enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
             # set latest tag for default branch
             type=raw,value=latest,enable={{is_default_branch}}
+            # branch event
+            type=ref,event=branch
+            # tag event
+            type=ref,event=tag
 
-      # - name: Build, tag, and push the image to Amazon ECR
-      #   id: build-image
-      #   env:
-      #     ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-      #     ECR_REPOSITORY: ${{ secrets.REPO_NAME }}
-      #     IMAGE_TAG: latest
-      #   run: |
-      #     # Build a docker container and push it to ECR 
-      #     docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-      #     echo "Pushing image to ECR..."
-      #     docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-      #     echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+      - name: Build, tag, and push the image to GHCR
+        id: build-and-push-ghcr
+        env:
+          REGISTRY: ghcr.io
+          IMAGE_TAG: latest
+        run: |
+          echo ${{ secrets.GHCR_TOKEN }} | docker login -u ${{ github.actor }} $REGISTRY --password-stdin
+          docker build -t $REGISTRY/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:$IMAGE_TAG -f docker/workstation/Dockerfile .
+          echo "Pushing image to GHCR..."
+          docker push $REGISTRY/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:$IMAGE_TAG
+          echo "::set-output name=image::$REGISTRY/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:$IMAGE_TAG"
 
       - name: Build and push Docker image
         id: build-and-push
