@@ -3,7 +3,7 @@ version: "3"
 
 vars:
   LOCAL_IMAGE_NAME: homelab-workstation
-  REGISTRY_IMAGE_NAME: th3cookie/homelab-workstation
+  REGISTRY_IMAGE_NAME: registry.gitlab.com/sami-group/homelab
   RUN_LOCAL_OR_REGISTRY: "{{.REGISTRY_IMAGE_NAME}}" # Default to running registry container
   HOMELAB_DIR: /workspace/homelab
   DOCKER_RUN_CMD:
