@@ -5,6 +5,9 @@ on:
   push:
     paths:
       - 'docker/workstation/**'
+      - 'provision/ansible/requirements.yml'
+      - 'provision/ansible/roles/requirements.yml'
+      - 'requirements.txt'
     branches:
       - 'main'
     tags:
