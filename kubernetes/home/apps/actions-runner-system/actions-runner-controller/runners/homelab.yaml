@@ -37,34 +37,42 @@ spec:
     template:
       spec:
         containers:
-          - name: runner
-            image: ghcr.io/actions/actions-runner:2.311.0
-            command: ["/home/runner/run.sh"]
-            securityContext:
-              privileged: true
-            volumeMounts:
-              - name: daemon-json
-                mountPath: /etc/docker/daemon.json
-                readOnly: true
-              - name: work
-                mountPath: /home/runner/_work
-              - name: dind-cert
-                mountPath: /certs/client
-              - name: dind-externals
-                mountPath: /home/runner/externals
-            # Going to have to mount it like this instead:
-            # https://github.com/actions/actions-runner-controller/discussions/2993#discussioncomment-7290987
-            # dockerMTU: 1450
-        volumes:
-          - name: daemon-json
-            configMap:
-              name: docker-daemon-config
-          - name: work
-            emptyDir: {}
-          - name: dind-cert
-            emptyDir: {}
-          - name: dind-externals
-            emptyDir: {}
+        - name: runner
+          image: ghcr.io/actions/actions-runner:latest
+          command: ["/home/runner/run.sh"]
+        - name: dind
+          image: docker:dind
+          args:
+            - dockerd
+            - --host=unix:///run/docker/docker.sock
+            - --group=$(DOCKER_GROUP_GID)
+            - --mtu=1450
+          env:
+            - name: DOCKER_GROUP_GID
+              value: "123"
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - name: work
+              mountPath: /home/runner/_work
+            - name: dind-sock
+              mountPath: /run/docker
+            - name: dind-externals
+              mountPath: /home/runner/externals
+            - name: daemon-json
+              mountPath: /etc/docker/daemon.json
+              subPath: daemon.json
+              readOnly: true
+      volumes:
+        - name: daemon-json
+          configMap:
+            name: docker-daemon-config
+        - name: work
+          emptyDir: {}
+        - name: dind-sock
+          emptyDir: {}
+        - name: dind-externals
+          emptyDir: {}
   valuesFrom:
     - kind: Secret
       name: actions-runner-controller-auth-secret
