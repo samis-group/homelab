@@ -1,3 +1,4 @@
+### Aliases ###
 alias ll='ls -alh'
 alias t='task'
 alias k='kubectl'
@@ -7,6 +8,8 @@ alias kcdf='doppler run -- kubectl delete -f '
 # Kubectl kustomize operations
 alias kcak='doppler run -- kubectl apply -k '
 alias kcdk='doppler run -- kubectl delete -k '
+
+### Functions ###
 # kcaf() {
 #   local manifest_file="$1"
 
