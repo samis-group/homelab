@@ -1,17 +1,23 @@
-name: Docker image Runner
+name: Docker Image - Workstation
+
 on:
+  workflow_dispatch:
   push:
-    branches:
-      - '*'
+    paths:
+      - 'docker/workstation/**'
+    # branches:
+    #   - 'main'
     # tags:
     #   - 'v[0-9]+.[0-9]+.[0-9]+'
   # pull_request:
-  #   branches: ["main"]
-  #   paths: ["docker/runner/Dockerfile"]
+  #   branches:
+  #     - 'main'
+
 jobs:
   build:
-    name: Build & push runner docker image
+    name: Build & Push Docker Image - Workstation
     runs-on: [self-hosted, linux, x64]
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.1
@@ -38,8 +44,8 @@ jobs:
         with:
           # cache-from: type=gha
           # cache-to: type=gha,mode=max
-          context: docker/runner
-          file: docker/runner/Dockerfile
+          context: .
+          file: docker/workstation/Dockerfile
           push: true
           # push: ${{ startsWith(github.ref, 'refs/tags/') }}
           tags: ${{ steps.metadata.outputs.tags }}
