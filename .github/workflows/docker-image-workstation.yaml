@@ -12,9 +12,9 @@ on:
     #   - 'main'
     tags:
       - 'v*'
-  # pull_request:
-  #   branches:
-  #     - 'main'
+  pull_request:
+    branches:
+      - 'main'
 
 env:
   # Use docker.io for Docker Hub if empty
@@ -70,8 +70,6 @@ jobs:
           images: ${{ vars.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}
           # images: ${{ github.repository }}
           tags: |
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
             # set latest tag for main branch
             type=raw,value=latest.{{sha}},enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
             # set latest tag for default branch
@@ -82,6 +80,12 @@ jobs:
             type=ref,event=tag
             # pull request event
             type=ref,event=pr
+            # minimal (short sha)
+            type=sha
+            # full length sha
+            type=sha,format=long
+            # type=semver,pattern={{version}}
+            # type=semver,pattern={{major}}.{{minor}}
 
       - name: Build, tag, and push the image to GHCR
         id: build-and-push-ghcr
