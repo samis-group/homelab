@@ -4,6 +4,9 @@
 # With that said, once the container is built, simply run your playbooks from make targets or manually.
 FROM python:3
 
+LABEL maintainer="Sami Shakir"
+LABEL org.opencontainers.image.source = "https://github.com/samis-group/homelab"
+
 # Ensure apt runs non-interactively due to tzdata package asking for location, argh..
 ARG DEBIAN_FRONTEND=noninteractive
 # Set TZ
