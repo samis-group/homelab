@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: api
-          image: registry.gitlab.com/sami-group/docker/containers/api:latest
+          image: ghcr.io/samis-group/api:latest
           resources:
             limits:
               memory: 512Mi
@@ -27,4 +27,4 @@ spec:
               memory: 256Mi
               cpu: "0.2"
       imagePullSecrets:
-        - name: gitlab-registry-credentials
+        - name: github-registry-credentials

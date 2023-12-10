@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: nginx
-          image: registry.gitlab.com/sami-group/docker/containers/nginx:latest
+          image: ghcr.io/samis-group/nginx:latest
           imagePullPolicy: Always # Always grab latest when pipeline finishes building
           resources:
             limits:
@@ -38,4 +38,4 @@ spec:
             - name: NGINX_PORT
               value: "80"
       imagePullSecrets:
-        - name: gitlab-registry-credentials
+        - name: github-registry-credentials

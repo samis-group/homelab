@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: ozbargain
-          image: registry.gitlab.com/sami-group/ozbargain_bot:latest
+          image: ghcr.io/samis-group/ozbargain-bot:latest
           resources:
             limits:
               memory: 512Mi

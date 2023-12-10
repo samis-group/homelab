@@ -73,16 +73,11 @@ ANSIBLE_HOSTS_INVENTORY="all:
                 #   ansible_host: k3sn2-dev.domain.com
 
         lxc:
-          children:
-            gitlab_runner:
-              hosts:
-                gitlab-runner01:
-                  ansible_host: gitlab-runner01.domain.com
-                # gitlab-runner02:
-                #   ansible_host: gitlab-runner02.domain.com
           hosts:
             dev01:
               ansible_host: dev01.domain.com
+            github-runner1:
+              ansible_host: github-runner1.domain.com
             # k3s-lxc1:
             #   ansible_host: k3s-lxc1.domain.com
             # ldap:

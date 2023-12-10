@@ -102,15 +102,15 @@ sudo apt install -y git make python3-pip stow
 mkdir -p ~/git/personal
 mkdir -p ~/git/work
 cd ~
-git clone --recurse-submodules git@gitlab.com:th3cookie/dotfiles.git
-# Continue setting up dotfiles, follow steps in readme -> https://gitlab.com/th3cookie/dotfiles
+git clone --recurse-submodules https://github.com/samis-group/dotfiles
+# Continue setting up dotfiles, follow steps in readme -> https://github.com/samis-group/dotfiles
 ```
 
 2. Clone this repo locally (change to https method if you aren't me):
 
 ```bash
 cd git/personal/
-git clone https://gitlab.com/sami-group/homelab.git
+git clone https://github.com/samis-group/homelab
 cd homelab
 ```
 
@@ -132,7 +132,7 @@ Copy and paste the code below into your PowerShell terminal to get your Windows 
 
 ```powershell
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-$url = "https://gitlab.com/th3cookie/windows-playbook/-/raw/main/bin/setup.ps1"
+$url = "https://gist.githubusercontent.com/sami-shakir/8b62badf9485538570ee0a60e496e4e2/raw/248a515b63fb4cdc50b7f97141108d2ff7a6c7cf/setup.ps1"
 $file = "$env:temp\setup.ps1"
 
 (New-Object -TypeName System.Net.WebClient).DownloadFile($url, $file)

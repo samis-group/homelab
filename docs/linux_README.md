@@ -34,7 +34,7 @@ This playbook installs and configures my Ubuntu Desktop on proxmox, configures t
 
 ### If it is this same machine
 
-Remember to clone and setup the [dotfiles repo](https://gitlab.com/th3cookie/dotfiles).
+Remember to clone and setup the [dotfiles repo](https://github.com/samis-group/dotfiles).
 
 Setup things:
 ```bash
