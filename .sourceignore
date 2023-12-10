@@ -1,19 +1,16 @@
 # See https://toolkit.fluxcd.io/components/source/gitrepositories/#excluding-files
-.gitlab/
+.github/
 .taskfiles/
 .vscode/
-bin/
+docker/
 docs/
 linters/
 provision/
 .ansible-lint
-.dockerignore
 .gitattributes
 .gitignore
-.gitlab-ci.yml
 .gitmodules
 .pre-commit-config.yaml
-Dockerfile
 LICENSE
 README.md
 requirements.txt
