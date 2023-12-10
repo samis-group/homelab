@@ -3,8 +3,7 @@
 ![ubuntu-22-04](https://img.shields.io/badge/OS-Ubuntu%2022.04-blue)
 ![badge-windows-11](https://img.shields.io/badge/OS-Windows%2011%2021H2-blue)
 ![badge-license](https://img.shields.io/badge/License-MIT-informational)
-
-[![Docker Image - Workstation Build](https://github.com/samis-group/homelab/actions/workflows/docker-image-workstation.yaml/badge.svg?branch=main)](https://github.com/samis-group/homelab/actions/workflows/docker-image-workstation.yaml)
+[![Docker Image - Workstation](https://github.com/samis-group/homelab/actions/workflows/docker-image-workstation.yaml/badge.svg?branch=main)](https://github.com/samis-group/homelab/actions/workflows/docker-image-workstation.yaml)
 
 ![Ansible](https://avatars.githubusercontent.com/u/1507452?s=200&v=4)
 ![Hashicorp](https://avatars.githubusercontent.com/u/761456?s=200&v=4)
@@ -13,7 +12,7 @@
 
 This repository contains all of my automations to install and configure everything in my homelab, from scratch. You are able to completely tear this down and rebuild it from Proxmox on bare metal.
 
-![Homelab Diagram](docs/assets/Homelab.png "Homelab Diagram"){width=100%}
+![Homelab Diagram](docs/assets/Homelab.png)
 
 ❗ **Ensure you already have docker installed and working on your local PC**. This pulls an image, sets it up and drops you in shell to run any task you want.
 
