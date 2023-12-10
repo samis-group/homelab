@@ -1,4 +1,4 @@
-name: Github Actions Demo
+name: Debug Variables
 
 on:
   workflow_dispatch:
