@@ -10,8 +10,8 @@ on:
       - 'requirements.txt'
     # branches:
     #   - 'main'
-    tags:
-      - 'v*'
+    # tags:
+    #   - 'v*'
   pull_request:
     branches:
       - 'main'
