@@ -6,7 +6,7 @@ tasks:
   main:
     desc: 🖥️ Configure Proxmox Hosts
     dir: provision/ansible
-    deps: [':doppler:generate-ansible-inventory']
+    deps: [':doppler:pull-ansible-inventory']
     aliases: ["m"]
     cmds:
       - "{{.ANSIBLE_PLAYBOOK_CMD}} {{.ANSIBLE_PLAYBOOK_DIR}}/proxmox.yml {{.CLI_ARGS}}"
@@ -16,49 +16,49 @@ tasks:
   run-tags:
     desc: 🖥️ Run only the tags passed in separated by comma
     dir: provision/ansible
-    deps: [':doppler:generate-ansible-inventory']
+    deps: [':doppler:pull-ansible-inventory']
     cmds:
       - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags {{.CLI_ARGS}} -e \"{{.CLI_ARGS}}=true\" {{.ANSIBLE_PLAYBOOK_DIR}}/proxmox.yml"
 
   run-tags-v:
     desc: 🖥️ VERBOSE - Run only the tags passed in separated by comma
     dir: provision/ansible
-    deps: [':doppler:generate-ansible-inventory']
+    deps: [':doppler:pull-ansible-inventory']
     cmds:
       - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags {{.CLI_ARGS}} -e \"{{.CLI_ARGS}}=true\" {{.ANSIBLE_PLAYBOOK_DIR}}/proxmox.yml -vvvv"
 
   ubuntu-vm-template:
     desc: 🖥️ Create Ubuntu VM Template in Proxmox
     dir: provision/ansible
-    deps: [':doppler:generate-ansible-inventory']
+    deps: [':doppler:pull-ansible-inventory']
     cmds:
       - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags \"create_ubuntu_vm_template\" -e \"create_ubuntu_vm_template=true\" {{.ANSIBLE_PLAYBOOK_DIR}}/proxmox_vm_templates.yml {{.CLI_ARGS}}"
 
   force-ubuntu-vm-template:
     desc: 🖥️ Force (re)create/(re)download Ubuntu VM Template in Proxmox from public ubuntu cloud-init image. Essentially if you want to remake the image from scratch, make this target
     dir: provision/ansible
-    deps: [':doppler:generate-ansible-inventory']
+    deps: [':doppler:pull-ansible-inventory']
     cmds:
       - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags \"create_ubuntu_vm_template\" -e \"create_ubuntu_vm_template=true force_template_rebuild=true\" {{.ANSIBLE_PLAYBOOK_DIR}}/proxmox_vm_templates.yml {{.CLI_ARGS}}"
 
   debian-vm-template:
     desc: 🖥️ Create Debian VM Template in Proxmox
     dir: provision/ansible
-    deps: [':doppler:generate-ansible-inventory']
+    deps: [':doppler:pull-ansible-inventory']
     cmds:
       - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags \"create_debian_vm_template\" -e \"create_debian_vm_template=true\" {{.ANSIBLE_PLAYBOOK_DIR}}/proxmox_vm_templates.yml {{.CLI_ARGS}}"
 
   force-debian-vm-template:
     desc: 🖥️ Force (re)create/(re)download Debian VM Template in Proxmox from public debian cloud-init image. Essentially if you want to remake the image from scratch, make this target.
     dir: provision/ansible
-    deps: [':doppler:generate-ansible-inventory']
+    deps: [':doppler:pull-ansible-inventory']
     cmds:
       - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags \"create_debian_vm_template\" -e \"create_debian_vm_template=true force_template_rebuild=true\" {{.ANSIBLE_PLAYBOOK_DIR}}/proxmox_vm_templates.yml {{.CLI_ARGS}}"
 
   provision-vm:
     desc: 🖥️ Provision vm
     dir: provision/ansible
-    deps: [':doppler:generate-ansible-inventory']
+    deps: [':doppler:pull-ansible-inventory']
     vars:
       PROVISION_VM: '{{default "docker" .PROVISION_VM}}'
     cmds:
@@ -67,7 +67,7 @@ tasks:
   provision-docker:
     desc: 🖥️ Provision docker vm
     dir: provision/ansible
-    deps: [':doppler:generate-ansible-inventory']
+    deps: [':doppler:pull-ansible-inventory']
     cmds:
       - task: provision-vm
         vars:
@@ -76,7 +76,7 @@ tasks:
   provision-k3s:
     desc: 🖥️ Provision k3s vm(s)
     dir: provision/ansible
-    deps: [':doppler:generate-ansible-inventory']
+    deps: [':doppler:pull-ansible-inventory']
     cmds:
       - task: provision-vm
         vars:
@@ -85,7 +85,7 @@ tasks:
   provision-k3s-dev:
     desc: 🖥️ Provision k3s-dev vm(s)
     dir: provision/ansible
-    deps: [':doppler:generate-ansible-inventory']
+    deps: [':doppler:pull-ansible-inventory']
     cmds:
       - task: provision-vm
         vars:
@@ -94,7 +94,7 @@ tasks:
   provision-truenas:
     desc: 🖥️ Provision TrueNAS vm
     dir: provision/ansible
-    deps: [':doppler:generate-ansible-inventory']
+    deps: [':doppler:pull-ansible-inventory']
     cmds:
       - task: provision-vm
         vars:

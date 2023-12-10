@@ -4,58 +4,55 @@ version: "3"
 tasks:
 
   main:
-    desc: ☸ Main k3s play
+    desc: ☸ k3s main play
     dir: provision/k3s-ansible
     deps: [':proxmox:provision-k3s']
     aliases: ["m"]
     cmds:
-      - task: :doppler:generate-k3s-ansible-inventory
+      - task: :doppler:pull-k3s-ansible-inventory
       - "{{.K3S_ANSIBLE_PLAYBOOK_CMD}} site.yml {{.CLI_ARGS}}"
-      - task: extra
+      - task: extra-main
       - task: scp-kubeconfig
+      - task: :doppler:push-kubeconfig
       - task: :terraform:bootstrap
       - task: :terraform:init
       - task: :terraform:apply
       - task: :flux:install
 
+  extra-main:
+    desc: ☸ k3s main play - extra
+    dir: provision/ansible
+    internal: true
+    cmds:
+      - task: :doppler:pull-ansible-inventory
+      - "{{.ANSIBLE_PLAYBOOK_CMD}} {{.ANSIBLE_PLAYBOOK_DIR}}/k3s.yml --limit 'k3s-vm1' {{.CLI_ARGS}}"
+
   dev:
-    desc: ☸ Dev k3s play
+    desc: ☸ k3s dev play
     dir: provision/k3s-ansible
     deps: [':proxmox:provision-k3s-dev']
     aliases: ["md"]
     cmds:
-      - task: :doppler:generate-k3s-ansible-inventory
-        vars:
-          DOPPLER_K3S_HOSTS_INVENTORY_VAR: "K3S_ANSIBLE_HOSTS_INVENTORY_DEV"
+      - task: :doppler:pull-k3s-dev-ansible-inventory
       - "{{.K3S_ANSIBLE_PLAYBOOK_CMD}} site.yml {{.CLI_ARGS}}"
       - task: extra-dev
       - task: scp-kubeconfig
         vars:
           K3S_HOST: "10.10.0.34"
           KUBECONFIG_FILE: "config-dev"
+      - task: :doppler:push-kubeconfig-dev
       # - task: :terraform:bootstrap
       # - task: :terraform:init
       # - task: :terraform:apply
       # - task: :flux:install
 
   extra-dev:
-    desc: ☸ Extra k3s play
+    desc: ☸ k3s dev play - extra
     dir: provision/ansible
     internal: true
-    aliases: ["ed"]
     cmds:
-      - task: :doppler:generate-ansible-inventory
-        vars:
-          DOPPLER_K3S_HOSTS_INVENTORY_VAR: "K3S_ANSIBLE_HOSTS_INVENTORY_DEV"
+      - task: :doppler:pull-ansible-inventory
       - "{{.ANSIBLE_PLAYBOOK_CMD}} {{.ANSIBLE_PLAYBOOK_DIR}}/k3s.yml --limit 'k3s-vm1-dev' {{.CLI_ARGS}}"
-
-  extra:
-    desc: ☸ Extra k3s play
-    dir: provision/ansible
-    aliases: ["e"]
-    cmds:
-      - task: :doppler:generate-ansible-inventory
-      - "{{.ANSIBLE_PLAYBOOK_CMD}} {{.ANSIBLE_PLAYBOOK_DIR}}/k3s.yml --limit 'k3s-vm1' {{.CLI_ARGS}}"
 
   reset:
     desc: ☸ Reset k3s stack from beginning of it's inception
@@ -64,7 +61,7 @@ tasks:
     cmds:
       - task: :doppler:generate-k3s-ansible-inventory
       - "{{.K3S_ANSIBLE_PLAYBOOK_CMD}} reset.yml {{.CLI_ARGS}}"
-      - rm -f ~/.kube/config || true
+      - rm -f {{ .KUBECONFIG_DIR }}/config || true
 
   watch-kustomizations:
     interactive: true
@@ -100,9 +97,9 @@ tasks:
       KUBECONFIG_FILE: '{{default "config" .KUBECONFIG_FILE}}'
     cmds:
       - task: :internal:mkdirs-local
-      - rm -f ~/.kube/{{ .KUBECONFIG_FILE }}
-      - scp -v -o StrictHostKeyChecking=no root@{{ .K3S_HOST }}:/root/.kube/config ~/.kube/{{ .KUBECONFIG_FILE }}
-      # - test -f /mnt/c/.kube/config || $(sudo mkdir -p /mnt/c/.kube && scp root@10.10.0.24:~/.kube/config /mnt/c/.kube/config)
+      - rm -f {{ .KUBECONFIG_DIR }}/{{ .KUBECONFIG_FILE }}
+      - scp -o StrictHostKeyChecking=no root@{{ .K3S_HOST }}:/root/.kube/config {{ .KUBECONFIG_DIR }}/{{ .KUBECONFIG_FILE }}
+      # - test -f /mnt/c/.kube/config || $(sudo mkdir -p /mnt/c/.kube && scp root@10.10.0.24:{{ .KUBECONFIG_DIR }}/config /mnt/c/.kube/config)
 
   scp-kubeconfig-windows:
     desc: Copy k3s kube config from single node to windows host for Lens to work (must not be run in workstation container)
@@ -111,4 +108,4 @@ tasks:
       - "test -f /mnt/c/.kube/config"
     cmds:
       - "test -d /mnt/c/.kube || mkdir /mnt/c/.kube"
-      - scp root@10.10.0.24:~/.kube/config /mnt/c/.kube/config
+      - scp root@10.10.0.24:{{ .KUBECONFIG_DIR }}/config /mnt/c/.kube/config

@@ -5,6 +5,8 @@ Thumbs.db
 # Ansible
 **.vault-password
 provision/ansible/inventory/generated.*
+# In case submodule doesn't get initialized
+provision/k3s-ansible/inventory/generated.*
 provision/ansible/ansible.log
 
 # Terraform

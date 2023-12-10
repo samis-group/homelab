@@ -17,68 +17,6 @@ tasks:
       - "{{.DOCKER_EXEC_CMD}} doppler login"
       - "{{.DOCKER_EXEC_CMD}} doppler setup --scope {{.HOMELAB_DIR}}"
 
-  push-inventory:
-    desc: Push file `provision/ansible/inventory/generated.yml` back to Doppler (i.e. if you modify the file in your IDE, use this task to just push it back, don't need GUI!)
-    dir: provision/ansible/inventory
-    aliases: ["p"]
-    silent: true
-    run: once
-    cmds:
-      - "cat {{.ANSIBLE_INVENTORY_FILENAME}} | doppler secrets set ANSIBLE_HOSTS_INVENTORY"
-      - echo "Please ensure your file was saved... otherwise save and redo."
-
-  # This task is required by multiple other taskfiles, call it with `:doppler:generate-ansible-inventory`
-  generate-ansible-inventory:
-    desc: Copy plain yaml inventory file from doppler and output/overwrite generated inventory
-    dir: provision/ansible/inventory
-    aliases: ["g"]
-    run: once
-    vars:
-      DOPPLER_GET_INVENTORY: '{{default "ANSIBLE_HOSTS_INVENTORY" .DOPPLER_GET_INVENTORY}}'
-    # preconditions:
-    #   # If file doesn't exist, create it or;
-    #   # Check if what is in doppler is different from local inventory file, let user handle it as they could be making changes locally which we do not with to override
-    #   - sh: "[[ -f {{.ANSIBLE_INVENTORY_FILENAME}} ]] || diff -q generated.yml <({{.DOPPLER_GET_INVENTORY_CMD}})"
-    #     msg: |
-    #       Inventory file '{{.ANSIBLE_INVENTORY_DIR}}/{{.ANSIBLE_INVENTORY_FILENAME}}' and doppler secret ANSIBLE_HOSTS_INVENTORY have diverged.
-    #       If you have made changes to the generated inventory file that was downloaded from doppler locally, then please save the inventory file
-    #       and ensure you've pushed this to doppler with command `task dp:p` so that it pulls down the latest inventory before proceeding!
-    cmds:
-      - "doppler secrets get {{.DOPPLER_GET_INVENTORY}} --plain > {{.ANSIBLE_INVENTORY_FILENAME}}"
-
-  push-k3s-inventory:
-    desc: Push file `provision/k3s-ansible/inventory/generated.yml` back to Doppler (i.e. if you modify the file in your IDE, use this task to just push it back, don't need GUI!)
-    dir: provision/k3s-ansible/inventory
-    aliases: ["pk"]
-    silent: true
-    run: once
-    vars:
-      DOPPLER_K3S_HOSTS_INVENTORY_VAR: '{{default "K3S_ANSIBLE_HOSTS_INVENTORY" .DOPPLER_K3S_HOSTS_INVENTORY_VAR}}'
-    cmds:
-      - "cat {{.ANSIBLE_INVENTORY_FILENAME}} | doppler secrets set {{ .DOPPLER_K3S_HOSTS_INVENTORY_VAR }}"
-      - echo "Please ensure your file was saved... otherwise save and redo."
-
-  push-k3s-inventory-dev:
-    desc: Push file `provision/k3s-ansible/inventory/generated.yml` back to Doppler for DEV inventory
-    dir: provision/k3s-ansible/inventory
-    aliases: ["pkd"]
-    cmds:
-      - task: push-k3s-inventory
-        vars:
-          DOPPLER_K3S_HOSTS_INVENTORY_VAR: "K3S_ANSIBLE_HOSTS_INVENTORY_DEV"
-
-  # This task is required by multiple other taskfiles, call it with `:doppler:generate-ansible-inventory`
-  generate-k3s-ansible-inventory:
-    desc: Copy plain yaml inventory file from doppler and output/overwrite generated inventory
-    dir: provision/k3s-ansible/inventory
-    run: once
-    internal: true
-    vars:
-      DOPPLER_K3S_HOSTS_INVENTORY_VAR: '{{default "K3S_ANSIBLE_HOSTS_INVENTORY" .DOPPLER_K3S_HOSTS_INVENTORY_VAR}}'
-    cmds:
-      - "doppler secrets get {{.DOPPLER_K3S_HOSTS_INVENTORY_VAR}} --plain > {{.ANSIBLE_INVENTORY_FILENAME}}"
-
-  # This task is required by multiple other taskfiles, call it with `:doppler:generate-ansible-inventory`
   test:
     desc: Test doppler gets secret
     vars:
@@ -88,3 +26,165 @@ tasks:
         SECRET_NAME="{{ .DOPPLER_VAR_TO_TEST }}"
         SECRET_VALUE=$(doppler secrets get $SECRET_NAME --plain)
         echo $SECRET_VALUE
+
+  push-secret-from-file:
+    desc: |
+      Push file denoted by `FILE_LOCATION` back to Doppler secret denoted by `SECRET_NAME`
+      (i.e. if you modify the file in your IDE, use this task to just push it back, don't need GUI!)
+    internal: true
+    preconditions:
+      # Validations and sanity checks
+      - sh: |
+          if [[ -z "{{.SECRET_NAME}}" ]]; then
+            exit 1
+          fi
+        msg: |
+          Error: Missing argument: SECRET_NAME
+      - sh: |
+          if [[ ! -f "{{ .FILE_LOCATION }}" ]]; then
+            exit 1
+          fi
+        msg: |
+          Error: Missing argument or file inaccessible: {{ .FILE_LOCATION }}
+      # Check if what is in Doppler is different from the local file
+      - sh: |
+          if diff -q "{{ .FILE_LOCATION }}" <(doppler secrets get {{ .SECRET_NAME }} --plain); then
+            exit 1
+          fi
+        msg: |
+          Error: No changes detected. Nothing to update.
+    cmds:
+      - |
+        cat "{{ .FILE_LOCATION }}" | doppler secrets set {{.SECRET_NAME}}
+        echo "Secret {{.SECRET_NAME}} from file {{ .FILE_LOCATION }} updated successfully."
+
+  pull-secret-to-file:
+    desc: |
+      Download Doppler secret denoted by `SECRET_NAME` var and store it in file denoted by `FILE_LOCATION` var
+      (i.e. grab a secret and write to a file. Automated way to manage configs, don't need GUI!)
+    internal: true
+    preconditions:
+      # Validations and sanity checks
+      - sh: |
+          if [[ -z "{{.SECRET_NAME}}" ]]; then
+            exit 1
+          fi
+        msg: |
+          Error: Missing argument: SECRET_NAME
+      - sh: |
+          if [[ ! -d $(dirname "{{ .FILE_LOCATION }}") ]]; then
+            exit 1
+          else
+            touch "{{ .FILE_LOCATION }}" &> /dev/null || exit 1
+          fi
+        msg: |
+          Error: Cannot access file to write to: {{ .FILE_LOCATION }}
+          Ensure this directory exists and a file can be created in it.
+      # Check if what is in Doppler is different from the local file
+      - sh: |
+          if diff -q "{{ .FILE_LOCATION }}" <(doppler secrets get {{ .SECRET_NAME }} --plain); then
+            exit 1
+          fi
+        msg: |
+          Error: No changes detected. Nothing to pull.
+    cmds:
+      - |
+        doppler secrets get {{ .SECRET_NAME }} --plain > {{ .FILE_LOCATION }}
+
+  #############################
+  ### DOPPLER SECRETS FILES ###
+  #############################
+
+  push-ansible-inventory:
+    aliases: ["pusha"]
+    run: once
+    vars: &ansible_inventory_vars
+      SECRET_NAME: "ANSIBLE_HOSTS_INVENTORY"
+      FILE_LOCATION: "provision/ansible/inventory/generated.yml"
+    desc: &push_secret_description |
+      Push file `{{ .FILE_LOCATION }}` back to Doppler secret `{{ .SECRET_NAME }}`
+      (i.e. if you modify the file in your IDE, use this task to just push it back once you save in vscode or whatever file/secret map you want, don't need GUI!)
+    cmds: &push_secret_cmds
+      - task: push-secret-from-file
+        vars:
+          SECRET_NAME: "{{ .SECRET_NAME }}"
+          FILE_LOCATION: "{{ .FILE_LOCATION }}"
+
+  # This task is required by multiple other taskfiles, call it with `:doppler:pull-ansible-inventory`
+  pull-ansible-inventory:
+    aliases: ["pulla"]
+    run: once
+    vars: *ansible_inventory_vars
+    desc: &pull_secret_description |
+      Pull secret `{{ .SECRET_NAME }}` and store it in file `{{ .FILE_LOCATION }}` 
+      (i.e. grab a secret and write to a file. Automated way to manage configs, don't need GUI!)
+    cmds: &pull_secret_cmds
+      - task: pull-secret-to-file
+        vars:
+          SECRET_NAME: "{{ .SECRET_NAME }}"
+          FILE_LOCATION: "{{ .FILE_LOCATION }}"
+
+  push-k3s-ansible-inventory:
+    aliases: ["pushka"]
+    run: once
+    vars: &k3s_ansible_inventory_vars
+      SECRET_NAME: "K3S_ANSIBLE_HOSTS_INVENTORY"
+      FILE_LOCATION: "provision/k3s-ansible/inventory/generated.yml"
+    desc: *push_secret_description
+    cmds: *push_secret_cmds
+
+  # This task is required by multiple other taskfiles, call it with `:doppler:pull-k3s-ansible-inventory`
+  pull-k3s-ansible-inventory:
+    aliases: ["pullka"]
+    run: once
+    vars: *k3s_ansible_inventory_vars
+    desc: *pull_secret_description
+    cmds: *pull_secret_cmds
+
+  push-k3s-dev-ansible-inventory:
+    aliases: ["pushkda"]
+    run: once
+    vars: &k3s_dev_ansible_inventory_vars
+      SECRET_NAME: "K3S_ANSIBLE_HOSTS_INVENTORY_DEV"
+      FILE_LOCATION: "provision/k3s-ansible/inventory/generated.yml"
+    desc: *push_secret_description
+    cmds: *push_secret_cmds
+
+  pull-k3s-dev-ansible-inventory:
+    aliases: ["pullkda"]
+    run: once
+    vars: *k3s_dev_ansible_inventory_vars
+    desc: *pull_secret_description
+    cmds: *pull_secret_cmds
+
+  push-kubeconfig:
+    aliases: ["pushkc"]
+    run: once
+    vars: &kubeconfig_vars
+      SECRET_NAME: "KUBE_CONFIG"
+      FILE_LOCATION: "${HOME}/.kube/config"
+    desc: *push_secret_description
+    cmds: *push_secret_cmds
+
+  pull-kubeconfig:
+    aliases: ["pullkc"]
+    run: once
+    vars: *kubeconfig_vars
+    desc: *pull_secret_description
+    cmds: *pull_secret_cmds
+
+  push-kubeconfig-dev:
+    aliases: ["pushkcd"]
+    run: once
+    vars: &kubeconfig_dev_vars
+      SECRET_NAME: "KUBE_CONFIG_DEV"
+      FILE_LOCATION: "${HOME}/.kube/config-dev"
+    desc: *push_secret_description
+    cmds: *push_secret_cmds
+
+  pull-kubeconfig-dev:
+    aliases: ["pullkcd"]
+    run: once
+    vars: *kubeconfig_dev_vars
+    desc: *pull_secret_description
+    cmds: *pull_secret_cmds

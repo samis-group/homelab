@@ -33,14 +33,14 @@ tasks:
   #   desc: Prepare all the k8s nodes for running k3s
   #   dir: provision/ansible
   #   cmds:
-  #     - task: :doppler:generate-ansible-inventory
+  #     - task: :doppler:pull-ansible-inventory
   #     - "{{.ANSIBLE_PLAYBOOK_CMD}} {{.ANSIBLE_PLAYBOOK_DIR}}/cluster-prepare.yml {{.CLI_ARGS}}"
 
   # install:
   #   desc: Install Kubernetes on the nodes
   #   dir: provision/ansible
   #   cmds:
-  #     - task: :doppler:generate-ansible-inventory
+  #     - task: :doppler:pull-ansible-inventory
   #     - "{{.ANSIBLE_PLAYBOOK_CMD}} {{.ANSIBLE_PLAYBOOK_DIR}}/cluster-installation.yml {{.CLI_ARGS}}"
 
   # nuke:
@@ -48,7 +48,7 @@ tasks:
   #   dir: provision/ansible
   #   interactive: true
   #   cmds:
-  #     - task: :doppler:generate-ansible-inventory
+  #     - task: :doppler:pull-ansible-inventory
   #     - "{{.ANSIBLE_PLAYBOOK_CMD}} {{.ANSIBLE_PLAYBOOK_DIR}}/cluster-nuke.yml {{.CLI_ARGS}}"
   #     - task: reboot
 
@@ -56,56 +56,56 @@ tasks:
     desc: Ping all the hosts
     dir: provision/ansible
     cmds:
-      - task: :doppler:generate-ansible-inventory
+      - task: :doppler:pull-ansible-inventory
       - ansible all {{.ANSIBLE_INVENTORY_CMD}} --one-line -m 'ping'
 
   uptime:
     desc: Uptime of all the hosts
     dir: provision/ansible
     cmds:
-      - task: :doppler:generate-ansible-inventory
+      - task: :doppler:pull-ansible-inventory
       - ansible all {{.ANSIBLE_INVENTORY_CMD}} --one-line -a 'uptime'
 
   # reboot:
   #   desc: Reboot all the k8s nodes
   #   dir: provision/ansible
   #   cmds:
-  #     - task: :doppler:generate-ansible-inventory
+  #     - task: :doppler:pull-ansible-inventory
   #     - "{{.ANSIBLE_PLAYBOOK_CMD}} {{.ANSIBLE_PLAYBOOK_DIR}}/cluster-reboot.yml {{.CLI_ARGS}}"
 
   poweroff:
     desc: Shutdown all the k8s nodes
     dir: provision/ansible
     cmds:
-      - task: :doppler:generate-ansible-inventory
+      - task: :doppler:pull-ansible-inventory
       - ansible kubernetes {{.ANSIBLE_INVENTORY_CMD}} -a '/usr/bin/systemctl poweroff' --become
 
   lint:
     desc: Ansible lint
     dir: provision/ansible
     cmds:
-      - task: :doppler:generate-ansible-inventory
+      - task: :doppler:pull-ansible-inventory
       - ansible-lint --config-file {{.PROJECT_DIR}}/.ansible-lint --project-dir {{.PROJECT_DIR}}/provision/ansible/ --exclude="molecule/"
 
   test:
     desc: 🧪 Run the test playbook
     dir: provision/ansible
     cmds:
-      - task: :doppler:generate-ansible-inventory
+      - task: :doppler:pull-ansible-inventory
       - "{{.ANSIBLE_PLAYBOOK_CMD}} {{.ANSIBLE_PLAYBOOK_DIR}}/test.yml {{.CLI_ARGS}}"
 
   wsl-personal:
     desc: Setup/Configure WSL
     dir: provision/ansible
     cmds:
-      - task: :doppler:generate-ansible-inventory
+      - task: :doppler:pull-ansible-inventory
       - "{{.ANSIBLE_PLAYBOOK_CMD}} {{.ANSIBLE_PLAYBOOK_DIR}}/wsl.yml {{.ANSIBLE_PLAYBOOK_DIR}}/wsl_personal.yml {{.CLI_ARGS}}"
 
   nuc:
     desc: Setup/Configure Intel Nuc
     dir: provision/ansible
     cmds:
-      - task: :doppler:generate-ansible-inventory
+      - task: :doppler:pull-ansible-inventory
       - "{{.ANSIBLE_PLAYBOOK_CMD}} {{.ANSIBLE_PLAYBOOK_DIR}}/nuc.yml {{.CLI_ARGS}}"
 
   home-assistant:
@@ -113,5 +113,5 @@ tasks:
     dir: provision/ansible
     aliases: ["ha"]
     cmds:
-      - task: :doppler:generate-ansible-inventory
+      - task: :doppler:pull-ansible-inventory
       - "{{.ANSIBLE_PLAYBOOK_CMD}} {{.ANSIBLE_PLAYBOOK_DIR}}/home_assistant_vm.yml {{.CLI_ARGS}}"
