@@ -54,9 +54,7 @@ jobs:
         id: metadata-ghcr
         uses: docker/metadata-action@v5
         with:
-          images: |
-            ghcr.io/${{ github.repository }}
-            ghcr.io/${{ github.repository }}-workstation
+          images: ghcr.io/${{ github.repository }}-workstation
           tags: |
             # set latest tag for main branch
             type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
@@ -96,18 +94,6 @@ jobs:
           labels: ${{ steps.metadata-ghcr.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-
-      # - name: Build and push Docker image to ghcr.io
-      #   id: build-and-push-ghcr
-      #   env:
-      #     REGISTRY: ghcr.io
-      #     IMAGE_TAG: latest
-      #   run: |
-      #     echo ${{ secrets.GHCR_TOKEN }} | docker login -u ${{ github.actor }} $REGISTRY --password-stdin
-      #     docker build -t $REGISTRY/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:$IMAGE_TAG -f docker/workstation/Dockerfile .
-      #     echo "Pushing image to GHCR..."
-      #     docker push $REGISTRY/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:$IMAGE_TAG
-      #     echo "::set-output name=image::$REGISTRY/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:$IMAGE_TAG"
 
       - name: Extract Docker metadata for Docker Hub
         id: metadata-docker
