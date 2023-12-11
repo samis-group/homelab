@@ -4,6 +4,7 @@
 ![badge-windows-11](https://img.shields.io/badge/OS-Windows%2011%2021H2-blue)
 ![badge-license](https://img.shields.io/badge/License-MIT-informational)
 [![Docker Image - Workstation](https://github.com/samis-group/homelab/actions/workflows/docker-image-workstation.yaml/badge.svg?branch=main)](https://github.com/samis-group/homelab/actions/workflows/docker-image-workstation.yaml)
+[![Docker Image - Actions Runner Base](https://github.com/samis-group/homelab/actions/workflows/docker-image-actions-runner-base.yaml/badge.svg)](https://github.com/samis-group/homelab/actions/workflows/docker-image-actions-runner-base.yaml)
 
 ![Ansible](https://avatars.githubusercontent.com/u/1507452?s=200&v=4)
 ![Hashicorp](https://avatars.githubusercontent.com/u/761456?s=200&v=4)

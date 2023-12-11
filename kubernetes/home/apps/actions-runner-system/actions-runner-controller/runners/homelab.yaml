@@ -30,7 +30,7 @@ spec:
     #   name: actions-runner-controller-gha-rs-controller
     runnerScaleSetName: arc-runner-set-docker-containers-homelab
     githubConfigUrl: https://github.com/samis-group/homelab
-    minRunners: 1
+    minRunners: 0
     maxRunners: 3
     # containerMode:
     #   type: dind
