@@ -45,8 +45,9 @@ spec:
                 mountPath: /home/runner/tmpDir
         containers:
           - name: runner
-            #image: ghcr.io/actions/actions-runner:latest
-            image: ghcr.io/samis-group/actions-runner-base:latest
+            # image: ghcr.io/samis-group/actions-runner-base:latest
+            image: configit/gha-runner-shim:latest
+            # image: ghcr.io/actions/actions-runner:latest
             command: ["/home/runner/run.sh"]
             env:
               - name: DOCKER_HOST
