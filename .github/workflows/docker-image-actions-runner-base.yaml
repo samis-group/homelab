@@ -21,7 +21,7 @@ on:
 jobs:
   build:
     name: Build & Push Docker Image - Actions Runner Base
-    runs-on: ["arc-runner-set-docker-containers-homelab"]
+    runs-on: ["self-hosted"]
     # runs-on: [self-hosted, linux, x64]
     permissions:
       contents: read
