@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - "${{ env.DOCKER_DIR }}/${{ env.IMAGE_NAME }}/**"
+      - "docker/actions-runner-base/**"
     # branches:
     #   - 'main'
     # tags:
