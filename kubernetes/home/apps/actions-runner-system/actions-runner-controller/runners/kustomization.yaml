@@ -6,5 +6,4 @@ namespace: actions-runner-system
 resources:
   - ./docker-daemon-config.yaml
   # - ./homelab.yaml
-  # - ./nginx.yaml
   - ./samis-group.yaml
