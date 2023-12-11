@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - '${{ env.DOCKER_DIR }}/${{ env.IMAGE_NAME }}/**'
+      - "${{ env.DOCKER_DIR }}/${{ env.IMAGE_NAME }}/**"
     # branches:
     #   - 'main'
     # tags:
@@ -49,7 +49,7 @@ jobs:
         id: metadata-ghcr
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/samis-group/${{ env.IMAGE_NAME }}
+          images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}
           tags: |
             # set latest tag for main branch
             type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
