@@ -1,10 +1,14 @@
 name: Docker Image - Workstation
+env:
+  # Must be identical to what is in DOCKER_DIR
+  IMAGE_NAME: homelab-workstation
+  REGISTRY: ghcr.io
+  DOCKER_DIR: docker
 
 on:
-  workflow_dispatch:
   push:
     paths:
-      - 'docker/workstation/**'
+      - 'docker/homelab-workstation/**'
       - 'provision/ansible/requirements.yml'
       - 'provision/ansible/roles/requirements.yml'
       - 'requirements.txt'
@@ -12,14 +16,10 @@ on:
     #   - 'main'
     # tags:
     #   - 'v*'
+  workflow_dispatch:
   pull_request:
     branches:
       - 'main'
-
-env:
-  # Use docker.io for Docker Hub if empty
-  # REGISTRY: ghcr.io
-  IMAGE_NAME: homelab-workstation
 
 jobs:
   build:
@@ -47,15 +47,12 @@ jobs:
       # Workaround: https://github.com/docker/build-push-action/issues/461
       - name: Setup Docker buildx
         uses: docker/setup-buildx-action@v2
-        # with:
-        #   driver-opts: |
-        #     image=moby/buildkit:v0.10.6
 
-      - name: Extract Docker metadata for ghcr.io
+      - name: Extract Docker metadata for ${{ env.REGISTRY }}
         id: metadata-ghcr
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.repository }}-workstation
+          images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}
           tags: |
             # set latest tag for main branch
             type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
@@ -75,35 +72,35 @@ jobs:
             # set latest tag for default branch
             # type=raw,value=latest,enable={{is_default_branch}}
 
-      - name: Log into registry ghcr.io
+      - name: Log into registry ${{ env.REGISTRY }}
         uses: docker/login-action@v3
         with:
-          registry: ghcr.io
+          registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push Docker image to ghcr.io
+      - name: Build and push Docker image to ${{ env.REGISTRY }}
         id: build-and-push-ghcr
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: docker/workstation/Dockerfile
-          push: ${{ github.event_name != 'pull_request' }} # Don't push on PR
-          # push: true
-          # push: ${{ startsWith(github.ref, 'refs/tags/') }}
+          file: ${{ env.DOCKER_DIR }}/${{ env.IMAGE_NAME }}/Dockerfile
           tags: ${{ steps.metadata-ghcr.outputs.tags }}
           labels: ${{ steps.metadata-ghcr.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          push: true
+          # push: ${{ github.event_name != 'pull_request' }} # Don't push on PR
+          # push: ${{ startsWith(github.ref, 'refs/tags/') }} # Push only when tagged
 
       # - name: Sign the image with cosign
       #   if: github.event_name != 'pull_request'
       #   run: |
       #     cosign sign --key cosign.key ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
-      - name: Create release
+      - name: Create release when one of these tags are committed - alpha | beta | rc
         uses: josephrodriguez/swift-release@v1.1
         if: ${{ startsWith(github.ref, 'refs/tags/') }}
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          prerelease: ${{ contains(github.ref, 'alpha') || contains(github.ref, 'beta') || contains(github.ref, 'rc') }} 
+          prerelease: ${{ contains(github.ref, 'alpha') || contains(github.ref, 'beta') || contains(github.ref, 'rc') }}

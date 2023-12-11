@@ -5,13 +5,12 @@ on:
 
 jobs:
   Explore-GitHub-Actions:
-    runs-on: [self-hosted, linux, x64]
+    runs-on: [self-hosted]
 
     steps:
     - name: Debug github context
       run: |
         # Debug the secret or environment variable by printing its value
-        echo "The github context: ${{ github }}"
         echo "The github actor is: ${{ github.actor }}"
         echo "The github repo owner is: ${{ github.repository_owner }}"
 
