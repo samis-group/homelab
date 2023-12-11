@@ -8,10 +8,11 @@ jobs:
     runs-on: [self-hosted, linux, x64]
 
     steps:
-    - name: Debug Secret or Env Variable
+    - name: Debug github context
       run: |
         # Debug the secret or environment variable by printing its value
-        echo "The value of GHCR_TOKEN is: ${{ secrets.GHCR_TOKEN }}"
-        echo "The value of CONTAINER_REGISTRY again2 is: ${{ vars.CONTAINER_REGISTRY }}"
+        echo "The github context: ${{ github }}"
+        echo "The github actor is: ${{ github.actor }}"
+        echo "The github repo owner is: ${{ github.repository_owner }}"
 
     - run: echo "🎉 This job used my self hosted runner!"

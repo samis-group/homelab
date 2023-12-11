@@ -1,0 +1,109 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.devbu.io/helm.toolkit.fluxcd.io/helmrelease_v2beta1.json
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: arc
+  namespace: actions-runner-system
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: gha-runner-scale-set
+      version: 0.7.0
+      sourceRef:
+        kind: HelmRepository
+        name: actions-runner-controller
+        namespace: flux-system
+  maxHistory: 2
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  values:
+    # controllerServiceAccount:
+    #   name: actions-runner-controller-gha-rs-controller
+    runnerScaleSetName: arc-runner-set-samis-group
+    githubConfigUrl: https://github.com/samis-group
+    minRunners: 1
+    maxRunners: 3
+    # containerMode:
+    #   type: dind
+    template:
+      spec:
+        initContainers:
+          - name: init-dind-externals
+            image: ghcr.io/actions/actions-runner:latest
+            command: ["cp", "-r", "-v", "/home/runner/externals/.", "/home/runner/tmpDir/"]
+            volumeMounts:
+              - name: dind-externals
+                mountPath: /home/runner/tmpDir
+        containers:
+          - name: runner
+            #image: ghcr.io/actions/actions-runner:latest
+            image: configit/gha-runner-shim:latest
+            command: ["/home/runner/run.sh"]
+            env:
+              - name: DOCKER_HOST
+                value: unix:///run/docker/docker.sock
+            volumeMounts:
+              - name: work
+                mountPath: /home/runner/_work
+              - name: dind-sock
+                mountPath: /run/docker
+                readOnly: true
+          - name: dind
+            image: docker:dind
+            args:
+              - dockerd
+              - --host=unix:///run/docker/docker.sock
+              - --group=$(DOCKER_GROUP_GID)
+            resources:
+              requests:
+                memory: 4Gi
+              limits:
+                memory: 16Gi
+            env:
+              - name: DOCKER_GROUP_GID
+                value: "123"
+            securityContext:
+              privileged: true
+            volumeMounts:
+              - name: work
+                mountPath: /home/runner/_work
+              - name: dind-sock
+                mountPath: /run/docker
+              - name: dind-externals
+                mountPath: /home/runner/externals
+              - name: daemon-json
+                mountPath: /etc/docker/daemon.json
+                readOnly: true
+                subPath: daemon.json
+        volumes:
+          - name: work
+            emptyDir: {}
+          - name: dind-sock
+            emptyDir: {}
+          - name: dind-externals
+            emptyDir: {}
+          - name: daemon-json
+            configMap:
+              name: docker-daemon-config
+  valuesFrom:
+    - kind: Secret
+      name: actions-runner-controller-auth-secret
+      valuesKey: GITHUB_APP_ID
+      targetPath: githubConfigSecret.github_app_id
+    - kind: Secret
+      name: actions-runner-controller-auth-secret
+      valuesKey: GITHUB_APP_INSTALLATION_ID
+      targetPath: githubConfigSecret.github_app_installation_id
+    - kind: Secret
+      name: actions-runner-controller-auth-secret
+      valuesKey: GITHUB_APP_PRIVATE_KEY
+      targetPath: githubConfigSecret.github_app_private_key
