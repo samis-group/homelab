@@ -80,9 +80,9 @@ RUN mkdir -p /usr/share/ansible/collections && \
     ansible-galaxy role install -r ./roles/requirements.yml --roles-path /usr/share/ansible/roles
 
 # Copy bin files and docker-entrypoint.sh
-COPY docker/workstation/bin /usr/local/bin
-COPY docker/workstation/docker-entrypoint.sh /usr/local/bin
-COPY docker/workstation/.bash_aliases /home/${USER_NAME}/.bash_aliases
+COPY docker/homelab-workstation/bin /usr/local/bin
+COPY docker/homelab-workstation/docker-entrypoint.sh /usr/local/bin
+COPY docker/homelab-workstation/.bash_aliases /home/${USER_NAME}/.bash_aliases
 
 # Some plays delegate to localhost, requires access to itself on ssh
 EXPOSE 22
