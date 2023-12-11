@@ -6,5 +6,7 @@ metadata:
 data:
   daemon.json: |
     {
-      "mtu": 1450
+      "mtu": 1400
     }
+# Add this to avoid rate limiting
+# "registry-mirrors": ["http://registry.arc-runners.svc.local.configit:5000"]
