@@ -20,7 +20,7 @@ on:
 
 jobs:
   build:
-    name: Build & Push Docker Image - Actions Runner Base - ${{ env.IMAGE_NAME }}
+    name: Build & Push Docker Image - Actions Runner Base
     runs-on: ["arc-runner-set-docker-containers-homelab"]
     # runs-on: [self-hosted, linux, x64]
     permissions:
