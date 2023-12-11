@@ -21,7 +21,7 @@ on:
 jobs:
   build:
     name: Build & Push Docker Image - Actions Runner Base
-    runs-on: ["self-hosted"]
+    runs-on: ["arc-runner-set-samis-group"]
     # runs-on: [self-hosted, linux, x64]
     permissions:
       contents: read
