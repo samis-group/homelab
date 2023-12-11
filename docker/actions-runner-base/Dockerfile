@@ -7,5 +7,6 @@ LABEL org.opencontainers.image.source = "https://github.com/samis-group/homelab"
 
 ENV DOCKER_MTU 1400
 
-RUN sudo mv /bin/docker /bin/docker-wrapped
-COPY docker/actions-runner-base/docker-shim.sh /bin/docker
+RUN sudo mv /usr/bin/docker /usr/bin/docker-wrapped
+COPY docker/actions-runner-base/docker-shim.sh /usr/bin/docker
+RUN sudo chmod 755 /usr/bin/docker
