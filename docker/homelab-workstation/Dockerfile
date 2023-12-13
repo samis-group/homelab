@@ -82,6 +82,7 @@ RUN mkdir -p /usr/share/ansible/collections && \
 # Copy bin files and docker-entrypoint.sh
 COPY docker/homelab-workstation/bin /usr/local/bin
 COPY docker/homelab-workstation/docker-entrypoint.sh /usr/local/bin
+RUN chmod +x entrypoint.sh
 COPY docker/homelab-workstation/.bash_aliases /home/${USER_NAME}/.bash_aliases
 
 # Some plays delegate to localhost, requires access to itself on ssh
