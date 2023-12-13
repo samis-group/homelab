@@ -10,6 +10,8 @@ resources:
   - ./grafana.yaml
   - ./hajimari.yaml
   - ./jetstack.yaml
+  - ./piraeus.yaml
   - ./prometheus-community.yaml
+  - ./rook-ceph.yaml
   - ./stakater.yaml
   - ./traefik.yml
