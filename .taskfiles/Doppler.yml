@@ -27,6 +27,23 @@ tasks:
         SECRET_VALUE=$(doppler secrets get $SECRET_NAME --plain)
         echo $SECRET_VALUE
 
+  get-secret-to-stdout:
+    desc: |
+      Get Doppler secret denoted by `SECRET_NAME` and output to stdout
+      (i.e. use this task to get a secret to your pipelined process)
+    internal: true
+    preconditions:
+      # Validations and sanity checks
+      - sh: |
+          if [[ -z "{{.SECRET_NAME}}" ]]; then
+            exit 1
+          fi
+        msg: |
+          Error: Missing argument: SECRET_NAME
+    cmds:
+      - |
+        doppler secrets get {{ .SECRET_NAME }} --plain
+
   push-secret-from-file:
     desc: |
       Push file denoted by `FILE_LOCATION` back to Doppler secret denoted by `SECRET_NAME`
@@ -46,13 +63,8 @@ tasks:
           fi
         msg: |
           Error: Missing argument or file inaccessible: {{ .FILE_LOCATION }}
-      # Check if what is in Doppler is different from the local file
-      - sh: |
-          if diff -q "{{ .FILE_LOCATION }}" <(doppler secrets get {{ .SECRET_NAME }} --plain); then
-            exit 1
-          fi
-        msg: |
-          Error: No changes detected. Nothing to update.
+    status: # Check if what is in Doppler is different to the local file
+      - diff -q "{{ .FILE_LOCATION }}" <(doppler secrets get {{ .SECRET_NAME }} --plain)
     cmds:
       - |
         cat "{{ .FILE_LOCATION }}" | doppler secrets set {{.SECRET_NAME}}
@@ -80,13 +92,8 @@ tasks:
         msg: |
           Error: Cannot access file to write to: {{ .FILE_LOCATION }}
           Ensure this directory exists and a file can be created in it.
-      # Check if what is in Doppler is different from the local file
-      - sh: |
-          if diff -q "{{ .FILE_LOCATION }}" <(doppler secrets get {{ .SECRET_NAME }} --plain); then
-            exit 1
-          fi
-        msg: |
-          Error: No changes detected. Nothing to pull.
+    status: # Check if what is in Doppler is different to the local file
+      - diff -q "{{ .FILE_LOCATION }}" <(doppler secrets get {{ .SECRET_NAME }} --plain)
     cmds:
       - |
         doppler secrets get {{ .SECRET_NAME }} --plain > {{ .FILE_LOCATION }}
@@ -188,3 +195,14 @@ tasks:
     vars: *kubeconfig_dev_vars
     desc: *pull_secret_description
     cmds: *pull_secret_cmds
+
+  get-ansible-inventory-to-stdout:
+    # aliases: ["geta"]
+    run: once
+    internal: true
+    vars:
+      SECRET_NAME: "ANSIBLE_HOSTS_INVENTORY"
+    cmds:
+      - task: get-secret-to-stdout
+        vars:
+          SECRET_NAME: "{{ .SECRET_NAME }}"

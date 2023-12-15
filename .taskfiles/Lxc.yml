@@ -33,13 +33,22 @@ tasks:
       - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags dev {{.ANSIBLE_PLAYBOOK_DIR}}/lxc.yml {{.CLI_ARGS}}"
 
   github-runner:
-    desc: 📦 Make Github Runner LXC. Ensure 'github_token' in doppler is updated with your group runners. Mine are here -> https://github.com/organizations/samis-group/settings/actions/runners.
+    desc: 📦 Make Github Runner LXC. Ensure 'github_token' in doppler is updated with your group runners. Mine are here -> https://github.com/organizations/samis-group/settings/actions/runners
     dir: provision/ansible
     deps: [provision-lxc]
     aliases: ["g"]
     cmds:
       - task: :doppler:pull-ansible-inventory
       - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags github_runner {{.ANSIBLE_PLAYBOOK_DIR}}/lxc.yml {{.CLI_ARGS}}"
+
+  qbittorrent:
+    desc: 📦 Make Qbittorrent LXC
+    dir: provision/ansible
+    deps: [provision-lxc]
+    aliases: ["q"]
+    cmds:
+      - task: :doppler:pull-ansible-inventory
+      - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags qbittorrent {{.ANSIBLE_PLAYBOOK_DIR}}/lxc.yml {{.CLI_ARGS}}"
 
   ### Migrated to VM
   # k3s1:
