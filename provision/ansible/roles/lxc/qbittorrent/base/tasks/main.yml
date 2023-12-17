@@ -8,7 +8,8 @@
       - git
       - htop
       - make
-      - neovim
+      # - neovim
+      - vim
       - podman
       - psmisc
       - ranger
@@ -18,12 +19,12 @@
 
 - name: Set zsh as user shell
   user:
-    name: "{{ ansible_user_id }}"
+    name: "root"
     shell: /usr/bin/zsh
   become: true
 
 - name: Enable loginctl linger
-  command: loginctl enable-linger {{ ansible_user_id }}
+  command: loginctl enable-linger root
 
 - name: Enable sshd pubkey authentication
   lineinfile:
@@ -31,13 +32,13 @@
     line: "PubkeyAuthentication yes"
   become: true
 
-- name: Create ssh directory with correct permissions
-  file:
-    path: "{{ homedir }}/.ssh"
-    state: directory
-    mode: 0700
+# - name: Create ssh directory with correct permissions
+#   file:
+#     path: "{{ homedir }}/.ssh"
+#     state: directory
+#     mode: 0700
 
-- name: Create systemd user directory
-  file:
-    path: "{{ configdir }}/systemd/user"
-    state: directory
+# - name: Create systemd user directory
+#   file:
+#     path: "{{ configdir }}/systemd/user"
+#     state: directory

@@ -19,8 +19,9 @@ eufy_addon_password: "{{ lookup('env', 'EUFY_ADDON_PASSWORD') }}"      # Passwor
 cloudflare_email: "{{ lookup('env', 'CLOUDFLARE_EMAIL') }}"                            # Search "API" in your password manager
 cloudflare_api_token: "{{ lookup('env', 'CLOUDFLARE_API_TOKEN') }}"   # Search "Cloudflare API key - cf-ddns" in your password manager
 cloudflare_api_key: "{{ lookup('env', 'CLOUDFLARE_API_KEY') }}"        # This is the "Global API Key" (same entry as above in your password manager)
-vpn_user: "{{ lookup('env', 'VPN_USER') }}"   # VPN Provider username
+vpn_user: "{{ lookup('env', 'VPN_USER') }}"       # VPN Provider username
 vpn_pass: "{{ lookup('env', 'VPN_PASS') }}"       # VPN Provider password
+vpn_config: "{{ lookup('env', 'VPN_CONFIG') }}"   # VPN config with certs and keys
 # The nordvpn_private_key can be obtained using `docker run --rm --cap-add=NET_ADMIN -e USER=${VPN_USER} -e PASS=${VPN_PASS} bubuntux/nordvpn nord_private_key`
 nordvpn_private_key: "{{ lookup('env', 'NORDVPN_PRIVATE_KEY') }}"   # For nordlynx
 google_client_id: "{{ lookup('env', 'GOOGLE_CLIENT_ID') }}"  # For oauth container

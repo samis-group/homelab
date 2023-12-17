@@ -3,15 +3,15 @@
   register: container_exists
   failed_when: container_exists.rc > 1
 
-- name: Create media directories
-  file:
-    path: '{{ mediadir }}/{{ item }}'
-    state: directory
-  loop:
-    - downloading
-    - completed
-    - movies
-    - shows
+# - name: Create media directories
+#   file:
+#     path: '{{ mediadir }}/{{ item }}'
+#     state: directory
+#   loop:
+#     - downloading
+#     - completed
+#     - movies
+#     - shows
 
 - name: Create container
   command: >
@@ -24,38 +24,31 @@
     -p 6881:6881
     -p 6881:6881/udp
     -v qbittorrent-config:/config
-    -v {{ mediadir }}:/media:z
     docker.io/linuxserver/qbittorrent
   when: container_exists.rc == 1
+  # -v {{ mediadir }}:/media:z
 
-- name: Configure firewalld
-  firewalld:
-    port: '{{ item }}'
-    state: enabled
-    immediate: true
-    permanent: true
-  loop:
-    - 8080/tcp
-    - 6881/tcp
-    - 6881/udp
-  become: true
+# - name: Configure firewalld
+#   firewalld:
+#     port: '{{ item }}'
+#     state: enabled
+#     immediate: true
+#     permanent: true
+#   loop:
+#     - 8080/tcp
+#     - 6881/tcp
+#     - 6881/udp
+#   become: true
 
 - name: Install systemd service
   copy:
     src: qbittorrent.service
-    dest: '{{ configdir }}/systemd/user/qbittorrent.service'
+    dest: '/usr/lib/systemd/system/qbittorrent.service'
     mode: 0644
 
 - name: Enable systemd service
   systemd:
     name: qbittorrent.service
-    scope: user
     state: started
     enabled: true
     daemon_reload: true
-
-- name: Install easymode config
-  copy:
-    src: qbittorrent.yml
-    dest: "{{ easymodeconfig }}/"
-  when: easymodeconfig is defined

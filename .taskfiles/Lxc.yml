@@ -48,7 +48,7 @@ tasks:
     aliases: ["q"]
     cmds:
       - task: :doppler:pull-ansible-inventory
-      - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags qbittorrent {{.ANSIBLE_PLAYBOOK_DIR}}/lxc.yml {{.CLI_ARGS}}"
+      - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags qbit-lxc {{.ANSIBLE_PLAYBOOK_DIR}}/lxc.yml {{.CLI_ARGS}}"
 
   ### Migrated to VM
   # k3s1:

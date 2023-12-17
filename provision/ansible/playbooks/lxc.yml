@@ -49,19 +49,48 @@
     #   ansible.builtin.import_tasks: ../tasks/k3s/system_dependencies.yml
     #   become: true
 
+- name: Setup Qbittorrent SSH for ansible from proxmox host
+  hosts: qbit-lxc
+  tags: ["qbit-lxc"]
+  become: true
+  gather_facts: false
+
+  # pre_tasks: *pre_tasks
+
+  tasks:
+    - name: Install openssh-server on qbit-lxc
+      shell:
+        cmd: "pct exec {{ lxc_container.id | default('226') }} -- dnf install openssh-server -y"
+      delegate_to: proxmox
+
+    - name: Install openssh-server on qbit-lxc
+      shell:
+        cmd: "pct exec {{ lxc_container.id | default('226') }} -- systemctl start sshd.service"
+      delegate_to: proxmox
+
+    - name: Install openssh-server on qbit-lxc
+      shell:
+        cmd: "pct exec {{ lxc_container.id | default('226') }} -- systemctl enable sshd.service"
+      delegate_to: proxmox
+
 - name: Setup Qbittorrent LXC
-  hosts: qbittorrent
-  tags: ["qbittorrent"]
+  hosts: qbit-lxc
+  tags: ["qbit-lxc"]
   become: true
 
-  pre_tasks: *pre_tasks
+  pre_tasks:
+
+    # This is to get the PUID and PGID variables to use later in multiple areas
+    - name: Get user info or create a user if one doesn't exist
+      ansible.builtin.import_tasks: ../tasks/linux/pre_tasks.yml
+      tags: ["always"]
 
   roles:
 
     - bertiewils.doppler_cli
-    # - ../roles/lxc/qbittorrent/base
-    # - ../roles/lxc/qbittorrent/openvpn_client
-    # - ../roles/lxc/qbittorrent/qbittorrent
+    - ../roles/lxc/qbittorrent/base
+    - ../roles/lxc/qbittorrent/openvpn_client
+    - ../roles/lxc/qbittorrent/qbittorrent
 
 # - name: Setup Github Runner LXC(s)
 #   hosts: github-runner1

@@ -71,3 +71,4 @@
     search_regex: OpenSSH
     # delay: 60
   delegate_to: localhost
+  when: wait_for_ssh | bool
