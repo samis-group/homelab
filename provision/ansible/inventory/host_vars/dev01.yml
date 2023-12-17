@@ -6,9 +6,10 @@ lxc_container:
   description: "Machine to do development on."
   storage: "local"
   disk: "20"  # Size of disk (in GB)
+  swap: 0
   netif: '{"net0":"name=eth0,gw={{ vm_gateway }},ip={{ lxc_ip_address }}/{{ vm_netmask }},bridge={{ lxc_defaults.network_device }}"}'
-  unprivileged: true
   features:
     - nesting=1
     - mount=nfs
   memory: "4096" # ram for each VM in MB
+  unprivileged: true

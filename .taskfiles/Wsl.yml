@@ -3,9 +3,28 @@ version: "3"
 
 tasks:
 
+  reqs:
+    desc: Install requirements in order to run wsl playbook locally
+    dir: provision/ansible
+    internal: true
+    run: once
+    status:
+      - which doppler
+      - which ansible
+    cmds:
+      - sudo apt-get update && sudo apt-get install -y apt-transport-https ca-certificates curl gnupg software-properties-common
+      - curl -sLf --retry 3 --tlsv1.2 --proto "=https" 'https://packages.doppler.com/public/cli/gpg.DE2A7741A397C129.key' | sudo gpg --dearmor -o /usr/share/keyrings/doppler-archive-keyring.gpg
+      - echo "deb [signed-by=/usr/share/keyrings/doppler-archive-keyring.gpg] https://packages.doppler.com/public/cli/deb/debian any-version main" | sudo tee /etc/apt/sources.list.d/doppler-cli.list
+      - sudo add-apt-repository --yes --update ppa:ansible/ansible
+      - sudo apt-get update && sudo apt-get install -y doppler ansible
+      - sudo ansible-galaxy collection install -r ./requirements.yml --collections-path /usr/share/ansible/collections
+      - sudo ansible-galaxy role install -r ./roles/requirements.yml --roles-path /usr/share/ansible/roles
+
   personal:
     desc: 🐧 Make Base + Personal WSL instance (Assumes you're running from it, so go setup and clone this repo there)
     dir: provision/ansible
+    aliases: ["p"]
+    deps: ['reqs']
     cmds:
       - task: :doppler:pull-ansible-inventory
       - "{{.ANSIBLE_PLAYBOOK_CMD}} {{.ANSIBLE_PLAYBOOK_DIR}}/wsl.yml {{.ANSIBLE_PLAYBOOK_DIR}}/wsl_personal.yml {{.CLI_ARGS}}"
@@ -13,6 +32,7 @@ tasks:
   work:
     desc: 🐧 Make Base + Work WSL instance (Assumes you're running from it, so go setup and clone this repo there)
     dir: provision/ansible
+    deps: ['reqs']
     cmds:
       - task: :doppler:pull-ansible-inventory
       - "{{.ANSIBLE_PLAYBOOK_CMD}} {{.ANSIBLE_PLAYBOOK_DIR}}/wsl.yml {{.ANSIBLE_PLAYBOOK_DIR}}/wsl_work.yml {{.CLI_ARGS}}"

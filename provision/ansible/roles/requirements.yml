@@ -8,7 +8,9 @@
 - src: MonolithProjects.github_actions_runner
 
 # Linux #
-- src: hedii.youtube-dl
+- src: bertiewils.doppler_cli
+- src: nass600.vundle
+- src: geerlingguy.pip
 
 # k3s #
 - src: xanmanning.k3s
@@ -24,6 +26,3 @@
 - name: markosamuli.pyenv
   src: https://github.com/markosamuli/ansible-pyenv.git
   scm: git
-
-# Others #
-- src: bertiewils.doppler_cli

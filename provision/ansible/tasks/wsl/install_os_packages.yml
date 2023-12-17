@@ -47,8 +47,6 @@
       - stow
       - bash-completion
       - python3
-      - python3-pip
-      - python3-jmespath
       - python-is-python3
       - cifs-utils
       - nfs-common
@@ -57,29 +55,31 @@
       - jq
       - unzip
       - pwgen
+      - golang-go
+      - tree
 
-- name: pip self-update
-  pip:
-    name: pip
-    state: latest
+# - name: pip self-update
+#   pip:
+#     name: pip
+#     state: latest
 
-- name: Install required python modules
-  pip:
-    name:
-      - passlib
-      - pyyaml
+# - name: Install required python modules
+#   pip:
+#     name:
+#       - passlib
+#       - pyyaml
 
-- name: mark vundle dir as safe in git config
-  community.general.git_config:
-    name: safe.directory
-    scope: global
-    value: "{{ user_dir }}/.vim/bundle/Vundle.vim"
+# - name: mark vundle dir as safe in git config
+#   community.general.git_config:
+#     name: safe.directory
+#     scope: global
+#     value: "{{ user_dir }}/.vim/bundle/Vundle.vim"
 
-# Vundle install
-- name: Clone Vundle
-  git:
-    repo: https://github.com/VundleVim/Vundle.vim.git
-    dest: "{{ user_dir }}/.vim/bundle/Vundle.vim"
-    clone: true
-    update: true
-  become_user: "{{ user_info.name }}"  # We want ownership of the repo to be the user that we're cloning to
+# # Vundle install
+# - name: Clone Vundle
+#   git:
+#     repo: https://github.com/VundleVim/Vundle.vim.git
+#     dest: "{{ user_dir }}/.vim/bundle/Vundle.vim"
+#     clone: true
+#     update: true
+#   become_user: "{{ user_info.name }}"  # We want ownership of the repo to be the user that we're cloning to

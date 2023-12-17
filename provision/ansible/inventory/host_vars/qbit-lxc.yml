@@ -1,0 +1,15 @@
+---
+lxc_ip_address: "{{ vm_network }}56"  # Required
+lxc_container:
+  image: "almalinux-9-default_20221108_amd64.tar.xz"  # List available images to use - pveam available
+  # name: "qbit-lxc"
+  id: 226 # Required
+  description: "Qbittorrent LXC"
+  storage: "local"
+  disk: "80" # Size of disk (in GB)
+  swap: 0
+  netif: '{"net0":"name=eth0,gw={{ vm_gateway }},ip={{ lxc_ip_address }}/{{ vm_netmask }},bridge={{ lxc_defaults.network_device }}"}'
+  features:
+    - nesting=1
+    - mount=nfs
+  memory: "8192" # ram for each VM in MB

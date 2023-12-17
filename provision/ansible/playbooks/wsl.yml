@@ -26,7 +26,15 @@
       ansible.builtin.import_tasks: ../tasks/linux/pre_tasks.yml
       tags: ["always"]
 
-  # roles:
+  roles:
+    - role: geerlingguy.pip
+      vars:
+        pip_install_packages:
+          - passlib
+          - pyyaml
+          - jmespath
+          - yt-dlp
+    - role: nass600.vundle
 
   #   - role: markosamuli.pyenv
   #     vars:   # More info -> https://github.com/markosamuli/ansible-pyenv#role-variables
@@ -51,12 +59,12 @@
     - name: Copy Files
       ansible.builtin.import_tasks: ../tasks/wsl/configure_wsl.yml
 
-    # - name: Copy git repos
-    #   ansible.builtin.import_tasks: ../tasks/wsl/git.yml
-    #   when: git
-    #   tags: ["git"]
+    - name: Git Tasks
+      ansible.builtin.import_tasks: ../tasks/wsl/git.yml
+      when: git
+      tags: ["git"]
 
-    - name: Clone dotfiles and stow them
-      ansible.builtin.import_tasks: ../tasks/wsl/stow_dotfiles.yml
-      when: stow_dotfiles
-      tags: ["stow_dotfiles"]
+    # - name: Clone dotfiles and stow them
+    #   ansible.builtin.import_tasks: ../tasks/wsl/stow_dotfiles.yml
+    #   when: stow_dotfiles
+    #   tags: ["stow_dotfiles"]

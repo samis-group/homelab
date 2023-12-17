@@ -30,19 +30,18 @@
 
     - andrewrothstein.kubectl
     - geerlingguy.helm
-    - hedii.youtube-dl
-    - role: ../roles/wsl/yt-dlp
+    # - role: ../roles/wsl/yt-dlp
 
   tasks:
 
     - name: Setup virtualbox and vagrant to work in WSL
       ansible.builtin.import_tasks: ../tasks/wsl/virtualbox.yml
 
-- name: Setup Personal WSL Non-Root Tasks
-  hosts: wsl
-  # become: false
+# - name: Setup Personal WSL Non-Root Tasks
+#   hosts: wsl
+#   # become: false
 
-  tasks:
+#   tasks:
 
-    - name: Setup virtualbox and vagrant to work in WSL
-      ansible.builtin.import_tasks: ../tasks/wsl/homebrew.yml
+#     - name: Setup virtualbox and vagrant to work in WSL
+#       ansible.builtin.import_tasks: ../tasks/wsl/homebrew.yml

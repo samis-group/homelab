@@ -1,9 +1,8 @@
 ---
-### Ensure you have gitlab repos to clone! If you aren't me, do you want to run this?
-# - name: Copy git credentials in credentials store file from template
-#   template:
-#     src: ../templates/wsl/.git-credentials.j2
-#     dest: "{{ user_dir }}/.git-credentials"
+- name: Copy git credentials in credentials store file from template
+  template:
+    src: ../templates/wsl/.git-credentials.j2
+    dest: "{{ user_dir }}/.git-credentials"
 
 # - name: Checkout containers source code
 #   git:

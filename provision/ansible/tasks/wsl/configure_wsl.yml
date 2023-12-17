@@ -3,12 +3,16 @@
   blockinfile:
     path: "{{ user_dir }}/.profile"
     block: |
-      # Start Docker and SSH on boot
-      wsl.exe -u root -e sh -c "service docker status || service docker start"
-      wsl.exe -u root -e sh -c "service ssh status || service ssh start"
+      # # Start Docker and SSH on boot
+      # wsl.exe -u root -e sh -c "service docker status || service docker start"
+      # wsl.exe -u root -e sh -c "service ssh status || service ssh start"
       # For vagrant
+      export PATH="$PATH:/mnt/c/Program\ Files/Oracle/VirtualBox"
+      export VAGRANT_WSL_WINDOWS_ACCESS_USER_HOME_PATH="/mnt/c/git/personal/vagrant-files"
       export PATH="$PATH:/mnt/c/Program Files/Oracle/VirtualBox"
       export VAGRANT_WSL_ENABLE_WINDOWS_ACCESS="1"
+      export PATH="$PATH:/mnt/c/Windows/System32"
+      export PATH="$PATH:/mnt/c/Windows/System32/WindowsPowerShell/v1.0"
 
 - name: Comment every item in /etc/environment file out - it keeps breaking windows paths in WSL, and I need those
   replace:

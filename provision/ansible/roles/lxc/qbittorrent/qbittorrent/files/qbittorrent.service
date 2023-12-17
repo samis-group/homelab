@@ -1,0 +1,10 @@
+[Unit]
+Description=qbittorrent podman container
+
+[Service]
+ExecStart=/usr/bin/podman start -a qbittorrent
+ExecStop=/usr/bin/podman stop -t 10 qbittorrent
+Restart=on-failure
+
+[Install]
+WantedBy=default.target

@@ -9,6 +9,7 @@
 
 # This can fail, just ssh to pve and download the template with the command:
 # pveam download local <image_name>
+# pveam available     # Lists available images to use
 - name: Ensure LXC Template exists
   community.general.proxmox_template:
     node: "{{ proxmox_node }}"
@@ -63,7 +64,7 @@
     api_host: "localhost"
     state: started
 
-- name: Wait until LXC's are started (You may need to ssh into them and ping something on the internet. I dunno why...)
+- name: Wait until LXC's are started (You may need to ssh into them and ping something on the internet. I dunno why...). Also on some systems like alma, you need to ssh root@ip pw=MAIN_PASS and `dnf install -y openssh-server openssh-clients && systemctl enable sshd && systemctl start sshd. Also uncomment some /etc/ssh/sshd_config settings.`
   wait_for:
     port: 22
     host: "{{ lxc_ip_address }}"
