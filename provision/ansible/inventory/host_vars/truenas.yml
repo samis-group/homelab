@@ -11,5 +11,5 @@ vm:
   cpu: host
   id: 100
   storage: nvme
-  storage_size: 100  # In GB
+  storage_size: 30  # In GB
   memory: 8192 # ram for each VM in MBz
