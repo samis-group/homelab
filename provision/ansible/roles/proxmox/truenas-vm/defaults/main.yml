@@ -5,6 +5,7 @@ truenas_iso_url: https://download.truenas.com/TrueNAS-SCALE-Bluefin/22.12.3.1/Tr
 
 truenas_vm:
   name: TrueNAS
+  cpu: host
   id: 100
   storage: nvme
   memory: 8192 # ram for each VM in MBz

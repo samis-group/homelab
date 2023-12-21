@@ -16,6 +16,7 @@
     vmid: "{{ truenas_vm.id }}"    # Specifying a high value for my template
     storage: "{{ truenas_vm.storage }}"
     memory: "{{ truenas_vm.memory }}"
+    cpu: "{{ truenas_vm.cpu | default(omit) }}"
     cores: 2
     vcpus: 2
     scsihw: virtio-scsi-pci
