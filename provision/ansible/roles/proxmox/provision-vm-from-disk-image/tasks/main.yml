@@ -1,0 +1,37 @@
+---
+- name: Setup cloudflare DNS for VM's
+  community.general.cloudflare_dns:
+    zone: "{{ domain_name }}"
+    record: "{{ vm.name | default(inventory_hostname_short) }}"
+    type: A
+    value: "{{ vm_ip_address }}"
+    api_token: "{{ cloudflare_api_token }}"
+  when: create_dns
+
+- name: Download disk image
+  get_url:
+    url: "{{ iso_url }}"
+    dest: "{{ disk_img_dir }}/{{ iso_url | basename }}"
+
+# We attach the scsi and cloudinit disks afterwards (manual qm commands) because the ansible module doesn't allow us to update them with `update: yes`
+- name: Create VM
+  proxmox_kvm:
+    node: "{{ proxmox_node }}"
+    api_user: "{{ proxmox_api_user }}"
+    api_password: "{{ proxmox_api_pass }}"
+    api_host: "{{ proxmox_host | default(localhost) }}"
+    name: "{{ vm.name }}"
+    vmid: "{{ vm.id }}"    # Specifying a high value for my template
+    storage: "{{ vm.storage }}"
+    memory: "{{ vm.memory }}"
+    cpu: "{{ vm.cpu | default(omit) }}"
+    cores: 2
+    vcpus: 2
+    scsihw: virtio-scsi-pci
+    scsi:
+      scsi0: "{{ vm.storage }}:{{ vm.storage_size }}"  # Disk to install OS on
+      # scsi0: "{{ vm.storage }}:{{ vm.id }},size={{ vm.storage_size }}"  # Disk to install OS on
+    ide:
+      ide2: "NAS:iso/{{ iso_url | basename }},media=cdrom"  # Mount ISO
+    net:
+      net0: "{{ vm_defaults.network_device }}"

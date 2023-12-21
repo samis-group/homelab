@@ -6,6 +6,7 @@
     type: A
     value: "{{ vm_ip_address }}"
     api_token: "{{ cloudflare_api_token }}"
+  when: create_dns
 
 - name: Clone template to new VM's
   proxmox_kvm:
@@ -144,3 +145,11 @@
   until: "res.cloud_init_data_facts.status.v1.stage is defined and not res.cloud_init_data_facts.status.v1.stage"
   retries: 100
   delay: 5
+
+# After successful creation and bootstrapping, we want to remove the cloud init drive.
+# It is defined in the defaults, if it changes device name/numbering, adjust there.
+- name: Remove Cloud-init drives from VM
+  shell:
+    cmd: "qm set {{ vm.id }} --delete {{ vm.cloudinit_drive | default(vm_defaults.cloudinit_drive) }}"
+  when: cloned_vm.changed
+  delegate_to: proxmox

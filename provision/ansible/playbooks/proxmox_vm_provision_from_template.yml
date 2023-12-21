@@ -4,7 +4,7 @@
   gather_facts: false   # Because they don't exist yet
   become: true
   roles:
-    - role: ../roles/proxmox/provision-vms
+    - role: ../roles/proxmox/provision-vm-from-template
       when: provision_vms
       tags: ["provision_vms"]
       delegate_to: "{{ target_proxmox_host }}"

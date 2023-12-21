@@ -1,12 +1,4 @@
 ---
-# After successful creation and bootstrapping, we want to remove the cloud init drive.
-# It is defined in the defaults, if it changes device name/numbering, adjust there.
-- name: Remove Cloud-init drives from VM
-  shell:
-    cmd: "qm set {{ vm.id }} --delete {{ vm.cloudinit_drive | default(vm_defaults.cloudinit_drive) }}"
-  when: cloned_vm.changed
-  delegate_to: proxmox
-
 - name: Apt Upgrade
   apt:
     name: '*'

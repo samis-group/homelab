@@ -1,0 +1,13 @@
+---
+- name: Provision VM(s) on Proxmox Host From Disk image
+  hosts: "{{ target_host_group }}"
+  gather_facts: false   # Because they don't exist yet
+  become: true
+  roles:
+    - role: ../roles/proxmox/provision-vm-from-disk-image
+      when: provision_vms
+      tags: ["provision_vms"]
+      delegate_to: "{{ target_proxmox_host }}"
+    - role: ../roles/proxmox/vm-post-tasks
+      when: provision_vms and run_post_tasks
+      tags: ["provision_vms"]

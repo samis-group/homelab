@@ -1,0 +1,15 @@
+---
+iso_url: https://download.truenas.com/TrueNAS-SCALE-Bluefin/22.12.3.1/TrueNAS-SCALE-22.12.3.1.iso
+disk_img_dir: "/mnt/pve/NAS/template/iso"
+run_post_tasks: false
+create_dns: false
+# Find this out with `lsblk -o +MODEL,SERIAL`. Then find the device in `/dev/disk/by-id/`
+passthrough_disks: "{{ lookup('env', 'PASSTHROUGH_DISKS') | from_yaml }}" # Passed in from doppler
+
+vm:
+  name: TrueNAS
+  cpu: host
+  id: 100
+  storage: nvme
+  storage_size: 100  # In GB
+  memory: 8192 # ram for each VM in MBz

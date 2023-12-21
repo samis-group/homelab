@@ -1,0 +1,76 @@
+---
+##############
+### Docker ###
+##############
+- name: Provision Docker VM on Proxmox Host
+  tags: ["never", "docker"]
+  vars:
+    target_host_group: docker
+    target_proxmox_host: dell5820
+  import_playbook: proxmox_vm_provision_from_template.yml
+
+###############
+### TrueNAS ###
+###############
+- name: Provision TrueNAS VM on Proxmox Host - Part one
+  tags: ["truenas"]
+  vars:
+    target_host_group: truenas
+    target_proxmox_host: dell5820
+  import_playbook: proxmox_vm_provision_from_disk_image.yml
+
+- name: Provision TrueNAS VM on Proxmox Host - Part two
+  tags: ["truenas"]
+  hosts: truenas
+  gather_facts: false   # Because TrueNAS doesn't exist yet
+  tasks:
+    - name: Add passthrough disk(s)
+      shell:
+        cmd: qm set {{ vm.id }} --scsi{{ item.key }} /dev/disk/by-id/{{ item.value }}
+      loop: "{{ passthrough_disks | dict2items }}"
+      loop_control:
+        loop_var: item
+      when: passthrough_disks is defined
+      delegate_to: dell5820
+
+###########
+### k3s ###
+###########
+- name: Provision k3s VM's on Proxmox Host - Part one
+  tags: ["k3s"]
+  vars:
+    target_host_group: k3s-vm1
+    target_proxmox_host: dell5820
+  import_playbook: proxmox_vm_provision_from_template.yml
+
+- name: Provision k3s VM's on Proxmox Host - Part two
+  tags: ["k3s"]
+  hosts: k3s-vm1
+  become: true
+  gather_facts: false   # Because they don't exist yet
+  tasks:
+    - name: Add SSH key to root's authorized_keys
+      authorized_key:
+        user: root
+        key: "{{ vm_defaults.ssh_key }}"
+
+###############
+### k3s-dev ###
+###############
+- name: Provision k3s-dev VM's on Proxmox Host - Part one
+  tags: ["never", "k3s-dev"]
+  vars:
+    target_host_group: k3s-vm1-dev
+    target_proxmox_host: dell5820
+  import_playbook: proxmox_vm_provision_from_template.yml
+
+- name: Provision k3s-dev VM's on Proxmox Host - Part two
+  tags: ["never", "k3s-dev"]
+  hosts: k3s-vm1-dev
+  become: true
+  gather_facts: false   # Because they don't exist yet
+  tasks:
+    - name: Add SSH key to root's authorized_keys
+      authorized_key:
+        user: root
+        key: "{{ vm_defaults.ssh_key }}"

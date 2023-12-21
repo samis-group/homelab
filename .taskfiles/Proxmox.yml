@@ -62,7 +62,7 @@ tasks:
     vars:
       PROVISION_VM: '{{default "docker" .PROVISION_VM}}'
     cmds:
-      - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags {{.PROVISION_VM}} {{.ANSIBLE_PLAYBOOK_DIR}}/proxmox_vm.yml {{.CLI_ARGS}}"
+      - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags {{.PROVISION_VM}} {{.ANSIBLE_PLAYBOOK_DIR}}/proxmox_vms.yml {{.CLI_ARGS}}"
 
   provision-docker:
     desc: 🖥️ Provision docker vm
