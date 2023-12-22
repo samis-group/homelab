@@ -47,7 +47,7 @@ tasks:
     deps: [provision-lxc]
     aliases: ["gl"]
     cmds:
-      - task: :doppler:generate-ansible-inventory
+      - task: :doppler:pull-ansible-inventory
       - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags gitlab_runner {{.ANSIBLE_PLAYBOOK_DIR}}/lxc.yml {{.CLI_ARGS}}"
 
   qbittorrent:

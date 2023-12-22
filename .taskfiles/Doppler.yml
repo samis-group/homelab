@@ -92,11 +92,23 @@ tasks:
         msg: |
           Error: Cannot access file to write to: {{ .FILE_LOCATION }}
           Ensure this directory exists and a file can be created in it.
-    status: # Check if what is in Doppler is different to the local file
-      - diff -q "{{ .FILE_LOCATION }}" <(doppler secrets get {{ .SECRET_NAME }} --plain)
     cmds:
       - |
-        doppler secrets get {{ .SECRET_NAME }} --plain > {{ .FILE_LOCATION }}
+        SECRET_CONTENTS=$(doppler secrets get {{ .SECRET_NAME }} --plain)
+        if [ ! -f "{{ .FILE_LOCATION }}" ]; then
+          echo "File does not exist. Creating and writing secret."
+          echo "${SECRET_CONTENTS}" > "{{ .FILE_LOCATION }}"
+        else
+          echo "File exists. Checking for differences."
+          set +e
+          diff -q "{{ .FILE_LOCATION }}" <(echo "${SECRET_CONTENTS}")
+          if [ $? -ne 0 ]; then
+            echo "File differs from secret, writing secret to file."
+            echo "${SECRET_CONTENTS}" > {{ .FILE_LOCATION }}
+          else
+            echo "No difference between file and secret."
+          fi
+        fi
 
   #############################
   ### DOPPLER SECRETS FILES ###

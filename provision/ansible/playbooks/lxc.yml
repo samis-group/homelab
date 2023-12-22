@@ -122,23 +122,23 @@
 #     - bertiewils.doppler_cli
 #     - ../roles/lxc/github-runner
 
-######################
-### Gitlab Runners ###
-######################
-# - name: Setup Gitlab Runner LXC(s)
-#   hosts: gitlab-runner1
-#   tags: ["gitlab_runner"]
-#   become: true
+#####################
+## Gitlab Runners ###
+#####################
+- name: Setup Gitlab Runner LXC(s)
+  hosts: gitlab-runner1
+  tags: ["gitlab_runner"]
+  become: true
 
-#   pre_tasks: *pre_tasks
+  pre_tasks: *pre_tasks
 
-#   roles:
+  roles:
 
-#     - riemers.gitlab-runner
-#     - geerlingguy.docker
-#     - geerlingguy.ntp
-#     - bertiewils.doppler_cli
-#     - ../roles/lxc/gitlab-runner
+    - riemers.gitlab-runner
+    - geerlingguy.docker
+    - geerlingguy.ntp
+    - bertiewils.doppler_cli
+    - ../roles/lxc/gitlab-runner
 
 ###########
 ### k3s ###
