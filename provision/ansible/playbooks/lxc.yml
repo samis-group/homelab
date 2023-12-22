@@ -134,7 +134,7 @@
 
   roles:
 
-    - riemers.gitlab-runner
+    - riemers.ansible-gitlab-runner
     - geerlingguy.docker
     - geerlingguy.ntp
     - bertiewils.doppler_cli
