@@ -1,14 +1,14 @@
 ---
-lxc_ip_address: "{{ vm_network }}24"  # Required
+lxc_ip_address: "{{ vm_network }}65"  # Required
 
 lxc:
   image: "debian-11-standard_11.3-1_amd64.tar.zst"  # Default User = root
+  id: 225 # Required
+  description: "Gitlab Runner 1"
   storage: "local"
-  id: 105 # Required
-  description: "k3s Standalone Container."
-  unprivileged: False
-  swap: 0
+  disk: "30"  # Size of disk (in GB)
   netif: '{"net0":"name=eth0,gw={{ vm_gateway }},ip={{ lxc_ip_address }}/{{ vm_netmask }},bridge={{ lxc_defaults.network_device }}"}'
   features:
     - nesting=1
     - mount=nfs
+  memory: "8192" # ram for each VM in MB

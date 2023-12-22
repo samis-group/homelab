@@ -5,12 +5,13 @@
 - src: ironicbadger.proxmox_nag_removal
 - src: rossmcdonald.telegraf  # Currently Unused -> https://github.com/rossmcdonald/telegraf
 - src: nununo.proxmox_haos_install
-- src: MonolithProjects.github_actions_runner
 
 # Linux #
 - src: bertiewils.doppler_cli
 - src: nass600.vundle
 - src: geerlingguy.pip
+- src: MonolithProjects.github_actions_runner
+- src: riemers.gitlab-runner
 
 # k3s #
 - src: xanmanning.k3s

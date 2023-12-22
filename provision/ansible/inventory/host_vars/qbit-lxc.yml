@@ -1,7 +1,8 @@
 ---
 wait_for_ssh: false
 lxc_ip_address: "{{ vm_network }}56"  # Required
-lxc_container:
+
+lxc:
   image: "almalinux-9-default_20221108_amd64.tar.xz"  # List available images to use - pveam available
   # name: "qbit-lxc"
   id: 226 # Required

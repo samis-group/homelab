@@ -10,6 +10,9 @@
   tasks:
     - ansible.builtin.import_tasks: ../tasks/pre-all.yml
 
+#############
+### dev01 ###
+#############
 - name: Setup and configure dev01 Container
   hosts: dev01
   tags: ["dev"]
@@ -49,6 +52,9 @@
     #   ansible.builtin.import_tasks: ../tasks/k3s/system_dependencies.yml
     #   become: true
 
+###################
+### Qbittorrent ###
+###################
 - name: Setup Qbittorrent SSH for ansible from proxmox host
   hosts: qbit-lxc
   tags: ["qbit-lxc"]
@@ -60,17 +66,17 @@
   tasks:
     - name: Install openssh-server on qbit-lxc
       shell:
-        cmd: "pct exec {{ lxc_container.id | default('226') }} -- dnf install openssh-server -y"
+        cmd: "pct exec {{ lxc.id | default('226') }} -- dnf install openssh-server -y"
       delegate_to: proxmox
 
     - name: Install openssh-server on qbit-lxc
       shell:
-        cmd: "pct exec {{ lxc_container.id | default('226') }} -- systemctl start sshd.service"
+        cmd: "pct exec {{ lxc.id | default('226') }} -- systemctl start sshd.service"
       delegate_to: proxmox
 
     - name: Install openssh-server on qbit-lxc
       shell:
-        cmd: "pct exec {{ lxc_container.id | default('226') }} -- systemctl enable sshd.service"
+        cmd: "pct exec {{ lxc.id | default('226') }} -- systemctl enable sshd.service"
       delegate_to: proxmox
 
 - name: Setup Qbittorrent LXC
@@ -92,6 +98,9 @@
     - ../roles/lxc/qbittorrent/openvpn_client
     - ../roles/lxc/qbittorrent/qbittorrent
 
+######################
+### Github Runners ###
+######################
 # - name: Setup Github Runner LXC(s)
 #   hosts: github-runner1
 #   tags: ["github_runner"]
@@ -113,6 +122,27 @@
 #     - bertiewils.doppler_cli
 #     - ../roles/lxc/github-runner
 
+######################
+### Gitlab Runners ###
+######################
+# - name: Setup Gitlab Runner LXC(s)
+#   hosts: gitlab-runner1
+#   tags: ["gitlab_runner"]
+#   become: true
+
+#   pre_tasks: *pre_tasks
+
+#   roles:
+
+#     - riemers.gitlab-runner
+#     - geerlingguy.docker
+#     - geerlingguy.ntp
+#     - bertiewils.doppler_cli
+#     - ../roles/lxc/gitlab-runner
+
+###########
+### k3s ###
+###########
 # - name: Setup k3s LXC(s)
 #   hosts: k3s1
 #   tags: ["k3s1"]
@@ -121,8 +151,9 @@
 #   roles:
 #     - ../roles/lxc/k3s
 
-### LDAP turnkey is a WIP
-
+#############################
+### LDAP turnkey is a WIP ###
+#############################
 # - name: Setup and configure ldap Container
 #   hosts: ldap
 #   tags: ["never", "lxc-ldap"]

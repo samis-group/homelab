@@ -1,6 +1,7 @@
 ---
 lxc_ip_address: "{{ vm_network }}50"  # Required
-lxc_container:
+
+lxc:
   image: "debian-10-turnkey-openldap_16.1-1_amd64.tar.gz" # Default User = root
   id: 220 # Required
   description: "LDAP Server"

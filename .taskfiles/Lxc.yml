@@ -36,10 +36,19 @@ tasks:
     desc: 📦 Make Github Runner LXC. Ensure 'github_token' in doppler is updated with your group runners. Mine are here -> https://github.com/organizations/samis-group/settings/actions/runners
     dir: provision/ansible
     deps: [provision-lxc]
-    aliases: ["g"]
+    aliases: ["gh"]
     cmds:
       - task: :doppler:pull-ansible-inventory
       - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags github_runner {{.ANSIBLE_PLAYBOOK_DIR}}/lxc.yml {{.CLI_ARGS}}"
+
+  gitlab-runner:
+    desc: 📦 Make Gitlab Runner LXC. Ensure 'gitlab_runner_token' in doppler is updated with your group runners. Mine is here -> https://gitlab.com/groups/sami-group/-/runners.
+    dir: provision/ansible
+    deps: [provision-lxc]
+    aliases: ["gl"]
+    cmds:
+      - task: :doppler:generate-ansible-inventory
+      - "{{.ANSIBLE_PLAYBOOK_CMD}} --tags gitlab_runner {{.ANSIBLE_PLAYBOOK_DIR}}/lxc.yml {{.CLI_ARGS}}"
 
   qbittorrent:
     desc: 📦 Make Qbittorrent LXC
