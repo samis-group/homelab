@@ -30,7 +30,7 @@ You can build this repo and run any of its tasks inside a pre-built docker image
 
 ```bash
 mkdir -p ~/git/personal/
-git clone https://gitlab.com/sami-group/homelab.git ~/git/personal/homelab
+git clone --recurse-submodules https://gitlab.com/sami-group/homelab.git ~/git/personal/homelab
 cd ~/git/personal/homelab
 ```
 
