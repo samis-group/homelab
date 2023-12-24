@@ -1,0 +1,151 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2beta2.json
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: minio
+  namespace: default
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: app-template
+      version: 2.4.0
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  maxHistory: 2
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  values:
+    podAnnotations:
+      secret.reloader.stakater.com/reload: minio-secrets
+    controllers:
+      main:
+        strategy: RollingUpdate
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          main:
+            image:
+              repository: quay.io/minio/minio
+              tag: latest
+            env:
+              MINIO_API_CORS_ALLOW_ORIGIN: https://minio.shaklab.com,https://s3.shaklab.com
+              MINIO_BROWSER_REDIRECT_URL: https://minio.shaklab.com
+              # MINIO_PROMETHEUS_JOB_ID: minio
+              # MINIO_PROMETHEUS_URL: https://prometheus.shaklab.com
+              # MINIO_PROMETHEUS_AUTH_TYPE: public
+              # MINIO_SERVER_URL: https://s3.shaklab.com
+              MINIO_UPDATE: "off"
+              TZ:
+                valueFrom:
+                  secretKeyRef:
+                    name: common-secrets
+                    key: TZ
+            envFrom:
+              - secretRef:
+                  name: minio-secrets
+            args:
+              - server
+              - /data
+              - --console-address
+              - :9001
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /minio/health/live
+                    port: 9000
+                  initialDelaySeconds: 30
+                  periodSeconds: 30
+                  timeoutSeconds: 10
+                  failureThreshold: 6
+              readiness: *probes
+              startup:
+                enabled: false
+    service:
+      main:
+        annotations:
+          external-dns.alpha.kubernetes.io/hostname: minio.shaklab.com
+          external-dns.alpha.kubernetes.io/target: ipv4.shaklab.com
+        ports:
+          http:
+            port: 9001
+          s3:
+            port: 9000
+    serviceMonitor:
+      main:
+        enabled: true
+        endpoints:
+          - port: s3
+            scheme: http
+            path: /minio/v2/metrics/cluster
+            interval: 1m
+            scrapeTimeout: 10s
+    defaultPodOptions:
+      securityContext:
+        runAsUser: 568
+        runAsGroup: 568
+        fsGroup: 568
+        fsGroupChangePolicy: OnRootMismatch
+    persistence:
+      data-nfs:
+        enabled: true
+        server: 10.10.0.2
+        type: nfs
+        path: /volume1/docker/backups/minio
+        globalMounts:
+          - path: /data
+      # data-host:
+      #   enabled: true
+      #   type: hostPath
+      #   hostPath: /root/k3s-volumes/minio
+      #   globalMounts:
+      #     - path: /data-host
+      # data-pvc:
+      #   enabled: true
+      #   type: persistentVolumeClaim
+      #   accessMode: ReadWriteOnce
+      #   size: 20Gi
+      #   globalMounts:
+      #     - path: /data
+    # ingress:
+    #   main:
+    #     enabled: true
+    #     className: internal
+    #     hosts:
+    #       - host: &host "{{ .Release.Name }}.shaklab.com"
+    #         paths:
+    #           - path: /
+    #             service:
+    #               name: main
+    #               port: http
+    #     tls:
+    #       - hosts:
+    #           - *host
+    #   api:
+    #     annotations:
+    #       external-dns.alpha.kubernetes.io/target: "external.shaklab.com"
+    #     enabled: true
+    #     className: external
+    #     hosts:
+    #       - host: &s3Host s3.shaklab.com
+    #         paths:
+    #           - path: /
+    #             service:
+    #               name: main
+    #               port: s3
+    #     tls:
+    #       - hosts:
+    #           - *s3Host
