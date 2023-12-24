@@ -7,6 +7,7 @@ vm:
     ipconfig0: "ip={{ vm_ip_address }}/{{ vm_netmask }},gw={{ vm_gateway }}"
   id: 106   # Required
   hdd_size: "100G"
+  cpu: host
   cores: 4
   memory: 24000
   template: "UbuntuCloud-jammy-22.04"   # Specify a template
