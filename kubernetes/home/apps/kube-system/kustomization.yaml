@@ -7,3 +7,5 @@ resources:
   # - ./discord/provider.yml
   - ./namespace.yaml
   - ./reloader/ks.yaml
+  - ./snapshot-controller/ks.yaml
+  - ./volsync/ks.yaml
