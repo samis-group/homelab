@@ -1,0 +1,19 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.devbu.io/volsync.backube/replicationdestination_v1alpha1.json
+apiVersion: volsync.backube/v1alpha1
+kind: ReplicationDestination
+metadata:
+  name: "bazarr-dst"
+spec:
+  trigger:
+    manual: restore-once
+  restic:
+    repository: "bazarr-volsync-secret"
+    copyMethod: Snapshot
+    volumeSnapshotClassName: "volsync"
+    cacheStorageClassName: "local-path"
+    cacheAccessModes: ["ReadWriteOnce"]
+    cacheCapacity: "8Gi"
+    storageClassName: "local-path"
+    accessModes: ["ReadWriteOnce"]
+    capacity: "0.5Gi"

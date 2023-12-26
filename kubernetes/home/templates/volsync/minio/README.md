@@ -25,14 +25,14 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   # ...
-  - ../../../../templates/volsync
+  - ../../../../templates/volsync/minio
 ```
 
-## Required `postBuild` vars:
+## Required `postBuild` vars
 
 - `APP`: The application name
 - `VOLSYNC_CAPACITY`: The PVC size
 
-## Optional `postBuild` vars:
+## Optional `postBuild` vars
 
 - TBD

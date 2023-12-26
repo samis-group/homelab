@@ -5,3 +5,8 @@ resources:
   - helm-release.yaml
   - ingress.yaml
   - pvc.yaml
+  # - ../../../../templates/volsync/minio
+  # - minio/claim.yaml
+  # - minio/externalsecret.yaml
+  # - minio/replicationdestination.yaml
+  # - minio/replicationsource.yaml
