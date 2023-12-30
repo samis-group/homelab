@@ -1,0 +1,61 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.devbu.io/kustomize.toolkit.fluxcd.io/kustomization_v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: &app rook-ceph
+  namespace: flux-system
+spec:
+  targetNamespace: rook-ceph
+  commonMetadata:
+    labels:
+      app.kubernetes.io/name: *app
+  path: ./kubernetes/home/apps/rook-ceph/rook-ceph/app
+  prune: false # never should be deleted
+  sourceRef:
+    kind: GitRepository
+    name: homelab
+  wait: false
+  interval: 1h
+  retryInterval: 1m
+  timeout: 5m
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.devbu.io/kustomize.toolkit.fluxcd.io/kustomization_v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: &app rook-ceph-cluster
+  namespace: flux-system
+spec:
+  targetNamespace: rook-ceph
+  commonMetadata:
+    labels:
+      app.kubernetes.io/name: *app
+  path: ./kubernetes/home/apps/rook-ceph/rook-ceph/cluster
+  dependsOn:
+    - name: rook-ceph
+  prune: false # never should be deleted
+  sourceRef:
+    kind: GitRepository
+    name: homelab
+  wait: false
+  interval: 1h
+  retryInterval: 1m
+  timeout: 15m
+# ---
+# # yaml-language-server: $schema=https://kubernetes-schemas.devbu.io/kustomize.toolkit.fluxcd.io/kustomization_v1.json
+# apiVersion: kustomize.toolkit.fluxcd.io/v1
+# kind: Kustomization
+# metadata:
+#   name: cluster-apps-rook-ceph-addons
+#   namespace: flux-system
+# spec:
+#   dependsOn:
+#     - name: cluster-apps-rook-ceph-cluster
+#   interval: 1h
+#   path: "./kubernetes/home/apps/rook-ceph/rook-ceph/add-ons"
+#   prune: true
+#   sourceRef:
+#     kind: GitRepository
+#     name: homelab
+#   wait: false
