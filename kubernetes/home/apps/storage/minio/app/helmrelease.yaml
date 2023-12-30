@@ -75,10 +75,22 @@ spec:
               startup:
                 enabled: false
     service:
+      # main-nonlb:
+      #   annotations:
+      #     external-dns.alpha.kubernetes.io/hostname: minio.shaklab.com
+      #     external-dns.alpha.kubernetes.io/target: ipv4.shaklab.com
+      #   ports:
+      #     http:
+      #       port: 9001
+      #     s3:
+      #       port: 9000
       main:
+        type: LoadBalancer
+        loadBalancerIP: 10.10.0.86
         annotations:
-          external-dns.alpha.kubernetes.io/hostname: minio.shaklab.com
-          external-dns.alpha.kubernetes.io/target: ipv4.shaklab.com
+          external-dns.alpha.kubernetes.io/hostname: minio-lb.shaklab.com
+          external-dns.alpha.kubernetes.io/target: 10.10.0.86
+          external-dns.alpha.kubernetes.io/cloudflare-proxied: "false"
         ports:
           http:
             port: 9001
