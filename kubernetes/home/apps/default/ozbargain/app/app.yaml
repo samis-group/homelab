@@ -22,10 +22,10 @@ spec:
           resources:
             limits:
               memory: 512Mi
-              cpu: "1"
+              cpu: "0.1"
             requests:
-              memory: 256Mi
-              cpu: "0.2"
+              memory: 1Mi
+              cpu: "0.001"
           env:
             - name: TZ
               valueFrom:

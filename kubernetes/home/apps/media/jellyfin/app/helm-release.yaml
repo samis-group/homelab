@@ -101,8 +101,8 @@ spec:
     #   intel.feature.node.kubernetes.io/gpu: "true"
     resources:
       requests:
-        cpu: 1
-        memory: 1Gi
+        cpu: 0.001
+        memory: 256M
         # gpu.intel.com/i915: 1
       limits:
         memory: 3Gi
