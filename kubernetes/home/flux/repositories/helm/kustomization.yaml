@@ -12,5 +12,6 @@ resources:
   - ./jetstack.yaml
   - ./piraeus.yaml
   - ./prometheus-community.yaml
+  - ./rook-ceph.yaml
   - ./stakater.yaml
   - ./traefik.yml
