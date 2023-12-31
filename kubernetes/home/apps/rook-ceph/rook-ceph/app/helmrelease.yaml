@@ -45,16 +45,6 @@ spec:
       csiAddons:
         enabled: true
 
-    monitoring:
-      enabled: true
-      createPrometheusRules: true
-
-      # pluginTolerations:
-      #   - effect: "NoExecute"
-      #     operator: "Exists"
-      #   - effect: "NoSchedule"
-      #     operator: "Exists"
-
       csiRBDProvisionerResource: |
         - name : csi-provisioner
           resource:
@@ -149,6 +139,16 @@ spec:
               cpu: 25m
             limits:
               memory: 256Mi
+
+      # pluginTolerations:
+      #   - effect: "NoExecute"
+      #     operator: "Exists"
+      #   - effect: "NoSchedule"
+      #     operator: "Exists"
+
+    monitoring:
+      enabled: true
+      createPrometheusRules: true
 
     # pspEnable: false
 
