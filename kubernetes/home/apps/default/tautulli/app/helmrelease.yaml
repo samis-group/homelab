@@ -32,6 +32,7 @@ spec:
     image:
       repository: ghcr.io/onedr0p/tautulli
       tag: '2'
+      pullPolicy: Always
     env:
       TZ:
         valueFrom:

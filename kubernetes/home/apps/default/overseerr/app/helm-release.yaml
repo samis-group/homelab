@@ -28,7 +28,8 @@ spec:
         reloader.stakater.com/auto: "true"
     image:
       repository: ghcr.io/sct/overseerr
-      tag: 1.33.2
+      tag: latest
+      pullPolicy: Always
     env:
       TZ:
         valueFrom:

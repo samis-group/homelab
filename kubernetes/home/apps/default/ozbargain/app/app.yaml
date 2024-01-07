@@ -19,6 +19,7 @@ spec:
       containers:
         - name: ozbargain
           image: ghcr.io/samis-group/ozbargain-bot:latest
+          imagePullPolicy: Always
           resources:
             limits:
               memory: 512Mi

@@ -37,6 +37,7 @@ spec:
     image:
       repository: ghcr.io/onedr0p/qbittorrent
       tag: '4'
+      pullPolicy: Always
 
     # podAnnotations:
     #   setGateway: "true"
