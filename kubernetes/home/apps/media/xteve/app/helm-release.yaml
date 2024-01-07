@@ -21,7 +21,7 @@ spec:
     image:
       repository: alturismo/xteve
       tag: latest
-      # pullPolicy: Always
+      pullPolicy: Always
     env:
       TZ:
         valueFrom:

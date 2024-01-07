@@ -47,7 +47,7 @@ spec:
             image:
               repository: ghcr.io/onedr0p/bazarr
               tag: "1"
-              pullPolicy: IfNotPresent
+              pullPolicy: Always
             env:
               TZ:
                 valueFrom:

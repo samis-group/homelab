@@ -19,6 +19,7 @@ spec:
       containers:
         - name: api
           image: ghcr.io/samis-group/api:latest
+          imagePullPolicy: Always
           resources:
             limits:
               memory: 512Mi

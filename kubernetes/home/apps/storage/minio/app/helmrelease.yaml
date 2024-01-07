@@ -38,6 +38,7 @@ spec:
             image:
               repository: quay.io/minio/minio
               tag: latest
+              pullPolicy: Always
             env:
               MINIO_API_CORS_ALLOW_ORIGIN: https://minio.shaklab.com,https://s3.shaklab.com
               MINIO_BROWSER_REDIRECT_URL: https://minio.shaklab.com

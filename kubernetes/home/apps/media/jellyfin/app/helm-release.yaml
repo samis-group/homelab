@@ -28,6 +28,7 @@ spec:
     image:
       repository: ghcr.io/onedr0p/jellyfin
       tag: "10.8.11"
+      pullPolicy: Always
     env:
       TZ:
         valueFrom:
