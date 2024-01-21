@@ -5,7 +5,7 @@ metadata:
   name: nginx
   namespace: default
   annotations:
-    external-dns.alpha.kubernetes.io/hostname: nginx.shaklab.com, shaklab.com, www.shaklab.com, traefik.shaklab.com, plex.shaklab.com, unifi.shaklab.com, home.shaklab.com, docs.shaklab.com, personal-docs.shaklab.com
+    external-dns.alpha.kubernetes.io/hostname: nginx.shaklab.com, shaklab.com, www.shaklab.com, traefik.shaklab.com, plex.shaklab.com, home.shaklab.com, docs.shaklab.com, personal-docs.shaklab.com
     external-dns.alpha.kubernetes.io/target: ipv4.shaklab.com
 spec:
   # ipFamilyPolicy: PreferDualStack

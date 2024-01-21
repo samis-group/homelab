@@ -1,0 +1,49 @@
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: unifi
+  namespace: default
+  annotations:
+    kubernetes.io/ingress.class: traefik-external
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`unifi.shaklab.com`)
+      kind: Rule
+      middlewares:
+        - name: middlewares-chain-oauth
+      services:
+        - name: unifi
+          port: 443
+  tls:
+    secretName: shaklab-com-tls-certs
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: unifi
+  namespace: default
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: unifi.shaklab.com
+    external-dns.alpha.kubernetes.io/target: ipv4.shaklab.com
+spec:
+  type: ClusterIP
+  ports:
+    - name: https # Use 'https' for https url in the service
+      port: 443
+      protocol: TCP
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: unifi
+  namespace: default
+subsets:
+  - addresses:
+    - ip: 10.0.0.1
+    ports:
+      - name: https # Use 'https' for https url in the service
+        port: 443
+        protocol: TCP
