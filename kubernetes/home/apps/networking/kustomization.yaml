@@ -8,4 +8,4 @@ resources:
   # - ./nfs/ks.yaml
   - ./traefik/ks.yaml
   - ./traefik-oauth/ks.yaml
-  - ./unifi/ks.yaml
+  # - ./unifi/ks.yaml
