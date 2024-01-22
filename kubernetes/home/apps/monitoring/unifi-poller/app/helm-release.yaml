@@ -33,7 +33,7 @@ spec:
             name: common-secrets
             key: TZ
       UP_UNIFI_DEFAULT_ROLE: "homelab-controller"
-      UP_UNIFI_DEFAULT_URL: "https://unifi:8443"
+      UP_UNIFI_DEFAULT_URL: "https://10.0.0.1"
       UP_UNIFI_DEFAULT_VERIFY_SSL: false
       UP_UNIFI_DEFAULT_USER:
         valueFrom:
