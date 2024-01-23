@@ -4,9 +4,11 @@ kind: Kustomization
 resources:
   - ./file-browser-truenas.yaml
   - ./home-assistant.yaml
-  - ./pfsense.yaml
+  # - ./pfsense.yaml
+  - ./portainer-docker.yml
   - ./proxmox.yml
   # - ./qbittorrent-nas.yml
   - ./synology-nas.yml
   # - ./transmission-nas.yml
   - ./truenas.yml
+  - ./unifi.yaml

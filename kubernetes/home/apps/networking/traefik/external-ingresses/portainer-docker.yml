@@ -1,0 +1,49 @@
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: portainer
+  namespace: default
+  annotations:
+    kubernetes.io/ingress.class: traefik-external
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`portainer.shaklab.com`)
+      kind: Rule
+      middlewares:
+        - name: middlewares-chain-oauth
+      services:
+        - name: portainer
+          port: 9000
+  tls:
+    secretName: shaklab-com-tls-certs
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: portainer
+  namespace: default
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: portainer.shaklab.com
+    external-dns.alpha.kubernetes.io/target: ipv4.shaklab.com
+spec:
+  type: ClusterIP
+  ports:
+    - name: web
+      port: 9000
+      protocol: TCP
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: portainer
+  namespace: default
+subsets:
+  - addresses:
+    - ip: 10.10.0.20
+    ports:
+      - name: web
+        port: 9000
+        protocol: TCP

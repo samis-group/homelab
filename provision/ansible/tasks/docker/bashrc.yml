@@ -150,3 +150,18 @@
         # Execute
         $READY_COMMAND
       }
+
+      ##############
+      # WoW Server #
+      ##############
+
+      function wow() {
+        cd docker/acore-docker/
+        docker compose up -d phpmyadmin
+        docker compose run -d --service-ports ac-worldserver
+      }
+
+      function portainer() {
+        cd docker/compose-files/
+        docker compose -f portainer.yml up -d
+      }

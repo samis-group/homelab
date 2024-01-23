@@ -15,6 +15,7 @@
   hosts: docker1
   # Special tag "always" -> https://docs.ansible.com/ansible/latest/user_guide/playbooks_tags.html#special-tags-always-and-never
   tags: ["always"]
+  become_user: "{{ main_user }}"
   roles:
     - role: sami_shakir.public_collection.deploy_sami_key
   tasks:
@@ -76,10 +77,10 @@
     #   when: copy_files
     #   tags: ["copy_files"]
 
-    # - name: Updating docker-compose and related files
-    #   ansible.builtin.import_tasks: ../tasks/docker/update_compose.yml
-    #   when: update_compose
-    #   tags: ["update_compose"]
+    - name: Updating docker-compose and related files
+      ansible.builtin.import_tasks: ../tasks/docker/update_compose.yml
+      when: update_compose
+      tags: ["update_compose"]
 
     # - name: Setup container directories and copy files
     #   ansible.builtin.import_tasks: ../tasks/docker/setup_containers.yml

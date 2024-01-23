@@ -222,47 +222,6 @@ services:
       - host.docker.internal:172.17.0.1  # Command to find this ip: `docker network inspect bridge`. Resource -> https://gist.github.com/gaieges/936bdf91e01e4cc782eb047e5873089b
     <<: *logging
 
-  # Portainer - WebUI for Containers
-  # https://hub.docker.com/r/portainer/portainer
-  portainer:
-    container_name: portainer
-    image: portainer/portainer-ce:latest
-    init: true
-    restart: always
-    # healthcheck:
-    #   test: nc -z localhost 80
-    #   interval: 60s
-    #   timeout: 3s
-    #   retries: 3
-    # command: -H unix:///var/run/docker.sock
-    command: -H tcp://socket-proxy:2375
-    networks:
-      - defaulty
-      - traefik_proxy
-      - socket_proxy
-    security_opt:
-      - no-new-privileges:true
-    ports:
-      - ${PORTAINER_PORT}:9000
-    volumes:
-      # - /var/run/docker.sock:/var/run/docker.sock # Use Docker Socket Proxy instead for improved security
-      - ${DOCKERDIR}/appdata/portainer:/data # Change to local directory if you want to save/transfer config locally
-    environment:
-      - TZ=${TZ}
-    labels:
-      - "traefik.enable=true"
-      ## HTTP Routers
-      - "traefik.http.routers.portainer-rtr.entrypoints=https"
-      - "traefik.http.routers.portainer-rtr.rule=Host(`portainer.$DOMAINNAME`)"
-      ## Middlewares
-      # - "traefik.http.routers.portainer-rtr.middlewares=chain-no-auth@file" # No Authentication
-      # - "traefik.http.routers.portainer-rtr.middlewares=chain-basic-auth@file" # Basic Authentication
-      - "traefik.http.routers.portainer-rtr.middlewares=chain-oauth@file" # Google OAuth 2.0
-      ## HTTP Services
-      - "traefik.http.routers.portainer-rtr.service=portainer-svc"
-      - "traefik.http.services.portainer-svc.loadbalancer.server.port=9000"
-    <<: *logging
-
   # Watchtower - updates containers with latest images
   # https://hub.docker.com/r/containrrr/watchtower
   watchtower:
