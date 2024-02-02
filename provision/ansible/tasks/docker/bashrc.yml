@@ -156,9 +156,14 @@
       ##############
 
       function wow() {
-        cd docker/acore-docker/
-        docker compose up -d phpmyadmin
-        docker compose run -d --service-ports ac-worldserver
+        BASE_DIR="$HOME/docker/acore-docker/"
+        if [ -d "$BASE_DIR" ]; then
+          cd "$BASE_DIR" || return
+          docker compose down
+          docker compose up -d
+        else
+          echo "Error: Directory '$BASE_DIR' not found."
+        fi
       }
 
       function portainer() {
