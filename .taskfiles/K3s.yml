@@ -32,6 +32,8 @@ tasks:
     dir: provision/k3s-ansible
     deps: [':proxmox:provision-k3s-dev']
     aliases: ["md"]
+    env:
+      KUBECONFIG: "{{ .KUBECONFIG_DIR }}/config-dev"
     cmds:
       - task: :doppler:pull-k3s-dev-ansible-inventory
       - "{{.K3S_ANSIBLE_PLAYBOOK_CMD}} site.yml {{.CLI_ARGS}}"
@@ -52,7 +54,7 @@ tasks:
       - doppler run -- kubectl apply -k ../../kubernetes/home/bootstrap
       - doppler run -- kubectl apply -k ../../kubernetes/home/flux/repositories
       - doppler run -- kubectl apply -k ../../kubernetes/home/apps/kube-system/external-secrets/app/
-      - sleep 10
+      - sleep 60
       - doppler run -- kubectl apply -k ../../kubernetes/home/apps/kube-system/external-secrets/stores/
       - doppler run -- kubectl apply -k ../../kubernetes/home/apps/kube-system/external-secrets/secrets/
       - doppler run -- kubectl create -k ../../kubernetes/home/flux/config/crds
