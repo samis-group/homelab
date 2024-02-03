@@ -12,11 +12,11 @@ resource "doppler_environment" "k3s_dev" {
   name = "Development"
 }
 
-resource "doppler_environment" "k3s_gitlab" {
-  project = doppler_project.k3s.name
-  slug = "ci"
-  name = "Gitlab CI"
-}
+# resource "doppler_environment" "k3s_gitlab" {
+#   project = doppler_project.k3s.name
+#   slug = "ci"
+#   name = "Gitlab CI"
+# }
 
 resource "doppler_environment" "k3s_production" {
   project = doppler_project.k3s.name
@@ -44,11 +44,11 @@ resource "doppler_environment" "homelab_dev" {
   name = "Development"
 }
 
-resource "doppler_environment" "homelab_gitlab" {
-  project = doppler_project.homelab.name
-  slug = "ci"
-  name = "Gitlab CI"
-}
+# resource "doppler_environment" "homelab_gitlab" {
+#   project = doppler_project.homelab.name
+#   slug = "ci"
+#   name = "Gitlab CI"
+# }
 
 resource "doppler_environment" "homelab_production" {
   project = doppler_project.homelab.name

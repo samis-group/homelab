@@ -28,39 +28,32 @@ tasks:
     cmds:
       - echo '{{.CLI_ARGS}} value:' && terraform output -raw {{.CLI_ARGS}} && echo
 
-  tfvars:
+  tfvars-base:
     desc: Write tfvars file for terraform to use
     # internal: true
     interactive: true
     silent: true
     run: once
     cmds:
-      - task: tfvars-doppler-token
+      - task: tfvars-write
+        vars:
+          TFVAR_LOCAL: "doppler_token"
       # - task: tfvars-terraform-token
 
-  tfvars-doppler-token:
-    desc: Write doppler_token tfvar - USE PERSONAL ACCESS TOKEN!
+  tfvars-write:
+    desc: Write tfvar to file
     dir: provision/terraform
     internal: true
     interactive: true
     status:
       - grep -q '{{.TFVAR_LOCAL}}' myvars.tfvars
-    vars:
-      TFVAR_LOCAL: doppler_token
     cmds:
-      - 'read -p "Enter the Doppler token to be used in terraform (PAT): " PAT && echo "{{.TFVAR_LOCAL}} = \"${PAT}\"" >> myvars.tfvars'
-
-  # tfvars-base:
-  #   desc: Write tfvar to file
-  #   dir: provision/terraform
-  #   internal: true
-  #   status:
-  #     - grep -q '{{.TFVAR_LOCAL}}' myvars.tfvars
-  #   cmds:
-  #     - |
-  #       echo "{{.TFVAR_LOCAL}} = \"$(doppler secrets get {{.TFVAR_DOPPLER}} --plain)\"" >> myvars.tfvars ||
-  #       (read -p "Enter the Doppler token to be used in terraform (read/write): " DOPPLER_TODO &&
-  #       echo "{{.TFVAR_LOCAL}} = \"$DOPPLER_TODO\"" >> myvars.tfvars)
+      - |
+        if [ -n '{{.TFVAR_DATA}}' ]; then
+          echo "{{.TFVAR_LOCAL}} = \"{{.TFVAR_DATA}}\"" >> myvars.tfvars
+        else
+          read -p "Enter the value for variable {{.TFVAR_LOCAL}} to be written to tfvars file: " LOCAL_VAR_TF && echo "{{.TFVAR_LOCAL}} = \"${LOCAL_VAR_TF}\"" >> myvars.tfvars
+        fi
 
   # tfvars-terraform-token:
   #   desc: Write terraform cloud token tfvar
@@ -75,7 +68,7 @@ tasks:
 
   init:
     desc: Initialize terraform dependencies
-    deps: ['tfvars']
+    deps: ['tfvars-base']
     aliases: ['i']
     dir: "{{default .TERRAFORM_DIR .TF_DIR_TODO}}"
     cmds:
@@ -83,7 +76,7 @@ tasks:
 
   plan:
     desc: Show the changes terraform will make
-    deps: ['tfvars']
+    deps: ['tfvars-base']
     aliases: ['p']
     dir: "{{default .TERRAFORM_DIR .TF_DIR_TODO}}"
     cmds:
@@ -91,7 +84,7 @@ tasks:
 
   apply:
     desc: Apply the changes
-    deps: ['tfvars']
+    deps: ['tfvars-base']
     interactive: true
     aliases: ['a']
     dir: "{{default .TERRAFORM_DIR .TF_DIR_TODO}}"
@@ -102,7 +95,7 @@ tasks:
 
   bootstrap:
     desc: Bootstrap terraform setting up doppler environment and terraform cloud org + workspaces, before running main terraform that will use these as remote backend for states.
-    deps: ['tfvars']
+    deps: ['tfvars-base']
     aliases: [bs]
     dir: "provision/terraform/bootstrap"
     run_once: true

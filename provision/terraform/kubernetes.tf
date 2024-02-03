@@ -1,5 +1,5 @@
 provider "kubernetes" {
-  config_path = "~/.kube/config"
+  config_path = var.kubeconfig_file
 }
 
 # Doppler token to k3s cluster

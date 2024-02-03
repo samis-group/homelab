@@ -41,10 +41,21 @@ tasks:
           K3S_HOST: "10.10.0.34"
           KUBECONFIG_FILE: "config-dev"
       - task: :doppler:push-kubeconfig-dev
-      # - task: :terraform:bootstrap
-      # - task: :terraform:init
-      # - task: :terraform:apply
-      # - task: :flux:install
+      - task: :terraform:bootstrap
+      - task: :terraform:tfvars-write
+        vars:
+          TFVAR_LOCAL: "kubeconfig_file"
+          TFVAR_DATA: "~/.kube/config-dev"
+      - task: :terraform:init
+      - task: :terraform:apply
+      - doppler run -- kubectl apply -k ../../kubernetes/home/bootstrap
+      - doppler run -- kubectl apply -k ../../kubernetes/home/flux/repositories
+      - doppler run -- kubectl apply -k ../../kubernetes/home/apps/kube-system/external-secrets/app/
+      - doppler run -- kubectl apply -k ../../kubernetes/home/apps/kube-system/external-secrets/stores/
+      - doppler run -- kubectl apply -k ../../kubernetes/home/apps/kube-system/external-secrets/secrets/
+      - doppler run -- kubectl create -k ../../kubernetes/home/flux/config/crds
+      - doppler run -- kubectl apply -f ../../kubernetes/home/apps/cert-manager/namespace.yaml
+      - doppler run -- kubectl apply -k ../../kubernetes/home/apps/cert-manager/cert-manager/app
 
   extra-dev:
     desc: ☸ k3s dev play - extra
