@@ -15,6 +15,6 @@ on:
 
 jobs:
   build:
-    uses: .github/workflows/docker-image-reusable-workflow.yaml
+    uses: .github/workflows/docker-image-reusable-workflow.yaml@main
     with:
       image_name: actions-runner-base
