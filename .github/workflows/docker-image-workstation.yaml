@@ -21,3 +21,4 @@ jobs:
     uses: ./.github/workflows/docker-image-reusable-workflow.yaml
     with:
       image_name: homelab-workstation
+      platforms: 'linux/amd64,linux/arm64'

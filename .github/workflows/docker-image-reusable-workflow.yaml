@@ -14,9 +14,14 @@ on:
         default: 'ghcr.io'
         type: string
       docker_dir:
-        description: 'the folder where the image is built from'
+        description: 'The folder where the image is built from'
         required: false
         default: 'docker'
+        type: string
+      platforms:
+        description: 'The architecture to build the image for'
+        required: false
+        default: 'linux/amd64'
         type: string
 
 jobs:
@@ -87,7 +92,7 @@ jobs:
           labels: ${{ steps.metadata-ghcr.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          platforms: linux/amd64,linux/arm64
+          platforms: ${{ inputs.platforms }}
           push: true
           # push: ${{ github.event_name != 'pull_request' }} # Don't push on PR
           # push: ${{ startsWith(github.ref, 'refs/tags/') }} # Push only when tagged
