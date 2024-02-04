@@ -11,7 +11,7 @@
 - src: nass600.vundle
 - src: geerlingguy.pip
 - src: MonolithProjects.github_actions_runner
-- src: riemers.ansible-gitlab-runner
+# - src: riemers.ansible-gitlab-runner
 
 # k3s #
 - src: xanmanning.k3s
