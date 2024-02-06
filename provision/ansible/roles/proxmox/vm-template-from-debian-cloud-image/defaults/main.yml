@@ -5,6 +5,7 @@ template_vm_debian:
   version_number: 11
   version_name: bullseye
   cpu_arch: amd64
+
 template_vm_debian_defaults:
   name: "DebianCloud-{{ template_vm_debian.version_name }}-{{ template_vm_debian.version_number }}"
   nameservers:  # I use local DNS resolver, so I specify these on all vm's

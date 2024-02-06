@@ -73,6 +73,15 @@ tasks:
         vars:
           PROVISION_VM: "docker"
 
+  provision-mail:
+    desc: 🖥️ Provision mail-in-a-box vm
+    dir: provision/ansible
+    deps: [':doppler:pull-ansible-inventory']
+    cmds:
+      - task: provision-vm
+        vars:
+          PROVISION_VM: "mail"
+
   provision-k3s:
     desc: 🖥️ Provision k3s vm(s)
     dir: provision/ansible

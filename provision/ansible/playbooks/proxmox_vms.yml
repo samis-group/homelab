@@ -9,6 +9,16 @@
     target_proxmox_host: dell5820
   import_playbook: proxmox_vm_provision_from_template.yml
 
+#####################
+### mail-in-a-box ###
+#####################
+- name: Provision mail-in-a-box VM on Proxmox Host
+  tags: ["never", "mail"]
+  vars:
+    target_host_group: mail
+    target_proxmox_host: dell5820
+  import_playbook: proxmox_vm_provision_from_template.yml
+
 ###############
 ### TrueNAS ###
 ###############

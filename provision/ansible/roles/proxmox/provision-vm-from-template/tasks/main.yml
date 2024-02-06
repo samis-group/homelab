@@ -139,10 +139,10 @@
   community.general.cloud_init_data_facts:
     filter: status
   when: cloned_vm.changed
-  register: res
+  register: ci_result
   delegate_to: "{{ vm_ip_address | default(inventory_hostname) }}"
   remote_user: "{{ main_user }}"  # Run as main_user on k3s node
-  until: "res.cloud_init_data_facts.status.v1.stage is defined and not res.cloud_init_data_facts.status.v1.stage"
+  until: "ci_result.cloud_init_data_facts.status.v1['modules-final'].finished is defined and ci_result.cloud_init_data_facts.status.v1['modules-final'].finished | float | round(0) != 0"
   retries: 100
   delay: 5
 

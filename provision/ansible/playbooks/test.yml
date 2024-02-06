@@ -29,6 +29,12 @@
   #     ansible.builtin.import_tasks: ../tasks/linux/pre_tasks.yml
   #     tags: ["always"]
 
+  # ---- #
+  # mail #
+  # ---- #
+  hosts: mail1
+  become: true
+
   # ------- #
   # windows #
   # ------- #
@@ -37,13 +43,13 @@
   # --- #
   # lxc #
   # --- #
-  hosts: lxc
-  become: true
-  pre_tasks:
-    # This is to get the PUID and PGID variables to use later in multiple areas
-    - name: Get user info or create a user if one doesn't exist
-      ansible.builtin.import_tasks: ../tasks/linux/pre_tasks.yml
-      tags: ["always"]
+  # hosts: lxc
+  # become: true
+  # pre_tasks:
+  #   # This is to get the PUID and PGID variables to use later in multiple areas
+  #   - name: Get user info or create a user if one doesn't exist
+  #     ansible.builtin.import_tasks: ../tasks/linux/pre_tasks.yml
+  #     tags: ["always"]
 
   # --- #
   # wsl #

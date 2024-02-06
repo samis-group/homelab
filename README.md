@@ -198,6 +198,21 @@ Check the following files for these configurable items:
 - 3XX - Development VM's and LXC's for homelab environment
 - 8XXX - VM Templates
 
+## Creating a new VM group from a template in Proxmox
+
+- Pull the latest ansible inventory file from doppler with `task dp:pulla`
+- Make changes under `all -> children -> linux -> children` and add an entry for your VM to this list
+  - You can follow my pattern of creating a group, then a list of hosts (to allow scalability) and then define the VM name and host:
+    - `vm_group_name` -> `hosts` -> `vm1` -> `ansible_host: vm1.domain.com`
+- Push the changes back to doppler with `task dp:pusha`
+- Create a provisioning step for your vm in the file `homelab/provision/ansible/playbooks/proxmox_vms.yml` [based off this docker vm](https://github.com/samis-group/homelab/blob/29623d547eea7c3659e0fc7c17e65765ed5d32de/provision/ansible/playbooks/proxmox_vms.yml#L2-L10).
+- Create a copy of the [host vars file](https://github.com/samis-group/homelab/blob/30cb20e52bdab7dec0db1ec00d407d48ad04ca57/provision/ansible/inventory/host_vars/docker1.yml) for your vm in the folder, using docker1 vm as an example -> `provision/ansible/inventory/host_vars/docker1.yml`.
+  - Configure a few things in here. You *must* change the following, set others per your requirements:
+    - `ID` of the VM - must be different per VM
+    - `vm_ip_address` - must be different per VM
+- Create an entry for your vm in the file `homelab/.taskfiles/Proxmox.yml` [just like this docker vm](https://github.com/samis-group/homelab/blob/29623d547eea7c3659e0fc7c17e65765ed5d32de/.taskfiles/Proxmox.yml#L67-L74).
+- Run your task: `task proxmox:provision-vm_group_name`
+
 ## Troubleshooting
 
 To ensure connectivity, run the following command (specify the inventory file with the `-i` flag, if you are not running in the same directory as it):
