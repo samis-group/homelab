@@ -2,14 +2,14 @@
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
-  name: bazarr
+  name: filebrowser
   namespace: default
 spec:
   interval: 1h
   chart:
     spec:
       chart: app-template
-      version: 2.3.0
+      version: 2.6.0
       interval: 1h
       sourceRef:
         kind: HelmRepository
@@ -40,13 +40,12 @@ spec:
             # supplementalGroups:
             #   - 34
             #   - 100
-            fsGroupChangePolicy: "OnRootMismatch"
-
+            fsGroupChangePolicy: OnRootMismatch
         containers:
           main:
             image:
-              repository: ghcr.io/onedr0p/bazarr
-              tag: "1"
+              repository: docker.io/filebrowser/filebrowser
+              tag: v2.27.0
               pullPolicy: IfNotPresent
             env:
               TZ:
@@ -54,21 +53,36 @@ spec:
                   secretKeyRef:
                     name: common-secrets
                     key: TZ
-              BAZARR__INSTANCE_NAME: Bazarr
-              BAZARR__PORT: &port 6767
-              BAZARR__APPLICATION_URL: "https://bazarr.shaklab.com"
-              BAZARR__LOG_LEVEL: info
+              FB_DATABASE: /config/filebrowser.db
+              FB_ROOT: /data
+              FB_LOG: stdout
+              FB_NOAUTH: true
+              FB_PORT: &port 30044
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /health
+                    port: *port
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *probes
+              startup:
+                enabled: false
             resources:
               requests:
-                cpu: "0.04"
-                memory: "250M"
+                cpu: 10m
               limits:
-                memory: "6000M"
+                memory: 512Mi
 
     service:
       main:
         annotations:
-          external-dns.alpha.kubernetes.io/hostname: bazarr.shaklab.com
+          external-dns.alpha.kubernetes.io/hostname: filebrowser.shaklab.com, files.shaklab.com
           external-dns.alpha.kubernetes.io/target: ipv4.shaklab.com
         ports:
           http:
@@ -77,39 +91,15 @@ spec:
     persistence:
       config:
         enabled: true
-        existingClaim: bazarr-config
-      nfs-nas-movies:
+        existingClaim: filebrowser-config
+      nfs-nas-data:
         type: nfs
-        server: 10.10.0.2
-        path: /volume1/docker/data/media/movies
+        server: 10.10.0.3
+        path: /mnt/rust/backup_from_syno/NAS_1
         advancedMounts:
           main:
             main:
-              - path: /media/movies
-      nfs-nas-tv:
-        type: nfs
-        server: 10.10.0.2
-        path: /volume1/docker/data/media/tv
-        advancedMounts:
-          main:
-            main:
-              - path: /media/tv
-      downloads-torrents:
-        type: nfs
-        server: 10.10.0.2
-        path: /volume1/docker/data/downloads/torrents
-        advancedMounts:
-          main:
-            main:
-              - path: /downloads/torrents
-      downloads-nzb:
-        type: nfs
-        server: 10.10.0.2
-        path: /volume1/docker/data/downloads/nzb
-        advancedMounts:
-          main:
-            main:
-              - path: /downloads/nzb
+              - path: /data
 
     # ingress:
     #   main:
@@ -132,7 +122,7 @@ spec:
     #             service:
     #               name: main
     #               port: http
-    #       - host: &host "bazarr.${INGRESS_DOMAIN}"
+    #       - host: &host "filebrowser.${INGRESS_DOMAIN}"
     #         paths:
     #           - path: /
     #             pathType: Prefix
@@ -140,7 +130,7 @@ spec:
     #               name: main
     #               port: http
     #     tls:
-    #       - secretName: tls.bazarr
+    #       - secretName: tls.filebrowser
     #         hosts:
     #           - *host-cluster
     #           - *host

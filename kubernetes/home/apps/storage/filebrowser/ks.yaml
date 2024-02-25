@@ -9,7 +9,7 @@ spec:
   dependsOn:
     - name: cluster-apps-external-secrets-stores
     - name: cluster-apps-traefik-app
-  path: ./kubernetes/home/apps/default/filebrowser/app
+  path: ./kubernetes/home/apps/storage/filebrowser/app
   prune: true
   sourceRef:
     kind: GitRepository
