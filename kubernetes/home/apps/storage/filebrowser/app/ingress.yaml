@@ -20,7 +20,6 @@ spec:
   tls:
     secretName: shaklab-com-tls-certs
 ---
-# NOT WORKING
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
 metadata:
@@ -39,31 +38,31 @@ spec:
           port: 30044
   tls:
     secretName: shaklab-com-tls-certs
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: filebrowser
-  namespace: default
-  annotations:
-    external-dns.alpha.kubernetes.io/hostname: files.shaklab.com, filebrowser.shaklab.com
-    external-dns.alpha.kubernetes.io/target: ipv4.shaklab.com
-spec:
-  type: ClusterIP
-  ports:
-    - name: http
-      port: 30044
-      protocol: TCP
----
-apiVersion: v1
-kind: Endpoints
-metadata:
-  name: filebrowser
-  namespace: default
-subsets:
-  - addresses:
-    - ip: 10.10.0.3
-    ports:
-      - name: http
-        port: 30044
-        protocol: TCP
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: filebrowser
+#   namespace: default
+#   annotations:
+#     external-dns.alpha.kubernetes.io/hostname: files.shaklab.com, filebrowser.shaklab.com
+#     external-dns.alpha.kubernetes.io/target: ipv4.shaklab.com
+# spec:
+#   type: ClusterIP
+#   ports:
+#     - name: http
+#       port: 30044
+#       protocol: TCP
+# ---
+# apiVersion: v1
+# kind: Endpoints
+# metadata:
+#   name: filebrowser
+#   namespace: default
+# subsets:
+#   - addresses:
+#     - ip: 10.10.0.3
+#     ports:
+#       - name: http
+#         port: 30044
+#         protocol: TCP
