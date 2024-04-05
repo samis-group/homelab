@@ -7,10 +7,8 @@ on:
       - 'provision/ansible/requirements.yml'
       - 'provision/ansible/roles/requirements.yml'
       - 'requirements.txt'
-    # branches:
-    #   - 'main'
-    # tags:
-    #   - 'v*'
+    branches:
+      - 'main'
   workflow_dispatch:
   pull_request:
     branches:
@@ -18,7 +16,7 @@ on:
 
 jobs:
   build:
-    uses: ./.github/workflows/docker-image-reusable-workflow.yaml
+    uses: ./.github/workflows/jobs/docker-image.yaml
     with:
       image_name: homelab-workstation
       platforms: 'linux/amd64,linux/arm64'

@@ -4,10 +4,8 @@ on:
   push:
     paths:
       - "docker/actions-runner-base/**"
-    # branches:
-    #   - 'main'
-    # tags:
-    #   - 'v*'
+    branches:
+      - 'main'
   workflow_dispatch:
   pull_request:
     branches:
@@ -15,6 +13,6 @@ on:
 
 jobs:
   build:
-    uses: ./.github/workflows/docker-image-reusable-workflow.yaml
+    uses: ./.github/workflows/jobs/docker-image.yaml
     with:
       image_name: actions-runner-base
