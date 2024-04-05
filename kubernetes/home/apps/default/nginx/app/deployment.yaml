@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: nginx
-          image: ghcr.io/samis-group/nginx:latest
+          image: ghcr.io/samis-group/docker-images/nginx:latest
           imagePullPolicy: Always # Always grab latest when pipeline finishes building
           resources:
             limits:
