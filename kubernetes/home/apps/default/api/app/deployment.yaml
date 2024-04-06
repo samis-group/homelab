@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: api
-          image: ghcr.io/samis-group/docker-images/api:latest
+          image: ghcr.io/samis-group/container-images/api:latest
           imagePullPolicy: Always
           resources:
             limits:

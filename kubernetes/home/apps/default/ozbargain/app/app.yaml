@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: ozbargain
-          image: ghcr.io/samis-group/docker-images/ozbargain-bot:latest
+          image: ghcr.io/samis-group/container-images/ozbargain-bot:latest
           imagePullPolicy: Always
           resources:
             limits:
