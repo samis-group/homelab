@@ -13,6 +13,6 @@ on:
 
 jobs:
   build:
-    uses: ./.github/workflows/_docker-image.yaml
+    uses: samis-group/actions-workflows/.github/workflows/docker-image.yaml@main
     with:
       image_name: actions-runner-base
