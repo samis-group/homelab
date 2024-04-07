@@ -1,12 +1,17 @@
 provider "kubernetes" {
-  config_path = var.kubeconfig_file
+  # config_path = var.kubeconfig_file
   ##############################################################
   ### Use below alternative config method - Change as needed ###
   ##############################################################
-  # host                   = "https://x.x.x.222:6443"
-  # cluster_ca_certificate = base64decode(var.kube_ca_cert)     # yq eval '.clusters[].cluster.certificate-authority-data' /home/ubuntu/.kube/config
-  # client_certificate     = base64decode(var.kube_client_cert) # yq eval '.users[0].user.client-certificate-data' /home/ubuntu/.kube/config
-  # client_key             = base64decode(var.kube_client_key)  # yq eval '.users[0].user.client-key-data' /home/ubuntu/.kube/config
+  host                   = var.kube_host
+  cluster_ca_certificate = base64decode(var.kube_ca_cert)     # yq eval '.clusters[].cluster.certificate-authority-data' /home/ubuntu/.kube/config
+  client_certificate     = base64decode(var.kube_client_cert) # yq eval '.users[0].user.client-certificate-data' /home/ubuntu/.kube/config
+  client_key             = base64decode(var.kube_client_key)  # yq eval '.users[0].user.client-key-data' /home/ubuntu/.kube/config
+  ignore_labels          = [
+    "kustomize.toolkit.fluxcd.io/name",
+    "kustomize.toolkit.fluxcd.io/namespace",
+    "kustomize.toolkit.fluxcd.io/prune"
+  ]
 }
 
 # Doppler token to k3s cluster

@@ -10,6 +10,11 @@ variable "kubeconfig_file" {
   default     = "~/.kube/config"
 }
 
+variable "kube_host" {
+  description = "The kubernetes cluster API endpoint"
+  type        = string
+}
+
 variable "kube_ca_cert" {
   description = "The kubernetes cluster CA Cert in base64 encoding (grab from kubeconfig)"
   type        = string

@@ -38,7 +38,10 @@ tasks:
       - task: tfvars-write
         vars:
           TFVAR_LOCAL: "doppler_token"
-      - task: tfvars-write-kubeconfig
+      - task: tfvars-write-kubeconfig-kube_host
+      - task: tfvars-write-kubeconfig-kube_ca_cert
+      - task: tfvars-write-kubeconfig-kube_client_cert
+      - task: tfvars-write-kubeconfig-kube_client_key
       # - task: tfvars-terraform-token
 
   tfvars-write:
@@ -56,18 +59,30 @@ tasks:
           read -p "Enter the value for variable {{.TFVAR_LOCAL}} to be written to tfvars file: " LOCAL_VAR_TF && echo "{{.TFVAR_LOCAL}} = \"${LOCAL_VAR_TF}\"" >> myvars.tfvars
         fi
 
-  tfvars-write-kubeconfig:
-    desc: Write kubeconfig certs to tfvar file
+  tfvars-write-kubeconfig-kube_host:
+    desc: Write kube_host to tfvar file
+    dir: provision/terraform
+    silent: true
+    internal: true
+    vars:
+      kube_host:
+        sh: yq eval '.clusters[].cluster.server' "{{.KUBECONFIG_DIR}}/config"
+    preconditions:
+      - sh: ls ${KUBECONFIG}
+        msg: "Kubeconfig file missing, nothing to process."
+    status:
+      - grep -q kube_host myvars.tfvars
+    cmds:
+      - echo "kube_host = \"{{.kube_host}}\"" >> myvars.tfvars
+
+  tfvars-write-kubeconfig-kube_ca_cert:
+    desc: Write kube_ca_cert to tfvar file
     dir: provision/terraform
     silent: true
     internal: true
     vars:
       kube_ca_cert:
         sh: yq eval '.clusters[].cluster.certificate-authority-data' "{{.KUBECONFIG_DIR}}/config"
-      kube_client_cert:
-        sh: yq eval '.users[0].user.client-certificate-data' "{{.KUBECONFIG_DIR}}/config"
-      kube_client_key:
-        sh: yq eval '.users[0].user.client-key-data' "{{.KUBECONFIG_DIR}}/config"
     preconditions:
       - sh: ls ${KUBECONFIG}
         msg: "Kubeconfig file missing, nothing to process."
@@ -75,7 +90,37 @@ tasks:
       - grep -q kube_ca_cert myvars.tfvars
     cmds:
       - echo "kube_ca_cert = \"{{.kube_ca_cert}}\"" >> myvars.tfvars
+
+  tfvars-write-kubeconfig-kube_client_cert:
+    desc: Write kube_client_cert to tfvar file
+    dir: provision/terraform
+    silent: true
+    internal: true
+    vars:
+      kube_client_cert:
+        sh: yq eval '.users[0].user.client-certificate-data' "{{.KUBECONFIG_DIR}}/config"
+    preconditions:
+      - sh: ls ${KUBECONFIG}
+        msg: "Kubeconfig file missing, nothing to process."
+    status:
+      - grep -q kube_client_cert myvars.tfvars
+    cmds:
       - echo "kube_client_cert = \"{{.kube_client_cert}}\"" >> myvars.tfvars
+
+  tfvars-write-kubeconfig-kube_client_key:
+    desc: Write kube_client_key to tfvar file
+    dir: provision/terraform
+    silent: true
+    internal: true
+    vars:
+      kube_client_key:
+        sh: yq eval '.users[0].user.client-key-data' "{{.KUBECONFIG_DIR}}/config"
+    preconditions:
+      - sh: ls ${KUBECONFIG}
+        msg: "Kubeconfig file missing, nothing to process."
+    status:
+      - grep -q kube_client_key myvars.tfvars
+    cmds:
       - echo "kube_client_key = \"{{.kube_client_key}}\"" >> myvars.tfvars
 
   # tfvars-terraform-token:
