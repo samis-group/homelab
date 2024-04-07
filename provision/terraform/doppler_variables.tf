@@ -10,6 +10,21 @@ variable "kubeconfig_file" {
   default     = "~/.kube/config"
 }
 
+variable "kube_ca_cert" {
+  description = "The kubernetes cluster CA Cert in base64 encoding (grab from kubeconfig)"
+  type        = string
+}
+
+variable "kube_client_cert" {
+  description = "The kubernetes cluster CA Cert in base64 encoding (grab from kubeconfig)"
+  type        = string
+}
+
+variable "kube_client_key" {
+  description = "The kubernetes cluster CA Cert in base64 encoding (grab from kubeconfig)"
+  type        = string
+}
+
 variable "doppler_project" {
   description = "Doppler Project Name"
   type        = string
