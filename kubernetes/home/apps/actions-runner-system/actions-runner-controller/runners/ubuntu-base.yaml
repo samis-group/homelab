@@ -36,6 +36,8 @@ spec:
     #   type: dind
     template:
       spec:
+        imagePullSecrets:
+          - name: github-registry-credentials
         containers:
           - name: runner
             image: ghcr.io/samis-group/container-images/ubuntu-base:latest
@@ -47,8 +49,6 @@ spec:
               - name: dind-sock
                 mountPath: /run/docker
                 readOnly: true
-            imagePullSecrets:
-              - name: github-registry-credentials
           - name: dind
             image: docker:dind
             args:

@@ -36,6 +36,8 @@ spec:
     #   type: dind
     template:
       spec:
+        # imagePullSecrets:
+        #   - name: github-registry-credentials
         initContainers:
           - name: init-dind-externals
             image: ghcr.io/actions/actions-runner:latest
