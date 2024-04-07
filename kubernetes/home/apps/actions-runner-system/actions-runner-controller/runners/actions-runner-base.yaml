@@ -28,7 +28,7 @@ spec:
   values:
     # controllerServiceAccount:
     #   name: actions-runner-controller-gha-rs-controller
-    runnerScaleSetName: arc-runner-set-samis-group
+    runnerScaleSetName: arc-runner-set-actions-runner-base
     githubConfigUrl: https://github.com/samis-group
     minRunners: 0
     maxRunners: 3

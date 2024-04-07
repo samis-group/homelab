@@ -27,7 +27,7 @@ on:
 jobs:
   build:
     name: Build & Push Docker Image - ${{ inputs.image_name }}
-    runs-on: ["arc-runner-set-samis-group"]
+    runs-on: ["arc-runner-set-actions-runner-base"]
     # runs-on: [self-hosted, linux, x64]
     permissions:
       contents: read

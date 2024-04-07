@@ -28,33 +28,22 @@ spec:
   values:
     # controllerServiceAccount:
     #   name: actions-runner-controller-gha-rs-controller
-    runnerScaleSetName: arc-runner-set-docker-containers-homelab
-    githubConfigUrl: https://github.com/samis-group/homelab
+    runnerScaleSetName: arc-runner-set-ubuntu-base
+    githubConfigUrl: https://github.com/samis-group
     minRunners: 0
     maxRunners: 3
     # containerMode:
     #   type: dind
     template:
       spec:
-        initContainers:
-          - name: init-dind-externals
-            image: ghcr.io/actions/actions-runner:latest
-            command: ["cp", "-r", "-v", "/home/runner/externals/.", "/home/runner/tmpDir/"]
-            volumeMounts:
-              - name: dind-externals
-                mountPath: /home/runner/tmpDir
         containers:
           - name: runner
-            # image: ghcr.io/actions/actions-runner:latest
-            # image: configit/gha-runner-shim:latest
-            image: ghcr.io/samis-group/actions-runner-base:latest
-            command: ["/home/runner/run.sh"]
+            image: ghcr.io/samis-group/container-images/ubuntu-base:latest
+            command: ["/bin/bash"]
             env:
               - name: DOCKER_HOST
                 value: unix:///run/docker/docker.sock
             volumeMounts:
-              - name: work
-                mountPath: /home/runner/_work
               - name: dind-sock
                 mountPath: /run/docker
                 readOnly: true
@@ -75,24 +64,20 @@ spec:
             securityContext:
               privileged: true
             volumeMounts:
-              - name: work
-                mountPath: /home/runner/_work
               - name: dind-sock
                 mountPath: /run/docker
               - name: dind-externals
                 mountPath: /home/runner/externals
-              - name: daemon-json
+              - name: docker-daemon-config
                 mountPath: /etc/docker/daemon.json
                 readOnly: true
                 subPath: daemon.json
         volumes:
-          - name: work
-            emptyDir: {}
           - name: dind-sock
             emptyDir: {}
           - name: dind-externals
             emptyDir: {}
-          - name: daemon-json
+          - name: docker-daemon-config
             configMap:
               name: docker-daemon-config
   valuesFrom:
