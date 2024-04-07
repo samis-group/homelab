@@ -25,6 +25,10 @@ RUN apt-get update \
 RUN curl -L https://github.com/go-task/task/releases/download/v3.21.0/task_linux_amd64.tar.gz | \
     tar -C /usr/local/bin -xzf -
 
+# Install yq
+RUN wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq && \
+  chmod +x /usr/bin/yq
+
 # Install Terraform
 RUN TERRAFORM_VERSION=$(curl -s https://api.github.com/repos/hashicorp/terraform/releases/latest \
     | jq -r '.tag_name' | sed 's/v//') && \

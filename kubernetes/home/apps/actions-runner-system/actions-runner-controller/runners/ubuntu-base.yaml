@@ -47,6 +47,8 @@ spec:
               - name: dind-sock
                 mountPath: /run/docker
                 readOnly: true
+            imagePullSecrets:
+              - name: github-registry-credentials
           - name: dind
             image: docker:dind
             args:
