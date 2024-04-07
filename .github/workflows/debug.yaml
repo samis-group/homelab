@@ -1,0 +1,10 @@
+name: Debug
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    uses: samis-group/actions-workflows/.github/workflows/debug-vars.yml@main
+    with:
+      image_name: actions-runner-base
