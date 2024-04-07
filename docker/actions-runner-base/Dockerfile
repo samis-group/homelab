@@ -12,11 +12,11 @@ COPY docker/actions-runner-base/docker-shim.sh /usr/bin/docker
 RUN sudo chmod 755 /usr/bin/docker
 
 # Ubuntu OS dependencies
-RUN apt-get update && \
-    apt-get install -y curl wget jq && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+RUN sudo apt-get update && \
+  sudo apt-get install -y curl wget jq && \
+  sudo apt-get clean && \
+  sudo rm -rf /var/lib/apt/lists/*
 
 # Install yq
-RUN wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq && \
-  chmod +x /usr/bin/yq
+RUN sudo wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq && \
+  sudo chmod +x /usr/bin/yq
