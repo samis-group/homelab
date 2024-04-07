@@ -16,7 +16,7 @@ on:
 
 jobs:
   build:
-    uses: samis-group/actions-workflows/.github/workflows/docker/build-and-publish-image.yaml@main
+    uses: samis-group/actions-workflows/.github/workflows/docker-build-and-publish.yaml@main
     with:
       image_name: homelab-workstation
       platforms: 'linux/amd64,linux/arm64'
