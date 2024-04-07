@@ -71,12 +71,12 @@ RUN mkdir ./roles /home/${USER_NAME}/.ssh /home/${USER_NAME}/.kube && \
     echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
 # Installs Ansible, pre-commit-hooks, molecule, along with other pip dependencies.
-COPY --chown=${USER_NAME}:${USER_NAME} ../../requirements.txt ${HOMELAB_DIR}/
+COPY --from=project --chown=${USER_NAME}:${USER_NAME} requirements.txt ${HOMELAB_DIR}/
 RUN pip3 install --upgrade pip && pip3 install --no-cache-dir -r ${HOMELAB_DIR}/requirements.txt
 
 # Copy ansible requirements and install them
-COPY --chown=${USER_NAME}:${USER_NAME} ../../provision/ansible/requirements.yml ${HOMELAB_DIR}/
-COPY --chown=${USER_NAME}:${USER_NAME} ../../provision/ansible/roles/requirements.yml ${HOMELAB_DIR}/roles/
+COPY --from=project --chown=${USER_NAME}:${USER_NAME} provision/ansible/requirements.yml ${HOMELAB_DIR}/
+COPY --from=project --chown=${USER_NAME}:${USER_NAME} provision/ansible/roles/requirements.yml ${HOMELAB_DIR}/roles/
 
 RUN mkdir -p /usr/share/ansible/collections && \
     mkdir -p /usr/share/ansible/roles && \
