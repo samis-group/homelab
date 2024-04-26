@@ -18,7 +18,11 @@ This repository contains all of my automations to install and configure everythi
 
 ❗ **Ensure you already have docker installed and working on your local PC**. This pulls an image, sets it up and drops you in shell to run any task you want.
 
-❗ **This project makes heavy use of `go-task` in order to run all of the automations in sequence. [Please download it from here](https://taskfile.dev/installation/) as you will need to use it to run the docker image workstation where the automations are applied from.**
+❗ **This project makes heavy use of `go-task` in order to run all of the automations in sequence and perform necessary checks. [Please download it from here](https://taskfile.dev/installation/) or from the script below, as you will need to use it to run the docker image workstation where the automations are applied from.**
+
+```bash
+sudo sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
+```
 
 ❗ **You can skip or reconfigure any variable in any task by [Overriding Defaults](#overriding-defaults).**
 
