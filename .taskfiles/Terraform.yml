@@ -19,7 +19,7 @@ tasks:
     status:
       - "grep -q 'token' ${TF_CLI_CONFIG_FILE}"
     cmds:
-      - terraform login
+      - "{{.DOCKER_EXEC_CMD}} terraform login"
 
   output:
     desc: Get output value from terraform. Pass in arg like '-- doppler_token'.
