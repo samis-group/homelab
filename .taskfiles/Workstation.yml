@@ -3,7 +3,7 @@ version: "3"
 
 vars:
   LOCAL_IMAGE_NAME: local-homelab-workstation
-  REGISTRY_IMAGE_NAME: ghcr.io/samis-group/homelab/homelab-workstation:latest
+  REGISTRY_IMAGE_NAME: ghcr.io/samis-group/homelab/workstation:latest
   RUN_LOCAL_OR_REGISTRY: "{{.REGISTRY_IMAGE_NAME}}" # Default to running registry container
   HOMELAB_DIR: /workspace/homelab
   DOCKER_RUN_CMD:
