@@ -3,7 +3,7 @@ name: Docker Image - Workstation
 on:
   push:
     paths:
-      - 'docker/homelab-workstation/**'
+      - 'docker/workstation/**'
       - 'provision/ansible/requirements.yml'
       - 'provision/ansible/roles/requirements.yml'
       - 'requirements.txt'
@@ -18,5 +18,5 @@ jobs:
   build:
     uses: samis-group/actions-workflows/.github/workflows/docker-build-and-publish.yaml@main
     with:
-      image_name: homelab-workstation
+      image_name: workstation
       platforms: 'linux/amd64,linux/arm64'
