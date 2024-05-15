@@ -36,12 +36,12 @@ spec:
       tag: '4'
       pullPolicy: Always
 
-    # podSecurityContext:
-    #   runAsUser: 568
-    #   runAsGroup: 568
-    #   fsGroup: 568
-    #   supplementalGroups: [10000]
-    #   fsGroupChangePolicy: "OnRootMismatch"
+    podSecurityContext:
+      runAsUser: 568
+      runAsGroup: 568
+      fsGroup: 568
+      supplementalGroups: [10000]
+      fsGroupChangePolicy: "OnRootMismatch"
 
     env:
       TZ:
