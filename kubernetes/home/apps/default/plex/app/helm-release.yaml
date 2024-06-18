@@ -117,6 +117,12 @@ spec:
         path: /volume1/docker/data/media/tv
         server: 10.10.0.2
         type: nfs
+      nfs-nas-family:
+        enabled: true
+        mountPath: /media/vhs
+        path: /volume1/docker/data/media/photos/VHS
+        server: 10.10.0.2
+        type: nfs
       # transcode:
       #   enabled: true
       #   type: emptyDir
