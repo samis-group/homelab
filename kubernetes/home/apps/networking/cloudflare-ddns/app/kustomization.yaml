@@ -9,7 +9,7 @@ resources:
 configMapGenerator:
   - name: cloudflare-ddns-configmap
     files:
-      - ./cloudflare-ddns.sh
+      - ./scripts/cloudflare-ddns.sh
 generatorOptions:
   disableNameSuffixHash: true
   annotations:

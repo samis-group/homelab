@@ -1,4 +1,5 @@
 ---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
@@ -9,45 +10,73 @@ spec:
   chart:
     spec:
       chart: app-template
-      version: 1.5.1
+      version: 3.3.2
       sourceRef:
         kind: HelmRepository
         name: bjw-s
         namespace: flux-system
   maxHistory: 3
   install:
-    createNamespace: true
     remediation:
       retries: 3
   upgrade:
     cleanupOnFail: true
     remediation:
+      strategy: rollback
       retries: 3
-  uninstall:
-    keepHistory: false
   values:
-    controller:
-      type: cronjob
-      cronjob:
-        concurrencyPolicy: Forbid
-        schedule: "@hourly"
-    restartPolicy: OnFailure
-    image:
-      repository: ghcr.io/onedr0p/kubernetes-kubectl
-      tag: rolling  # https://github.com/onedr0p/containers/pkgs/container/kubernetes-kubectl
-    command: ["/bin/bash", "/app/cloudflare-ddns.sh"]
-    envFrom:
-      - secretRef:
-          name: cloudflare-secrets
-    service:
-      main:
-        enabled: false
+    controllers:
+      cloudflare-ddns:
+        type: cronjob
+        cronjob:
+          schedule: "@hourly"
+          successfulJobsHistory: 0
+        containers: &container
+          app:
+            image:
+              repository: ghcr.io/onedr0p/kubanetics
+              tag: latest
+            command: ["/app/cloudflare-ddns.sh"]
+            resources:
+              requests:
+                cpu: 5m
+              limits:
+                memory: 16Mi
     persistence:
       config:
-        enabled: true
-        type: configMap
-        name: cloudflare-ddns-configmap
-        subPath: cloudflare-ddns.sh
-        mountPath: /app/cloudflare-ddns.sh
+        type: secret
+        name: cloudflare-ddns-secret
         defaultMode: 0775
-        readOnly: true
+        globalMounts:
+          - path: /app/cloudflare-ddns.sh
+            subPath: cloudflare-ddns.sh
+            readOnly: true
+
+  # uninstall:
+  #   keepHistory: false
+  # values:
+  #   controller:
+  #     type: cronjob
+  #     cronjob:
+  #       concurrencyPolicy: Forbid
+  #       schedule: "@hourly"
+  #   restartPolicy: OnFailure
+  #   image:
+  #     repository: ghcr.io/onedr0p/kubernetes-kubectl
+  #     tag: rolling  # https://github.com/onedr0p/containers/pkgs/container/kubernetes-kubectl
+  #   command: ["/bin/bash", "/app/cloudflare-ddns.sh"]
+  #   envFrom:
+  #     - secretRef:
+  #         name: cloudflare-secrets
+  #   service:
+  #     main:
+  #       enabled: false
+  #   persistence:
+  #     config:
+  #       enabled: true
+  #       type: configMap
+  #       name: cloudflare-ddns-configmap
+  #       subPath: cloudflare-ddns.sh
+  #       mountPath: /app/cloudflare-ddns.sh
+  #       defaultMode: 0775
+  #       readOnly: true
