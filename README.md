@@ -14,7 +14,7 @@
 
 This repository contains all of my automations to install and configure everything in my homelab, from scratch. You are able to completely tear this down and rebuild it from Proxmox on bare metal.
 
-![Homelab Diagram](docs/assets/Homelab.png)
+![Homelab Diagram](docs/assets/Homelab.svg)
 
 ❗ **Ensure you already have docker installed and working on your local PC**. This pulls an image, sets it up and drops you in shell to run any task you want.
 
