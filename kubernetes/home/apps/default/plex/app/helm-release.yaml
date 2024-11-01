@@ -123,6 +123,12 @@ spec:
         path: /volume1/docker/data/media/family/VHS
         server: 10.10.0.2
         type: nfs
+      nfs-nas-different:
+        enabled: true
+        mountPath: /media/different
+        path: /volume1/docker/data/media/different
+        server: 10.10.0.2
+        type: nfs
       # transcode:
       #   enabled: true
       #   type: emptyDir
