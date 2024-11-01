@@ -91,7 +91,7 @@ nas:
       remote_mapping: "/volume1/docker/data/media/syncthing"
     # sami_pictures:
     #   local_mapping: "{{ user_dir }}/mount/photos/sami"
-    #   remote_mapping: "/volume1/docker/data/media/photos/Sami's Photos"
+    #   remote_mapping: "/volume1/docker/data/media/family/Sami"
     family_pictures:
-      local_mapping: "{{ user_dir }}/mount/photos/family"
-      remote_mapping: "/volume1/docker/data/media/photos"
+      local_mapping: "{{ user_dir }}/mount/family"
+      remote_mapping: "/volume1/docker/data/media/family"

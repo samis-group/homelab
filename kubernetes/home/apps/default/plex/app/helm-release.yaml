@@ -120,7 +120,7 @@ spec:
       nfs-nas-family:
         enabled: true
         mountPath: /media/vhs
-        path: /volume1/docker/data/media/photos/VHS
+        path: /volume1/docker/data/media/family/VHS
         server: 10.10.0.2
         type: nfs
       # transcode:

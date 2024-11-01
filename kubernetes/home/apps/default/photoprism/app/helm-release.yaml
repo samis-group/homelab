@@ -110,7 +110,7 @@ spec:
       nfs-nas-photos-originals:
         enabled: true
         mountPath: /photoprism/originals
-        path: /volume1/docker/data/media/photos/Sami
+        path: /volume1/docker/data/media/family/Sami
         server: 10.10.0.2
         type: nfs
 
