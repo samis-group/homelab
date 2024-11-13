@@ -13,6 +13,6 @@ on:
 
 jobs:
   build:
-    uses: samis-group/actions-workflows/.github/workflows/docker-build-and-publish.yaml@main
+    uses: samis-group/actions-workflows/.github/workflows/docker-build-and-publish-public-runner.yaml@main
     with:
       image_name: actions-runner-base
