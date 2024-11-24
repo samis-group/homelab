@@ -89,6 +89,6 @@ spec:
         enabled: true
         server: 10.10.0.2
         type: nfs
-        path: /volume1/docker/data/media/family/Sami/Syncthing
+        path: /volume1/docker/data/media/photos/Sami/Syncthing
         globalMounts:
           - path: /var/syncthing/photos
