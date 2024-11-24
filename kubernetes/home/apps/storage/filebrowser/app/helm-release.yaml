@@ -92,15 +92,38 @@ spec:
       config:
         enabled: true
         existingClaim: filebrowser-config
-      nfs-nas-data:
+      # nfs-nas-data:
+      #   type: nfs
+      #   server: 10.10.0.3
+      #   path: /mnt/rust/backup_from_syno/NAS_1
+      #   advancedMounts:
+      #     main:
+      #       main:
+      #         - path: /data
+      nfs-nas-data-docker:
         type: nfs
-        server: 10.10.0.3
-        path: /mnt/rust/backup_from_syno/NAS_1
+        server: 10.10.0.2
+        path: /volume1/docker
         advancedMounts:
           main:
             main:
-              - path: /data
-
+              - path: /data/docker
+      nfs-nas-data-family_data:
+        type: nfs
+        server: 10.10.0.2
+        path: /volume1/family_data
+        advancedMounts:
+          main:
+            main:
+              - path: /data/family_data
+      nfs-nas-data-proxmox:
+        type: nfs
+        server: 10.10.0.2
+        path: /volume1/proxmox
+        advancedMounts:
+          main:
+            main:
+              - path: /data/proxmox
     # ingress:
     #   main:
     #     enabled: true
