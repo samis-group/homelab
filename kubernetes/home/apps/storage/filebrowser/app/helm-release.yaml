@@ -108,7 +108,7 @@ spec:
           main:
             main:
               - path: /data/docker
-      nfs-nas-data-family_data:
+      nfs-nas-data-family-data:
         type: nfs
         server: 10.10.0.2
         path: /volume1/family_data
