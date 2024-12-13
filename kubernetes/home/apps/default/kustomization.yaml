@@ -5,20 +5,20 @@ kind: Kustomization
 resources:
   # - ./api/ks.yaml
   # - ./authelia/ks.yaml
-  - ./bazarr/ks.yaml
+  # - ./bazarr/ks.yaml
   # - ./home-assistant/ks.yaml
   # - ./mosquitto/ks.yaml
   - ./namespace.yaml
   - ./nginx/ks.yaml
-  - ./overseerr/ks.yaml
+  # - ./overseerr/ks.yaml
   - ./ozbargain/ks.yaml
   - ./photoprism/ks.yaml
   - ./plex/ks.yaml
-  - ./prowlarr/ks.yaml
+  # - ./prowlarr/ks.yaml
   - ./qbittorrent/ks.yaml
-  - ./radarr/ks.yaml
-  - ./sabnzbd/ks.yaml
-  - ./sonarr/ks.yaml
+  # - ./radarr/ks.yaml
+  # - ./sabnzbd/ks.yaml
+  # - ./sonarr/ks.yaml
   - ./syncthing/ks.yaml
   - ./tautulli/ks.yaml
   # - ./zigbee2mqtt/ks.yaml
