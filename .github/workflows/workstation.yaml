@@ -20,6 +20,5 @@ jobs:
     with:
       image_name: workstation
       platforms: 'linux/amd64,linux/arm64'
-      context_dir: docker/workstation
       dockerfile: docker/workstation/Dockerfile
       # run_on_runners: "ubuntu-latest" # Use public runner for public project if you would like
