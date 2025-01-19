@@ -13,6 +13,16 @@ tasks:
       - task: ubuntu-vm-template
       - task: debian-vm-template
 
+  provision-tnas:
+    desc: 🖥️ Configure TerramasterNAS Proxmox HV
+    dir: provision/ansible
+    deps: [':doppler:pull-ansible-inventory']
+    aliases: ["t"]
+    cmds:
+      - "{{.ANSIBLE_PLAYBOOK_CMD}} {{.ANSIBLE_PLAYBOOK_DIR}}/tnas.yml {{.CLI_ARGS}}"
+      # - task: ubuntu-vm-template
+      # - task: debian-vm-template
+
   run-tags:
     desc: 🖥️ Run only the tags passed in separated by comma
     dir: provision/ansible
@@ -99,12 +109,3 @@ tasks:
       - task: provision-vm
         vars:
           PROVISION_VM: "k3s-dev"
-
-  provision-truenas:
-    desc: 🖥️ Provision TrueNAS vm
-    dir: provision/ansible
-    deps: [':doppler:pull-ansible-inventory']
-    cmds:
-      - task: provision-vm
-        vars:
-          PROVISION_VM: "truenas"

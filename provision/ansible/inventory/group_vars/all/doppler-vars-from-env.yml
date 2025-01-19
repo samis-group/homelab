@@ -61,6 +61,7 @@ proxmox_api_user: "{{ lookup('env', 'PROXMOX_API_USER') }}"
 proxmox_api_pass: "{{ lookup('env', 'PROXMOX_API_PASS') }}"
 proxmox_node: "{{ lookup('env', 'PROXMOX_NODE') }}"
 proxmox_host: "{{ lookup('env', 'PROXMOX_HOST') }}"
+tnas_host: "{{ lookup('env', 'TNAS_HOST') }}"
 proxmox_clone_timeout: "{{ lookup('env', 'PROXMOX_CLONE_TIMEOUT') }}" #seconds that clone job spend change based on logs
 proxmox_mac: "{{ lookup('env', 'PROXMOX_MAC') }}" # MAC address of the proxmox server for WOL
 proxmox_broadcast: "{{ lookup('env', 'PROXMOX_BROADCAST') }}" # broadcast network parameter for WOL
