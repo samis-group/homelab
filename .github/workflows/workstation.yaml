@@ -24,3 +24,4 @@ jobs:
       # run_on_runners: "ubuntu-latest" # Use public runner for public project if you would like
       build_contexts: |
         project=./
+        dockerdir=docker/workstation
