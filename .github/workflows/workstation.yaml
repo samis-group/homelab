@@ -22,3 +22,5 @@ jobs:
       platforms: 'linux/amd64,linux/arm64'
       dockerfile: docker/workstation/Dockerfile
       # run_on_runners: "ubuntu-latest" # Use public runner for public project if you would like
+      build_contexts: |
+        project=./
