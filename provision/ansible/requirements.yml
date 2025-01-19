@@ -10,3 +10,4 @@ collections:
   - name: sami_shakir.public_collection
     source: https://github.com/samis-group/ansible-collections-public
     type: git
+  - name: prometheus.prometheus

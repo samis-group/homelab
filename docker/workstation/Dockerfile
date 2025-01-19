@@ -6,7 +6,7 @@ FROM python:3
 
 # Labels
 LABEL maintainer="Sami Shakir"
-LABEL org.opencontainers.image.source = "https://github.com/samis-group/homelab"
+LABEL org.opencontainers.image.source="https://github.com/samis-group/homelab"
 
 # Ensure apt runs non-interactively due to tzdata package asking for location, argh..
 ARG DEBIAN_FRONTEND=noninteractive
