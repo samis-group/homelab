@@ -47,6 +47,10 @@
 
     - role: ironicbadger.proxmox_nag_removal
     - role: prometheus.prometheus.node_exporter
+    - role: prometheus.prometheus.smartctl_exporter
+    # - role: prometheus.prometheus.process_exporter
+    # - role: prometheus.prometheus.snmp_exporter
+    # - role: prometheus.prometheus.systemd_exporter
     # Run pre-tasks on Proxmox host (Mainly just check connectivity)
     # - role: ../roles/proxmox/pre-tasks
     # - role: ../roles/proxmox/configure-for-lxcs
